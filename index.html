@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#E6E6E8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#08080A" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cockpit">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>PARA Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: floating white sidebar + glass cards on a soft grey studio backdrop; black pills carry state (after the Management Dashboard reference) */
+:root{
+  --bg:#E6E6E8; --bg-hi:#FAFAFB; --panel:rgba(255,255,255,.80); --panel-solid:#FFFFFF;
+  --line:rgba(14,14,16,.08); --line-2:rgba(14,14,16,.16);
+  --ink:#0D0D0F; --on-ink:#FFFFFF; --text:#111113; --muted:#7A7A82; --soft:#F0F0F2;
+  --dark:#0E0E10; --on-dark:#F4F4F5; --dark-muted:#8C8C94; --dark-line:rgba(255,255,255,.12);
+  --sheen:rgba(255,255,255,.16); --sheen2:rgba(255,255,255,.07);
+  --late:#C2412D; --good:#2F7A4E;
+  --shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 18px 40px -24px rgba(20,20,30,.28);
+  --r-lg:28px; --r-md:20px; --r-sm:14px;
+  --f-ui:"Manrope", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --f-num:"JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#08080A; --bg-hi:#1A1A1E; --panel:rgba(22,22,25,.84); --panel-solid:#17171A;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.16);
+  --ink:#F2F2F3; --on-ink:#0D0D0F; --text:#EDEDEF; --muted:#8E8E97; --soft:#222226;
+  --dark:#EDEDEF; --on-dark:#0E0E10; --dark-muted:#5F5F67; --dark-line:rgba(0,0,0,.12);
+  --sheen:rgba(255,255,255,.9); --sheen2:rgba(0,0,0,.05);
+  --late:#FF7A61; --good:#5BC78A;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -24px rgba(0,0,0,.8);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08080A; --bg-hi:#1A1A1E; --panel:rgba(22,22,25,.84); --panel-solid:#17171A;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.16);
+  --ink:#F2F2F3; --on-ink:#0D0D0F; --text:#EDEDEF; --muted:#8E8E97; --soft:#222226;
+  --dark:#EDEDEF; --on-dark:#0E0E10; --dark-muted:#5F5F67; --dark-line:rgba(0,0,0,.12);
+  --sheen:rgba(255,255,255,.9); --sheen2:rgba(0,0,0,.05);
+  --late:#FF7A61; --good:#5BC78A;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -24px rgba(0,0,0,.8);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+[hidden]{display:none!important}
+img{max-width:100%}
+html,body{min-height:100%}
+body{margin:0;font:500 14px/1.45 var(--f-ui);color:var(--text);
+  background:radial-gradient(60% 50% at 78% 8%,var(--bg-hi) 0%,transparent 70%),
+             radial-gradient(45% 40% at 8% 92%,var(--bg-hi) 0%,transparent 70%),var(--bg);
+  background-attachment:fixed}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);gap:20px;padding:16px;max-width:1500px;margin:0 auto}
+.side{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));height:calc(100vh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+  background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);display:flex;flex-direction:column;padding:22px 14px 16px;gap:4px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 10px 22px;font-weight:800;font-size:15px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:10px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:13px;font-weight:800}
+.nav-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 12px 6px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:999px;color:var(--muted);font-weight:600;text-align:left;transition:background .15s,color .15s}
+.nav:hover{color:var(--text);background:var(--soft)}
+.nav.on{background:var(--ink);color:var(--on-ink)}
+.nav .cnt{margin-left:auto;font-size:11px;opacity:.7}
+.side-foot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--good)} .dot.warn{background:var(--late)}
+
+.main{min-width:0;display:flex;flex-direction:column;gap:20px;padding-bottom:40px}
+.top{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:8px 4px 0}
+.top h1{font-size:clamp(28px,3.4vw,40px);line-height:1.05;font-weight:600;letter-spacing:-.035em;margin:0;text-wrap:balance}
+.top .sub{color:var(--muted);font-size:13px;margin-top:8px;display:flex;align-items:center;gap:8px}
+.top-tools{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{position:relative}
+.search input{width:min(280px,60vw);height:44px;border-radius:999px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);padding:0 16px 0 42px;outline:none;box-shadow:var(--shadow)}
+.search input:focus{border-color:var(--line-2)}
+.search > svg{position:absolute;left:15px;top:13px;color:var(--muted)}
+.search-res{position:absolute;right:0;top:52px;width:min(380px,calc(100vw - 32px));background:var(--panel-solid);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:6px;z-index:40;max-height:60vh;overflow:auto}
+.rbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)}
+.rbtn.ink{background:var(--ink);color:var(--on-ink);border-color:transparent}
+.rbtn:hover{transform:translateY(-1px)}
+
+/* ---------- primitives ---------- */
+.card{background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px;min-width:0}
+.card.dark{background:radial-gradient(90% 70% at 88% 0%,var(--sheen) 0%,transparent 55%),radial-gradient(70% 60% at 0% 110%,var(--sheen2) 0%,transparent 60%),var(--dark);color:var(--on-dark);border-color:transparent}
+.card.dark .muted{color:var(--dark-muted)}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.card-h h2{font-size:15px;font-weight:700;margin:0;letter-spacing:-.01em}
+.card-h .grow{flex:1}
+.muted{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);font-size:12px;font-weight:600;white-space:nowrap;background:transparent}
+.pill.on{background:var(--ink);color:var(--on-ink);border-color:transparent}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+button.pill:hover:not(.on){background:var(--soft)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;background:var(--soft);font-size:11.5px;font-weight:600;color:var(--text);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button.chip:hover{background:var(--line-2)}
+.chip.late{color:var(--late)}
+.chip.ex{background:transparent;border:1px dashed var(--line-2);color:var(--muted)}
+.tdot{width:8px;height:8px;border-radius:50%;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-weight:700;font-size:13px;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line-2)}
+.btn.danger{background:var(--late);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.field{width:100%;height:40px;border-radius:12px;border:1px solid var(--line-2);background:var(--panel-solid);padding:0 12px;outline:none}
+.field:focus{border-color:var(--ink)}
+textarea.field{height:auto;padding:10px 12px;resize:vertical;line-height:1.55}
+.add{display:flex;gap:8px;align-items:center;border:1px dashed var(--line-2);border-radius:999px;padding:4px 4px 4px 16px}
+.add input{flex:1;min-width:0;border:0;background:transparent;outline:none;height:34px}
+.empty{padding:22px;border:1px dashed var(--line-2);border-radius:var(--r-md);color:var(--muted);font-size:13px;line-height:1.55}
+.empty b{color:var(--text)}
+.check{width:22px;height:22px;border-radius:50%;border:1.6px solid var(--line-2);display:grid;place-items:center;flex:none;transition:background .15s}
+.check svg{width:13px;height:13px;stroke-width:2.6;opacity:0}
+.check.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.check.on svg{opacity:1}
+.check:hover:not(.on){border-color:var(--ink)}
+
+/* ---------- dashboard ---------- */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.span2{grid-column:span 2}
+.span3{grid-column:1/-1}
+.tl{display:grid;grid-template-columns:150px minmax(0,1fr);row-gap:10px}
+.tl-head{grid-column:2;position:relative;height:18px;font-size:10.5px;color:var(--muted)}
+.tl-head span{position:absolute;top:0;transform:translateX(-0%)}
+.tl-label{font-size:12.5px;color:var(--muted);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:12px;align-self:center}
+.tl-label:hover{color:var(--text)}
+.tl-track{position:relative;height:34px;background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-size:calc(100%/6) 100%}
+.tl-bar{position:absolute;top:2px;height:30px;border-radius:999px;background:var(--ink);color:var(--on-ink);display:flex;align-items:center;gap:8px;padding:0 6px 0 14px;font-size:12px;font-weight:700;min-width:0;overflow:hidden;transition:transform .15s}
+.tl-bar:hover{transform:translateY(-1px)}
+.tl-bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tl-bar em{margin-left:auto;font-style:normal;font-family:var(--f-num);font-size:10.5px;background:var(--on-ink);color:var(--ink);border-radius:999px;padding:3px 7px;flex:none}
+.tl-bar.open{background:transparent;color:var(--text);border:1.5px dashed var(--line-2)}
+.tl-bar.open em{background:var(--soft);color:var(--text)}
+.tl-bar.late{box-shadow:0 0 0 2px var(--late)}
+.tl-today{position:absolute;top:-5px;bottom:-5px;width:0;border-left:1.5px solid var(--late);pointer-events:none;z-index:1}
+.tl-bar{z-index:2}
+.card.dark button.pill:hover{background:rgba(127,127,127,.22)}
+.tl-body{grid-column:1/-1;display:grid;grid-template-columns:150px minmax(0,1fr);row-gap:10px;position:relative}
+.big{font-size:44px;line-height:1;font-weight:600;letter-spacing:-.04em}
+.habit-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.habit-row .t{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.streak{font-size:11px;color:var(--muted);white-space:nowrap}
+.task-row{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 10px;border:1px solid var(--line-2);border-radius:999px;min-width:0}
+.task-row + .task-row{margin-top:8px}
+.task-row .t{flex:1;min-width:0;text-align:left;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-row.done .t{color:var(--muted);text-decoration:line-through}
+.task-row .t{flex:1 1 60%}
+.task-row .chip{flex:0 1 auto;min-width:0}
+.areas{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px}
+.area-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.area-col{border-top:1px solid var(--dark-line);padding-top:12px;text-align:left;min-width:0}
+.area-col b{display:block;font-size:14px;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.area-col .kv{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
+.bars{display:flex;align-items:flex-end;gap:5px;height:120px;border-bottom:1px solid var(--dark-line)}
+.bars i{flex:1;background:var(--on-dark);opacity:.35;border-radius:4px 4px 1px 1px;min-height:3px}
+.bars i.today{opacity:1}
+.recent{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+
+/* ---------- lists ---------- */
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.toolbar .add{flex:1;min-width:220px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.item{display:flex;flex-direction:column;gap:10px;text-align:left;padding:18px;border-radius:var(--r-md);background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);min-width:0;transition:transform .15s}
+.item:hover{transform:translateY(-2px)}
+.item h3{margin:0;font-size:15.5px;font-weight:700;letter-spacing:-.01em;overflow-wrap:anywhere}
+.item p{margin:0;color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.item .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:auto}
+.item .thumb{height:120px;border-radius:12px;background:var(--soft) center/cover no-repeat}
+.prog{height:6px;border-radius:999px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ink);border-radius:999px}
+.rows{display:flex;flex-direction:column}
+.hgrid{display:grid;grid-template-columns:repeat(14,22px);gap:5px}
+.hcell{width:22px;height:22px;border-radius:7px;background:var(--soft);border:1px solid var(--line)}
+.hcell.on{background:var(--ink);border-color:var(--ink)}
+.hcell.today{outline:1.5px solid var(--ink);outline-offset:1px}
+.hrow{display:flex;align-items:center;gap:16px;padding:14px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.hrow .t{flex:1;min-width:160px;text-align:left}
+.hrow .t b{display:block;font-size:15px}
+.set-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.set-row input[type=color]{width:38px;height:38px;border:1px solid var(--line-2);border-radius:12px;padding:3px;background:var(--panel-solid)}
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.55;margin:0 0 12px}
+code{font-family:var(--f-num);font-size:12px;background:var(--soft);padding:1px 5px;border-radius:6px}
+
+/* ---------- detail drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(10,10,12,.28);backdrop-filter:blur(2px);z-index:50}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--panel-solid);z-index:51;display:flex;flex-direction:column;
+  border-left:1px solid var(--line);box-shadow:-30px 0 60px -30px rgba(0,0,0,.35);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.d-head{display:flex;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.d-head .grow{flex:1}
+.d-scroll{overflow:auto;padding:18px 22px 40px;display:flex;flex-direction:column;gap:22px}
+.d-title{width:100%;border:0;outline:none;background:transparent;font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;resize:none;padding:0;overflow:hidden}
+.d-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.d-fields label,.sec-l{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+.d-body{min-height:160px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec-h{display:flex;align-items:center;gap:8px}
+.sec-h .sec-l{margin:0;flex:1}
+.rel-group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.rel-group > span{font-size:12px;color:var(--muted);width:100%}
+.relchip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line-2);border-radius:999px;padding:0 4px 0 10px;height:30px;font-size:12.5px;font-weight:600;max-width:100%}
+.relchip button.o{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.relchip button.x{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.relchip button.x:hover{background:var(--soft);color:var(--text)}
+.relchip button.x svg{width:13px;height:13px}
+.picker{border:1px solid var(--line-2);border-radius:var(--r-sm);padding:10px;display:flex;flex-direction:column;gap:8px}
+.pick-res{display:flex;flex-direction:column;max-height:240px;overflow:auto}
+.res{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;text-align:left;width:100%}
+.res:hover{background:var(--soft)}
+.res .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.res small{color:var(--muted);font-size:11px}
+.lrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);min-width:0}
+.lrow .t{flex:1;min-width:0}
+.lrow .t a,.lrow .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.lrow .t small{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow img{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
+.ibtn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted);flex:none;text-decoration:none}
+.ibtn:hover{background:var(--soft);color:var(--text)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal button{aspect-ratio:1;max-width:100%;border-radius:10px;background:var(--soft);font-size:11px;color:var(--muted);border:1px solid var(--line)}
+.cal button.on{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.cal button.today{outline:1.5px solid var(--ink);outline-offset:1px}
+.confirm{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-radius:var(--r-sm);background:var(--soft);font-size:13px}
+
+/* ---------- new dialog / toast ---------- */
+.modal{position:fixed;left:50%;top:14vh;transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:var(--panel-solid);border-radius:var(--r-lg);z-index:52;padding:22px;box-shadow:0 30px 80px -30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;border:1px solid var(--line)}
+.modal h2{margin:0;font-size:18px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:999px;font-weight:600;font-size:13px;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.banner{display:flex;gap:10px;align-items:center;padding:12px 16px;border-radius:var(--r-md);background:var(--panel);border:1px dashed var(--line-2);font-size:13px;color:var(--muted)}
+
+/* ---------- login ---------- */
+body.auth .side,body.auth .bottom{display:none}
+body.auth .app{grid-template-columns:minmax(0,1fr)}
+.login{min-height:calc(100vh - 80px);display:grid;place-items:center;padding-block:24px}
+.login-card{width:min(420px,100%);padding:30px}
+.login-h{font-size:30px;letter-spacing:-.035em;margin:0 0 8px;font-weight:600}
+.login-form{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.login-form .field{height:46px;margin-bottom:8px;font-size:16px}
+.login-form .btn{height:48px;margin-top:6px}
+.l-msg{font-size:13px;color:var(--late)}
+.top .sub{flex-wrap:wrap}
+
+/* ---------- mobile ---------- */
+.bottom{display:none}
+@media (max-width:1100px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .span2{grid-column:1/-1}
+  .areas{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr);padding:16px 16px 0}
+  .side{position:fixed;z-index:45;left:12px;top:calc(12px + env(safe-area-inset-top,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));height:auto;width:250px;transform:translateX(-120%);transition:transform .22s}
+  .side.open{transform:none}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .main{padding-bottom:110px}
+  .bottom{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:44;background:var(--panel-solid);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);padding:6px;justify-content:space-between}
+  .bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:var(--muted);padding:6px 0;border-radius:999px}
+  .bottom button.on{background:var(--ink);color:var(--on-ink)}
+  .tl,.tl-body{grid-template-columns:minmax(0,1fr)}
+  .tl-label{display:none}
+  .tl-head{grid-column:1}
+  .set-grid{grid-template-columns:minmax(0,1fr)}
+  .hgrid{grid-template-columns:repeat(7,22px)}
+  .hgrid .hcell.old{display:none}
+  .search input{width:min(220px,52vw)}
+}
+@media (max-width:480px){
+  .top-tools{margin-left:0;width:100%}
+  .search{flex:1}
+  .search input{width:100%}
+  .card{padding:18px}
+}
+</style>
+<style id="user-css"></style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <main class="main" id="main" aria-live="polite"></main>
+</div>
+<nav class="bottom" id="bottom"></nav>
+<div id="overlay"></div>
+<div id="toast-wrap"></div>
+
+<script src="supabase.js"></script>
+<script>
+(function(){
+"use strict";
+// Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
+const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
+/* ================= helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, "0");
+const dkey = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const parseKey = k => { const [y, m, d] = String(k).split("-").map(Number); return new Date(y, m - 1, d); };
+const fmtDay = k => k ? parseKey(k).toLocaleDateString("de-DE", {day:"numeric", month:"short"}) : "";
+const fmtTs = t => t ? new Date(t).toLocaleDateString("de-DE", {day:"numeric", month:"short", year:"numeric"}) : "";
+const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1).replace(".", ",") + " MB" : Math.max(1, Math.round(b/1024)) + " KB";
+const today0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+function isoWeek(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / 864e5 + 1) / 7); }
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const P = {
+  home:"M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10",
+  task:"M4 4h16v16H4zM8 12l3 3 5-6",
+  habit:"M12 3c2.5 3 5 5.5 5 10a5 5 0 0 1-10 0c0-2.4 1.2-4 2.4-5.2.4 1.8 1.3 2.8 2.6 3.2-.4-2.8-.6-5.3 0-8z",
+  project:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12h.01",
+  area:"M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5",
+  resource:"M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zM4 20a2 2 0 0 0 2 1h13v-3M8 7h7M8 10.5h5",
+  note:"M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
+  folder:"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+  archive:"M3 4h18v4H3zM5 8v12h14V8M10 12h4",
+  settings:"M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4",
+  plus:"M12 5v14M5 12h14", search:"M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4",
+  close:"M6 6l12 12M18 6L6 18", check:"M5 12.5l4.5 4.5L19 7",
+  link:"M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
+  file:"M6 3h8l5 5v13H6zM14 3v5h5", download:"M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14",
+  trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13", menu:"M4 7h16M4 12h16M4 17h16",
+  ext:"M14 4h6v6M20 4l-9 9M18 14v6H4V6h6", moon:"M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
+  more:"M5 12h.01M12 12h.01M19 12h.01", restore:"M4 12a8 8 0 1 0 2.3-5.6L4 8.7M4 4v4.7h4.7", upload:"M12 20V9M7.5 13.5L12 9l4.5 4.5M5 4h14"
+};
+const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
+
+/* ================= model ================= */
+const BASE = {
+  task:     {label:"Aufgabe",    plural:"Aufgaben",          icon:"task"},
+  habit:    {label:"Gewohnheit", plural:"Gewohnheiten",      icon:"habit"},
+  project:  {label:"Projekt",    plural:"Projekte & Ziele",  icon:"project"},
+  area:     {label:"Bereich",    plural:"Bereiche",          icon:"area"},
+  resource: {label:"Ressource",  plural:"Ressourcen",        icon:"resource"},
+  note:     {label:"Notiz",      plural:"Notizen",           icon:"note"},
+};
+const DEFAULT_SETTINGS = {
+  topics: [
+    {id:"rezept", name:"Rezept", color:"#C9772B"},
+    {id:"ernaehrung", name:"Ernährung", color:"#4F8A55"},
+    {id:"fitness", name:"Fitness", color:"#3E6FB0"},
+    {id:"lernen", name:"Lernen", color:"#8A5BB5"},
+    {id:"werkzeug", name:"Werkzeug", color:"#6B6B73"},
+  ],
+  kinds: [], css: "", theme: "system"
+};
+const PSTATUS = {aktiv:"Aktiv", geplant:"Geplant", pausiert:"Pausiert", erledigt:"Erledigt"};
+
+const S = {
+  items: new Map(), settings: clone(DEFAULT_SETTINGS),
+  view: "dashboard", filter: {}, open: null, picker: false, confirmDel: null,
+  mode: "boot", user: null, authMode: "login", dirty: new Set(), tombs: new Set(), settingsDirty: false, cursor: null, syncing: false, online: navigator.onLine, urls: {}, newKind: "task",
+};
+function kinds(){ const k = {...BASE}; for (const c of S.settings.kinds || []) k[c.id] = {label:c.label, plural:c.label, icon:"folder", custom:true}; return k; }
+const kindOf = it => kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
+const all = () => [...S.items.values()];
+const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
+const topic = id => (S.settings.topics || []).find(t => t.id === id);
+function related(id){
+  const it = S.items.get(id); if (!it) return [];
+  const ids = new Set((it.rel || []).filter(r => S.items.has(r)));
+  for (const o of all()) if (o.id !== id && (o.rel || []).includes(id)) ids.add(o.id);
+  return [...ids].map(r => S.items.get(r));
+}
+function progress(p){ const ts = related(p.id).filter(r => r.kind === "task" && !r.archived); return {done: ts.filter(t => t.done).length, total: ts.length}; }
+function streak(h){ const log = h.log || {}; let d = today0(); if (!log[dkey(d)]) d = addDays(d, -1); let n = 0; while (log[dkey(d)]) { n++; d = addDays(d, -1); } return n; }
+function weekCount(h){ const log = h.log || {}; const t = today0(); const mon = addDays(t, -((t.getDay()+6)%7)); let n = 0; for (let i = 0; i < 7; i++) if (log[dkey(addDays(mon, i))]) n++; return n; }
+
+/* ================= store: erst auf dem Gerät speichern, dann mit Supabase abgleichen ================= */
+const idb = (() => {
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => { const r = indexedDB.open("para-cockpit", 1); r.onupgradeneeded = () => r.result.createObjectStore("kv"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+  const run = (mode, fn) => open().then(db => new Promise((res, rej) => { const tx = db.transaction("kv", mode); const req = fn(tx.objectStore("kv")); tx.oncomplete = () => res(req.result); tx.onerror = () => rej(tx.error); }));
+  return { get: k => run("readonly", s => s.get(k)), set: (k, v) => run("readwrite", s => s.put(v, k)) };
+})();
+const sb = (CONFIG.url && CONFIG.key && window.supabase) ? window.supabase.createClient(CONFIG.url, CONFIG.key, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:false}}) : null;
+const LAST = "para-cockpit.lastUser";
+let saveT = null, syncT = null;
+const stateKey = () => "state:" + (S.user ? S.user.id : "local");
+const snapshot = () => ({items:Object.fromEntries(S.items), settings:S.settings, dirty:[...S.dirty], tombs:[...S.tombs], settingsDirty:S.settingsDirty, cursor:S.cursor, lastSync:S.lastSync});
+
+async function loadLocal(){
+  try {
+    const j = await idb.get(stateKey()) || {};
+    S.items = new Map(Object.entries(j.items || {}));
+    S.settings = {...clone(DEFAULT_SETTINGS), ...(j.settings || {})};
+    S.dirty = new Set(j.dirty || []); S.tombs = new Set(j.tombs || []);
+    S.settingsDirty = !!j.settingsDirty; S.cursor = j.cursor || null; S.lastSync = j.lastSync || null;
+  } catch(e) { toast("Speicher auf dem Gerät nicht verfügbar. Ist der private Modus an?"); }
+}
+function saveLocal(){
+  clearTimeout(saveT);
+  saveT = setTimeout(() => { idb.set(stateKey(), snapshot()).catch(() => toast("Speichern auf dem Gerät fehlgeschlagen.")); }, 250);
+}
+function scheduleSync(ms = 1200){ clearTimeout(syncT); syncT = setTimeout(sync, ms); }
+function persist(it, delay = 0){
+  it.updated = Date.now(); S.items.set(it.id, it); S.dirty.add(it.id); S.tombs.delete(it.id);
+  saveLocal(); scheduleSync(Math.max(1200, delay + 800)); renderStatus();
+}
+function removeItem(id){ S.items.delete(id); S.tombs.add(id); S.dirty.add(id); saveLocal(); scheduleSync(); renderStatus(); }
+function saveSettings(delay = 400){
+  S.settings.updated = Date.now(); S.settingsDirty = true; saveLocal(); scheduleSync(delay + 800); applySettings(); renderStatus();
+}
+function create(kind, title, extra = {}){
+  const now = Date.now();
+  const it = {id: uid(), kind, title: title || "", body: "", rel: [], links: [], files: [], archived: false, created: now, updated: now, ...extra};
+  if (kind === "task") Object.assign(it, {done: false, due: extra.due || "", prio: "normal"});
+  if (kind === "project") Object.assign(it, {status: extra.status || "aktiv", start: dkey(), due: extra.due || ""});
+  if (kind === "habit") Object.assign(it, {log: {}, target: 7});
+  if (kind === "resource") Object.assign(it, {topic: extra.topic || ""});
+  persist(it); return it;
+}
+
+async function sync(){
+  clearTimeout(syncT);
+  if (!sb || !S.user || S.syncing || S.mode !== "app") return;
+  if (!navigator.onLine) { S.online = false; renderStatus(); return; }
+  S.syncing = true; renderStatus();
+  const before = banner(); const me = S.user.id;
+  try {
+    const rows = [];
+    for (const id of [...S.dirty]) {
+      if (S.tombs.has(id)) rows.push({user_id:me, id, data:{}, updated_at:Date.now(), deleted:true});
+      else if (S.items.has(id)) { const it = S.items.get(id); rows.push({user_id:me, id, data:clone(it), updated_at:it.updated || Date.now(), deleted:false}); }
+      else S.dirty.delete(id);
+    }
+    if (S.settingsDirty) rows.push({user_id:me, id:"__settings", data:clone(S.settings), updated_at:S.settings.updated || Date.now(), deleted:false});
+    for (let i = 0; i < rows.length; i += 200) {
+      const {error} = await sb.from("items").upsert(rows.slice(i, i + 200), {onConflict:"user_id,id"});
+      if (error) throw error;
+    }
+    for (const r of rows) {
+      if (r.id === "__settings") { if ((S.settings.updated || 0) === r.updated_at) S.settingsDirty = false; continue; }
+      const cur = S.items.get(r.id);
+      if (r.deleted ? (!cur && S.tombs.has(r.id)) : (cur && cur.updated === r.updated_at)) { S.dirty.delete(r.id); S.tombs.delete(r.id); }
+    }
+    let since = S.cursor ? new Date(Date.parse(S.cursor) - 5000).toISOString() : null, changed = false;
+    for (let page = 0; page < 50; page++) {
+      let q = sb.from("items").select("id,data,updated_at,deleted,synced_at").order("synced_at", {ascending:true}).limit(1000);
+      if (since) q = q.gt("synced_at", since);
+      const {data, error} = await q;
+      if (error) throw error;
+      for (const r of data) {
+        if (r.id === "__settings") {
+          const next = {...clone(DEFAULT_SETTINGS), ...r.data};
+          if (!S.settingsDirty && JSON.stringify(S.settings) !== JSON.stringify(next)) { S.settings = next; changed = true; }
+          continue;
+        }
+        if (S.dirty.has(r.id)) { const loc = S.items.get(r.id); if (S.tombs.has(r.id) || (loc && (loc.updated || 0) >= r.updated_at)) continue; S.dirty.delete(r.id); }
+        if (r.deleted) { if (S.items.delete(r.id)) changed = true; continue; }
+        const loc = S.items.get(r.id);
+        if (!loc || loc.updated !== r.data.updated) { S.items.set(r.id, {...r.data, id:r.id}); changed = true; }
+      }
+      if (data.length) { S.cursor = data[data.length - 1].synced_at; since = S.cursor; }
+      if (data.length < 1000) break;
+    }
+    S.lastSync = Date.now(); S.syncError = null; S.online = true; S.needLogin = false;
+    saveLocal();
+    if (changed) { applySettings(); renderMain(); renderSide(); refreshDetail(); }
+  } catch(e) {
+    const msg = (e && (e.message || e.error_description)) || String(e || "");
+    if ((e && (e.status === 401 || e.code === "PGRST301")) || /JWT|not authenticated|refresh token/i.test(msg)) S.needLogin = true;
+    else if (!navigator.onLine || /fetch|network|load failed/i.test(msg)) S.online = false;
+    else S.syncError = msg || "Unbekannter Fehler";
+  } finally {
+    S.syncing = false; renderStatus();
+    if (banner() !== before) renderMain();
+    if ((S.dirty.size || S.settingsDirty) && !S.needLogin && !S.syncError) scheduleSync(8000);
+  }
+}
+function pendingCount(){ return S.dirty.size + (S.settingsDirty ? 1 : 0); }
+function statusInfo(){
+  if (!sb) return ["warn", "Nicht eingerichtet"];
+  if (S.needLogin) return ["warn", "Bitte neu anmelden"];
+  if (!S.online || !navigator.onLine) return ["warn", pendingCount() ? `Offline · ${pendingCount()} wartet` : "Offline"];
+  if (S.syncing) return ["", "Gleiche ab …"];
+  if (S.syncError) return ["warn", "Abgleich fehlgeschlagen"];
+  if (pendingCount()) return ["", "Speichert …"];
+  return ["ok", "Synchronisiert"];
+}
+function renderStatus(){
+  const [c, t] = statusInfo();
+  for (const id of ["side-status", "hdr-status"]) { const n = document.getElementById(id); if (n) n.innerHTML = `<span class="dot ${c}"></span>${esc(t)}`; }
+}
+
+/* --- Anmeldung --- */
+async function boot(){
+  if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (!sb) { S.mode = "setup"; render(); return; }
+  let last = null; try { last = JSON.parse(localStorage.getItem(LAST) || "null"); } catch(e){}
+  if (last && last.id) { S.user = last; await loadLocal(); S.mode = "app"; applySettings(); render(); }
+  else { S.mode = "login"; render(); }
+  sb.auth.onAuthStateChange((ev, session) => { if (ev === "SIGNED_IN" && session) setTimeout(() => onSignedIn(session.user), 0); });
+  try {
+    const {data} = await sb.auth.getSession();
+    if (data && data.session) onSignedIn(data.session.user);
+    else if (S.mode === "app" && navigator.onLine) { S.needLogin = true; renderStatus(); renderMain(); }
+  } catch(e) {}
+}
+async function onSignedIn(user){
+  const u = {id:user.id, email:user.email};
+  const fresh = !S.user || S.user.id !== u.id || S.mode !== "app";
+  try { localStorage.setItem(LAST, JSON.stringify(u)); } catch(e){}
+  S.user = u; S.needLogin = false;
+  if (fresh) { await loadLocal(); S.mode = "app"; applySettings(); render(); }
+  sync();
+}
+async function logout(){
+  clearTimeout(saveT);
+  await idb.set(stateKey(), snapshot()).catch(() => {});
+  try { await sb.auth.signOut(); } catch(e){}
+  try { localStorage.removeItem(LAST); } catch(e){}
+  S.user = null; S.items = new Map(); S.settings = clone(DEFAULT_SETTINGS); S.mode = "login"; S.authMode = "login"; applySettings(); closeOverlay(); render();
+}
+function authMsg(e){
+  const m = (e && e.message) || "";
+  if (/Invalid login/i.test(m)) return "E-Mail oder Passwort stimmt nicht.";
+  if (/already registered/i.test(m)) return "Für diese E-Mail gibt es schon ein Konto. Melde dich an.";
+  if (/Password should/i.test(m)) return "Das Passwort ist zu kurz.";
+  if (/Signups not allowed|signup.*disabled/i.test(m)) return "Neue Konten sind gesperrt.";
+  if (/Email not confirmed/i.test(m)) return "Bitte bestätige zuerst den Link in deiner E-Mail.";
+  if (/rate limit/i.test(m)) return "Zu viele Versuche. Warte kurz und versuch es nochmal.";
+  if (/fetch|network|load failed/i.test(m)) return "Keine Verbindung. Prüf dein Internet.";
+  return m || "Anmeldung fehlgeschlagen.";
+}
+function loginHTML(){
+  const reg = S.authMode === "signup";
+  return `<div class="login"><div class="card login-card">
+    <div class="brand" style="padding:0 0 22px"><span class="brand-mark">P</span>PARA Cockpit</div>
+    <h1 class="login-h">${reg ? "Konto erstellen" : "Anmelden"}</h1>
+    <p class="hint">${reg ? "Einmalig: deine E-Mail und ein Passwort mit mindestens 8 Zeichen." : "Mit E-Mail und Passwort. Danach funktioniert die App auch ohne Internet."}</p>
+    <form id="login-form" class="login-form" novalidate>
+      <label class="sec-l" for="l-email">E-Mail</label><input class="field" id="l-email" type="email" autocomplete="email" inputmode="email" value="${esc((S.user && S.user.email) || "")}">
+      <label class="sec-l" for="l-pass">Passwort</label><input class="field" id="l-pass" type="password" autocomplete="${reg ? "new-password" : "current-password"}">
+      <div id="l-msg" class="l-msg" role="alert"></div>
+      <button class="btn" type="submit" id="l-btn">${reg ? "Konto erstellen" : "Anmelden"}</button>
+    </form>
+    <button class="pill" data-act="auth-toggle">${reg ? "Ich habe schon ein Konto" : "Neues Konto erstellen"}</button>
+    ${navigator.onLine ? "" : `<p class="hint" style="margin-top:14px">Du bist offline. Für die erste Anmeldung auf einem Gerät brauchst du Internet.</p>`}
+  </div></div>`;
+}
+function setupHTML(){
+  return `<div class="login"><div class="card login-card"><h1 class="login-h">Fast fertig</h1><p class="hint">In der App fehlen noch die Supabase-Zugangsdaten (Project URL und Publishable Key). Claude trägt sie ein, sobald du sie schickst.</p></div></div>`;
+}
+
+function applySettings(){
+  $("#user-css").textContent = S.settings.css || "";
+  const t = S.settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+}
+
+/* ================= navigation ================= */
+function navItems(){
+  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}];
+  for (const id of ["task","habit","project","area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
+  for (const c of S.settings.kinds || []) out.push({v:c.id, label:c.label, icon:"folder"});
+  out.push({v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"});
+  return out;
+}
+function go(v){ S.view = v; $("#side").classList.remove("open"); render(); window.scrollTo({top:0}); }
+
+function renderSide(){
+  const counts = {};
+  for (const i of live()) if (!(i.kind === "task" && i.done)) counts[i.kind] = (counts[i.kind] || 0) + 1;
+  const items = navItems();
+  $("#side").innerHTML = `
+    <div class="brand"><span class="brand-mark">P</span>PARA Cockpit</div>
+    ${items.map((n, i) => `${i === 1 ? '<div class="nav-label">Umsetzung</div>' : ""}${n.v === "area" ? '<div class="nav-label">Wissen</div>' : ""}${n.v === "archive" ? '<div class="nav-label">System</div>' : ""}
+      <button class="nav ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`).join("")}
+    <div class="side-foot" id="side-status"></div>`;
+  const bottom = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"resource", label:"Wissen", icon:"resource"}];
+  $("#bottom").innerHTML = bottom.map(b => `<button class="${S.view === b.v ? "on" : ""}" data-go="${b.v}">${ic(b.icon)}${b.label}</button>`).join("") +
+    `<button data-act="menu">${ic("menu")}Mehr</button>`;
+  renderStatus();
+}
+
+/* ================= main views ================= */
+function header(title, sub){
+  return `<div class="top">
+    <div><h1>${esc(title)}</h1><div class="sub">${sub || ""}${S.mode === "app" ? '<span class="chip" id="hdr-status"></span>' : ""}</div></div>
+    <div class="top-tools">
+      <div class="search">${ic("search")}<input id="q" data-keep type="search" placeholder="Alles durchsuchen …" autocomplete="off" aria-label="Suche"><div id="search-res"></div></div>
+      <button class="rbtn" data-act="theme" title="Hell / Dunkel umschalten" aria-label="Hell oder dunkel">${ic("moon")}</button>
+      <button class="rbtn ink" data-act="new" title="Neuer Eintrag" aria-label="Neuer Eintrag">${ic("plus")}</button>
+    </div></div>`;
+}
+function renderMain(){
+  const main = $("#main");
+  const a = document.activeElement; const fid = a && a.id && main.contains(a) ? a.id : null;
+  let ss = null, se = null; try { ss = a.selectionStart; se = a.selectionEnd; } catch(e){}
+  const keep = {}; main.querySelectorAll("[data-keep]").forEach(n => { if (n.id) keep[n.id] = n.value; });
+  main.innerHTML = viewHTML();
+  for (const [id, v] of Object.entries(keep)) { const n = document.getElementById(id); if (n) n.value = v; }
+  if (fid) { const n = document.getElementById(fid); if (n) { n.focus({preventScroll:true}); try { if (ss != null) n.setSelectionRange(ss, se); } catch(e){} } }
+  if (keep.q) searchRender(keep.q);
+  renderStatus();
+}
+function banner(){
+  if (S.needLogin) return `<div class="banner"><span class="dot warn"></span><span>Deine Anmeldung ist abgelaufen. Alles bleibt auf dem Gerät gespeichert, bis du dich neu anmeldest.</span><button class="btn" style="margin-left:auto" data-act="relogin">Neu anmelden</button></div>`;
+  if (S.syncError) return `<div class="banner"><span class="dot warn"></span><span>Abgleich fehlgeschlagen (${esc(S.syncError)}). Deine Daten sind auf dem Gerät sicher.</span><button class="btn ghost" style="margin-left:auto" data-act="sync">Erneut versuchen</button></div>`;
+  return "";
+}
+function viewHTML(){
+  if (S.mode === "boot") return "";
+  if (S.mode === "login") return loginHTML();
+  if (S.mode === "setup") return setupHTML();
+  const v = S.view;
+  if (v === "dashboard") return dashboardHTML();
+  if (v === "task") return tasksHTML();
+  if (v === "habit") return habitsHTML();
+  if (v === "project") return projectsHTML();
+  if (v === "area") return areasHTML();
+  if (v === "resource") return resourcesHTML();
+  if (v === "archive") return archiveHTML();
+  if (v === "settings") return settingsHTML();
+  return notesHTML(v);
+}
+function dateLine(){ const d = new Date(); return `${d.toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})} · <span class="num">KW ${isoWeek(d)}</span>`; }
+function greet(){ const h = new Date().getHours(); return h < 11 ? "Guten Morgen" : h < 18 ? "Guten Tag" : "Guten Abend"; }
+
+/* --- dashboard --- */
+function dashboardHTML(){
+  const tk = dkey();
+  const open = live("task").filter(t => !t.done);
+  const dueToday = open.filter(t => t.due && t.due <= tk).length;
+  return header(greet(), `${dateLine()} · ${dueToday ? `<span class="chip late num">${dueToday} fällig</span>` : `<span class="chip">Nichts überfällig</span>`}`) + banner() + `
+  <div class="grid">
+    <section class="card span2">${timelineHTML()}</section>
+    <section class="card">${habitCardHTML()}</section>
+    <section class="card">${nextTasksHTML(open)}</section>
+    <section class="card dark span2">${areasCardHTML()}</section>
+    <section class="card span3">${recentHTML()}</section>
+  </div>`;
+}
+function timelineHTML(){
+  const t = today0(); const start = addDays(t, -((t.getDay()+6)%7)); const DAYS = 42; const end = addDays(start, DAYS);
+  const pct = d => Math.max(0, Math.min(100, (d - start) / (end - start) * 100));
+  const projs = live("project").filter(p => (p.status || "aktiv") !== "erledigt")
+    .sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999")).slice(0, 7);
+  const nowL = pct(t) + 50 / DAYS;
+  const ticks = Array.from({length:6}, (_, w) => `<span class="num" style="left:${w/6*100}%">KW ${isoWeek(addDays(start, w*7))}</span>`).join("");
+  const rows = projs.map(p => {
+    const s = p.start ? parseKey(p.start) : new Date(p.created || Date.now());
+    const e = p.due ? addDays(parseKey(p.due), 1) : null;
+    let left = pct(s), right = e ? pct(e) : 100;
+    if (right - left < 14) { left = Math.min(left, 86); right = left + 14; }
+    const late = e && e <= t; const pr = progress(p);
+    return `<button class="tl-label" data-open="${p.id}" title="${esc(p.title)}">${esc(p.title || "Ohne Titel")}</button>
+      <div class="tl-track"><i class="tl-today" style="left:${nowL}%"></i><button class="tl-bar ${e ? "" : "open"} ${late ? "late" : ""}" style="left:${left}%;width:${right-left}%" data-open="${p.id}" title="${esc(p.title)}${p.due ? " · bis " + fmtDay(p.due) : " · ohne Enddatum"}">
+        <span>${esc(p.title || "Ohne Titel")}</span><em>${pr.total ? `${pr.done}/${pr.total}` : PSTATUS[p.status] || "Aktiv"}</em></button></div>`;
+  }).join("");
+  return `<div class="card-h"><h2>Projekte &amp; Ziele</h2><span class="grow"></span><button class="pill" data-go="project">Alle ansehen</button></div>
+    ${projs.length ? `<div class="tl"><div class="tl-head">${ticks}</div><div class="tl-body">${rows}</div></div>`
+      : `<div class="empty"><b>Noch keine aktiven Projekte.</b><br>Lege ein Projekt oder Ziel mit Enddatum an. Es erscheint dann hier auf der Zeitleiste der nächsten sechs Wochen.</div>`}`;
+}
+function habitCardHTML(){
+  const hs = live("habit"); const tk = dkey();
+  const done = hs.filter(h => (h.log || {})[tk]).length;
+  const rate = hs.length ? done / hs.length * 100 : 0;
+  const pts = Array.from({length:14}, (_, i) => { const k = dkey(addDays(today0(), i - 13)); return hs.length ? hs.filter(h => (h.log || {})[k]).length / hs.length : 0; });
+  const W = 220, H = 56; const xy = pts.map((v, i) => [i / 13 * W, H - 4 - v * (H - 8)]);
+  const line = xy.map(p => p.map(n => n.toFixed(1)).join(",")).join(" ");
+  const spark = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" aria-label="Verlauf der letzten 14 Tage">
+    <line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" stroke="var(--line-2)" stroke-dasharray="2 4"/>
+    <polygon points="0,${H} ${line} ${W},${H}" fill="var(--ink)" fill-opacity=".07"/>
+    <polyline points="${line}" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${xy[13][0]}" cy="${xy[13][1]}" r="3.5" fill="var(--ink)"/></svg>`;
+  return `<div class="card-h"><h2>Gewohnheiten heute</h2><span class="grow"></span><button class="pill" data-go="habit">Alle</button></div>
+    ${hs.length ? `<div style="display:flex;align-items:flex-end;gap:10px"><span class="big num">${rate.toFixed(0)}%</span><span class="muted" style="padding-bottom:4px">${done} von ${hs.length} erledigt</span></div>
+      <div style="margin:12px 0 6px">${spark}</div><div class="muted" style="font-size:11px;margin-bottom:6px">Letzte 14 Tage</div>
+      ${hs.slice(0, 6).map(h => { const on = (h.log || {})[tk]; const s = streak(h);
+        return `<div class="habit-row"><button class="check ${on ? "on" : ""}" data-act="hday" data-id="${h.id}" data-day="${tk}" aria-label="${esc(h.title)} heute abhaken">${ic("check")}</button>
+        <button class="t" data-open="${h.id}">${esc(h.title)}</button><span class="streak num">${s ? s + " Tage in Folge" : ""}</span></div>`; }).join("")}`
+      : `<div class="empty"><b>Noch keine Gewohnheiten.</b><br>Lege z. B. „10 Min. lesen“ oder „2 Liter Wasser“ an und hake sie hier jeden Tag ab.</div>`}`;
+}
+function nextTasksHTML(open){
+  const tk = dkey();
+  const list = open.slice().sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999") || (b.prio === "hoch") - (a.prio === "hoch")).slice(0, 6);
+  return `<div class="card-h"><h2>Als Nächstes</h2><span class="grow"></span><span class="pill num">${open.length} offen</span></div>
+    ${list.map(t => taskRow(t, tk)).join("") || `<div class="empty" style="margin-bottom:12px">Keine offenen Aufgaben. Schreib unten die nächste hinein.</div>`}
+    <div class="add" style="margin-top:12px"><input id="dash-add" data-keep placeholder="Aufgabe hinzufügen …" aria-label="Neue Aufgabe"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="dash-add" aria-label="Hinzufügen">${ic("plus")}</button></div>`;
+}
+function taskRow(t, tk = dkey()){
+  const projs = related(t.id).filter(r => r.kind === "project").slice(0, 1);
+  const late = t.due && t.due < tk && !t.done;
+  return `<div class="task-row ${t.done ? "done" : ""}"><button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button>
+    <button class="t" data-open="${t.id}">${t.prio === "hoch" ? "<b>!</b> " : ""}${esc(t.title || "Ohne Titel")}</button>
+    ${projs.map(p => `<span class="chip" style="max-width:110px">${esc(p.title)}</span>`).join("")}
+    ${t.due ? `<span class="chip num ${late ? "late" : ""}">${t.due === tk ? "Heute" : fmtDay(t.due)}</span>` : ""}</div>`;
+}
+function areasCardHTML(){
+  const areas = live("area").slice(0, 4);
+  const counts = a => { const r = related(a.id).filter(x => !x.archived); return {p:r.filter(x => x.kind === "project").length, t:r.filter(x => x.kind === "task" && !x.done).length, w:r.filter(x => x.kind === "resource" || x.kind === "note").length}; };
+  const days = Array.from({length:14}, (_, i) => dkey(addDays(today0(), i - 13)));
+  const per = days.map(k => all().filter(t => t.kind === "task" && t.done && t.doneAt && dkey(new Date(t.doneAt)) === k).length);
+  const max = Math.max(1, ...per); const total = per.reduce((a, b) => a + b, 0);
+  return `<div class="areas"><div style="min-width:0">
+      <div class="card-h"><h2>Bereiche</h2><span class="pill num" style="border-color:var(--dark-line)">${live("area").length}</span><span class="grow"></span><button class="pill" style="border-color:var(--dark-line)" data-go="area">Öffnen</button></div>
+      ${areas.length ? `<div class="area-cols">${areas.map(a => { const c = counts(a); return `<button class="area-col" data-open="${a.id}"><b>${esc(a.title)}</b>
+        <div class="kv"><span class="muted">Projekte</span><span class="num">${c.p}</span></div>
+        <div class="kv"><span class="muted">Offene Aufgaben</span><span class="num">${c.t}</span></div>
+        <div class="kv"><span class="muted">Wissen</span><span class="num">${c.w}</span></div></button>`; }).join("")}</div>`
+        : `<p class="muted" style="margin:0;line-height:1.6">Bereiche sind Lebensfelder ohne Enddatum, z. B. Gesundheit, Finanzen oder Business. Verknüpfe Projekte, Aufgaben und Ressourcen damit.</p>`}
+    </div><div style="min-width:0">
+      <div class="card-h"><h2>Erledigt</h2><span class="grow"></span><span class="muted num" style="font-size:12px">${total} in 14 Tagen</span></div>
+      <div class="bars" aria-label="Erledigte Aufgaben pro Tag">${per.map((n, i) => `<i class="${i === 13 ? "today" : ""}" style="height:${Math.max(3, n / max * 100)}%" title="${fmtDay(days[i])}: ${n}"></i>`).join("")}</div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-top:6px" class="muted num"><span>${fmtDay(days[0])}</span><span>Heute</span></div>
+    </div></div>`;
+}
+function recentHTML(){
+  const list = live().filter(i => ["resource","note"].includes(i.kind) || kinds()[i.kind]?.custom).sort((a, b) => b.updated - a.updated).slice(0, 4);
+  return `<div class="card-h"><h2>Zuletzt im Wissensspeicher</h2><span class="grow"></span><button class="pill" data-go="resource">Ressourcen</button><button class="pill" data-go="note">Notizen</button></div>
+    ${list.length ? `<div class="recent">${list.map(itemCard).join("")}</div>` : `<div class="empty"><b>Hier landet dein Wissen.</b><br>Speichere Rezepte, Artikel, Kursunterlagen oder Gedanken als Ressource oder Notiz und verknüpfe sie mit deinen Projekten.</div>`}`;
+}
+function itemCard(i){
+  const k = kindOf(i); const tp = i.kind === "resource" ? topic(i.topic) : null;
+  const img = (i.files || []).find(f => (f.type || "").startsWith("image/")); const imgUrl = img ? fileUrl(img) : "";
+  const metaBits = [];
+  if (tp) metaBits.push(`<span class="chip"><span class="tdot" style="background:${esc(tp.color)}"></span>${esc(tp.name)}</span>`);
+  else metaBits.push(`<span class="chip">${ic(k.icon)}${esc(k.label)}</span>`);
+  if ((i.links || []).length) metaBits.push(`<span class="chip num">${ic("link")}${i.links.length}</span>`);
+  if ((i.files || []).length) metaBits.push(`<span class="chip num">${ic("file")}${i.files.length}</span>`);
+  const rc = related(i.id).length; if (rc) metaBits.push(`<span class="chip num" title="Verknüpfungen">↔ ${rc}</span>`);
+  if (i.example) metaBits.push(`<span class="chip ex">Beispiel</span>`);
+  return `<button class="item" data-open="${i.id}">${imgUrl ? `<div class="thumb" style="background-image:url('${esc(imgUrl)}')"></div>` : ""}
+    <h3>${esc(i.title || "Ohne Titel")}</h3>${i.body ? `<p>${esc(i.body)}</p>` : ""}<div class="meta">${metaBits.join("")}</div></button>`;
+}
+
+/* --- lists --- */
+function addBar(kind, ph, extraHTML = ""){
+  return `<div class="toolbar">${extraHTML}<div class="add"><input id="add-${kind}" data-keep placeholder="${ph}" aria-label="${ph}"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="quick" data-kind="${kind}" aria-label="Hinzufügen">${ic("plus")}</button></div></div>`;
+}
+function pills(key, opts, def){
+  const cur = S.filter[key] ?? def;
+  return `<div class="pills">${opts.map(([v, l]) => `<button class="pill ${cur === v ? "on" : ""}" data-filter="${key}" data-val="${esc(v)}">${l}</button>`).join("")}</div>`;
+}
+function tasksHTML(){
+  const f = S.filter.task ?? "open"; const tk = dkey();
+  let list = live("task");
+  if (f === "open") list = list.filter(t => !t.done);
+  if (f === "today") list = list.filter(t => !t.done && t.due && t.due <= tk);
+  if (f === "done") list = list.filter(t => t.done);
+  list.sort((a, b) => (a.done - b.done) || (a.due || "9999").localeCompare(b.due || "9999") || ((b.prio === "hoch") - (a.prio === "hoch")) || b.created - a.created);
+  if (f === "done") list.sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  return header("Aufgaben", `${dateLine()}`) + banner() + `<section class="card">
+    ${addBar("task", "Neue Aufgabe, Enter zum Speichern", pills("task", [["open","Offen"],["today","Heute & überfällig"],["done","Erledigt"],["all","Alle"]], "open"))}
+    <div style="margin-top:18px">${list.map(t => taskRow(t, tk)).join("") || `<div class="empty">${f === "done" ? "Noch nichts erledigt." : "Keine Aufgaben in dieser Ansicht."}</div>`}</div></section>`;
+}
+function habitsHTML(){
+  const hs = live("habit"); const days = Array.from({length:14}, (_, i) => addDays(today0(), i - 13)); const tk = dkey();
+  return header("Gewohnheiten", "Tippe auf ein Feld, um einen Tag abzuhaken.") + banner() + `<section class="card">
+    ${addBar("habit", "Neue Gewohnheit, z. B. 20 Min. Spaziergang")}
+    <div class="rows" style="margin-top:14px">${hs.map(h => { const s = streak(h), w = weekCount(h);
+      return `<div class="hrow"><button class="t" data-open="${h.id}"><b>${esc(h.title)}</b><span class="muted num" style="font-size:12px">${s} Tage in Folge · ${w}/${h.target || 7} diese Woche</span></button>
+      <div class="hgrid">${days.map((d, i) => { const k = dkey(d); return `<button class="hcell ${(h.log || {})[k] ? "on" : ""} ${k === tk ? "today" : ""} ${i < 7 ? "old" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" title="${d.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short"})}" aria-label="${k}"></button>`; }).join("")}</div></div>`; }).join("")
+      || `<div class="empty">Lege oben deine erste Gewohnheit an. Pro Tag ein Haken, die Serie zählt mit.</div>`}</div></section>`;
+}
+function projectsHTML(){
+  const f = S.filter.project ?? "aktiv"; const tk = dkey();
+  let list = live("project"); if (f !== "all") list = list.filter(p => (p.status || "aktiv") === f);
+  list.sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"));
+  return header("Projekte & Ziele", "Alles mit einem Ergebnis und einem Enddatum.") + banner() + `
+    ${addBar("project", "Neues Projekt oder Ziel", pills("project", [["aktiv","Aktiv"],["geplant","Geplant"],["pausiert","Pausiert"],["erledigt","Erledigt"],["all","Alle"]], "aktiv"))}
+    <div class="cards">${list.map(p => { const pr = progress(p); const pc = pr.total ? pr.done / pr.total * 100 : 0; const areas = related(p.id).filter(r => r.kind === "area");
+      return `<button class="item" data-open="${p.id}"><div class="meta" style="margin:0"><span class="chip">${PSTATUS[p.status] || "Aktiv"}</span>${p.due ? `<span class="chip num ${p.due < tk && p.status !== "erledigt" ? "late" : ""}">bis ${fmtDay(p.due)}</span>` : ""}${p.example ? '<span class="chip ex">Beispiel</span>' : ""}</div>
+        <h3>${esc(p.title || "Ohne Titel")}</h3>${p.body ? `<p>${esc(p.body)}</p>` : ""}
+        <div style="margin-top:auto"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px" class="muted"><span>${areas.map(a => esc(a.title)).join(", ") || "Kein Bereich"}</span><span class="num">${pr.done}/${pr.total} Aufgaben</span></div><div class="prog"><i style="width:${pc}%"></i></div></div></button>`; }).join("")
+      || `<div class="empty">Keine Projekte in dieser Ansicht.</div>`}</div>`;
+}
+function areasHTML(){
+  const list = live("area");
+  return header("Bereiche", "Lebensfelder, die du dauerhaft pflegst.") + banner() + addBar("area", "Neuer Bereich, z. B. Gesundheit") + `
+    <div class="cards">${list.map(a => { const r = related(a.id).filter(x => !x.archived); const n = k => r.filter(x => x.kind === k).length;
+      return `<button class="item" data-open="${a.id}"><h3>${esc(a.title)}</h3>${a.body ? `<p>${esc(a.body)}</p>` : ""}
+      <div class="meta"><span class="chip num">${n("project")} Projekte</span><span class="chip num">${r.filter(x => x.kind === "task" && !x.done).length} Aufgaben</span><span class="chip num">${n("resource") + n("note")} Wissen</span>${n("habit") ? `<span class="chip num">${n("habit")} Habits</span>` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}</div></button>`; }).join("")
+      || `<div class="empty">Noch keine Bereiche.</div>`}</div>`;
+}
+function resourcesHTML(){
+  const f = S.filter.resource ?? "all";
+  let list = live("resource"); if (f !== "all") list = list.filter(r => (r.topic || "") === f);
+  list.sort((a, b) => b.updated - a.updated);
+  const tps = [["all","Alle"], ...(S.settings.topics || []).map(t => [t.id, `<span class="tdot" style="background:${esc(t.color)}"></span>${esc(t.name)}`]), ["","Ohne Thema"]];
+  return header("Ressourcen", "Rezepte, Artikel, Kurse, Dateien: dein Nachschlagewerk.") + banner() + `
+    ${addBar("resource", "Neue Ressource, z. B. Overnight Oats")}
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${pills("resource", tps, "all")}<button class="pill" data-go="settings" title="Themen bearbeiten">${ic("settings")}Themen</button></div>
+    <div class="cards">${list.map(itemCard).join("") || `<div class="empty">Keine Ressourcen in dieser Ansicht.</div>`}</div>`;
+}
+function notesHTML(kind){
+  const k = kinds()[kind]; if (!k) { S.view = "dashboard"; return dashboardHTML(); }
+  const list = live(kind).sort((a, b) => b.updated - a.updated);
+  return header(k.plural, kind === "note" ? "Gedanken, Erkenntnisse, Protokolle." : "Eigene Rubrik") + banner() + addBar(kind, `Neue ${k.label === "Notiz" ? "Notiz" : "Eintrag"} …`) +
+    `<div class="cards">${list.map(itemCard).join("") || `<div class="empty">Noch leer.</div>`}</div>`;
+}
+function archiveHTML(){
+  const list = all().filter(i => i.archived).sort((a, b) => b.updated - a.updated);
+  return header("Archiv", "Abgeschlossenes und Pausiertes. Nichts geht verloren.") + `<section class="card"><div class="rows">
+    ${list.map(i => `<div class="lrow" style="margin-bottom:8px"><span class="chip">${ic(kindOf(i).icon)}${esc(kindOf(i).label)}</span><div class="t"><b>${esc(i.title || "Ohne Titel")}</b><small>Archiviert · ${fmtTs(i.updated)}</small></div>
+      <button class="ibtn" data-open="${i.id}" title="Öffnen" aria-label="Öffnen">${ic("ext")}</button><button class="pill" data-act="restore" data-id="${i.id}">${ic("restore")}Zurückholen</button></div>`).join("")
+    || `<div class="empty">Das Archiv ist leer. Über „Archivieren“ in einem Eintrag landet er hier.</div>`}</div></section>`;
+}
+function settingsHTML(){
+  const st = S.settings; const exCount = all().filter(i => i.example).length;
+  return header("Anpassen", "Baue dir das Cockpit so, wie du arbeitest.") + banner() + `<div class="set-grid">
+    <section class="card"><div class="card-h"><h2>Ressourcen-Themen</h2></div>
+      <p class="hint">Themen ordnen deine Ressourcen, z. B. Rezept, Ernährung oder Business. Farbe und Name kannst du direkt ändern.</p>
+      ${(st.topics || []).map(t => `<div class="set-row"><input type="color" id="tc-${t.id}" value="${esc(t.color)}" data-set="topic-color" data-id="${t.id}" aria-label="Farbe"><input class="field" id="tn-${t.id}" value="${esc(t.name)}" data-set="topic-name" data-id="${t.id}" aria-label="Name"><button class="ibtn" data-act="del-topic" data-id="${t.id}" aria-label="Thema löschen">${ic("trash")}</button></div>`).join("")}
+      <div class="add" style="margin-top:10px"><input id="new-topic" data-keep placeholder="Neues Thema" aria-label="Neues Thema"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="add-topic" aria-label="Thema hinzufügen">${ic("plus")}</button></div></section>
+    <section class="card"><div class="card-h"><h2>Eigene Rubriken</h2></div>
+      <p class="hint">Neue Bereiche im Menü, z. B. „Bücher“, „Ideen“ oder „Kursmodule“. Einträge darin lassen sich wie alles andere verknüpfen, mit Links und Dateien.</p>
+      ${(st.kinds || []).map(k => `<div class="set-row">${ic("folder")}<input class="field" id="kn-${k.id}" value="${esc(k.label)}" data-set="kind-name" data-id="${k.id}" aria-label="Name"><button class="ibtn" data-act="del-kind" data-id="${k.id}" aria-label="Rubrik löschen">${ic("trash")}</button></div>`).join("")}
+      <div class="add" style="margin-top:10px"><input id="new-kind" data-keep placeholder="Neue Rubrik" aria-label="Neue Rubrik"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="add-kind" aria-label="Rubrik hinzufügen">${ic("plus")}</button></div>
+      ${S.confirmKind ? `<div class="confirm" style="margin-top:10px">Rubrik löschen? Die Einträge darin werden zu Notizen.<button class="btn danger" data-act="del-kind-yes">Löschen</button><button class="btn ghost" data-act="cancel">Abbrechen</button></div>` : ""}</section>
+    <section class="card"><div class="card-h"><h2>Darstellung</h2></div>
+      <p class="hint">Hell, dunkel oder automatisch wie dein Gerät.</p>
+      ${pills("theme-set", [["system","Automatisch"],["light","Hell"],["dark","Dunkel"]], st.theme || "system").replace(/data-filter="theme-set"/g, 'data-act="set-theme"')}
+      <div class="card-h" style="margin-top:22px"><h2>Eigenes CSS</h2></div>
+      <p class="hint">Für Feinschliff am Aussehen. Beispiel: <code>.nav.on{background:#3b5bdb}</code> färbt den aktiven Menüpunkt blau. Wird sofort angewendet.</p>
+      <textarea class="field num" id="css" rows="6" data-set="css" spellcheck="false" placeholder=":root{ --r-lg: 18px; }">${esc(st.css || "")}</textarea></section>
+    <section class="card"><div class="card-h"><h2>Konto &amp; Daten</h2></div>
+      <p class="hint">Angemeldet als <b style="color:var(--text)">${esc((S.user && S.user.email) || "")}</b>. Alles wird zuerst auf diesem Gerät gespeichert und abgeglichen, sobald du Internet hast.${S.lastSync ? ` Letzter Abgleich: ${new Date(S.lastSync).toLocaleString("de-DE", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}.` : ""}</p>
+      <div class="pills" style="gap:10px">
+        <button class="btn" data-act="sync">Jetzt abgleichen</button>
+        <button class="btn ghost" data-act="export">${ic("download")}Sicherung herunterladen</button>
+        <label class="btn ghost" for="import-file">${ic("upload")}Sicherung einspielen</label><input type="file" id="import-file" accept="application/json,.json" hidden>
+        ${exCount ? `<button class="btn ghost" data-act="del-examples">Beispiele entfernen (${exCount})</button>` : ""}
+        <button class="btn ghost" data-act="logout">Abmelden</button>
+      </div>
+      <p class="hint" style="margin-top:18px"><b style="color:var(--text)">Neue Funktion gewünscht?</b> Beschreib sie Claude im Chat, etwa „Füge bei Rezepten Zutaten und Portionen hinzu“ oder „Zeig mir einen Wochenrückblick“. Claude baut sie ein und lädt die neue Version hoch. Deine Daten bleiben erhalten; die App holt sich die neue Version beim nächsten Öffnen mit Internet.</p></section>
+  </div>`;
+}
+
+/* ================= search ================= */
+function searchRender(q){
+  const box = $("#search-res"); if (!box) return;
+  q = q.trim().toLowerCase();
+  if (!q) { box.innerHTML = ""; return; }
+  const hits = all().filter(i => (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q))).slice(0, 12);
+  box.innerHTML = `<div class="search-res">${hits.map(i => `<button class="res" data-open="${i.id}">${ic(kindOf(i).icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(kindOf(i).label)}${i.archived ? " · Archiv" : ""}</small></button>`).join("") || `<div class="res muted">Nichts gefunden.</div>`}</div>`;
+}
+
+/* ================= detail drawer ================= */
+function openDetail(id){
+  const it = S.items.get(id); if (!it) return;
+  S.open = id; S.picker = false; S.confirmDel = null;
+  const k = kindOf(it);
+  const kopts = Object.entries(kinds()).map(([v, x]) => `<option value="${v}" ${v === it.kind ? "selected" : ""}>${esc(x.label)}</option>`).join("");
+  let fields = `<div><label for="d-kind">Art</label><select class="field" id="d-kind">${kopts}</select></div>`;
+  if (it.kind === "task") fields += `<div><label for="d-due">Fällig am</label><input class="field" type="date" id="d-due" value="${esc(it.due || "")}"></div>
+    <div><label for="d-prio">Priorität</label><select class="field" id="d-prio"><option value="normal">Normal</option><option value="hoch" ${it.prio === "hoch" ? "selected" : ""}>Hoch</option></select></div>`;
+  if (it.kind === "project") fields += `<div><label for="d-status">Status</label><select class="field" id="d-status">${Object.entries(PSTATUS).map(([v, l]) => `<option value="${v}" ${(it.status || "aktiv") === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div><label for="d-start">Start</label><input class="field" type="date" id="d-start" value="${esc(it.start || "")}"></div>
+    <div><label for="d-due">Enddatum</label><input class="field" type="date" id="d-due" value="${esc(it.due || "")}"></div>`;
+  if (it.kind === "resource") fields += `<div><label for="d-topic">Thema</label><select class="field" id="d-topic"><option value="">Ohne Thema</option>${(S.settings.topics || []).map(t => `<option value="${t.id}" ${it.topic === t.id ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></div>`;
+  if (it.kind === "habit") fields += `<div><label for="d-target">Ziel pro Woche</label><input class="field num" type="number" min="1" max="7" id="d-target" value="${it.target || 7}"></div>`;
+  const bodyPh = {resource:"Zutaten, Zusammenfassung, wichtigste Punkte …", project:"Ziel, gewünschtes Ergebnis, nächste Schritte …", area:"Worum geht es in diesem Bereich? Welcher Standard ist dir wichtig?", habit:"Warum ist dir diese Gewohnheit wichtig?"}[it.kind] || "Schreib hier alles hinein …";
+  $("#overlay").innerHTML = `<div class="scrim" data-act="close"></div>
+  <aside class="drawer" role="dialog" aria-label="${esc(k.label)} bearbeiten">
+    <div class="d-head"><span class="chip">${ic(k.icon)}${esc(k.label)}</span>${it.example ? '<span class="chip ex">Beispiel</span>' : ""}<span class="grow"></span>
+      ${it.kind === "task" ? `<button class="pill ${it.done ? "on" : ""}" id="d-done" data-act="toggle" data-id="${it.id}">${ic("check")}${it.done ? "Erledigt" : "Abhaken"}</button>` : ""}
+      <button class="ibtn" data-act="archive" title="${it.archived ? "Zurückholen" : "Archivieren"}" aria-label="Archivieren">${ic(it.archived ? "restore" : "archive")}</button>
+      <button class="ibtn" data-act="ask-del" title="Löschen" aria-label="Löschen">${ic("trash")}</button>
+      <button class="ibtn" data-act="close" title="Schließen (Esc)" aria-label="Schließen">${ic("close")}</button></div>
+    <div class="d-scroll">
+      <div id="d-confirm"></div>
+      <textarea class="d-title" id="d-title" rows="1" placeholder="Titel" aria-label="Titel">${esc(it.title)}</textarea>
+      <div class="d-fields">${fields}</div>
+      <div><label class="sec-l" for="d-body">Inhalt</label><textarea class="field d-body" id="d-body" rows="7" placeholder="${bodyPh}">${esc(it.body || "")}</textarea></div>
+      ${it.kind === "project" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Aufgaben im Projekt</span><span class="muted num" id="d-prog"></span></div><div id="dy-tasks"></div>
+        <div class="add"><input id="d-addtask" placeholder="Aufgabe für dieses Projekt …" aria-label="Neue Aufgabe im Projekt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="d-addtask" data-rel="${it.id}" aria-label="Hinzufügen">${ic("plus")}</button></div></div>` : ""}
+      ${it.kind === "habit" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Letzte 5 Wochen</span><span class="muted num" id="d-streak"></span></div><div id="dy-habit"></div></div>` : ""}
+      <div class="sec"><div class="sec-h"><span class="sec-l">Verknüpfungen</span><button class="pill" data-act="picker">${ic("plus")}Verknüpfen</button></div>
+        <div class="picker" id="d-picker" hidden><input class="field" id="d-pick-q" placeholder="Eintrag suchen oder neuen Titel eingeben …" autocomplete="off" aria-label="Eintrag suchen"><div class="pick-res" id="d-pick-res"></div></div>
+        <div id="dy-rel"></div></div>
+      <div class="sec"><div class="sec-h"><span class="sec-l">Links</span></div><div id="dy-links"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="field" style="flex:2;min-width:180px" id="d-lurl" placeholder="https://…" inputmode="url" aria-label="Link-Adresse"><input class="field" style="flex:1;min-width:120px" id="d-llabel" placeholder="Bezeichnung (optional)" aria-label="Link-Bezeichnung"><button class="btn" data-act="add-link">Hinzufügen</button></div></div>
+      <div class="sec"><div class="sec-h"><span class="sec-l">Dateien &amp; Downloads</span><label class="pill" for="d-file" id="d-upl" style="cursor:pointer">${ic("upload")}Hochladen</label><input type="file" id="d-file" multiple hidden></div>
+        <div id="dy-files"></div><p class="hint" style="margin:0">Alle Dateitypen bis 50 MB, z. B. PDF, Bilder, Word oder Excel. Zum Öffnen von Dateien brauchst du Internet, alles andere geht auch offline.</p></div>
+      <p class="muted" style="font-size:11.5px;margin:0">Erstellt ${fmtTs(it.created)} · Geändert <span id="d-upd">${fmtTs(it.updated)}</span></p>
+    </div></aside>`;
+  autoGrow($("#d-title"));
+  refreshDetail();
+  if (!it.title) $("#d-title").focus();
+}
+function closeDetail(){ S.open = null; $("#overlay").innerHTML = ""; renderMain(); }
+function refreshDetail(){
+  const it = S.open && S.items.get(S.open);
+  if (!S.open) return;
+  if (!it) { closeDetail(); return; }
+  const tk = dkey();
+  const conf = $("#d-confirm");
+  if (conf) conf.innerHTML = S.confirmDel === it.id ? `<div class="confirm">Endgültig löschen?${(it.files || []).length ? ` Auch ${it.files.length} Datei(en) werden gelöscht.` : ""}<button class="btn danger" data-act="del-yes">Löschen</button><button class="btn ghost" data-act="cancel">Abbrechen</button></div>` : "";
+  const done = $("#d-done"); if (done) { done.classList.toggle("on", !!it.done); done.innerHTML = ic("check") + (it.done ? "Erledigt" : "Abhaken"); }
+  const rel = related(it.id);
+  const tasksBox = $("#dy-tasks");
+  if (tasksBox) { const ts = rel.filter(r => r.kind === "task" && !r.archived).sort((a, b) => a.done - b.done || (a.due || "9999").localeCompare(b.due || "9999")); tasksBox.innerHTML = ts.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px">Noch keine Aufgaben. Zerlege das Projekt in konkrete nächste Schritte.</div>`; const pr = progress(it); $("#d-prog").textContent = pr.total ? `${pr.done}/${pr.total} erledigt` : ""; }
+  const hb = $("#dy-habit");
+  if (hb) { const t = today0(); const mon = addDays(t, -((t.getDay()+6)%7) - 28);
+    hb.innerHTML = `<div class="cal">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(d => `<span class="muted" style="font-size:10.5px;text-align:center">${d}</span>`).join("")}${Array.from({length:35}, (_, i) => { const d = addDays(mon, i); const k = dkey(d); const fut = d > t;
+      return `<button class="${(it.log || {})[k] ? "on" : ""} ${k === tk ? "today" : ""}" ${fut ? "disabled style='opacity:.35'" : ""} data-act="hday" data-id="${it.id}" data-day="${k}" aria-label="${k}"><span class="num">${d.getDate()}</span></button>`; }).join("")}</div>`;
+    $("#d-streak").textContent = `${streak(it)} Tage in Folge · ${weekCount(it)}/${it.target || 7} diese Woche`; }
+  const groups = {};
+  for (const r of rel) (groups[r.kind] = groups[r.kind] || []).push(r);
+  $("#dy-rel").innerHTML = rel.length ? Object.entries(groups).map(([kd, rs]) => `<div class="rel-group"><span>${esc((kinds()[kd] || {plural:"Einträge"}).plural)}</span>${rs.map(r => `<span class="relchip">${r.kind === "resource" && topic(r.topic) ? `<span class="tdot" style="background:${esc(topic(r.topic).color)}"></span>` : ""}<button class="o" data-open="${r.id}">${r.kind === "task" && r.done ? "✓ " : ""}${esc(r.title || "Ohne Titel")}</button><button class="x" data-act="unlink" data-id="${r.id}" aria-label="Verknüpfung lösen">${ic("close")}</button></span>`).join("")}</div>`).join("")
+    : `<div class="muted" style="font-size:13px">Verbinde diesen Eintrag mit Bereichen, Projekten, Ressourcen oder Notizen. Die Verbindung gilt in beide Richtungen.</div>`;
+  $("#dy-links").innerHTML = (it.links || []).map((l, i) => `<div class="lrow">${ic("link")}<div class="t"><a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer">${esc(l.label || hostOf(l.url))}</a><small>${esc(l.url)}</small></div>
+      <button class="ibtn" data-act="copy" data-val="${esc(l.url)}" title="Adresse kopieren" aria-label="Adresse kopieren">${ic("file")}</button><button class="ibtn" data-act="del-link" data-i="${i}" aria-label="Link entfernen">${ic("trash")}</button></div>`).join("");
+  const upl = $("#d-upl"); if (upl) upl.hidden = !(sb && S.user);
+  $("#dy-files").innerHTML = (it.files || []).map((f, i) => { const url = fileUrl(f); const isImg = (f.type || "").startsWith("image/");
+    return `<div class="lrow">${isImg && url ? `<img src="${esc(url)}" alt="">` : ic("file")}<div class="t">${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(f.name)}</a>` : `<b>${esc(f.name)}</b>`}<small class="num">${esc((f.type || "").split("/")[1] || "Datei")} · ${fmtSize(f.size || 0)}${navigator.onLine ? "" : " · braucht Internet"}</small></div>
+      <button class="ibtn" data-act="dl" data-i="${i}" title="Herunterladen" aria-label="Herunterladen">${ic("download")}</button>
+      <button class="ibtn" data-act="del-file" data-i="${i}" title="Datei löschen" aria-label="Datei löschen">${ic("trash")}</button></div>`; }).join("")
+    + (S.uploading ? `<div class="lrow muted">Lade hoch …</div>` : "");
+  const upd = $("#d-upd"); if (upd) upd.textContent = fmtTs(it.updated);
+  if (S.picker) pickerRender();
+}
+function pickerRender(){
+  const it = S.items.get(S.open); const box = $("#d-pick-res"); if (!it || !box) return;
+  const q = ($("#d-pick-q").value || "").trim().toLowerCase();
+  const relIds = new Set(related(it.id).map(r => r.id));
+  const cands = all().filter(o => o.id !== it.id && !relIds.has(o.id) && !o.archived && (!q || (o.title || "").toLowerCase().includes(q)))
+    .sort((a, b) => b.updated - a.updated).slice(0, 10);
+  const newKinds = Object.entries(kinds()).map(([v, x]) => `<option value="${v}">${esc(x.label)}</option>`).join("");
+  box.innerHTML = cands.map(o => `<button class="res" data-act="link" data-id="${o.id}">${ic(kindOf(o).icon)}<span class="t">${esc(o.title || "Ohne Titel")}</span><small>${esc(kindOf(o).label)}</small></button>`).join("")
+    + (q ? `<div class="res" style="gap:8px;flex-wrap:wrap"><span class="t">„${esc(q)}“ neu anlegen als</span><select class="field" id="d-pick-kind" style="width:auto;height:32px">${newKinds}</select><button class="btn" style="height:32px" data-act="link-new">Anlegen</button></div>` : "")
+    || `<div class="muted" style="padding:8px;font-size:13px">Tippe einen Titel ein.</div>`;
+}
+const safeUrl = u => /^https?:\/\//i.test(u) ? u : "https://" + u.replace(/^\/+/, "");
+const hostOf = u => { try { return new URL(safeUrl(u)).hostname.replace(/^www\./, ""); } catch(e) { return u; } };
+function autoGrow(t){ if (!t) return; t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }
+
+/* ================= new dialog ================= */
+function openNew(kind){
+  S.newKind = kind || (BASE[S.view] || kinds()[S.view] ? S.view : "task");
+  const k = kinds();
+  $("#overlay").innerHTML = `<div class="scrim" data-act="close"></div><div class="modal" role="dialog" aria-label="Neuer Eintrag">
+    <h2>Neu anlegen</h2><div class="pills" id="new-kinds">${Object.entries(k).map(([v, x]) => `<button class="pill ${v === S.newKind ? "on" : ""}" data-act="newkind" data-kind="${v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
+    <input class="field" id="new-title" placeholder="Titel" aria-label="Titel" style="height:46px;font-size:16px">
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn ghost" data-act="close">Abbrechen</button><button class="btn" data-act="create">Anlegen und öffnen</button></div></div>`;
+  $("#new-title").focus();
+}
+function doCreate(){
+  const title = $("#new-title").value.trim(); if (!title) { $("#new-title").focus(); return; }
+  const extra = {};
+  if (S.newKind === "resource" && S.view === "resource" && S.filter.resource && S.filter.resource !== "all") extra.topic = S.filter.resource;
+  const it = create(S.newKind, title, extra);
+  renderMain(); renderSide(); openDetail(it.id);
+}
+
+/* ================= actions ================= */
+function toggleTask(id){ const t = S.items.get(id); if (!t) return; t.done = !t.done; t.doneAt = t.done ? Date.now() : null; persist(t); renderMain(); renderSide(); refreshDetail(); }
+function toggleDay(id, day){ const h = S.items.get(id); if (!h) return; const log = {...(h.log || {})}; if (log[day]) delete log[day]; else log[day] = true; h.log = log; persist(h); renderMain(); refreshDetail(); }
+function linkItems(aId, bId){ const a = S.items.get(aId); if (!a || aId === bId) return; if (!(a.rel || []).includes(bId)) { a.rel = [...(a.rel || []), bId]; persist(a); } }
+function unlinkItems(aId, bId){
+  for (const [x, y] of [[aId, bId], [bId, aId]]) { const o = S.items.get(x); if (o && (o.rel || []).includes(y)) { o.rel = o.rel.filter(r => r !== y); persist(o); } }
+}
+async function deleteItem(id){
+  const it = S.items.get(id); if (!it) return;
+  const paths = (it.files || []).map(f => f.path).filter(Boolean);
+  if (paths.length && sb && navigator.onLine) sb.storage.from("files").remove(paths).catch(() => {});
+  for (const o of all()) if ((o.rel || []).includes(id)) { o.rel = o.rel.filter(r => r !== id); persist(o); }
+  removeItem(id); closeDetail(); renderSide(); toast("Gelöscht");
+}
+let urlQ = new Set(), urlT = null;
+function fileUrl(f){ const c = f.path && S.urls[f.path]; if (c && c.exp > Date.now()) return c.url; queueUrl(f.path); return ""; }
+function queueUrl(path){
+  if (!sb || !S.user || !navigator.onLine || !path) return;
+  urlQ.add(path); clearTimeout(urlT);
+  urlT = setTimeout(async () => {
+    const paths = [...urlQ].filter(p => !(S.urls[p] && S.urls[p].exp > Date.now())); urlQ.clear(); if (!paths.length) return;
+    for (const p of paths) S.urls[p] = {url:"", exp:Date.now() + 60e3};
+    try {
+      const {data} = await sb.storage.from("files").createSignedUrls(paths, 3600);
+      (data || []).forEach((r, i) => { if (r && r.signedUrl) S.urls[paths[i]] = {url:r.signedUrl, exp:Date.now() + 3500e3}; });
+    } catch(e){}
+    renderMain(); refreshDetail();
+  }, 60);
+}
+async function uploadFiles(files){
+  const it = S.items.get(S.open); if (!it || !sb || !S.user) return;
+  if (!navigator.onLine) { toast("Zum Hochladen brauchst du Internet."); return; }
+  S.uploading = true; refreshDetail();
+  for (const f of files) {
+    if (f.size > 50 * 1048576) { toast(`„${f.name}“ ist größer als 50 MB.`); continue; }
+    const safe = (f.name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-80)) || "datei";
+    const path = `${S.user.id}/${it.id}/${uid()}-${safe}`;
+    const {error} = await sb.storage.from("files").upload(path, f, {contentType: f.type || "application/octet-stream", upsert: false});
+    if (error) { toast(`„${f.name}“ konnte nicht hochgeladen werden.`); continue; }
+    const cur = S.items.get(it.id); if (!cur) break;
+    cur.files = [...(cur.files || []), {path, name: f.name, type: f.type || "", size: f.size}]; persist(cur);
+  }
+  S.uploading = false; refreshDetail();
+}
+function saveBlob(blob, name){ const u = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); }
+async function downloadFile(i){
+  const it = S.items.get(S.open); const f = it && (it.files || [])[i]; if (!f || !sb) return;
+  if (!navigator.onLine) { toast("Zum Herunterladen brauchst du Internet."); return; }
+  const {data, error} = await sb.storage.from("files").download(f.path);
+  if (error || !data) { toast("Download nicht möglich."); return; }
+  saveBlob(data, f.name);
+}
+function exportData(){
+  const data = JSON.stringify({app:"para-cockpit", version:2, exported:new Date().toISOString(), settings:S.settings, items:all()}, null, 2);
+  saveBlob(new Blob([data], {type:"application/json"}), `para-cockpit-${dkey()}.json`);
+}
+async function importData(file){
+  try {
+    const j = JSON.parse(await file.text());
+    if (!j || !Array.isArray(j.items)) throw 0;
+    if (j.settings) { S.settings = {...clone(DEFAULT_SETTINGS), ...j.settings}; saveSettings(0); }
+    let n = 0;
+    for (const it of j.items) if (it && it.id && it.kind) { const copy = {...it, files:(it.files || []).filter(f => f.path)}; persist(copy); n++; }
+    renderMain(); renderSide(); toast(`${n} Einträge eingespielt`);
+  } catch(e) { toast("Diese Datei ist keine gültige Sicherung."); }
+}
+function closeOverlay(){ S.open = null; $("#overlay").innerHTML = ""; }
+let toastT;
+function toast(msg){ clearTimeout(toastT); $("#toast-wrap").innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; toastT = setTimeout(() => $("#toast-wrap").innerHTML = "", 3200); }
+function quickAdd(kind, inputId, relId){
+  const inp = document.getElementById(inputId); if (!inp) return;
+  const title = inp.value.trim(); if (!title) { inp.focus(); return; }
+  const extra = {};
+  if (kind === "resource" && S.filter.resource && S.filter.resource !== "all") extra.topic = S.filter.resource;
+  if (kind === "project" && S.filter.project && S.filter.project !== "all") extra.status = S.filter.project;
+  if (kind === "task" && S.view === "task" && S.filter.task === "today") extra.due = dkey();
+  const made = create(kind, title, extra);
+  if (relId) linkItems(relId, made.id);
+  inp.value = "";
+  renderMain(); renderSide(); refreshDetail(); inp.focus();
+}
+
+/* ================= events ================= */
+document.addEventListener("click", e => {
+  const side = $("#side"); if (side.classList.contains("open") && !e.target.closest("#side") && !e.target.closest('[data-act="menu"]')) side.classList.remove("open");
+  const g = e.target.closest("[data-go]"); if (g) { go(g.dataset.go); return; }
+  const o = e.target.closest("[data-open]"); if (o && !e.target.closest("[data-act]")) { const q = $("#q"); if (q && q.value) { q.value = ""; searchRender(""); } openDetail(o.dataset.open); return; }
+  const fb = e.target.closest("[data-filter]"); if (fb) { S.filter[fb.dataset.filter] = fb.dataset.val; renderMain(); return; }
+  const a = e.target.closest("[data-act]"); if (!a) { if (!e.target.closest(".search")) searchRender(""); return; }
+  const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
+  switch (act) {
+    case "menu": $("#side").classList.toggle("open"); break;
+    case "new": openNew(); break;
+    case "newkind": S.newKind = a.dataset.kind; document.querySelectorAll("#new-kinds .pill").forEach(p => p.classList.toggle("on", p.dataset.kind === S.newKind)); $("#new-title").focus(); break;
+    case "create": doCreate(); break;
+    case "close": if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; break;
+    case "theme": { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; S.settings.theme = dark ? "light" : "dark"; saveSettings(); if (S.view === "settings") renderMain(); break; }
+    case "set-theme": S.settings.theme = a.dataset.val; saveSettings(); renderMain(); break;
+    case "toggle": toggleTask(id); break;
+    case "hday": toggleDay(id, a.dataset.day); break;
+    case "addtask": quickAdd("task", a.dataset.src, a.dataset.rel); break;
+    case "quick": quickAdd(a.dataset.kind, "add-" + a.dataset.kind); break;
+    case "restore": { const x = S.items.get(id); if (x) { x.archived = false; persist(x); renderMain(); renderSide(); toast("Zurückgeholt"); } break; }
+    case "archive": if (it) { it.archived = !it.archived; persist(it); toast(it.archived ? "Archiviert" : "Zurückgeholt"); closeDetail(); renderSide(); } break;
+    case "ask-del": S.confirmDel = S.open; refreshDetail(); $(".d-scroll").scrollTop = 0; break;
+    case "del-yes": deleteItem(S.open); break;
+    case "cancel": S.confirmDel = null; S.confirmKind = null; refreshDetail(); if (S.view === "settings") renderMain(); break;
+    case "picker": S.picker = !S.picker; $("#d-picker").hidden = !S.picker; if (S.picker) { $("#d-pick-q").value = ""; pickerRender(); $("#d-pick-q").focus(); } break;
+    case "link": if (it) { linkItems(it.id, id); refreshDetail(); renderMain(); $("#d-pick-q").focus(); } break;
+    case "link-new": if (it) { const t = $("#d-pick-q").value.trim(); if (!t) break; const n = create($("#d-pick-kind").value, t); linkItems(it.id, n.id); $("#d-pick-q").value = ""; refreshDetail(); renderMain(); renderSide(); toast(`„${t}“ angelegt und verknüpft`); } break;
+    case "unlink": if (it) { unlinkItems(it.id, id); refreshDetail(); renderMain(); } break;
+    case "add-link": if (it) { const u = $("#d-lurl").value.trim(); if (!u) { $("#d-lurl").focus(); break; } it.links = [...(it.links || []), {url:u, label:$("#d-llabel").value.trim()}]; persist(it); $("#d-lurl").value = ""; $("#d-llabel").value = ""; refreshDetail(); } break;
+    case "del-link": if (it) { it.links = it.links.filter((_, i) => i !== +a.dataset.i); persist(it); refreshDetail(); } break;
+    case "copy": navigator.clipboard?.writeText(a.dataset.val).then(() => toast("Adresse kopiert"), () => toast(a.dataset.val)); break;
+    case "dl": downloadFile(+a.dataset.i); break;
+    case "del-file": if (it) { const f = it.files[+a.dataset.i]; if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; a.title = "Nochmal tippen zum Löschen"; toast("Nochmal tippen, um die Datei zu löschen"); break; }
+      it.files = it.files.filter((_, i) => i !== +a.dataset.i); persist(it); if (sb && f.path) sb.storage.from("files").remove([f.path]).catch(() => {}); refreshDetail(); } break;
+    case "add-topic": { const inp = $("#new-topic"); const n = inp.value.trim(); if (!n) break; S.settings.topics = [...(S.settings.topics || []), {id:"t" + uid(), name:n, color:"#6B6B73"}]; inp.value = ""; saveSettings(0); renderMain(); break; }
+    case "del-topic": S.settings.topics = S.settings.topics.filter(t => t.id !== id); saveSettings(0); renderMain(); break;
+    case "add-kind": { const inp = $("#new-kind"); const n = inp.value.trim(); if (!n) break; S.settings.kinds = [...(S.settings.kinds || []), {id:"k" + uid(), label:n}]; inp.value = ""; saveSettings(0); renderMain(); renderSide(); break; }
+    case "del-kind": S.confirmKind = id; renderMain(); break;
+    case "del-kind-yes": { const kid = S.confirmKind; for (const x of all()) if (x.kind === kid) { x.kind = "note"; persist(x); } S.settings.kinds = S.settings.kinds.filter(k => k.id !== kid); S.confirmKind = null; saveSettings(0); renderMain(); renderSide(); break; }
+    case "export": exportData(); break;
+    case "sync": S.syncError = null; S.online = navigator.onLine; sync(); break;
+    case "logout": logout(); break;
+    case "relogin": S.mode = "login"; S.authMode = "login"; closeOverlay(); render(); break;
+    case "auth-toggle": S.authMode = S.authMode === "signup" ? "login" : "signup"; renderMain(); break;
+    case "del-examples": for (const x of all().filter(i => i.example)) removeItem(x.id); renderMain(); renderSide(); toast("Beispiele entfernt"); break;
+  }
+});
+document.addEventListener("input", e => {
+  const t = e.target; const it = S.open && S.items.get(S.open);
+  if (t.id === "q") { searchRender(t.value); return; }
+  if (t.id === "d-pick-q") { pickerRender(); return; }
+  if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
+  if (it && t.id === "d-body") { it.body = t.value; persist(it, 800); return; }
+  if (it && t.id === "d-target") { it.target = Math.max(1, Math.min(7, +t.value || 7)); persist(it, 600); return; }
+  const set = t.dataset.set;
+  if (set === "topic-name" || set === "topic-color") { const tp = S.settings.topics.find(x => x.id === t.dataset.id); if (tp) { tp[set === "topic-name" ? "name" : "color"] = t.value; saveSettings(); } }
+  if (set === "kind-name") { const k = S.settings.kinds.find(x => x.id === t.dataset.id); if (k) { k.label = t.value; saveSettings(); renderSide(); } }
+  if (set === "css") { S.settings.css = t.value; saveSettings(700); }
+});
+document.addEventListener("change", e => {
+  const t = e.target; const it = S.open && S.items.get(S.open);
+  if (t.id === "d-file") { uploadFiles([...t.files]); t.value = ""; return; }
+  if (t.id === "import-file") { if (t.files[0]) importData(t.files[0]); t.value = ""; return; }
+  if (!it) return;
+  if (t.id === "d-due") { it.due = t.value; persist(it); renderMain(); }
+  if (t.id === "d-start") { it.start = t.value; persist(it); renderMain(); }
+  if (t.id === "d-prio") { it.prio = t.value; persist(it); renderMain(); }
+  if (t.id === "d-status") { it.status = t.value; persist(it); renderMain(); }
+  if (t.id === "d-topic") { it.topic = t.value; persist(it); renderMain(); }
+  if (t.id === "d-kind") { const nk = t.value; it.kind = nk;     if (nk === "task") { it.done = !!it.done; it.due = it.due || ""; it.prio = it.prio || "normal"; }
+    if (nk === "project") { it.status = it.status || "aktiv"; it.start = it.start || dkey(); it.due = it.due || ""; }
+    if (nk === "habit") { it.log = it.log || {}; it.target = it.target || 7; }
+    if (nk === "resource") it.topic = it.topic || "";
+    persist(it); renderMain(); renderSide(); openDetail(it.id); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
+  if (e.key !== "Enter" || e.isComposing) return;
+  const t = e.target;
+  if (t.id === "new-title") { e.preventDefault(); doCreate(); }
+  else if (t.id === "dash-add") { e.preventDefault(); quickAdd("task", "dash-add"); }
+  else if (t.id === "d-addtask") { e.preventDefault(); quickAdd("task", "d-addtask", S.open); }
+  else if (t.id && t.id.startsWith("add-")) { e.preventDefault(); quickAdd(t.id.slice(4), t.id); }
+  else if (t.id === "d-title") { e.preventDefault(); $("#d-body").focus(); }
+  else if (t.id === "d-lurl" || t.id === "d-llabel") { e.preventDefault(); document.querySelector('[data-act="add-link"]').click(); }
+  else if (t.id === "new-topic") { e.preventDefault(); document.querySelector('[data-act="add-topic"]').click(); }
+  else if (t.id === "new-kind") { e.preventDefault(); document.querySelector('[data-act="add-kind"]').click(); }
+  else if (t.id === "d-pick-q") { e.preventDefault(); const first = document.querySelector("#d-pick-res [data-act]"); if (first) first.click(); }
+});
+
+function render(){ document.body.classList.toggle("auth", S.mode !== "app"); renderSide(); renderMain(); }
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "login-form") return;
+  e.preventDefault();
+  const email = $("#l-email").value.trim(), pw = $("#l-pass").value, msg = $("#l-msg"), btn = $("#l-btn");
+  const reg = S.authMode === "signup";
+  if (!email || !pw) { msg.textContent = "Bitte E-Mail und Passwort eingeben."; return; }
+  if (reg && pw.length < 8) { msg.textContent = "Bitte mindestens 8 Zeichen für das Passwort."; return; }
+  btn.disabled = true; msg.textContent = "";
+  try {
+    const {data, error} = reg ? await sb.auth.signUp({email, password: pw, options: {emailRedirectTo: location.origin + location.pathname}}) : await sb.auth.signInWithPassword({email, password: pw});
+    if (error) throw error;
+    if (data && data.session) onSignedIn(data.session.user);
+    else { msg.style.color = "var(--text)"; msg.textContent = "Fast geschafft: Bestätige den Link in deiner E-Mail und melde dich dann hier an."; S.authMode = "login"; }
+  } catch(err) { msg.textContent = authMsg(err); }
+  finally { btn.disabled = false; }
+});
+window.addEventListener("online", () => { S.online = true; renderStatus(); sync(); refreshDetail(); });
+window.addEventListener("offline", () => { S.online = false; renderStatus(); refreshDetail(); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sync(); });
+setInterval(() => { if (document.visibilityState === "visible") sync(); }, 30000);
+boot();
+})();
+</script>
+</body>
+</html>
