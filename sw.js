@@ -1,9 +1,9 @@
 // Offline-Cache: App-Dateien sofort aus dem Speicher, im Hintergrund aktualisieren.
-const CACHE = "para-cockpit-v1";
+const CACHE = "para-cockpit-v2";
 const SHELL = ["./", "./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, {cache: "reload"})))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -22,4 +22,15 @@ self.addEventListener("fetch", e => {
   });
   e.waitUntil(fresh.catch(() => {}));
   e.respondWith(caches.match(key, {ignoreSearch: true}).then(hit => hit || fresh));
+});
+
+// Tipp auf eine Erinnerung: App öffnen und den Eintrag zeigen
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const d = e.notification.data || {};
+  const url = new URL("./" + (d.id ? "#open=" + d.id : d.view ? "#view=" + d.view : ""), self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({type: "window", includeUncontrolled: true}).then(list => {
+    for (const c of list) if ("focus" in c) { c.postMessage({type: "open", id: d.id, view: d.view}); return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
 });

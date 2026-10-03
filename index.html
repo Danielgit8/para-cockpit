@@ -204,6 +204,7 @@ code{font-family:var(--f-num);font-size:12px;background:var(--soft);padding:1px 
 .d-head{display:flex;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--line)}
 .d-head .grow{flex:1}
 .d-scroll{overflow:auto;padding:18px 22px 40px;display:flex;flex-direction:column;gap:22px}
+.d-scroll > *{flex-shrink:0}
 .d-title{width:100%;border:0;outline:none;background:transparent;font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;resize:none;padding:0;overflow:hidden}
 .d-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .d-fields label,.sec-l{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
@@ -255,6 +256,52 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .l-msg{font-size:13px;color:var(--late)}
 .top .sub{flex-wrap:wrap}
 
+/* ---------- heute / rückblick / notizen / sortieren / stichwörter ---------- */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.hin{display:inline-flex;align-items:center;gap:6px;flex:none}
+.hin input{width:76px;height:32px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel-solid);padding:0 10px;text-align:right;outline:none}
+.hin input:focus{border-color:var(--ink)}
+.hin.ok input{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
+.hin small{color:var(--muted);font-size:11.5px}
+.hpills{display:flex;gap:4px;flex-wrap:wrap;flex:none}
+.hpills .pill{height:28px;padding:0 10px}
+.hcell.part{background:var(--line-2);border-color:var(--line-2)}
+.cal button.part{background:var(--line-2)}
+.sub-h{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:14px 0 8px}
+.sub-h:first-child{margin-top:0}
+.step{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.step > .t{flex:1;min-width:140px;text-align:left;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step .task-row{flex:2;min-width:220px;margin:0}
+.step .add{flex:2;min-width:220px}
+.stepn{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
+.md{font-size:14px;line-height:1.6;overflow-wrap:anywhere;padding:12px 14px;border:1px solid var(--line);border-radius:12px;min-height:80px}
+.md > :first-child{margin-top:0} .md > :last-child{margin-bottom:0}
+.md h2{font-size:19px;margin:.9em 0 .3em;letter-spacing:-.02em} .md h3{font-size:16px;margin:.8em 0 .3em} .md h4{font-size:14px;margin:.8em 0 .3em}
+.md p{margin:.45em 0} .md ul,.md ol{margin:.45em 0;padding-left:1.4em}
+.md li.cb{list-style:none;margin-left:-1.4em;display:flex;gap:9px;align-items:flex-start;padding:2px 0}
+.md li.cb .check{width:20px;height:20px;margin-top:1px}
+.md li.cb > span{flex:1;min-width:0}
+.md li.cb.done > span{color:var(--muted);text-decoration:line-through}
+.md blockquote{margin:.6em 0;padding:2px 12px;border-left:3px solid var(--line-2);color:var(--muted)}
+.md hr{border:0;border-top:1px solid var(--line-2);margin:1em 0}
+.md a{text-decoration:underline;text-underline-offset:2px}
+.handle{cursor:grab;touch-action:none;color:var(--muted);display:grid;place-items:center;width:24px;height:28px;flex:none;border-radius:8px}
+.handle:hover{background:var(--soft);color:var(--text)}
+.handle svg{stroke-width:3.2}
+.item .handle{position:absolute;top:10px;right:10px}
+.item{position:relative}
+.dragging{opacity:.4}
+.tags-in{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--line-2);border-radius:12px;padding:6px 8px;background:var(--panel-solid)}
+.tags-in input{flex:1;min-width:140px;border:0;outline:none;background:transparent;height:28px}
+.mnav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.mnav b{flex:1;text-align:center;font-size:13px}
+.mchart{display:flex;align-items:flex-end;gap:2px;height:110px;position:relative;border-bottom:1px solid var(--line-2);margin-top:14px}
+.mchart i{flex:1;background:var(--ink);border-radius:3px 3px 1px 1px}
+.mchart i.miss{opacity:.3}
+.mchart .goal{position:absolute;left:0;right:0;border-top:1.5px dashed var(--late);pointer-events:none}
+.mlabels{display:flex;justify-content:space-between;font-size:10.5px;margin-top:5px}
+.pop .scrim{z-index:54} .pop .modal{z-index:55}
+
 /* ---------- mobile ---------- */
 .bottom{display:none}
 @media (max-width:1100px){
@@ -274,12 +321,13 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
   .tl,.tl-body{grid-template-columns:minmax(0,1fr)}
   .tl-label{display:none}
   .tl-head{grid-column:1}
-  .set-grid{grid-template-columns:minmax(0,1fr)}
+  .set-grid,.two{grid-template-columns:minmax(0,1fr)}
   .hgrid{grid-template-columns:repeat(7,22px)}
   .hgrid .hcell.old{display:none}
   .search input{width:min(220px,52vw)}
 }
 @media (max-width:480px){
+  .task-row .chip[data-tag],.task-row .chip.proj{display:none}
   .top-tools{margin-left:0;width:100%}
   .search{flex:1}
   .search input{width:100%}
@@ -296,6 +344,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 </div>
 <nav class="bottom" id="bottom"></nav>
 <div id="overlay"></div>
+<div id="pop" class="pop"></div>
 <div id="toast-wrap"></div>
 
 <script src="supabase.js"></script>
@@ -318,6 +367,11 @@ const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1).replace(".", ",") + " 
 const today0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
 function isoWeek(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / 864e5 + 1) / 7); }
 const clone = o => JSON.parse(JSON.stringify(o));
+const isoDay = (d = new Date()) => (d.getDay() + 6) % 7 + 1;
+function weekId(d = new Date()){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); return `${t.getUTCFullYear()}-W${pad(isoWeek(d))}`; }
+const fmtNum = v => String(Math.round(v * 10) / 10).replace(".", ",");
+const fmtLong = k => parseKey(k).toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short"});
+const WD = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 
 const P = {
   home:"M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10",
@@ -336,7 +390,11 @@ const P = {
   file:"M6 3h8l5 5v13H6zM14 3v5h5", download:"M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14",
   trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13", menu:"M4 7h16M4 12h16M4 17h16",
   ext:"M14 4h6v6M20 4l-9 9M18 14v6H4V6h6", moon:"M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
-  more:"M5 12h.01M12 12h.01M19 12h.01", restore:"M4 12a8 8 0 1 0 2.3-5.6L4 8.7M4 4v4.7h4.7", upload:"M12 20V9M7.5 13.5L12 9l4.5 4.5M5 4h14"
+  more:"M5 12h.01M12 12h.01M19 12h.01", restore:"M4 12a8 8 0 1 0 2.3-5.6L4 8.7M4 4v4.7h4.7", upload:"M12 20V9M7.5 13.5L12 9l4.5 4.5M5 4h14",
+  sun:"M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4L7 17M17 7l1.4-1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  review:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16M9 15l2 2 4-4", tag:"M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
+  bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4", repeat:"M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1",
+  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -357,7 +415,7 @@ const DEFAULT_SETTINGS = {
     {id:"lernen", name:"Lernen", color:"#8A5BB5"},
     {id:"werkzeug", name:"Werkzeug", color:"#6B6B73"},
   ],
-  kinds: [], css: "", theme: "system"
+  kinds: [], css: "", theme: "system", start: "today", sort: {}, reviewDay: 7, reviewTime: ""
 };
 const PSTATUS = {aktiv:"Aktiv", geplant:"Geplant", pausiert:"Pausiert", erledigt:"Erledigt"};
 
@@ -378,8 +436,81 @@ function related(id){
   return [...ids].map(r => S.items.get(r));
 }
 function progress(p){ const ts = related(p.id).filter(r => r.kind === "task" && !r.archived); return {done: ts.filter(t => t.done).length, total: ts.length}; }
-function streak(h){ const log = h.log || {}; let d = today0(); if (!log[dkey(d)]) d = addDays(d, -1); let n = 0; while (log[dkey(d)]) { n++; d = addDays(d, -1); } return n; }
-function weekCount(h){ const log = h.log || {}; const t = today0(); const mon = addDays(t, -((t.getDay()+6)%7)); let n = 0; for (let i = 0; i < 7; i++) if (log[dkey(addDays(mon, i))]) n++; return n; }
+// Gewohnheiten: Abhaken (true), Zahl (z. B. 7.5 Stunden) oder Auswahl (z. B. "Oberkörper")
+const hmode = h => h.mode || "check";
+const hval = (h, k) => (h.log || {})[k];
+function hdone(h, k){
+  const v = hval(h, k);
+  if (v == null || v === false || v === "") return false;
+  if (hmode(h) === "number" && typeof v === "number") return +h.goal > 0 ? v >= +h.goal : v > 0;
+  return true;
+}
+const hpart = (h, k) => !hdone(h, k) && hval(h, k) != null && hval(h, k) !== "";
+function streak(h){ let d = today0(); if (!hdone(h, dkey(d))) d = addDays(d, -1); let n = 0; while (hdone(h, dkey(d))) { n++; d = addDays(d, -1); } return n; }
+function weekDays(){ const t = today0(); const mon = addDays(t, -((t.getDay()+6)%7)); return Array.from({length:7}, (_, i) => addDays(mon, i)); }
+function weekCount(h){ return weekDays().filter(d => hdone(h, dkey(d))).length; }
+function weekAvg(h){ const v = weekDays().map(d => hval(h, dkey(d))).filter(x => typeof x === "number"); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
+const inRow = n => `${n} ${n === 1 ? "Tag" : "Tage"} in Folge`;
+const ord = i => i.order ?? i.created ?? 0;
+const byOrd = list => list.sort((a, b) => ord(a) - ord(b));
+const sortMode = key => (S.settings.sort || {})[key] || "date";
+const taskByDate = (a, b) => (a.due || "9999").localeCompare(b.due || "9999") || ((b.prio === "hoch") - (a.prio === "hoch")) || ord(a) - ord(b);
+// Stichwörter
+const tagsOf = i => Array.isArray(i.tags) ? i.tags : [];
+function allTags(){ const m = new Map(); for (const i of all()) if (!i.archived) for (const t of tagsOf(i)) { const k = t.toLowerCase(); const e = m.get(k) || {name:t, n:0}; e.n++; m.set(k, e); } return [...m.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)); }
+const tagChips = (i, max = 3) => tagsOf(i).slice(0, max).map(t => `<span class="chip" data-tag="${esc(t)}" role="link" tabindex="0">#${esc(t)}</span>`).join("");
+// Notizen: einfache Formatierung (Markdown-Teilmenge)
+const plain = s => String(s || "").replace(/^\s*#{1,3}\s+/gm, "").replace(/^\s*[-*]\s+\[[ xX>]\]\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ").replace(/^>\s?/gm, "").replace(/\*\*|`/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+function mdInline(s){
+  return s.replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/(^|[\s(])(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<i>$2</i>");
+}
+function mdHTML(src, it){
+  const lines = String(src || "").split("\n"); let html = "", list = null, para = [];
+  const flushP = () => { if (para.length) { html += `<p>${para.map(l => mdInline(esc(l))).join("<br>")}</p>`; para = []; } };
+  const closeL = () => { if (list) { html += `</${list}>`; list = null; } };
+  const openL = tag => { if (list !== tag) { closeL(); html += `<${tag}>`; list = tag; } };
+  lines.forEach((raw, i) => {
+    const l = raw.replace(/\s+$/, ""); let m;
+    if (!l.trim()) { flushP(); closeL(); return; }
+    if ((m = l.match(/^(#{1,3})\s+(.*)$/))) { flushP(); closeL(); const n = m[1].length + 1; html += `<h${n}>${mdInline(esc(m[2]))}</h${n}>`; return; }
+    if (/^(-{3,}|\*{3,})$/.test(l.trim())) { flushP(); closeL(); html += "<hr>"; return; }
+    if ((m = l.match(/^>\s?(.*)$/))) { flushP(); closeL(); html += `<blockquote>${mdInline(esc(m[1]))}</blockquote>`; return; }
+    if ((m = l.match(/^\s*[-*]\s+\[( |x|X|>)\]\s+(.*)$/))) { flushP(); openL("ul"); html += cbHTML(m[1], m[2], i, it); return; }
+    if ((m = l.match(/^\s*[-*]\s+(.*)$/))) { flushP(); openL("ul"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
+    if ((m = l.match(/^\s*\d+[.)]\s+(.*)$/))) { flushP(); openL("ol"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
+    closeL(); para.push(l);
+  });
+  flushP(); closeL(); return html;
+}
+function cbHTML(state, text, line, it){
+  if (state === ">") {
+    const t = it && related(it.id).find(r => r.kind === "task" && r.title === text.trim());
+    return `<li class="cb ${t && t.done ? "done" : ""}"><button class="check ${t && t.done ? "on" : ""}" ${t ? `data-act="toggle" data-id="${t.id}"` : "disabled"} aria-label="Aufgabe erledigt">${ic("check")}</button><span>${mdInline(esc(text))}</span>${t ? `<button class="chip" data-open="${t.id}">${ic("task")}Aufgabe</button>` : ""}</li>`;
+  }
+  const on = state !== " ";
+  return `<li class="cb ${on ? "done" : ""}"><button class="check ${on ? "on" : ""}" data-act="md-cb" data-line="${line}" aria-label="Abhaken">${ic("check")}</button><span>${mdInline(esc(text))}</span>${on ? "" : `<button class="chip" data-act="md-task" data-line="${line}" title="Als echte Aufgabe anlegen und verknüpfen">→ Aufgabe</button>`}</li>`;
+}
+// Wiederkehrende Aufgaben
+const REPEAT = {"":"Nie", daily:"Täglich", weekdays:"Werktags (Mo–Fr)", weekly:"Wöchentlich", monthly:"Monatlich", days:"An bestimmten Tagen"};
+function stepDate(d, t){
+  const r = t.repeat;
+  if (r === "daily") return addDays(d, 1);
+  if (r === "weekly") return addDays(d, 7);
+  if (r === "monthly") { const x = new Date(d.getFullYear(), d.getMonth() + 1, 1); const last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate(); x.setDate(Math.min(t.repeatDom || d.getDate(), last)); return x; }
+  const days = r === "weekdays" ? [1,2,3,4,5] : (t.repeatDays || []);
+  if (!days.length) return addDays(d, 7);
+  let x = addDays(d, 1); for (let i = 0; i < 7 && !days.includes(isoDay(x)); i++) x = addDays(x, 1); return x;
+}
+function nextDue(t){
+  let d = t.due ? parseKey(t.due) : today0(); const tt = {...t, repeatDom: t.repeatDom || d.getDate()}; const tk = dkey();
+  for (let g = 0; g < 2000; g++) { d = stepDate(d, tt); if (dkey(d) > tk) break; }
+  return dkey(d);
+}
+function repeatLabel(t){ if (t.repeat === "days") return (t.repeatDays || []).slice().sort().map(n => WD[n-1]).join(", ") || "Bestimmte Tage"; return REPEAT[t.repeat] || ""; }
 
 /* ================= store: erst auf dem Gerät speichern, dann mit Supabase abgleichen ================= */
 const idb = (() => {
@@ -418,10 +549,10 @@ function saveSettings(delay = 400){
 }
 function create(kind, title, extra = {}){
   const now = Date.now();
-  const it = {id: uid(), kind, title: title || "", body: "", rel: [], links: [], files: [], archived: false, created: now, updated: now, ...extra};
-  if (kind === "task") Object.assign(it, {done: false, due: extra.due || "", prio: "normal"});
+  const it = {id: uid(), kind, title: title || "", body: "", rel: [], links: [], files: [], tags: [], archived: false, created: now, updated: now, ...extra};
+  if (kind === "task") Object.assign(it, {done: false, due: extra.due || "", prio: extra.prio || "normal"});
   if (kind === "project") Object.assign(it, {status: extra.status || "aktiv", start: dkey(), due: extra.due || ""});
-  if (kind === "habit") Object.assign(it, {log: {}, target: 7});
+  if (kind === "habit") Object.assign(it, {log: extra.log || {}, target: extra.target || 7});
   if (kind === "resource") Object.assign(it, {topic: extra.topic || ""});
   persist(it); return it;
 }
@@ -499,11 +630,36 @@ function renderStatus(){
 }
 
 /* --- Anmeldung --- */
+function setupSW(){
+  if (!("serviceWorker" in navigator) || location.protocol !== "https:") return;
+  navigator.serviceWorker.register("sw.js").then(reg => {
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+  }).catch(() => {});
+  // Neue App-Version: sofort neu laden, wenn gerade nichts offen ist
+  const had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!had) return;
+    const busy = S.open || S.pop || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+    if (busy) { toast("Neue Version bereit. Sie ist beim nächsten Öffnen aktiv."); return; }
+    clearTimeout(saveT); idb.set(stateKey(), snapshot()).catch(() => {}).finally(() => location.reload());
+  });
+  navigator.serviceWorker.addEventListener("message", e => { const d = e.data || {}; if (d.type === "open") openTarget(d); });
+}
+function openTarget(d){
+  if (S.mode !== "app" || !d) return;
+  if (d.view) go(d.view);
+  if (d.id && S.items.has(d.id)) openDetailFresh(d.id);
+}
+function openFromHash(){
+  const m = location.hash.match(/^#(open|view)=([\w-]+)/); if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  openTarget(m[1] === "open" ? {id:m[2]} : {view:m[2]});
+}
 async function boot(){
-  if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+  setupSW();
   if (!sb) { S.mode = "setup"; render(); return; }
   let last = null; try { last = JSON.parse(localStorage.getItem(LAST) || "null"); } catch(e){}
-  if (last && last.id) { S.user = last; await loadLocal(); S.mode = "app"; applySettings(); render(); }
+  if (last && last.id) { S.user = last; await loadLocal(); S.mode = "app"; S.view = S.settings.start || "today"; applySettings(); render(); openFromHash(); checkReminders(); }
   else { S.mode = "login"; render(); }
   sb.auth.onAuthStateChange((ev, session) => { if (ev === "SIGNED_IN" && session) setTimeout(() => onSignedIn(session.user), 0); });
   try {
@@ -517,8 +673,8 @@ async function onSignedIn(user){
   const fresh = !S.user || S.user.id !== u.id || S.mode !== "app";
   try { localStorage.setItem(LAST, JSON.stringify(u)); } catch(e){}
   S.user = u; S.needLogin = false;
-  if (fresh) { await loadLocal(); S.mode = "app"; applySettings(); render(); }
-  sync();
+  if (fresh) { await loadLocal(); S.mode = "app"; S.view = S.settings.start || "today"; applySettings(); render(); openFromHash(); }
+  sync(); checkReminders();
 }
 async function logout(){
   clearTimeout(saveT);
@@ -566,9 +722,12 @@ function applySettings(){
 
 /* ================= navigation ================= */
 function navItems(){
-  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}];
-  for (const id of ["task","habit","project","area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
+  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"today", label:"Heute", icon:"sun"}];
+  for (const id of ["task","habit","project"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
+  out.push({v:"review", label:"Wochenrückblick", icon:"review"});
+  for (const id of ["area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   for (const c of S.settings.kinds || []) out.push({v:c.id, label:c.label, icon:"folder"});
+  out.push({v:"tags", label:"Stichwörter", icon:"tag"});
   out.push({v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"});
   return out;
 }
@@ -577,13 +736,15 @@ function go(v){ S.view = v; $("#side").classList.remove("open"); render(); windo
 function renderSide(){
   const counts = {};
   for (const i of live()) if (!(i.kind === "task" && i.done)) counts[i.kind] = (counts[i.kind] || 0) + 1;
+  { const tk = dkey(); const n = live("task").filter(t => !t.done && t.due && t.due <= tk).length + live("habit").filter(h => !hdone(h, tk)).length; if (n) counts.today = n; }
+  if (reviewDue()) counts.review = "•";
   const items = navItems();
   $("#side").innerHTML = `
     <div class="brand"><span class="brand-mark">P</span>PARA Cockpit</div>
     ${items.map((n, i) => `${i === 1 ? '<div class="nav-label">Umsetzung</div>' : ""}${n.v === "area" ? '<div class="nav-label">Wissen</div>' : ""}${n.v === "archive" ? '<div class="nav-label">System</div>' : ""}
       <button class="nav ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`).join("")}
     <div class="side-foot" id="side-status"></div>`;
-  const bottom = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"resource", label:"Wissen", icon:"resource"}];
+  const bottom = [{v:"today", label:"Heute", icon:"sun"}, {v:"dashboard", label:"Start", icon:"home"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"resource", label:"Wissen", icon:"resource"}];
   $("#bottom").innerHTML = bottom.map(b => `<button class="${S.view === b.v ? "on" : ""}" data-go="${b.v}">${ic(b.icon)}${b.label}</button>`).join("") +
     `<button data-act="menu">${ic("menu")}Mehr</button>`;
   renderStatus();
@@ -594,7 +755,7 @@ function header(title, sub){
   return `<div class="top">
     <div><h1>${esc(title)}</h1><div class="sub">${sub || ""}${S.mode === "app" ? '<span class="chip" id="hdr-status"></span>' : ""}</div></div>
     <div class="top-tools">
-      <div class="search">${ic("search")}<input id="q" data-keep type="search" placeholder="Alles durchsuchen …" autocomplete="off" aria-label="Suche"><div id="search-res"></div></div>
+      <div class="search">${ic("search")}<input id="q" data-keep type="search" placeholder="Suchen oder #stichwort …" autocomplete="off" aria-label="Suche"><div id="search-res"></div></div>
       <button class="rbtn" data-act="theme" title="Hell / Dunkel umschalten" aria-label="Hell oder dunkel">${ic("moon")}</button>
       <button class="rbtn ink" data-act="new" title="Neuer Eintrag" aria-label="Neuer Eintrag">${ic("plus")}</button>
     </div></div>`;
@@ -621,6 +782,9 @@ function viewHTML(){
   if (S.mode === "setup") return setupHTML();
   const v = S.view;
   if (v === "dashboard") return dashboardHTML();
+  if (v === "today") return todayHTML();
+  if (v === "review") return reviewHTML();
+  if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
   if (v === "habit") return habitsHTML();
   if (v === "project") return projectsHTML();
@@ -668,11 +832,28 @@ function timelineHTML(){
     ${projs.length ? `<div class="tl"><div class="tl-head">${ticks}</div><div class="tl-body">${rows}</div></div>`
       : `<div class="empty"><b>Noch keine aktiven Projekte.</b><br>Lege ein Projekt oder Ziel mit Enddatum an. Es erscheint dann hier auf der Zeitleiste der nächsten sechs Wochen.</div>`}`;
 }
+// Eingabe für einen Tag: Haken, Zahl oder Auswahl
+function habitCtl(h, k){
+  const v = hval(h, k); const m = hmode(h);
+  if (m === "number") return `<span class="hin ${hdone(h, k) ? "ok" : ""}"><input class="num" id="hn-${h.id}-${k}" type="text" inputmode="decimal" data-hnum="${h.id}" data-day="${k}" value="${typeof v === "number" ? fmtNum(v) : ""}" placeholder="${h.goal ? fmtNum(+h.goal) : "0"}" aria-label="${esc(h.title)} Wert"><small>${esc(h.unit || "")}</small></span>`;
+  if (m === "choice") { const opts = (h.options || []).length ? h.options : ["Erledigt"];
+    return `<span class="hpills">${opts.map(o => `<button class="pill ${v === o ? "on" : ""}" data-act="hpick" data-id="${h.id}" data-day="${k}" data-val="${esc(o)}">${esc(o)}</button>`).join("")}</span>`; }
+  return `<button class="check ${v ? "on" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" aria-label="${esc(h.title)} abhaken">${ic("check")}</button>`;
+}
+function habitInfo(h){
+  const s = streak(h), w = weekCount(h); const avg = hmode(h) === "number" ? weekAvg(h) : null;
+  return [s ? inRow(s) : "", `${w}/${h.target || 7} diese Woche`, avg != null ? `Ø ${fmtNum(avg)} ${h.unit || ""}`.trim() : "", h.remind ? `⏰ ${h.remind}` : ""].filter(Boolean).join(" · ");
+}
+function habitRow(h, k){
+  const ctl = habitCtl(h, k);
+  return hmode(h) === "check" ? `<div class="habit-row">${ctl}<button class="t" data-open="${h.id}">${esc(h.title)}</button><span class="streak num">${streak(h) ? inRow(streak(h)) : ""}</span></div>`
+    : `<div class="habit-row"><button class="t" data-open="${h.id}">${esc(h.title)}</button>${ctl}</div>`;
+}
 function habitCardHTML(){
-  const hs = live("habit"); const tk = dkey();
-  const done = hs.filter(h => (h.log || {})[tk]).length;
+  const hs = byOrd(live("habit")); const tk = dkey();
+  const done = hs.filter(h => hdone(h, tk)).length;
   const rate = hs.length ? done / hs.length * 100 : 0;
-  const pts = Array.from({length:14}, (_, i) => { const k = dkey(addDays(today0(), i - 13)); return hs.length ? hs.filter(h => (h.log || {})[k]).length / hs.length : 0; });
+  const pts = Array.from({length:14}, (_, i) => { const k = dkey(addDays(today0(), i - 13)); return hs.length ? hs.filter(h => hdone(h, k)).length / hs.length : 0; });
   const W = 220, H = 56; const xy = pts.map((v, i) => [i / 13 * W, H - 4 - v * (H - 8)]);
   const line = xy.map(p => p.map(n => n.toFixed(1)).join(",")).join(" ");
   const spark = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" aria-label="Verlauf der letzten 14 Tage">
@@ -683,9 +864,7 @@ function habitCardHTML(){
   return `<div class="card-h"><h2>Gewohnheiten heute</h2><span class="grow"></span><button class="pill" data-go="habit">Alle</button></div>
     ${hs.length ? `<div style="display:flex;align-items:flex-end;gap:10px"><span class="big num">${rate.toFixed(0)}%</span><span class="muted" style="padding-bottom:4px">${done} von ${hs.length} erledigt</span></div>
       <div style="margin:12px 0 6px">${spark}</div><div class="muted" style="font-size:11px;margin-bottom:6px">Letzte 14 Tage</div>
-      ${hs.slice(0, 6).map(h => { const on = (h.log || {})[tk]; const s = streak(h);
-        return `<div class="habit-row"><button class="check ${on ? "on" : ""}" data-act="hday" data-id="${h.id}" data-day="${tk}" aria-label="${esc(h.title)} heute abhaken">${ic("check")}</button>
-        <button class="t" data-open="${h.id}">${esc(h.title)}</button><span class="streak num">${s ? s + " Tage in Folge" : ""}</span></div>`; }).join("")}`
+      ${hs.slice(0, 6).map(h => habitRow(h, tk)).join("")}`
       : `<div class="empty"><b>Noch keine Gewohnheiten.</b><br>Lege z. B. „10 Min. lesen“ oder „2 Liter Wasser“ an und hake sie hier jeden Tag ab.</div>`}`;
 }
 function nextTasksHTML(open){
@@ -695,13 +874,15 @@ function nextTasksHTML(open){
     ${list.map(t => taskRow(t, tk)).join("") || `<div class="empty" style="margin-bottom:12px">Keine offenen Aufgaben. Schreib unten die nächste hinein.</div>`}
     <div class="add" style="margin-top:12px"><input id="dash-add" data-keep placeholder="Aufgabe hinzufügen …" aria-label="Neue Aufgabe"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="dash-add" aria-label="Hinzufügen">${ic("plus")}</button></div>`;
 }
-function taskRow(t, tk = dkey()){
+function taskRow(t, tk = dkey(), drag = false){
   const projs = related(t.id).filter(r => r.kind === "project").slice(0, 1);
   const late = t.due && t.due < tk && !t.done;
-  return `<div class="task-row ${t.done ? "done" : ""}"><button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button>
+  return `<div class="task-row ${t.done ? "done" : ""}" data-sid="${t.id}">${drag ? `<span class="handle" data-drag title="Ziehen zum Sortieren" aria-hidden="true">${ic("grip")}</span>` : ""}<button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button>
     <button class="t" data-open="${t.id}">${t.prio === "hoch" ? "<b>!</b> " : ""}${esc(t.title || "Ohne Titel")}</button>
-    ${projs.map(p => `<span class="chip" style="max-width:110px">${esc(p.title)}</span>`).join("")}
-    ${t.due ? `<span class="chip num ${late ? "late" : ""}">${t.due === tk ? "Heute" : fmtDay(t.due)}</span>` : ""}</div>`;
+    ${tagChips(t, 1)}
+    ${projs.map(p => `<span class="chip proj" style="max-width:110px">${esc(p.title)}</span>`).join("")}
+    ${t.repeat && !t.done ? `<span class="chip" title="Wiederholt sich: ${esc(repeatLabel(t))}">${ic("repeat")}</span>` : ""}
+    ${t.due ? `<span class="chip num ${late ? "late" : ""}">${t.due === tk ? "Heute" : fmtDay(t.due)}${t.remind && !t.done ? " · " + esc(t.remind) : ""}</span>` : ""}</div>`;
 }
 function areasCardHTML(){
   const areas = live("area").slice(0, 4);
@@ -737,8 +918,94 @@ function itemCard(i){
   if ((i.files || []).length) metaBits.push(`<span class="chip num">${ic("file")}${i.files.length}</span>`);
   const rc = related(i.id).length; if (rc) metaBits.push(`<span class="chip num" title="Verknüpfungen">↔ ${rc}</span>`);
   if (i.example) metaBits.push(`<span class="chip ex">Beispiel</span>`);
+  metaBits.push(tagChips(i));
   return `<button class="item" data-open="${i.id}">${imgUrl ? `<div class="thumb" style="background-image:url('${esc(imgUrl)}')"></div>` : ""}
-    <h3>${esc(i.title || "Ohne Titel")}</h3>${i.body ? `<p>${esc(i.body)}</p>` : ""}<div class="meta">${metaBits.join("")}</div></button>`;
+    <h3>${esc(i.title || "Ohne Titel")}</h3>${i.body ? `<p>${esc(plain(i.body))}</p>` : ""}<div class="meta">${metaBits.join("")}</div></button>`;
+}
+
+/* --- Heute --- */
+function nextSteps(){
+  return byOrd(live("project").filter(p => (p.status || "aktiv") === "aktiv")).map(p => ({p, t: related(p.id).filter(r => r.kind === "task" && !r.done && !r.archived).sort(taskByDate)[0]}));
+}
+function stepRows(list, tk){
+  return list.map(({p, t}) => `<div class="step"><button class="t" data-open="${p.id}" title="${esc(p.title)}">${esc(p.title || "Ohne Titel")}</button>
+    ${t ? taskRow(t, tk) : `<div class="add"><input id="ns-${p.id}" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt für ${esc(p.title)}"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="ns-${p.id}" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}</div>`).join("");
+}
+function todayHTML(){
+  const tk = dkey();
+  const open = live("task").filter(t => !t.done);
+  const late = open.filter(t => t.due && t.due < tk).sort(taskByDate), due = open.filter(t => t.due === tk).sort(taskByDate);
+  const doneToday = live("task").filter(t => t.done && t.doneAt && dkey(new Date(t.doneAt)) === tk);
+  const hs = byOrd(live("habit")); const hd = hs.filter(h => hdone(h, tk)).length;
+  const steps = nextSteps();
+  const rv = reviewDue();
+  return header("Heute", `${dateLine()} · <span class="chip num">${hd}/${hs.length} Gewohnheiten</span><span class="chip num ${late.length ? "late" : ""}">${late.length + due.length} Aufgaben</span>`) + banner() +
+  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") + `
+  <div class="two">
+    <section class="card"><div class="card-h"><h2>Gewohnheiten</h2><span class="grow"></span><span class="pill num">${hd}/${hs.length}</span></div>
+      ${hs.length ? hs.map(h => habitRow(h, tk)).join("") : `<div class="empty">Noch keine Gewohnheiten. Lege sie unter <button class="pill" data-go="habit">Gewohnheiten</button> an.</div>`}</section>
+    <section class="card"><div class="card-h"><h2>Aufgaben</h2><span class="grow"></span><button class="pill" data-go="task">Alle</button></div>
+      ${late.length ? `<div class="sub-h" style="color:var(--late)">Überfällig</div>${late.map(t => taskRow(t, tk)).join("")}` : ""}
+      <div class="sub-h">Heute fällig</div>${due.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px;margin-bottom:6px">Nichts fällig. Plane unten etwas für heute ein.</div>`}
+      <div class="add" style="margin-top:12px"><input id="today-add" data-keep placeholder="Aufgabe für heute …" aria-label="Aufgabe für heute"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="today-add" aria-label="Hinzufügen">${ic("plus")}</button></div>
+      ${doneToday.length ? `<div class="sub-h">Heute erledigt · ${doneToday.length}</div>${doneToday.map(t => taskRow(t, tk)).join("")}` : ""}</section>
+  </div>
+  <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
+    ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte. Sobald du eins anlegst, siehst du hier immer seinen nächsten Schritt.</div>`}</section>`;
+}
+
+/* --- Wochenrückblick --- */
+function reviewNote(w = weekId()){ return all().find(i => i.review === w && !i.archived); }
+function reviewDue(){ if (S.mode !== "app" || reviewNote()) return false; return isoDay() >= (+S.settings.reviewDay || 7); }
+function reviewHTML(){
+  const tk = dkey(); const w = isoWeek(new Date()); const note = reviewNote(); const dr = S.rvDraft || {};
+  const open = live("task").filter(t => !t.done);
+  const late = open.filter(t => t.due && t.due < tk).sort(taskByDate);
+  const noDate = byOrd(open.filter(t => !t.due)).slice(0, 10);
+  const stuck = nextSteps().filter(s => !s.t);
+  const hs = byOrd(live("habit")); const wd = weekDays();
+  const loose = live().filter(i => (i.kind === "note" || i.kind === "resource" || kinds()[i.kind]?.custom) && !i.review && !related(i.id).length && !tagsOf(i).length).sort((a, b) => b.updated - a.updated);
+  const stepH = (n, title, hint) => `<div class="card-h"><span class="stepn">${n}</span><h2>${title}</h2></div><p class="hint">${hint}</p>`;
+  return header("Wochenrückblick", `KW ${w} · fünf Schritte, etwa zehn Minuten`) + banner() +
+  (note ? `<div class="banner" style="border-style:solid">${ic("check")}<span style="color:var(--text)"><b>Für diese Woche erledigt.</b> Dein Rückblick ist als Notiz gespeichert.</span><button class="btn ghost" style="margin-left:auto" data-open="${note.id}">Öffnen</button></div>` : "") + `
+  <section class="card">${stepH(1, "Offene Aufgaben", "Hake Erledigtes ab, gib Wichtigem ein Datum und archiviere, was du nicht mehr machen willst (im Eintrag oben rechts).")}
+    ${late.length ? `<div class="sub-h" style="color:var(--late)">Überfällig · ${late.length}</div>${late.map(t => taskRow(t, tk)).join("")}` : ""}
+    ${noDate.length ? `<div class="sub-h">Ohne Datum · ${open.filter(t => !t.due).length}</div>${noDate.map(t => taskRow(t, tk)).join("")}` : ""}
+    ${!late.length && !noDate.length ? `<div class="muted" style="font-size:13px">Alles im Griff: nichts überfällig, nichts ohne Datum.</div>` : ""}</section>
+  <section class="card">${stepH(2, "Projekte ohne nächsten Schritt", "Jedes aktive Projekt braucht eine konkrete nächste Aufgabe, sonst bewegt es sich nicht.")}
+    ${stuck.length ? stepRows(stuck, tk) : `<div class="muted" style="font-size:13px">Alle aktiven Projekte haben einen nächsten Schritt.</div>`}</section>
+  <section class="card">${stepH(3, "Gewohnheiten der Woche", "Wo hast du dein Wochenziel erreicht, wo nicht? Passe das Ziel im Eintrag an, wenn es nicht realistisch ist.")}
+    ${hs.map(h => { const c = weekCount(h); const avg = hmode(h) === "number" ? weekAvg(h) : null;
+      return `<div class="hrow"><button class="t" data-open="${h.id}"><b>${esc(h.title)}</b><span class="muted num" style="font-size:12px">${c}/${h.target || 7} Tage${avg != null ? ` · Ø ${fmtNum(avg)} ${esc(h.unit || "")}` : ""}${c >= (h.target || 7) ? " · Ziel erreicht" : ""}</span></button>
+        <div class="hgrid" style="grid-template-columns:repeat(7,22px)">${wd.map(d => { const k = dkey(d); return `<button class="hcell ${hdone(h, k) ? "on" : hpart(h, k) ? "part" : ""} ${k === tk ? "today" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" title="${WD[isoDay(d)-1]}" aria-label="${k}"></button>`; }).join("")}</div></div>`; }).join("") || `<div class="muted" style="font-size:13px">Noch keine Gewohnheiten.</div>`}</section>
+  <section class="card">${stepH(4, "Unsortiertes Wissen", "Notizen und Ressourcen ohne Verknüpfung und ohne Stichwort. Öffne sie und hänge sie an einen Bereich oder ein Projekt, oder archiviere sie.")}
+    ${loose.length ? `<div class="recent">${loose.slice(0, 8).map(itemCard).join("")}</div>${loose.length > 8 ? `<p class="hint" style="margin-top:10px">und ${loose.length - 8} weitere</p>` : ""}` : `<div class="muted" style="font-size:13px">Alles einsortiert.</div>`}</section>
+  <section class="card">${stepH(5, "Kurz nachdenken", "Zwei Fragen, ein paar Stichpunkte reichen. Gespeichert wird alles als Notiz mit den Zahlen der Woche.")}
+    <div class="two" style="gap:14px"><div><label class="sec-l" for="rv-good">Was lief gut?</label><textarea class="field" id="rv-good" rows="5">${esc(dr["rv-good"] || "")}</textarea></div>
+      <div><label class="sec-l" for="rv-change">Was ändere ich nächste Woche?</label><textarea class="field" id="rv-change" rows="5">${esc(dr["rv-change"] || "")}</textarea></div></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn" data-act="review-save">${note ? "Weiteren Rückblick speichern" : "Rückblick speichern"}</button></div></section>`;
+}
+function saveReview(){
+  const d = new Date(); const w = isoWeek(d); const mon = weekDays()[0].getTime(); const dr = S.rvDraft || {};
+  const doneN = all().filter(t => t.kind === "task" && t.done && (t.doneAt || 0) >= mon).length;
+  const hs = byOrd(live("habit"));
+  const body = [`## Zahlen der Woche`, `- Erledigte Aufgaben: ${doneN}`, `- Aktive Projekte: ${live("project").filter(p => (p.status || "aktiv") === "aktiv").length}`,
+    ...hs.map(h => { const avg = hmode(h) === "number" ? weekAvg(h) : null; return `- ${h.title}: ${weekCount(h)}/${h.target || 7} Tage${avg != null ? `, Ø ${fmtNum(avg)} ${h.unit || ""}`.trimEnd() : ""}`; }),
+    "", "## Was lief gut?", (dr["rv-good"] || "").trim() || "–", "", "## Was ändere ich nächste Woche?", (dr["rv-change"] || "").trim() || "–"].join("\n");
+  const n = create("note", `Wochenrückblick KW ${w} · ${d.getFullYear()}`, {body, review: weekId(d), tags: ["Rückblick"]});
+  S.rvDraft = {}; renderMain(); renderSide(); toast("Rückblick gespeichert"); openDetailFresh(n.id);
+}
+
+/* --- Stichwörter --- */
+function tagsHTML(){
+  const tags = allTags(); const cur = S.filter.tag || (tags[0] && tags[0].name) || ""; const tk = dkey();
+  const hits = cur ? live().filter(i => tagsOf(i).some(t => t.toLowerCase() === cur.toLowerCase())) : [];
+  const tasks = hits.filter(i => i.kind === "task").sort((a, b) => a.done - b.done || taskByDate(a, b)); const rest = hits.filter(i => i.kind !== "task");
+  return header("Stichwörter", "Quer über alle Bereiche filtern. Stichwörter vergibst du in jedem Eintrag.") + banner() + `
+  <section class="card">${tags.length ? `<div class="pills">${tags.map(t => `<button class="pill ${t.name.toLowerCase() === cur.toLowerCase() ? "on" : ""}" data-filter="tag" data-val="${esc(t.name)}">#${esc(t.name)} <span class="num" style="opacity:.6">${t.n}</span></button>`).join("")}</div>`
+    : `<div class="empty"><b>Noch keine Stichwörter.</b><br>Öffne einen Eintrag und tippe unter „Stichwörter“ z. B. <code>gym</code> oder <code>französisch</code> ein. Hier siehst du dann alles dazu auf einen Blick, egal ob Aufgabe, Notiz oder Ressource.</div>`}</section>
+  ${tasks.length ? `<section class="card"><div class="card-h"><h2>Aufgaben</h2></div>${tasks.map(t => taskRow(t, tk)).join("")}</section>` : ""}
+  ${rest.length ? `<div class="cards">${rest.map(itemCard).join("")}</div>` : ""}`;
 }
 
 /* --- lists --- */
@@ -755,30 +1022,36 @@ function tasksHTML(){
   if (f === "open") list = list.filter(t => !t.done);
   if (f === "today") list = list.filter(t => !t.done && t.due && t.due <= tk);
   if (f === "done") list = list.filter(t => t.done);
-  list.sort((a, b) => (a.done - b.done) || (a.due || "9999").localeCompare(b.due || "9999") || ((b.prio === "hoch") - (a.prio === "hoch")) || b.created - a.created);
+  const manual = sortMode("task") === "manual";
+  list.sort((a, b) => (a.done - b.done) || (manual ? ord(a) - ord(b) : taskByDate(a, b)));
   if (f === "done") list.sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
   return header("Aufgaben", `${dateLine()}`) + banner() + `<section class="card">
     ${addBar("task", "Neue Aufgabe, Enter zum Speichern", pills("task", [["open","Offen"],["today","Heute & überfällig"],["done","Erledigt"],["all","Alle"]], "open"))}
-    <div style="margin-top:18px">${list.map(t => taskRow(t, tk)).join("") || `<div class="empty">${f === "done" ? "Noch nichts erledigt." : "Keine Aufgaben in dieser Ansicht."}</div>`}</div></section>`;
+    ${f !== "done" ? `<div style="margin-top:12px">${sortPills("task")}</div>` : ""}
+    <div style="margin-top:14px" data-sort="task">${list.map(t => taskRow(t, tk, f !== "done")).join("") || `<div class="empty">${f === "done" ? "Noch nichts erledigt." : "Keine Aufgaben in dieser Ansicht."}</div>`}</div></section>`;
+}
+function sortPills(key){
+  const cur = sortMode(key);
+  return `<div class="pills" style="align-items:center"><span class="muted" style="font-size:12px;margin-right:4px">Sortieren:</span>${[["date","Nach Datum"],["manual","Eigene Reihenfolge"]].map(([v, l]) => `<button class="pill ${cur === v ? "on" : ""}" data-act="set-sort" data-key="${key}" data-val="${v}">${l}</button>`).join("")}${cur === "manual" ? `<span class="muted" style="font-size:12px">Am Griff ${ic("grip")} ziehen</span>` : ""}</div>`;
 }
 function habitsHTML(){
-  const hs = live("habit"); const days = Array.from({length:14}, (_, i) => addDays(today0(), i - 13)); const tk = dkey();
-  return header("Gewohnheiten", "Tippe auf ein Feld, um einen Tag abzuhaken.") + banner() + `<section class="card">
+  const hs = byOrd(live("habit")); const days = Array.from({length:14}, (_, i) => addDays(today0(), i - 13)); const tk = dkey();
+  return header("Gewohnheiten", "Tippe auf ein Feld, um einen Tag einzutragen. Am Griff ziehen zum Sortieren.") + banner() + `<section class="card">
     ${addBar("habit", "Neue Gewohnheit, z. B. 20 Min. Spaziergang")}
-    <div class="rows" style="margin-top:14px">${hs.map(h => { const s = streak(h), w = weekCount(h);
-      return `<div class="hrow"><button class="t" data-open="${h.id}"><b>${esc(h.title)}</b><span class="muted num" style="font-size:12px">${s} Tage in Folge · ${w}/${h.target || 7} diese Woche</span></button>
-      <div class="hgrid">${days.map((d, i) => { const k = dkey(d); return `<button class="hcell ${(h.log || {})[k] ? "on" : ""} ${k === tk ? "today" : ""} ${i < 7 ? "old" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" title="${d.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short"})}" aria-label="${k}"></button>`; }).join("")}</div></div>`; }).join("")
-      || `<div class="empty">Lege oben deine erste Gewohnheit an. Pro Tag ein Haken, die Serie zählt mit.</div>`}</div></section>`;
+    <div class="rows" style="margin-top:14px" data-sort="habit">${hs.map(h => `<div class="hrow" data-sid="${h.id}"><span class="handle" data-drag title="Ziehen zum Sortieren" aria-hidden="true">${ic("grip")}</span><button class="t" data-open="${h.id}"><b>${esc(h.title)}</b><span class="muted num" style="font-size:12px">${esc(habitInfo(h))}</span></button>
+      <div class="hgrid">${days.map((d, i) => { const k = dkey(d); const v = hval(h, k); return `<button class="hcell ${hdone(h, k) ? "on" : hpart(h, k) ? "part" : ""} ${k === tk ? "today" : ""} ${i < 7 ? "old" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" title="${d.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short"})}${v != null && v !== true ? ": " + esc(typeof v === "number" ? fmtNum(v) + " " + (h.unit || "") : v) : ""}" aria-label="${k}"></button>`; }).join("")}</div></div>`).join("")
+      || `<div class="empty">Lege oben deine erste Gewohnheit an. Pro Tag ein Haken, die Serie zählt mit. Im Eintrag kannst du statt Haken auch eine Zahl (z. B. Schlafstunden) oder eine Auswahl (z. B. Ober-/Unterkörper) einstellen.</div>`}</div></section>`;
 }
 function projectsHTML(){
   const f = S.filter.project ?? "aktiv"; const tk = dkey();
   let list = live("project"); if (f !== "all") list = list.filter(p => (p.status || "aktiv") === f);
-  list.sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"));
+  if (sortMode("project") === "manual") byOrd(list); else list.sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999") || ord(a) - ord(b));
   return header("Projekte & Ziele", "Alles mit einem Ergebnis und einem Enddatum.") + banner() + `
     ${addBar("project", "Neues Projekt oder Ziel", pills("project", [["aktiv","Aktiv"],["geplant","Geplant"],["pausiert","Pausiert"],["erledigt","Erledigt"],["all","Alle"]], "aktiv"))}
-    <div class="cards">${list.map(p => { const pr = progress(p); const pc = pr.total ? pr.done / pr.total * 100 : 0; const areas = related(p.id).filter(r => r.kind === "area");
-      return `<button class="item" data-open="${p.id}"><div class="meta" style="margin:0"><span class="chip">${PSTATUS[p.status] || "Aktiv"}</span>${p.due ? `<span class="chip num ${p.due < tk && p.status !== "erledigt" ? "late" : ""}">bis ${fmtDay(p.due)}</span>` : ""}${p.example ? '<span class="chip ex">Beispiel</span>' : ""}</div>
-        <h3>${esc(p.title || "Ohne Titel")}</h3>${p.body ? `<p>${esc(p.body)}</p>` : ""}
+    ${sortPills("project")}
+    <div class="cards" data-sort="project">${list.map(p => { const pr = progress(p); const pc = pr.total ? pr.done / pr.total * 100 : 0; const areas = related(p.id).filter(r => r.kind === "area");
+      return `<button class="item" data-open="${p.id}" data-sid="${p.id}"><span class="handle" data-drag title="Ziehen zum Sortieren" aria-hidden="true">${ic("grip")}</span><div class="meta" style="margin:0;padding-right:28px"><span class="chip">${PSTATUS[p.status] || "Aktiv"}</span>${p.due ? `<span class="chip num ${p.due < tk && p.status !== "erledigt" ? "late" : ""}">bis ${fmtDay(p.due)}</span>` : ""}${p.example ? '<span class="chip ex">Beispiel</span>' : ""}${tagChips(p, 2)}</div>
+        <h3>${esc(p.title || "Ohne Titel")}</h3>${p.body ? `<p>${esc(plain(p.body))}</p>` : ""}
         <div style="margin-top:auto"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px" class="muted"><span>${areas.map(a => esc(a.title)).join(", ") || "Kein Bereich"}</span><span class="num">${pr.done}/${pr.total} Aufgaben</span></div><div class="prog"><i style="width:${pc}%"></i></div></div></button>`; }).join("")
       || `<div class="empty">Keine Projekte in dieser Ansicht.</div>`}</div>`;
 }
@@ -786,7 +1059,7 @@ function areasHTML(){
   const list = live("area");
   return header("Bereiche", "Lebensfelder, die du dauerhaft pflegst.") + banner() + addBar("area", "Neuer Bereich, z. B. Gesundheit") + `
     <div class="cards">${list.map(a => { const r = related(a.id).filter(x => !x.archived); const n = k => r.filter(x => x.kind === k).length;
-      return `<button class="item" data-open="${a.id}"><h3>${esc(a.title)}</h3>${a.body ? `<p>${esc(a.body)}</p>` : ""}
+      return `<button class="item" data-open="${a.id}"><h3>${esc(a.title)}</h3>${a.body ? `<p>${esc(plain(a.body))}</p>` : ""}
       <div class="meta"><span class="chip num">${n("project")} Projekte</span><span class="chip num">${r.filter(x => x.kind === "task" && !x.done).length} Aufgaben</span><span class="chip num">${n("resource") + n("note")} Wissen</span>${n("habit") ? `<span class="chip num">${n("habit")} Habits</span>` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}</div></button>`; }).join("")
       || `<div class="empty">Noch keine Bereiche.</div>`}</div>`;
 }
@@ -828,9 +1101,20 @@ function settingsHTML(){
     <section class="card"><div class="card-h"><h2>Darstellung</h2></div>
       <p class="hint">Hell, dunkel oder automatisch wie dein Gerät.</p>
       ${pills("theme-set", [["system","Automatisch"],["light","Hell"],["dark","Dunkel"]], st.theme || "system").replace(/data-filter="theme-set"/g, 'data-act="set-theme"')}
+      <div class="card-h" style="margin-top:22px"><h2>Startseite</h2></div>
+      <p class="hint">Was die App beim Öffnen zeigt.</p>
+      <div class="pills">${[["today","Heute"],["dashboard","Übersicht"]].map(([v, l]) => `<button class="pill ${(st.start || "today") === v ? "on" : ""}" data-act="set-start" data-val="${v}">${l}</button>`).join("")}</div>
       <div class="card-h" style="margin-top:22px"><h2>Eigenes CSS</h2></div>
       <p class="hint">Für Feinschliff am Aussehen. Beispiel: <code>.nav.on{background:#3b5bdb}</code> färbt den aktiven Menüpunkt blau. Wird sofort angewendet.</p>
       <textarea class="field num" id="css" rows="6" data-set="css" spellcheck="false" placeholder=":root{ --r-lg: 18px; }">${esc(st.css || "")}</textarea></section>
+    <section class="card"><div class="card-h"><h2>Erinnerungen</h2></div>
+      <p class="hint">Uhrzeiten legst du in jeder Gewohnheit oder Aufgabe unter „Erinnerung um“ fest. Mitteilungen kommen, solange die App offen oder im Hintergrund aktiv ist (iPhone: nur wenn sie auf dem Home-Bildschirm liegt). <b style="color:var(--text)">Ganz zuverlässig, auch bei geschlossener App:</b> Erinnerungen als Kalendertermine mit Alarm übernehmen.</p>
+      <div class="pills" style="gap:10px">
+        ${notifyState() === "granted" ? `<span class="chip"><span class="dot ok"></span>Mitteilungen erlaubt</span>` : `<button class="btn" data-act="notify-on">${ic("bell")}Mitteilungen erlauben</button>`}
+        <button class="btn ghost" data-act="ics-all">${ic("cal")}Alle in den Kalender</button>
+      </div>
+      <div class="d-fields" style="margin-top:16px"><div><label for="rv-day">Wochenrückblick am</label><select class="field" id="rv-day">${WD.map((d, i) => `<option value="${i + 1}" ${(+st.reviewDay || 7) === i + 1 ? "selected" : ""}>${["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"][i]}</option>`).join("")}</select></div>
+        <div><label for="rv-time">Erinnern um</label><input class="field num" type="time" id="rv-time" value="${esc(st.reviewTime || "")}"></div></div></section>
     <section class="card"><div class="card-h"><h2>Konto &amp; Daten</h2></div>
       <p class="hint">Angemeldet als <b style="color:var(--text)">${esc((S.user && S.user.email) || "")}</b>. Alles wird zuerst auf diesem Gerät gespeichert und abgeglichen, sobald du Internet hast.${S.lastSync ? ` Letzter Abgleich: ${new Date(S.lastSync).toLocaleString("de-DE", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}.` : ""}</p>
       <div class="pills" style="gap:10px">
@@ -840,7 +1124,7 @@ function settingsHTML(){
         ${exCount ? `<button class="btn ghost" data-act="del-examples">Beispiele entfernen (${exCount})</button>` : ""}
         <button class="btn ghost" data-act="logout">Abmelden</button>
       </div>
-      <p class="hint" style="margin-top:18px"><b style="color:var(--text)">Neue Funktion gewünscht?</b> Beschreib sie Claude im Chat, etwa „Füge bei Rezepten Zutaten und Portionen hinzu“ oder „Zeig mir einen Wochenrückblick“. Claude baut sie ein und lädt die neue Version hoch. Deine Daten bleiben erhalten; die App holt sich die neue Version beim nächsten Öffnen mit Internet.</p></section>
+      <p class="hint" style="margin-top:18px"><b style="color:var(--text)">Neue Funktion gewünscht?</b> Beschreib sie Claude im Chat, etwa „Füge bei Rezepten Zutaten und Portionen hinzu“. Claude baut sie ein und lädt die neue Version hoch. Deine Daten bleiben erhalten; die App holt sich die neue Version beim nächsten Öffnen mit Internet.</p></section>
   </div>`;
 }
 
@@ -849,7 +1133,9 @@ function searchRender(q){
   const box = $("#search-res"); if (!box) return;
   q = q.trim().toLowerCase();
   if (!q) { box.innerHTML = ""; return; }
-  const hits = all().filter(i => (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q))).slice(0, 12);
+  const tq = q.startsWith("#") ? q.slice(1) : null;
+  const hits = all().filter(i => tq != null ? tagsOf(i).some(t => t.toLowerCase().startsWith(tq))
+    : (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || tagsOf(i).some(t => t.toLowerCase().includes(q)) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q))).slice(0, 12);
   box.innerHTML = `<div class="search-res">${hits.map(i => `<button class="res" data-open="${i.id}">${ic(kindOf(i).icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(kindOf(i).label)}${i.archived ? " · Archiv" : ""}</small></button>`).join("") || `<div class="res muted">Nichts gefunden.</div>`}</div>`;
 }
 
@@ -861,12 +1147,21 @@ function openDetail(id){
   const kopts = Object.entries(kinds()).map(([v, x]) => `<option value="${v}" ${v === it.kind ? "selected" : ""}>${esc(x.label)}</option>`).join("");
   let fields = `<div><label for="d-kind">Art</label><select class="field" id="d-kind">${kopts}</select></div>`;
   if (it.kind === "task") fields += `<div><label for="d-due">Fällig am</label><input class="field" type="date" id="d-due" value="${esc(it.due || "")}"></div>
-    <div><label for="d-prio">Priorität</label><select class="field" id="d-prio"><option value="normal">Normal</option><option value="hoch" ${it.prio === "hoch" ? "selected" : ""}>Hoch</option></select></div>`;
+    <div><label for="d-prio">Priorität</label><select class="field" id="d-prio"><option value="normal">Normal</option><option value="hoch" ${it.prio === "hoch" ? "selected" : ""}>Hoch</option></select></div>
+    <div><label for="d-repeat">Wiederholen</label><select class="field" id="d-repeat">${Object.entries(REPEAT).map(([v, l]) => `<option value="${v}" ${(it.repeat || "") === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div><label for="d-remind">Erinnerung um</label><input class="field num" type="time" id="d-remind" value="${esc(it.remind || "")}"></div>
+    ${it.repeat === "days" ? `<div style="grid-column:1/-1"><label>An diesen Tagen</label><div class="pills">${WD.map((d, i) => `<button class="pill ${(it.repeatDays || []).includes(i + 1) ? "on" : ""}" data-act="rday" data-d="${i + 1}" style="min-width:40px;justify-content:center">${d}</button>`).join("")}</div></div>` : ""}`;
   if (it.kind === "project") fields += `<div><label for="d-status">Status</label><select class="field" id="d-status">${Object.entries(PSTATUS).map(([v, l]) => `<option value="${v}" ${(it.status || "aktiv") === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
     <div><label for="d-start">Start</label><input class="field" type="date" id="d-start" value="${esc(it.start || "")}"></div>
     <div><label for="d-due">Enddatum</label><input class="field" type="date" id="d-due" value="${esc(it.due || "")}"></div>`;
   if (it.kind === "resource") fields += `<div><label for="d-topic">Thema</label><select class="field" id="d-topic"><option value="">Ohne Thema</option>${(S.settings.topics || []).map(t => `<option value="${t.id}" ${it.topic === t.id ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></div>`;
-  if (it.kind === "habit") fields += `<div><label for="d-target">Ziel pro Woche</label><input class="field num" type="number" min="1" max="7" id="d-target" value="${it.target || 7}"></div>`;
+  if (it.kind === "habit") { const m = hmode(it);
+    fields += `<div><label for="d-hmode">Eintragen als</label><select class="field" id="d-hmode"><option value="check">Haken</option><option value="number" ${m === "number" ? "selected" : ""}>Zahl (z. B. Stunden)</option><option value="choice" ${m === "choice" ? "selected" : ""}>Auswahl (z. B. Ober-/Unterkörper)</option></select></div>
+    ${m === "number" ? `<div><label for="d-goal">Ziel pro Tag</label><input class="field num" type="text" inputmode="decimal" id="d-goal" value="${it.goal ? fmtNum(+it.goal) : ""}" placeholder="z. B. 7"></div>
+      <div><label for="d-unit">Einheit</label><input class="field" id="d-unit" value="${esc(it.unit || "")}" placeholder="z. B. h, Liter, Seiten"></div>` : ""}
+    ${m === "choice" ? `<div style="grid-column:1/-1"><label for="d-opts">Auswahl, mit Komma getrennt</label><input class="field" id="d-opts" value="${esc((it.options || []).join(", "))}" placeholder="z. B. Oberkörper, Unterkörper"></div>` : ""}
+    <div><label for="d-target">Ziel pro Woche (Tage)</label><input class="field num" type="number" min="1" max="7" id="d-target" value="${it.target || 7}"></div>
+    <div><label for="d-remind">Erinnerung um</label><input class="field num" type="time" id="d-remind" value="${esc(it.remind || "")}"></div>`; }
   const bodyPh = {resource:"Zutaten, Zusammenfassung, wichtigste Punkte …", project:"Ziel, gewünschtes Ergebnis, nächste Schritte …", area:"Worum geht es in diesem Bereich? Welcher Standard ist dir wichtig?", habit:"Warum ist dir diese Gewohnheit wichtig?"}[it.kind] || "Schreib hier alles hinein …";
   $("#overlay").innerHTML = `<div class="scrim" data-act="close"></div>
   <aside class="drawer" role="dialog" aria-label="${esc(k.label)} bearbeiten">
@@ -879,10 +1174,15 @@ function openDetail(id){
       <div id="d-confirm"></div>
       <textarea class="d-title" id="d-title" rows="1" placeholder="Titel" aria-label="Titel">${esc(it.title)}</textarea>
       <div class="d-fields">${fields}</div>
-      <div><label class="sec-l" for="d-body">Inhalt</label><textarea class="field d-body" id="d-body" rows="7" placeholder="${bodyPh}">${esc(it.body || "")}</textarea></div>
+      <div id="dy-remind"></div>
+      <div><label class="sec-l" for="d-tag">Stichwörter</label><div class="tags-in"><span id="dy-tags" style="display:contents"></span><input id="d-tag" list="tag-list" placeholder="Stichwort eingeben, Enter" autocomplete="off" aria-label="Stichwort hinzufügen"></div>
+        <datalist id="tag-list">${allTags().map(t => `<option value="${esc(t.name)}">`).join("")}</datalist></div>
+      <div class="sec"><div class="sec-h"><label class="sec-l" for="d-body">Inhalt</label><button class="pill" id="d-mdmode" data-act="md-mode"></button></div>
+        <textarea class="field d-body" id="d-body" rows="7" placeholder="${bodyPh}">${esc(it.body || "")}</textarea><div class="md" id="d-md"></div>
+        <p class="hint" id="d-mdhint" style="margin:0"><code># Überschrift</code> <code>- Liste</code> <code>- [ ] Checkbox</code> <code>**fett**</code> <code>[Text](https://…)</code> · Aus einer Checkbox wird in der Ansicht per „→ Aufgabe“ eine echte Aufgabe.</p></div>
       ${it.kind === "project" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Aufgaben im Projekt</span><span class="muted num" id="d-prog"></span></div><div id="dy-tasks"></div>
         <div class="add"><input id="d-addtask" placeholder="Aufgabe für dieses Projekt …" aria-label="Neue Aufgabe im Projekt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="d-addtask" data-rel="${it.id}" aria-label="Hinzufügen">${ic("plus")}</button></div></div>` : ""}
-      ${it.kind === "habit" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Letzte 5 Wochen</span><span class="muted num" id="d-streak"></span></div><div id="dy-habit"></div></div>` : ""}
+      ${it.kind === "habit" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Verlauf</span><span class="muted num" id="d-streak"></span></div><div id="dy-habit"></div></div>` : ""}
       <div class="sec"><div class="sec-h"><span class="sec-l">Verknüpfungen</span><button class="pill" data-act="picker">${ic("plus")}Verknüpfen</button></div>
         <div class="picker" id="d-picker" hidden><input class="field" id="d-pick-q" placeholder="Eintrag suchen oder neuen Titel eingeben …" autocomplete="off" aria-label="Eintrag suchen"><div class="pick-res" id="d-pick-res"></div></div>
         <div id="dy-rel"></div></div>
@@ -895,6 +1195,69 @@ function openDetail(id){
   autoGrow($("#d-title"));
   refreshDetail();
   if (!it.title) $("#d-title").focus();
+}
+function openDetailFresh(id){ const it = S.items.get(id); S.bodyEdit = !(it && it.body); S.hMonth = 0; openDetail(id); }
+// Monatsansicht einer Gewohnheit: Kalender, bei Zahlen zusätzlich Balken mit Ziellinie
+function habitMonthHTML(h){
+  const base = new Date(); base.setHours(0,0,0,0); base.setDate(1); base.setMonth(base.getMonth() + (S.hMonth || 0));
+  const y = base.getFullYear(), m = base.getMonth(); const n = new Date(y, m + 1, 0).getDate(); const t = today0(); const tk = dkey();
+  const days = Array.from({length:n}, (_, i) => new Date(y, m, i + 1));
+  const past = days.filter(d => d <= t); const hit = past.filter(d => hdone(h, dkey(d))).length;
+  let extra = "";
+  if (hmode(h) === "number") {
+    const vals = days.map(d => { const v = hval(h, dkey(d)); return typeof v === "number" ? v : null; });
+    const logged = vals.filter(v => v != null); const goal = +h.goal || 0;
+    const max = Math.max(goal, ...logged, 1) * 1.1; const avg = logged.length ? logged.reduce((a, b) => a + b, 0) / logged.length : null;
+    extra = `<div class="mchart" aria-label="Werte im Monat">${goal ? `<span class="goal" style="bottom:${goal / max * 100}%" title="Ziel ${fmtNum(goal)}"></span>` : ""}${vals.map((v, i) => `<i class="${v != null && goal && v < goal ? "miss" : ""}" style="height:${v == null ? 0 : Math.max(2, v / max * 100)}%" title="${fmtDay(dkey(days[i]))}: ${v == null ? "–" : fmtNum(v) + " " + esc(h.unit || "")}"></i>`).join("")}</div>
+      <div class="mlabels muted num"><span>1.</span><span>${Math.ceil(n / 2)}.</span><span>${n}.</span></div>
+      <p class="muted" style="font-size:12.5px;margin:8px 0 0">${avg != null ? `Durchschnitt <b style="color:var(--text)">${fmtNum(avg)} ${esc(h.unit || "")}</b> · ` : ""}Ziel erreicht an ${hit} von ${past.length} Tagen${goal ? "" : " (lege ein Tagesziel fest)"}</p>`;
+  } else if (hmode(h) === "choice") {
+    const cnt = {}; for (const d of days) { const v = hval(h, dkey(d)); if (typeof v === "string" && v) cnt[v] = (cnt[v] || 0) + 1; }
+    extra = `<p class="muted" style="font-size:12.5px;margin:8px 0 0">${Object.entries(cnt).map(([k, c]) => `${esc(k)} <b style="color:var(--text)" class="num">${c}×</b>`).join(" · ") || "Noch nichts eingetragen"} · an ${hit} von ${past.length} Tagen</p>`;
+  } else extra = `<p class="muted" style="font-size:12.5px;margin:8px 0 0">Erledigt an ${hit} von ${past.length} Tagen${past.length ? ` (${Math.round(hit / past.length * 100)} %)` : ""}</p>`;
+  const lead = isoDay(days[0]) - 1;
+  const cal = `<div class="cal">${WD.map(d => `<span class="muted" style="font-size:10.5px;text-align:center">${d}</span>`).join("")}${"<span></span>".repeat(lead)}${days.map(d => { const k = dkey(d); const fut = d > t;
+    return `<button class="${hdone(h, k) ? "on" : hpart(h, k) ? "part" : ""} ${k === tk ? "today" : ""}" ${fut ? "disabled style='opacity:.35'" : ""} data-act="hday" data-id="${h.id}" data-day="${k}" aria-label="${k}"><span class="num">${d.getDate()}</span></button>`; }).join("")}</div>`;
+  return `<div class="mnav"><button class="ibtn" data-act="hmon" data-d="-1" aria-label="Voriger Monat">${ic("left")}</button><b>${base.toLocaleDateString("de-DE", {month:"long", year:"numeric"})}</b><button class="ibtn" data-act="hmon" data-d="1" aria-label="Nächster Monat" ${(S.hMonth || 0) >= 0 ? "disabled style='opacity:.3'" : ""}>${ic("right")}</button></div>${cal}${extra}`;
+}
+// Kleines Fenster zum Eintragen eines Tages (Zahl oder Auswahl)
+function openPop(id, day){ S.pop = {id, day}; renderPop(); const inp = document.querySelector("#pop input"); if (inp) inp.focus(); }
+function closePop(){ S.pop = null; $("#pop").innerHTML = ""; }
+function renderPop(){
+  const p = S.pop; const h = p && S.items.get(p.id); if (!h) { closePop(); return; }
+  $("#pop").innerHTML = `<div class="scrim" data-act="pop-close"></div><div class="modal" role="dialog" aria-label="Tag eintragen">
+    <h2>${esc(h.title)}</h2><p class="hint" style="margin:0">${parseKey(p.day).toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})}${hmode(h) === "number" && h.goal ? ` · Ziel ${fmtNum(+h.goal)} ${esc(h.unit || "")}` : ""}</p>
+    <div>${habitCtl(h, p.day)}</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn ghost" data-act="hclear" data-id="${h.id}" data-day="${p.day}">Leeren</button><button class="btn" data-act="pop-close">Fertig</button></div></div>`;
+}
+function setHabit(id, day, val){
+  const h = S.items.get(id); if (!h) return;
+  const log = {...(h.log || {})}; if (val == null || val === "") delete log[day]; else log[day] = val;
+  h.log = log; persist(h); renderMain(); renderSide(); refreshDetail(); if (S.pop) renderPop();
+}
+// Kalender-Datei (.ics): zuverlässige Erinnerung über die Kalender-App, auch wenn die App geschlossen ist
+const icsEsc = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+function icsRule(x){
+  if (x.kind === "habit") return "RRULE:FREQ=DAILY";
+  const r = x.repeat; if (!r) return "";
+  if (r === "daily") return "RRULE:FREQ=DAILY";
+  if (r === "weekly") return "RRULE:FREQ=WEEKLY";
+  if (r === "monthly") return "RRULE:FREQ=MONTHLY";
+  const days = r === "weekdays" ? [1,2,3,4,5] : (x.repeatDays || []);
+  return days.length ? "RRULE:FREQ=WEEKLY;BYDAY=" + days.slice().sort().map(n => ["MO","TU","WE","TH","FR","SA","SU"][n-1]).join(",") : "";
+}
+function icsFile(list){
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const ev = list.filter(x => x.remind && (x.kind === "habit" || x.due)).map(x => {
+    const date = (x.kind === "habit" ? dkey() : x.due).replace(/-/g, ""); const tm = x.remind.replace(":", "") + "00";
+    return ["BEGIN:VEVENT", `UID:${x.id}-${tm}@para-cockpit`, `DTSTAMP:${stamp}`, `DTSTART:${date}T${tm}`, "DURATION:PT15M", `SUMMARY:${icsEsc(x.title)}`, icsRule(x),
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEsc(x.title)}`, "TRIGGER:PT0M", "END:VALARM", "END:VEVENT"].filter(Boolean).join("\r\n");
+  });
+  return ev.length ? ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PARA Cockpit//DE", "CALSCALE:GREGORIAN", ...ev, "END:VCALENDAR"].join("\r\n") : "";
+}
+function downloadIcs(list, name){
+  const ics = icsFile(list); if (!ics) { toast("Keine Erinnerung mit Uhrzeit (bei Aufgaben auch mit Datum) gefunden."); return; }
+  saveBlob(new Blob([ics], {type:"text/calendar"}), name.replace(/[^\wäöüÄÖÜß -]+/g, "").trim().replace(/\s+/g, "-") + ".ics");
 }
 function closeDetail(){ S.open = null; $("#overlay").innerHTML = ""; renderMain(); }
 function refreshDetail(){
@@ -909,10 +1272,18 @@ function refreshDetail(){
   const tasksBox = $("#dy-tasks");
   if (tasksBox) { const ts = rel.filter(r => r.kind === "task" && !r.archived).sort((a, b) => a.done - b.done || (a.due || "9999").localeCompare(b.due || "9999")); tasksBox.innerHTML = ts.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px">Noch keine Aufgaben. Zerlege das Projekt in konkrete nächste Schritte.</div>`; const pr = progress(it); $("#d-prog").textContent = pr.total ? `${pr.done}/${pr.total} erledigt` : ""; }
   const hb = $("#dy-habit");
-  if (hb) { const t = today0(); const mon = addDays(t, -((t.getDay()+6)%7) - 28);
-    hb.innerHTML = `<div class="cal">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(d => `<span class="muted" style="font-size:10.5px;text-align:center">${d}</span>`).join("")}${Array.from({length:35}, (_, i) => { const d = addDays(mon, i); const k = dkey(d); const fut = d > t;
-      return `<button class="${(it.log || {})[k] ? "on" : ""} ${k === tk ? "today" : ""}" ${fut ? "disabled style='opacity:.35'" : ""} data-act="hday" data-id="${it.id}" data-day="${k}" aria-label="${k}"><span class="num">${d.getDate()}</span></button>`; }).join("")}</div>`;
-    $("#d-streak").textContent = `${streak(it)} Tage in Folge · ${weekCount(it)}/${it.target || 7} diese Woche`; }
+  if (hb) { hb.innerHTML = habitMonthHTML(it); $("#d-streak").textContent = `${inRow(streak(it))} · ${weekCount(it)}/${it.target || 7} diese Woche`; }
+  const ta = $("#d-body"), md = $("#d-md");
+  if (ta && md) {
+    const edit = !!S.bodyEdit;
+    ta.hidden = !edit; md.hidden = edit; $("#d-mdhint").hidden = !edit;
+    $("#d-mdmode").innerHTML = edit ? `${ic("check")}Ansicht` : `${ic("note")}Bearbeiten`;
+    if (!edit) md.innerHTML = it.body ? mdHTML(it.body, it) : `<span class="muted">Noch leer. Tippe auf „Bearbeiten“.</span>`;
+  }
+  const tg = $("#dy-tags"); if (tg) tg.innerHTML = tagsOf(it).map(t => `<span class="relchip"><button class="o" data-tag="${esc(t)}">#${esc(t)}</button><button class="x" data-act="untag" data-val="${esc(t)}" aria-label="Stichwort entfernen">${ic("close")}</button></span>`).join("");
+  const rm = $("#dy-remind");
+  if (rm) rm.innerHTML = it.remind && (it.kind === "habit" || it.kind === "task") ? `<div class="lrow">${ic("bell")}<div class="t"><b>Erinnerung ${esc(it.remind)}${it.kind === "habit" ? " täglich" : it.due ? ` am ${fmtLong(it.due)}` : ""}</b><small>${it.kind === "task" && !it.due ? "Gib ein Fälligkeitsdatum an, damit die Erinnerung kommt." : notifyState() === "granted" ? "Kommt als Mitteilung, solange die App offen oder im Hintergrund ist." : "Mitteilungen sind noch nicht erlaubt (Anpassen → Erinnerungen)."}</small></div>
+    <button class="pill" data-act="ics" title="Als Kalendertermin mit Alarm speichern, klappt auch bei geschlossener App">${ic("cal")}In Kalender</button></div>` : "";
   const groups = {};
   for (const r of rel) (groups[r.kind] = groups[r.kind] || []).push(r);
   $("#dy-rel").innerHTML = rel.length ? Object.entries(groups).map(([kd, rs]) => `<div class="rel-group"><span>${esc((kinds()[kd] || {plural:"Einträge"}).plural)}</span>${rs.map(r => `<span class="relchip">${r.kind === "resource" && topic(r.topic) ? `<span class="tdot" style="background:${esc(topic(r.topic).color)}"></span>` : ""}<button class="o" data-open="${r.id}">${r.kind === "task" && r.done ? "✓ " : ""}${esc(r.title || "Ohne Titel")}</button><button class="x" data-act="unlink" data-id="${r.id}" aria-label="Verknüpfung lösen">${ic("close")}</button></span>`).join("")}</div>`).join("")
@@ -958,11 +1329,23 @@ function doCreate(){
   const extra = {};
   if (S.newKind === "resource" && S.view === "resource" && S.filter.resource && S.filter.resource !== "all") extra.topic = S.filter.resource;
   const it = create(S.newKind, title, extra);
-  renderMain(); renderSide(); openDetail(it.id);
+  renderMain(); renderSide(); openDetailFresh(it.id);
 }
 
 /* ================= actions ================= */
-function toggleTask(id){ const t = S.items.get(id); if (!t) return; t.done = !t.done; t.doneAt = t.done ? Date.now() : null; persist(t); renderMain(); renderSide(); refreshDetail(); }
+function toggleTask(id){
+  const t = S.items.get(id); if (!t) return;
+  t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
+  let msg = "";
+  // Wiederkehrend: beim ersten Abhaken die nächste Aufgabe mit allen Verknüpfungen anlegen
+  if (t.done && t.repeat && !t.spawned) {
+    const due = nextDue(t);
+    const n = create("task", t.title, {due, prio:t.prio, repeat:t.repeat, repeatDays:t.repeatDays, repeatDom:t.repeatDom || (t.due ? parseKey(t.due).getDate() : new Date().getDate()),
+      remind:t.remind, tags:[...tagsOf(t)], body:t.body, links:clone(t.links || []), rel:related(t.id).map(r => r.id), order:t.order});
+    t.spawned = n.id; msg = `Nächster Termin: ${fmtLong(due)}`;
+  }
+  persist(t); renderMain(); renderSide(); refreshDetail(); if (msg) toast(msg);
+}
 function toggleDay(id, day){ const h = S.items.get(id); if (!h) return; const log = {...(h.log || {})}; if (log[day]) delete log[day]; else log[day] = true; h.log = log; persist(h); renderMain(); refreshDetail(); }
 function linkItems(aId, bId){ const a = S.items.get(aId); if (!a || aId === bId) return; if (!(a.rel || []).includes(bId)) { a.rel = [...(a.rel || []), bId]; persist(a); } }
 function unlinkItems(aId, bId){
@@ -1027,7 +1410,40 @@ async function importData(file){
     renderMain(); renderSide(); toast(`${n} Einträge eingespielt`);
   } catch(e) { toast("Diese Datei ist keine gültige Sicherung."); }
 }
-function closeOverlay(){ S.open = null; $("#overlay").innerHTML = ""; }
+function closeOverlay(){ S.open = null; $("#overlay").innerHTML = ""; closePop(); }
+
+/* ================= Erinnerungen ================= */
+// Mitteilungen kommen, solange die App offen oder im Hintergrund aktiv ist. Für Erinnerungen bei geschlossener App gibt es die Kalender-Datei.
+const FIRED = "para-cockpit.fired";
+const notifyState = () => !("Notification" in window) ? "unsupported" : Notification.permission;
+function remindersDue(now = new Date()){
+  const tk = dkey(now); const hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`; const out = [];
+  for (const h of live("habit")) if (h.remind && !hdone(h, tk)) out.push({key:`h:${h.id}:${tk}`, at:h.remind, title:h.title, body:"Heute schon erledigt?", id:h.id});
+  for (const t of live("task")) if (t.remind && !t.done && t.due === tk) out.push({key:`t:${t.id}:${tk}`, at:t.remind, title:t.title, body:"Heute fällig", id:t.id});
+  if (S.settings.reviewTime && isoDay(now) === (+S.settings.reviewDay || 7) && !reviewNote(weekId(now))) out.push({key:`r:${weekId(now)}`, at:S.settings.reviewTime, title:"Wochenrückblick", body:"Zeit für deinen Rückblick auf die Woche", view:"review"});
+  const mins = s => { const [a, b] = s.split(":").map(Number); return a * 60 + b; };
+  return out.filter(r => r.at <= hm && mins(hm) - mins(r.at) <= 180);
+}
+async function checkReminders(){
+  if (S.mode !== "app" || notifyState() !== "granted") return;
+  let fired = {}; try { fired = JSON.parse(localStorage.getItem(FIRED) || "{}"); } catch(e){}
+  for (const k in fired) if (fired[k] < Date.now() - 3 * 864e5) delete fired[k];
+  const due = remindersDue().filter(r => !fired[r.key]); if (!due.length) return;
+  const reg = navigator.serviceWorker ? await navigator.serviceWorker.getRegistration().catch(() => null) : null;
+  for (const r of due) {
+    fired[r.key] = Date.now();
+    const opts = {body:r.body, icon:"icon-192.png", badge:"icon-192.png", tag:r.key, data:{id:r.id || "", view:r.view || ""}};
+    try { if (reg) await reg.showNotification(r.title, opts); else new Notification(r.title, opts); } catch(e){}
+  }
+  try { localStorage.setItem(FIRED, JSON.stringify(fired)); } catch(e){}
+}
+async function enableNotify(){
+  if (notifyState() === "unsupported") { toast("Dieses Gerät erlaubt hier keine Mitteilungen. Auf dem iPhone: App erst zum Home-Bildschirm hinzufügen."); return; }
+  const p = await Notification.requestPermission().catch(() => "denied");
+  if (p === "granted") { toast("Erinnerungen sind an"); checkReminders(); } else toast("Mitteilungen wurden nicht erlaubt. Ändern kannst du das in den Einstellungen des Browsers.");
+  renderMain(); refreshDetail();
+}
+setInterval(checkReminders, 30000);
 let toastT;
 function toast(msg){ clearTimeout(toastT); $("#toast-wrap").innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; toastT = setTimeout(() => $("#toast-wrap").innerHTML = "", 3200); }
 function quickAdd(kind, inputId, relId){
@@ -1036,7 +1452,7 @@ function quickAdd(kind, inputId, relId){
   const extra = {};
   if (kind === "resource" && S.filter.resource && S.filter.resource !== "all") extra.topic = S.filter.resource;
   if (kind === "project" && S.filter.project && S.filter.project !== "all") extra.status = S.filter.project;
-  if (kind === "task" && S.view === "task" && S.filter.task === "today") extra.due = dkey();
+  if (kind === "task" && (inputId === "today-add" || (S.view === "task" && S.filter.task === "today"))) extra.due = dkey();
   const made = create(kind, title, extra);
   if (relId) linkItems(relId, made.id);
   inp.value = "";
@@ -1045,9 +1461,11 @@ function quickAdd(kind, inputId, relId){
 
 /* ================= events ================= */
 document.addEventListener("click", e => {
+  if (e.target.closest("[data-drag]") || Date.now() - (S.justDragged || 0) < 300) { e.preventDefault(); return; }
   const side = $("#side"); if (side.classList.contains("open") && !e.target.closest("#side") && !e.target.closest('[data-act="menu"]')) side.classList.remove("open");
-  const g = e.target.closest("[data-go]"); if (g) { go(g.dataset.go); return; }
-  const o = e.target.closest("[data-open]"); if (o && !e.target.closest("[data-act]")) { const q = $("#q"); if (q && q.value) { q.value = ""; searchRender(""); } openDetail(o.dataset.open); return; }
+  const g = e.target.closest("[data-go]"); if (g) { closePop(); if (S.open) closeOverlay(); go(g.dataset.go); return; }
+  const tg = e.target.closest("[data-tag]"); if (tg) { S.filter.tag = tg.dataset.tag; closeOverlay(); go("tags"); return; }
+  const o = e.target.closest("[data-open]"); if (o && !e.target.closest("[data-act]")) { const q = $("#q"); if (q && q.value) { q.value = ""; searchRender(""); } closePop(); openDetailFresh(o.dataset.open); return; }
   const fb = e.target.closest("[data-filter]"); if (fb) { S.filter[fb.dataset.filter] = fb.dataset.val; renderMain(); return; }
   const a = e.target.closest("[data-act]"); if (!a) { if (!e.target.closest(".search")) searchRender(""); return; }
   const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
@@ -1060,7 +1478,23 @@ document.addEventListener("click", e => {
     case "theme": { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; S.settings.theme = dark ? "light" : "dark"; saveSettings(); if (S.view === "settings") renderMain(); break; }
     case "set-theme": S.settings.theme = a.dataset.val; saveSettings(); renderMain(); break;
     case "toggle": toggleTask(id); break;
-    case "hday": toggleDay(id, a.dataset.day); break;
+    case "hday": { const h = S.items.get(id); if (h && hmode(h) !== "check") openPop(id, a.dataset.day); else toggleDay(id, a.dataset.day); break; }
+    case "hpick": { const h = S.items.get(id); if (h) setHabit(id, a.dataset.day, hval(h, a.dataset.day) === a.dataset.val ? null : a.dataset.val); break; }
+    case "hclear": setHabit(id, a.dataset.day, null); break;
+    case "pop-close": closePop(); break;
+    case "hmon": S.hMonth = Math.min(0, (S.hMonth || 0) + +a.dataset.d); refreshDetail(); break;
+    case "md-mode": if (it) { S.bodyEdit = !S.bodyEdit; $("#d-body").value = it.body || ""; refreshDetail(); if (S.bodyEdit) { const ta = $("#d-body"); ta.focus(); } } break;
+    case "md-cb": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; ls[n] = ls[n].replace(/\[( |x|X)\]/, (_, s) => s === " " ? "[x]" : "[ ]"); it.body = ls.join("\n"); persist(it); refreshDetail(); } break;
+    case "md-task": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; const m = ls[n].match(/^(\s*[-*]\s+)\[ \]\s+(.*)$/); if (!m) break;
+      const t = create("task", plain(m[2]).trim(), {tags:[...tagsOf(it)]}); linkItems(it.id, t.id); ls[n] = `${m[1]}[>] ${plain(m[2]).trim()}`; it.body = ls.join("\n"); persist(it); refreshDetail(); renderMain(); renderSide(); toast("Aufgabe angelegt und verknüpft"); } break;
+    case "untag": if (it) { it.tags = tagsOf(it).filter(t => t !== a.dataset.val); persist(it); refreshDetail(); renderMain(); } break;
+    case "rday": if (it) { const d = +a.dataset.d; const ds = new Set(it.repeatDays || []); ds.has(d) ? ds.delete(d) : ds.add(d); it.repeatDays = [...ds].sort(); persist(it); a.classList.toggle("on", ds.has(d)); renderMain(); } break;
+    case "ics": if (it) downloadIcs([it], it.title || "Erinnerung"); break;
+    case "ics-all": downloadIcs([...live("habit"), ...live("task").filter(t => !t.done)], "Cockpit-Erinnerungen"); break;
+    case "notify-on": enableNotify(); break;
+    case "set-sort": S.settings.sort = {...(S.settings.sort || {}), [a.dataset.key]: a.dataset.val}; saveSettings(); renderMain(); break;
+    case "set-start": S.settings.start = a.dataset.val; saveSettings(); renderMain(); break;
+    case "review-save": saveReview(); break;
     case "addtask": quickAdd("task", a.dataset.src, a.dataset.rel); break;
     case "quick": quickAdd(a.dataset.kind, "add-" + a.dataset.kind); break;
     case "restore": { const x = S.items.get(id); if (x) { x.archived = false; persist(x); renderMain(); renderSide(); toast("Zurückgeholt"); } break; }
@@ -1098,6 +1532,10 @@ document.addEventListener("input", e => {
   if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
   if (it && t.id === "d-body") { it.body = t.value; persist(it, 800); return; }
   if (it && t.id === "d-target") { it.target = Math.max(1, Math.min(7, +t.value || 7)); persist(it, 600); return; }
+  if (it && t.id === "d-goal") { it.goal = parseFloat(t.value.replace(",", ".")) || 0; persist(it, 600); return; }
+  if (it && t.id === "d-unit") { it.unit = t.value.trim(); persist(it, 600); return; }
+  if (it && t.id === "d-opts") { it.options = t.value.split(",").map(s => s.trim()).filter(Boolean); persist(it, 600); return; }
+  if (t.id === "rv-good" || t.id === "rv-change") { S.rvDraft = {...(S.rvDraft || {}), [t.id]: t.value}; return; }
   const set = t.dataset.set;
   if (set === "topic-name" || set === "topic-color") { const tp = S.settings.topics.find(x => x.id === t.dataset.id); if (tp) { tp[set === "topic-name" ? "name" : "color"] = t.value; saveSettings(); } }
   if (set === "kind-name") { const k = S.settings.kinds.find(x => x.id === t.dataset.id); if (k) { k.label = t.value; saveSettings(); renderSide(); } }
@@ -1107,7 +1545,14 @@ document.addEventListener("change", e => {
   const t = e.target; const it = S.open && S.items.get(S.open);
   if (t.id === "d-file") { uploadFiles([...t.files]); t.value = ""; return; }
   if (t.id === "import-file") { if (t.files[0]) importData(t.files[0]); t.value = ""; return; }
+  if (t.dataset.hnum) { const v = parseFloat(t.value.replace(",", ".")); setHabit(t.dataset.hnum, t.dataset.day, isNaN(v) ? null : v); return; }
+  if (t.id === "rv-day") { S.settings.reviewDay = +t.value; saveSettings(); renderSide(); return; }
+  if (t.id === "rv-time") { S.settings.reviewTime = t.value; saveSettings(); return; }
   if (!it) return;
+  if (t.id === "d-tag") { addTag(it, t.value); t.value = ""; return; }
+  if (t.id === "d-remind") { it.remind = t.value; persist(it); refreshDetail(); renderMain(); return; }
+  if (t.id === "d-repeat") { it.repeat = t.value; if (t.value === "days" && !(it.repeatDays || []).length) it.repeatDays = [isoDay(it.due ? parseKey(it.due) : new Date())]; it.spawned = null; persist(it); renderMain(); openDetail(it.id); return; }
+  if (t.id === "d-hmode") { it.mode = t.value; persist(it); renderMain(); openDetail(it.id); return; }
   if (t.id === "d-due") { it.due = t.value; persist(it); renderMain(); }
   if (t.id === "d-start") { it.start = t.value; persist(it); renderMain(); }
   if (t.id === "d-prio") { it.prio = t.value; persist(it); renderMain(); }
@@ -1119,12 +1564,24 @@ document.addEventListener("change", e => {
     if (nk === "resource") it.topic = it.topic || "";
     persist(it); renderMain(); renderSide(); openDetail(it.id); }
 });
+function addTag(it, raw){
+  const add = String(raw || "").split(",").map(s => s.trim().replace(/^#+/, "").replace(/\s+/g, "-")).filter(Boolean);
+  if (!add.length) return;
+  const cur = tagsOf(it); const low = new Set(cur.map(t => t.toLowerCase()));
+  const known = new Map(allTags().map(t => [t.name.toLowerCase(), t.name]));
+  it.tags = [...cur, ...add.filter(t => !low.has(t.toLowerCase())).map(t => known.get(t.toLowerCase()) || t)];
+  persist(it); refreshDetail(); renderMain();
+}
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
-  if (e.key !== "Enter" || e.isComposing) return;
+  if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
   const t = e.target;
+  if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
+  if (e.key !== "Enter" || e.isComposing) return;
+  if (t.dataset.hnum) { e.preventDefault(); t.blur(); return; }
   if (t.id === "new-title") { e.preventDefault(); doCreate(); }
   else if (t.id === "dash-add") { e.preventDefault(); quickAdd("task", "dash-add"); }
+  else if (t.id === "today-add") { e.preventDefault(); quickAdd("task", "today-add"); }
+  else if (t.id.startsWith("ns-")) { e.preventDefault(); quickAdd("task", t.id, t.dataset.rel); }
   else if (t.id === "d-addtask") { e.preventDefault(); quickAdd("task", "d-addtask", S.open); }
   else if (t.id && t.id.startsWith("add-")) { e.preventDefault(); quickAdd(t.id.slice(4), t.id); }
   else if (t.id === "d-title") { e.preventDefault(); $("#d-body").focus(); }
@@ -1133,6 +1590,32 @@ document.addEventListener("keydown", e => {
   else if (t.id === "new-kind") { e.preventDefault(); document.querySelector('[data-act="add-kind"]').click(); }
   else if (t.id === "d-pick-q") { e.preventDefault(); const first = document.querySelector("#d-pick-res [data-act]"); if (first) first.click(); }
 });
+
+/* Sortieren per Ziehen: Griff [data-drag] in einer Liste [data-sort], Einträge mit [data-sid] */
+let drag = null;
+document.addEventListener("pointerdown", e => {
+  const hnd = e.target.closest("[data-drag]"); if (!hnd) return;
+  const el = hnd.closest("[data-sid]"); const box = el && el.parentElement; if (!box || !box.dataset.sort) return;
+  e.preventDefault(); drag = {el, box, moved:false}; el.classList.add("dragging");
+  try { hnd.setPointerCapture(e.pointerId); } catch(err){}
+});
+document.addEventListener("pointermove", e => {
+  if (!drag) return; e.preventDefault();
+  const over = document.elementFromPoint(e.clientX, e.clientY); const tgt = over && over.closest("[data-sid]");
+  if (!tgt || tgt === drag.el || tgt.parentElement !== drag.box) return;
+  const r = tgt.getBoundingClientRect(); const grid = getComputedStyle(drag.box).display === "grid" && r.width < drag.box.clientWidth * 0.9;
+  const after = grid ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2;
+  drag.box.insertBefore(drag.el, after ? tgt.nextSibling : tgt);
+  drag.moved = true;
+}, {passive:false});
+function endDrag(){
+  if (!drag) return; const {el, box, moved} = drag; drag = null; el.classList.remove("dragging");
+  S.justDragged = Date.now(); if (!moved) return;
+  [...box.querySelectorAll(":scope > [data-sid]")].forEach((n, i) => { const x = S.items.get(n.dataset.sid); if (x && x.order !== i) { x.order = i; persist(x); } });
+  const key = box.dataset.sort; if (key !== "habit" && sortMode(key) !== "manual") { S.settings.sort = {...(S.settings.sort || {}), [key]: "manual"}; saveSettings(); }
+  renderMain();
+}
+document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
 
 function render(){ document.body.classList.toggle("auth", S.mode !== "app"); renderSide(); renderMain(); }
 document.addEventListener("submit", async e => {
