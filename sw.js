@@ -1,5 +1,5 @@
 // Offline-Cache: App-Dateien sofort aus dem Speicher, im Hintergrund aktualisieren.
-const CACHE = "para-cockpit-v2";
+const CACHE = "para-cockpit-v3";
 const SHELL = ["./", "./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
@@ -15,7 +15,21 @@ self.addEventListener("fetch", e => {
   const sameOrigin = url.origin === self.location.origin;
   const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
   if (!sameOrigin && !isFont) return; // Supabase-Anfragen gehen direkt ans Netz
-  const key = req.mode === "navigate" ? "./index.html" : req;
+  // App-Seite: zuerst frisch aus dem Netz (damit Updates sofort ankommen), nach 3 s oder offline aus dem Speicher
+  if (req.mode === "navigate") {
+    const net = fetch("./index.html", {cache: "no-store"}).then(async res => {
+      if (res && res.ok) { const c = await caches.open(CACHE); await c.put("./index.html", res.clone()); }
+      return res;
+    });
+    e.waitUntil(net.catch(() => {}));
+    const fallback = () => caches.match("./index.html", {ignoreSearch: true});
+    e.respondWith(Promise.race([
+      net.then(res => res && res.ok ? res : fallback()).catch(fallback),
+      new Promise(r => setTimeout(r, 3000)).then(fallback).then(hit => hit || net)
+    ]));
+    return;
+  }
+  const key = req;
   const fresh = fetch(req).then(async res => {
     if (res && (res.ok || res.type === "opaque")) { const c = await caches.open(CACHE); await c.put(key, res.clone()); }
     return res;
