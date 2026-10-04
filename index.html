@@ -208,7 +208,6 @@ code{font-family:var(--f-num);font-size:12px;background:var(--soft);padding:1px 
 .d-title{width:100%;border:0;outline:none;background:transparent;font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;resize:none;padding:0;overflow:hidden}
 .d-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .d-fields label,.sec-l{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
-.d-body{min-height:160px}
 .sec{display:flex;flex-direction:column;gap:10px}
 .sec-h{display:flex;align-items:center;gap:8px}
 .sec-h .sec-l{margin:0;flex:1}
@@ -275,17 +274,28 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .step .add{flex:2;min-width:220px}
 .stepn{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
 .md-tools{display:flex;gap:6px;flex-wrap:wrap}
-.md{font-size:14px;line-height:1.6;overflow-wrap:anywhere;padding:12px 14px;border:1px solid var(--line);border-radius:12px;min-height:80px}
-.md > :first-child{margin-top:0} .md > :last-child{margin-bottom:0}
-.md h2{font-size:19px;margin:.9em 0 .3em;letter-spacing:-.02em} .md h3{font-size:16px;margin:.8em 0 .3em} .md h4{font-size:14px;margin:.8em 0 .3em}
-.md p{margin:.45em 0} .md ul,.md ol{margin:.45em 0;padding-left:1.4em}
-.md li.cb{list-style:none;margin-left:-1.4em;display:flex;gap:9px;align-items:flex-start;padding:2px 0}
-.md li.cb .check{width:20px;height:20px;margin-top:1px}
-.md li.cb > span{flex:1;min-width:0}
-.md li.cb.done > span{color:var(--muted);text-decoration:line-through}
-.md blockquote{margin:.6em 0;padding:2px 12px;border-left:3px solid var(--line-2);color:var(--muted)}
-.md hr{border:0;border-top:1px solid var(--line-2);margin:1em 0}
-.md a{text-decoration:underline;text-underline-offset:2px}
+.mded{position:relative;min-height:170px;padding:12px 14px;border:1px solid var(--line-2);border-radius:12px;background:var(--panel-solid);outline:none;font-size:15px;line-height:1.6;overflow-wrap:anywhere;white-space:pre-wrap;counter-reset:ol}
+.mded:focus{border-color:var(--ink)}
+.mded[data-empty="1"]::before{content:attr(data-ph);position:absolute;left:14px;top:12px;right:14px;color:var(--muted);pointer-events:none}
+.mded > div{position:relative;min-height:1.6em}
+.mded > [data-t=h1]{font-size:23px;font-weight:700;letter-spacing:-.025em;line-height:1.3;margin:.55em 0 .1em}
+.mded > [data-t=h2]{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.3;margin:.5em 0 .1em}
+.mded > [data-t=h3]{font-size:16px;font-weight:700;line-height:1.35;margin:.45em 0 .05em}
+.mded > [data-t]:first-child{margin-top:0}
+.mded > [data-t=ul],.mded > [data-t=ol],.mded > [data-t=cb]{padding-left:28px}
+.mded > [data-t=ul]::before{content:"•";position:absolute;left:9px;top:0;font-weight:800}
+.mded > :not([data-t=ol]){counter-reset:ol}
+.mded > [data-t=ol]{counter-increment:ol}
+.mded > [data-t=ol]::before{content:counter(ol) ".";position:absolute;left:3px;top:0;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+.mded > [data-t=cb]::before{content:"";position:absolute;left:1px;top:.22em;width:18px;height:18px;border-radius:50%;border:1.6px solid var(--line-2);box-sizing:border-box;cursor:pointer}
+.mded > [data-t=cb][data-c=x]::before,.mded > [data-t=cb][data-done="1"]::before{background:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--panel-solid)}
+.mded > [data-t=cb][data-c=x],.mded > [data-t=cb][data-done="1"]{color:var(--muted);text-decoration:line-through}
+.mded > [data-t=cb][data-c=">"]::after{content:"Aufgabe";margin-left:8px;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--muted);text-decoration:none;display:inline-block;vertical-align:1px}
+.mded > [data-t=quote]{border-left:3px solid var(--line-2);padding-left:12px;color:var(--muted)}
+.mded > [data-t=hr]{min-height:0;height:1px;background:var(--line-2);margin:14px 0}
+.mded b,.mded strong{font-weight:800}
+.mded code{font-size:13px}
+.mded a{text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .handle{cursor:grab;touch-action:none;color:var(--muted);display:grid;place-items:center;width:24px;height:28px;flex:none;border-radius:8px}
 .handle:hover{background:var(--soft);color:var(--text)}
 .handle svg{stroke-width:3.2}
@@ -469,31 +479,152 @@ function mdInline(s){
     .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
     .replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<i>$2</i>");
 }
-function mdHTML(src, it){
-  const lines = String(src || "").split("\n"); let html = "", list = null, para = [];
-  const flushP = () => { if (para.length) { html += `<p>${para.map(l => mdInline(esc(l))).join("<br>")}</p>`; para = []; } };
-  const closeL = () => { if (list) { html += `</${list}>`; list = null; } };
-  const openL = tag => { if (list !== tag) { closeL(); html += `<${tag}>`; list = tag; } };
-  lines.forEach((raw, i) => {
-    const l = raw.replace(/\s+$/, ""); let m;
-    if (!l.trim()) { flushP(); closeL(); return; }
-    if ((m = l.match(/^\s*(#{1,3})\s*([^#\s].*)$/))) { flushP(); closeL(); const n = m[1].length + 1; html += `<h${n}>${mdInline(esc(m[2]))}</h${n}>`; return; }
-    if (/^(-{3,}|\*{3,})$/.test(l.trim())) { flushP(); closeL(); html += "<hr>"; return; }
-    if ((m = l.match(/^>\s?(.*)$/))) { flushP(); closeL(); html += `<blockquote>${mdInline(esc(m[1]))}</blockquote>`; return; }
-    if ((m = l.match(/^\s*(?:[-*•–—]\s*)?\[( |x|X|>)\]\s*(.*)$/))) { flushP(); openL("ul"); html += cbHTML(m[1], m[2], i, it); return; }
-    if ((m = l.match(/^\s*[-*•–—]\s+(.*)$/))) { flushP(); openL("ul"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
-    if ((m = l.match(/^\s*\d+[.)]\s+(.*)$/))) { flushP(); openL("ol"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
-    closeL(); para.push(l);
-  });
-  flushP(); closeL(); return html;
-}
-function cbHTML(state, text, line, it){
-  if (state === ">") {
-    const t = it && related(it.id).find(r => r.kind === "task" && r.title === text.trim());
-    return `<li class="cb ${t && t.done ? "done" : ""}"><button class="check ${t && t.done ? "on" : ""}" ${t ? `data-act="toggle" data-id="${t.id}"` : "disabled"} aria-label="Aufgabe erledigt">${ic("check")}</button><span>${mdInline(esc(text))}</span>${t ? `<button class="chip" data-open="${t.id}">${ic("task")}Aufgabe</button>` : ""}</li>`;
+// ===== Notion-artiger Editor: jede Zeile ist ein Block (Absatz, Überschrift, Liste, Checkbox …), gespeichert wird Markdown =====
+const ED_LIST = ["ul", "ol", "cb", "quote"];
+function lineBlock(l, it){
+  let m, t = "p", c = "", text = l;
+  if ((m = l.match(/^\s*(#{1,3})\s*([^#\s].*)$/))) { t = "h" + m[1].length; text = m[2]; }
+  else if (/^\s*(-{3,}|\*{3,})\s*$/.test(l)) return `<div data-t="hr" contenteditable="false"></div>`;
+  else if ((m = l.match(/^\s*>\s?(.*)$/))) { t = "quote"; text = m[1]; }
+  else if ((m = l.match(/^\s*(?:[-*•–—]\s*)?\[( |x|X|>)?\]\s*(.*)$/))) { t = "cb"; c = /x/i.test(m[1] || "") ? "x" : m[1] === ">" ? ">" : ""; text = m[2]; }
+  else if ((m = l.match(/^\s*[-*•–—]\s+(.*)$/))) { t = "ul"; text = m[1]; }
+  else if ((m = l.match(/^\s*\d+[.)]\s+(.*)$/))) { t = "ol"; text = m[1]; }
+  let extra = "";
+  if (t === "cb") {
+    extra = ` data-c="${c}"`;
+    if (c === ">") { const task = it && related(it.id).find(r => r.kind === "task" && r.title === text.trim()); if (task) extra += ` data-task="${task.id}"${task.done ? ' data-done="1"' : ""}`; }
   }
-  const on = state !== " ";
-  return `<li class="cb ${on ? "done" : ""}"><button class="check ${on ? "on" : ""}" data-act="md-cb" data-line="${line}" aria-label="Abhaken">${ic("check")}</button><span>${mdInline(esc(text))}</span>${on ? "" : `<button class="chip" data-act="md-task" data-line="${line}" title="Als echte Aufgabe anlegen und verknüpfen">→ Aufgabe</button>`}</li>`;
+  return `<div data-t="${t}"${extra}>${text ? mdInline(esc(text)) : "<br>"}</div>`;
+}
+const mdBlocks = (src, it) => String(src || "").split("\n").map(l => lineBlock(l, it)).join("");
+function inlMd(node){
+  let out = "";
+  for (const n of node.childNodes) {
+    if (n.nodeType === 3) { out += n.nodeValue.replace(/\u00a0/g, " "); continue; }
+    if (n.nodeType !== 1 || n.tagName === "BR") continue;
+    const t = n.tagName, inner = inlMd(n);
+    if ((t === "B" || t === "STRONG" || (t === "SPAN" && /bold|[6-9]00/.test(n.style.fontWeight))) && inner.trim()) out += `**${inner}**`;
+    else if ((t === "I" || t === "EM") && inner.trim()) out += `*${inner}*`;
+    else if (t === "CODE" && inner) out += "`" + inner + "`";
+    else if (t === "A" && inner) { const h = n.getAttribute("href") || ""; out += inner === h ? h : `[${inner}](${h})`; }
+    else out += inner;
+  }
+  return out;
+}
+function edToMd(ed){
+  const out = []; let n = 0;
+  for (const b of ed.children) {
+    const t = b.dataset.t || "p"; n = t === "ol" ? n + 1 : 0;
+    if (t === "hr") { out.push("---"); continue; }
+    const txt = inlMd(b).replace(/\n/g, " ").replace(/\s+$/, "");
+    const pre = {h1:"# ", h2:"## ", h3:"### ", ul:"- ", ol:`${n}. `, quote:"> ", cb:`- [${b.dataset.c === "x" ? "x" : b.dataset.c === ">" ? ">" : " "}] `}[t] || "";
+    out.push(pre + txt);
+  }
+  while (out.length && out[out.length - 1] === "") out.pop();
+  return out.join("\n");
+}
+// Struktur aufräumen: alles direkt im Editor muss ein Block-<div> mit data-t sein
+function edNormalize(ed){
+  let wrap = null;
+  for (const n of [...ed.childNodes]) {
+    if (n.nodeType === 1 && (n.tagName === "DIV" || n.tagName === "P")) {
+      wrap = null;
+      if (!n.dataset.t) n.dataset.t = "p";
+      for (const inner of [...n.querySelectorAll(":scope > div, :scope > p")]) { const nb = document.createElement("div"); nb.dataset.t = "p"; while (inner.firstChild) nb.appendChild(inner.firstChild); inner.remove(); n.after(nb); }
+      continue;
+    }
+    if (n.nodeType === 3 && !n.nodeValue.trim() && !wrap) { n.remove(); continue; }
+    if (!wrap) { wrap = document.createElement("div"); wrap.dataset.t = "p"; n.before(wrap); }
+    wrap.appendChild(n);
+  }
+  if (!ed.children.length) ed.innerHTML = '<div data-t="p"><br></div>';
+  ed.dataset.empty = ed.children.length === 1 && !ed.textContent.trim() && (ed.children[0].dataset.t || "p") === "p" ? "1" : "";
+}
+function edBlock(ed){
+  const sel = getSelection(); if (!sel.rangeCount) return null;
+  let n = sel.anchorNode; if (n === ed) return ed.children[Math.min(sel.anchorOffset, ed.children.length - 1)] || null;
+  while (n && n.parentNode !== ed) n = n.parentNode;
+  return n && n.nodeType === 1 ? n : null;
+}
+function caretOff(b){
+  const sel = getSelection(); if (!sel.rangeCount) return 0;
+  const r = sel.getRangeAt(0); const pre = document.createRange(); pre.selectNodeContents(b);
+  try { pre.setEnd(r.startContainer, r.startOffset); } catch(e) { return 0; }
+  return pre.toString().length;
+}
+function setCaret(b, off){
+  const r = document.createRange(); const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT); let n, left = off, done = false;
+  while ((n = w.nextNode())) { if (left <= n.nodeValue.length) { r.setStart(n, left); done = true; break; } left -= n.nodeValue.length; }
+  if (!done) { r.selectNodeContents(b); r.collapse(false); if (!b.textContent) r.setStart(b, 0); }
+  r.collapse(true); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+}
+function dropChars(b, k){
+  const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT); let n;
+  while (k > 0 && (n = w.nextNode())) { const d = Math.min(k, n.nodeValue.length); n.nodeValue = n.nodeValue.slice(d); k -= d; }
+}
+const fixEmpty = b => { if (!b.textContent) b.innerHTML = "<br>"; };
+function setType(b, t, c = ""){ b.dataset.t = t; if (t === "cb") b.dataset.c = c; else { delete b.dataset.c; delete b.dataset.task; delete b.dataset.done; } }
+function edSave(){ const ed = $("#d-ed"), it = S.items.get(S.open); if (!ed || !it) return; edNormalize(ed); const md = edToMd(ed); if (md !== (it.body || "")) { it.body = md; persist(it, 800); } }
+// Markdown-Kürzel beim Tippen in Formatierung verwandeln (wie in Notion)
+function edShortcut(ed){
+  const b = edBlock(ed); if (!b) return;
+  const t = b.dataset.t || "p"; const txt = b.textContent.replace(/\u00a0/g, " "); const off = caretOff(b); let m;
+  const conv = (nt, len, c = "") => { if (off < len) return false; dropChars(b, len); setType(b, nt, c); fixEmpty(b); setCaret(b, off - len); return true; };
+  if (t === "p" || t === "ul") {
+    if ((m = txt.match(/^(?:[-*•–—] ?)?\[( |x|X)?\] /)) && conv("cb", m[0].length, /x/i.test(m[1] || "") ? "x" : "")) return;
+  }
+  if (t === "p") {
+    if ((m = txt.match(/^(#{1,3}) /)) && conv("h" + m[1].length, m[0].length)) return;
+    if ((m = txt.match(/^[-*•–—] /)) && conv("ul", 2)) return;
+    if ((m = txt.match(/^\d+[.)] /)) && conv("ol", m[0].length)) return;
+    if ((m = txt.match(/^> /)) && conv("quote", 2)) return;
+    if (/^(---|\*\*\*|———|—-|–-)$/.test(txt)) { const hr = document.createElement("div"); hr.dataset.t = "hr"; hr.contentEditable = "false"; const nb = document.createElement("div"); nb.dataset.t = "p"; nb.innerHTML = "<br>"; b.replaceWith(hr); hr.after(nb); setCaret(nb, 0); return; }
+  }
+  // **fett** und `code` direkt umwandeln, sobald das Schlusszeichen getippt ist
+  if (/\*\*[^*\s][^*]*\*\*|`[^`]+`/.test(txt)) {
+    const before = b.textContent.length; b.innerHTML = mdInline(esc(inlMd(b))) || "<br>"; setCaret(b, Math.max(0, off - (before - b.textContent.length)));
+  }
+}
+function edEnter(ed){
+  const b = edBlock(ed); const sel = getSelection(); if (!b || !sel.rangeCount) return;
+  const r = sel.getRangeAt(0); r.deleteContents();
+  const t = b.dataset.t || "p"; const empty = !b.textContent.replace(/\u00a0/g, " ").trim();
+  if (empty && ED_LIST.includes(t)) { setType(b, "p"); fixEmpty(b); setCaret(b, 0); edSave(); return; }
+  const nb = document.createElement("div");
+  if (caretOff(b) === 0 && !empty) { nb.dataset.t = "p"; nb.innerHTML = "<br>"; b.before(nb); edSave(); return; }
+  const tail = document.createRange(); tail.setStart(r.startContainer, r.startOffset); tail.setEnd(b, b.childNodes.length);
+  nb.appendChild(tail.extractContents());
+  setType(nb, ED_LIST.includes(t) ? t : "p");
+  [...nb.querySelectorAll("br")].forEach(x => x.remove()); fixEmpty(b); fixEmpty(nb);
+  b.after(nb); setCaret(nb, 0); nb.scrollIntoView({block:"nearest"}); edSave();
+}
+// Knöpfe über dem Editor
+function edTool(k){
+  const ed = $("#d-ed"), it = S.items.get(S.open); if (!ed || !it) return;
+  const sel = getSelection(); const inside = sel.rangeCount && ed.contains(sel.anchorNode);
+  const keep = inside ? sel.getRangeAt(0).cloneRange() : (S.edSel && ed.contains(S.edSel.startContainer) ? S.edSel : null);
+  ed.focus(); if (keep) { sel.removeAllRanges(); sel.addRange(keep); }
+  let b = edBlock(ed); if (!b) { b = ed.lastElementChild; setCaret(b, b.textContent.length); }
+  if (k === "bold") { document.execCommand("bold"); edSave(); return; }
+  const off = caretOff(b);
+  if (k === "task") {
+    const title = plain(inlMd(b)).trim(); if (!title) { toast("Schreib zuerst etwas in die Zeile."); return; }
+    if (b.dataset.c === ">") { toast("Diese Zeile ist schon eine Aufgabe."); return; }
+    const task = create("task", title, {tags:[...tagsOf(it)]}); linkItems(it.id, task.id);
+    setType(b, "cb", ">"); b.dataset.task = task.id; edSave(); renderMain(); renderSide(); toast("Aufgabe angelegt und verknüpft"); return;
+  }
+  const want = {h:"h1", ul:"ul", ol:"ol", cb:"cb"}[k];
+  setType(b, (b.dataset.t || "p") === want ? "p" : want); setCaret(b, off); edSave();
+}
+// Tipp auf Kreis/Pfeil links in einer Checkbox-Zeile
+function edClick(e){
+  const ed = $("#d-ed"); if (!ed || !ed.contains(e.target)) return false;
+  const a = e.target.closest("a"); if (a) { e.preventDefault(); window.open(a.href, "_blank", "noopener"); return true; }
+  const b = e.target.closest('[data-t="cb"]'); if (!b || b.parentNode !== ed) return false;
+  if (e.clientX - b.getBoundingClientRect().left > 28) return false;
+  e.preventDefault();
+  if (b.dataset.c === ">") { const id = b.dataset.task; if (id && S.items.has(id)) { toggleTask(id); const t = S.items.get(id); if (t && t.done) b.dataset.done = "1"; else delete b.dataset.done; } else toast("Die verknüpfte Aufgabe gibt es nicht mehr."); return true; }
+  b.dataset.c = b.dataset.c === "x" ? "" : "x"; edSave(); return true;
 }
 // Wiederkehrende Aufgaben
 const REPEAT = {"":"Nie", daily:"Täglich", weekdays:"Werktags (Mo–Fr)", weekly:"Wöchentlich", monthly:"Monatlich", days:"An bestimmten Tagen"};
@@ -1178,11 +1309,10 @@ function openDetail(id){
       <div id="dy-remind"></div>
       <div><label class="sec-l" for="d-tag">Stichwörter</label><div class="tags-in"><span id="dy-tags" style="display:contents"></span><input id="d-tag" list="tag-list" placeholder="Stichwort eingeben, Enter" autocomplete="off" aria-label="Stichwort hinzufügen"></div>
         <datalist id="tag-list">${allTags().map(t => `<option value="${esc(t.name)}">`).join("")}</datalist></div>
-      <div class="sec"><div class="sec-h"><label class="sec-l" for="d-body">Inhalt</label><button class="pill" id="d-mdmode" data-act="md-mode"></button></div>
-        <div class="md-tools" id="d-mdtools">${[["h","Überschrift"],["ul","Liste"],["cb","Checkbox"],["bold","Fett"],["link","Link"]].map(([k, l]) => `<button class="pill" data-act="md-ins" data-k="${k}" type="button">${l}</button>`).join("")}</div>
-        <textarea class="field d-body" id="d-body" rows="7" placeholder="${bodyPh}">${esc(it.body || "")}</textarea>
-        <p class="hint" id="d-mdhint" style="margin:0">Tippe auf die Knöpfe oder schreib selbst: <code># Überschrift</code> <code>- Liste</code> <code>- [ ] Checkbox</code> <code>**fett**</code>. Enter setzt eine Liste fort. Darunter siehst du sofort, wie es aussieht.</p>
-        <span class="sec-l" id="d-mdlabel" style="margin:0">Vorschau</span><div class="md" id="d-md"></div></div>
+      <div class="sec"><div class="sec-h"><span class="sec-l" id="d-ed-l">Inhalt</span></div>
+        <div class="md-tools" id="d-mdtools">${[["h","Überschrift"],["ul","Liste"],["cb","Checkbox"],["bold","Fett"],["task","→ Aufgabe"]].map(([k, l]) => `<button class="pill" data-act="ed-tool" data-k="${k}" type="button">${l}</button>`).join("")}</div>
+        <div class="mded" id="d-ed" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="d-ed-l" data-ph="${esc(bodyPh)}" spellcheck="true"></div>
+        <p class="hint" style="margin:0">Wie in Notion: <code>#</code> + Leertaste = Überschrift, <code>-</code> + Leertaste = Liste, <code>[]</code> + Leertaste = Checkbox, <code>**fett**</code>. Kreis antippen = abhaken. „→ Aufgabe“ macht die aktuelle Zeile zu einer echten Aufgabe.</p></div>
       ${it.kind === "project" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Aufgaben im Projekt</span><span class="muted num" id="d-prog"></span></div><div id="dy-tasks"></div>
         <div class="add"><input id="d-addtask" placeholder="Aufgabe für dieses Projekt …" aria-label="Neue Aufgabe im Projekt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="d-addtask" data-rel="${it.id}" aria-label="Hinzufügen">${ic("plus")}</button></div></div>` : ""}
       ${it.kind === "habit" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Verlauf</span><span class="muted num" id="d-streak"></span></div><div id="dy-habit"></div></div>` : ""}
@@ -1196,35 +1326,11 @@ function openDetail(id){
       <p class="muted" style="font-size:11.5px;margin:0">Erstellt ${fmtTs(it.created)} · Geändert <span id="d-upd">${fmtTs(it.updated)}</span></p>
     </div></aside>`;
   autoGrow($("#d-title"));
+  const ed = $("#d-ed"); ed.innerHTML = mdBlocks(it.body, it); edNormalize(ed);
   refreshDetail();
   if (!it.title) $("#d-title").focus();
 }
-// Vorschau beim Schreiben aktualisieren (höchstens einmal pro Bild)
-let mdT = 0;
-function mdPreview(){
-  cancelAnimationFrame(mdT);
-  mdT = requestAnimationFrame(() => { const it = S.items.get(S.open), md = $("#d-md"); if (!it || !md) return; md.hidden = !it.body; $("#d-mdlabel").hidden = !it.body; md.innerHTML = mdHTML(it.body, it); });
-}
-const MD_PRE = /^(\s*)(#{1,3}\s*|[-*•–—]\s*\[[ xX>]\]\s*|\[[ xX>]\]\s*|[-*•–—]\s+|\d+[.)]\s+)/;
-function mdSet(ta, it, v, a, b = a){ ta.value = v; ta.focus(); ta.setSelectionRange(a, b); it.body = v; persist(it, 800); mdPreview(); }
-// Knöpfe: Zeile zur Überschrift/Liste/Checkbox machen (nochmal tippen = zurück), Auswahl fett oder als Link
-function mdInsert(k){
-  const ta = $("#d-body"), it = S.items.get(S.open); if (!ta || !it) return;
-  const v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
-  if (k === "bold" || k === "link") {
-    const sel = v.slice(s, e) || (k === "bold" ? "fett" : "Text");
-    const ins = k === "bold" ? `**${sel}**` : `[${sel}](https://)`;
-    const a = k === "bold" ? s + 2 : s + sel.length + 3, b = k === "bold" ? a + sel.length : a + 8;
-    mdSet(ta, it, v.slice(0, s) + ins + v.slice(e), a, b); return;
-  }
-  const ls = v.lastIndexOf("\n", s - 1) + 1; const nx = v.indexOf("\n", ls); const le = nx < 0 ? v.length : nx;
-  const line = v.slice(ls, le); const m = line.match(MD_PRE); const ind = m ? m[1] : ""; const rest = m ? line.slice(m[0].length) : line;
-  const pre = {h:"# ", ul:"- ", cb:"- [ ] "}[k];
-  const same = m && ((k === "h" && /^#/.test(m[2])) || (k === "cb" && /\[/.test(m[2])) || (k === "ul" && /^[-*•–—]\s+$/.test(m[2])));
-  const nl = same ? ind + rest : ind + pre + rest;
-  mdSet(ta, it, v.slice(0, ls) + nl + v.slice(le), ls + nl.length);
-}
-function openDetailFresh(id){ const it = S.items.get(id); S.bodyEdit = !(it && it.body); S.hMonth = 0; openDetail(id); }
+function openDetailFresh(id){ S.hMonth = 0; openDetail(id); }
 // Monatsansicht einer Gewohnheit: Kalender, bei Zahlen zusätzlich Balken mit Ziellinie
 function habitMonthHTML(h){
   const base = new Date(); base.setHours(0,0,0,0); base.setDate(1); base.setMonth(base.getMonth() + (S.hMonth || 0));
@@ -1301,15 +1407,8 @@ function refreshDetail(){
   if (tasksBox) { const ts = rel.filter(r => r.kind === "task" && !r.archived).sort((a, b) => a.done - b.done || (a.due || "9999").localeCompare(b.due || "9999")); tasksBox.innerHTML = ts.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px">Noch keine Aufgaben. Zerlege das Projekt in konkrete nächste Schritte.</div>`; const pr = progress(it); $("#d-prog").textContent = pr.total ? `${pr.done}/${pr.total} erledigt` : ""; }
   const hb = $("#dy-habit");
   if (hb) { hb.innerHTML = habitMonthHTML(it); $("#d-streak").textContent = `${inRow(streak(it))} · ${weekCount(it)}/${it.target || 7} diese Woche`; }
-  const ta = $("#d-body"), md = $("#d-md");
-  if (ta && md) {
-    const edit = !!S.bodyEdit;
-    ta.hidden = !edit; $("#d-mdhint").hidden = !edit; $("#d-mdtools").hidden = !edit; $("#d-mdlabel").hidden = !edit || !it.body;
-    md.hidden = edit && !it.body;
-    if (document.activeElement !== ta && ta.value !== (it.body || "")) ta.value = it.body || "";
-    $("#d-mdmode").innerHTML = edit ? `${ic("check")}Fertig` : `${ic("note")}Bearbeiten`;
-    md.innerHTML = it.body ? mdHTML(it.body, it) : `<span class="muted">Noch leer. Tippe auf „Bearbeiten“.</span>`;
-  }
+  const ed = $("#d-ed");
+  if (ed && document.activeElement !== ed && edToMd(ed) !== (it.body || "")) { ed.innerHTML = mdBlocks(it.body, it); edNormalize(ed); }
   const tg = $("#dy-tags"); if (tg) tg.innerHTML = tagsOf(it).map(t => `<span class="relchip"><button class="o" data-tag="${esc(t)}">#${esc(t)}</button><button class="x" data-act="untag" data-val="${esc(t)}" aria-label="Stichwort entfernen">${ic("close")}</button></span>`).join("");
   const rm = $("#dy-remind");
   if (rm) rm.innerHTML = it.remind && (it.kind === "habit" || it.kind === "task") ? `<div class="lrow">${ic("bell")}<div class="t"><b>Erinnerung ${esc(it.remind)}${it.kind === "habit" ? " täglich" : it.due ? ` am ${fmtLong(it.due)}` : ""}</b><small>${it.kind === "task" && !it.due ? "Gib ein Fälligkeitsdatum an, damit die Erinnerung kommt." : notifyState() === "granted" ? "Kommt als Mitteilung, solange die App offen oder im Hintergrund ist." : "Mitteilungen sind noch nicht erlaubt (Anpassen → Erinnerungen)."}</small></div>
@@ -1491,6 +1590,7 @@ function quickAdd(kind, inputId, relId){
 
 /* ================= events ================= */
 document.addEventListener("click", e => {
+  if (edClick(e)) return;
   if (e.target.closest("[data-drag]") || Date.now() - (S.justDragged || 0) < 300) { e.preventDefault(); return; }
   const side = $("#side"); if (side.classList.contains("open") && !e.target.closest("#side") && !e.target.closest('[data-act="menu"]')) side.classList.remove("open");
   const g = e.target.closest("[data-go]"); if (g) { closePop(); if (S.open) closeOverlay(); go(g.dataset.go); return; }
@@ -1513,11 +1613,7 @@ document.addEventListener("click", e => {
     case "hclear": setHabit(id, a.dataset.day, null); break;
     case "pop-close": closePop(); break;
     case "hmon": S.hMonth = Math.min(0, (S.hMonth || 0) + +a.dataset.d); refreshDetail(); break;
-    case "md-ins": mdInsert(a.dataset.k); break;
-    case "md-mode": if (it) { S.bodyEdit = !S.bodyEdit; $("#d-body").value = it.body || ""; refreshDetail(); if (S.bodyEdit) { const ta = $("#d-body"); ta.focus(); } } break;
-    case "md-cb": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; ls[n] = ls[n].replace(/\[( |x|X)\]/, (_, s) => s === " " ? "[x]" : "[ ]"); it.body = ls.join("\n"); persist(it); refreshDetail(); } break;
-    case "md-task": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; const m = ls[n].match(/^(\s*(?:[-*•–—]\s*)?)\[ \]\s*(.*)$/); if (!m) break;
-      const t = create("task", plain(m[2]).trim(), {tags:[...tagsOf(it)]}); linkItems(it.id, t.id); ls[n] = `${m[1] || "- "}[>] ${plain(m[2]).trim()}`; it.body = ls.join("\n"); persist(it); refreshDetail(); renderMain(); renderSide(); toast("Aufgabe angelegt und verknüpft"); } break;
+    case "ed-tool": edTool(a.dataset.k); break;
     case "untag": if (it) { it.tags = tagsOf(it).filter(t => t !== a.dataset.val); persist(it); refreshDetail(); renderMain(); } break;
     case "rday": if (it) { const d = +a.dataset.d; const ds = new Set(it.repeatDays || []); ds.has(d) ? ds.delete(d) : ds.add(d); it.repeatDays = [...ds].sort(); persist(it); a.classList.toggle("on", ds.has(d)); renderMain(); } break;
     case "ics": if (it) downloadIcs([it], it.title || "Erinnerung"); break;
@@ -1561,7 +1657,7 @@ document.addEventListener("input", e => {
   if (t.id === "q") { searchRender(t.value); return; }
   if (t.id === "d-pick-q") { pickerRender(); return; }
   if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
-  if (it && t.id === "d-body") { it.body = t.value; persist(it, 800); mdPreview(); return; }
+
   if (it && t.id === "d-target") { it.target = Math.max(1, Math.min(7, +t.value || 7)); persist(it, 600); return; }
   if (it && t.id === "d-goal") { it.goal = parseFloat(t.value.replace(",", ".")) || 0; persist(it, 600); return; }
   if (it && t.id === "d-unit") { it.unit = t.value.trim(); persist(it, 600); return; }
@@ -1607,15 +1703,6 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
   const t = e.target;
   if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
-  if (t.id === "d-body" && e.key === "Enter" && !e.isComposing && !e.shiftKey && t.selectionStart === t.selectionEnd) {
-    const it = S.items.get(S.open); const v = t.value, s = t.selectionStart; const ls = v.lastIndexOf("\n", s - 1) + 1;
-    const m = v.slice(ls, s).match(/^(\s*)([-*•–—]\s*\[[ xX>]\]\s*|[-*•–—]\s+|\d+[.)]\s+)/);
-    if (!it || !m) return;
-    e.preventDefault();
-    if (!v.slice(ls, s).slice(m[0].length).trim()) { mdSet(t, it, v.slice(0, ls) + v.slice(s), ls); return; }
-    let p = m[2].replace(/\[[xX>]\]/, "[ ]"); const n = p.match(/^(\d+)([.)])/); if (n) p = `${+n[1] + 1}${n[2]} `;
-    const ins = "\n" + m[1] + p; mdSet(t, it, v.slice(0, s) + ins + v.slice(s), s + ins.length); return;
-  }
   if (e.key !== "Enter" || e.isComposing) return;
   if (t.dataset.hnum) { e.preventDefault(); t.blur(); return; }
   if (t.id === "new-title") { e.preventDefault(); doCreate(); }
@@ -1624,7 +1711,7 @@ document.addEventListener("keydown", e => {
   else if (t.id.startsWith("ns-")) { e.preventDefault(); quickAdd("task", t.id, t.dataset.rel); }
   else if (t.id === "d-addtask") { e.preventDefault(); quickAdd("task", "d-addtask", S.open); }
   else if (t.id && t.id.startsWith("add-")) { e.preventDefault(); quickAdd(t.id.slice(4), t.id); }
-  else if (t.id === "d-title") { e.preventDefault(); $("#d-body").focus(); }
+  else if (t.id === "d-title") { e.preventDefault(); const ed = $("#d-ed"); ed.focus(); setCaret(ed.firstElementChild, 0); }
   else if (t.id === "d-lurl" || t.id === "d-llabel") { e.preventDefault(); document.querySelector('[data-act="add-link"]').click(); }
   else if (t.id === "new-topic") { e.preventDefault(); document.querySelector('[data-act="add-topic"]').click(); }
   else if (t.id === "new-kind") { e.preventDefault(); document.querySelector('[data-act="add-kind"]').click(); }
@@ -1656,6 +1743,36 @@ function endDrag(){
   renderMain();
 }
 document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
+
+/* Editor: Enter/Rücktaste selbst steuern, Kürzel nach jeder Eingabe, Einfügen als reiner Text */
+document.addEventListener("beforeinput", e => {
+  const ed = e.target.closest && e.target.closest("#d-ed"); if (!ed) return;
+  if (e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") { e.preventDefault(); edEnter(ed); return; }
+  if (e.inputType === "deleteContentBackward") {
+    const b = edBlock(ed); const sel = getSelection();
+    if (b && sel.isCollapsed && caretOff(b) === 0 && (b.dataset.t || "p") !== "p") { e.preventDefault(); setType(b, "p"); fixEmpty(b); setCaret(b, 0); edSave(); }
+  }
+});
+document.addEventListener("input", e => {
+  if (e.target.id !== "d-ed") return;
+  edNormalize(e.target);
+  if (!e.isComposing && /^insert/.test(e.inputType || "insert")) edShortcut(e.target);
+  edSave();
+});
+document.addEventListener("compositionend", e => { if (e.target.id === "d-ed") { edShortcut(e.target); edSave(); } });
+document.addEventListener("paste", e => {
+  const ed = e.target.closest && e.target.closest("#d-ed"); if (!ed) return;
+  e.preventDefault(); const text = (e.clipboardData || window.clipboardData).getData("text/plain").replace(/\r/g, "");
+  if (!text.includes("\n")) { document.execCommand("insertText", false, text); return; }
+  const it = S.items.get(S.open); const b = edBlock(ed) || ed.lastElementChild; const off = caretOff(b);
+  const tmp = document.createElement("div"); tmp.innerHTML = mdBlocks(text, it); const blocks = [...tmp.children];
+  const tail = document.createRange(); setCaret(b, off); const r = getSelection().getRangeAt(0); tail.setStart(r.startContainer, r.startOffset); tail.setEnd(b, b.childNodes.length);
+  const rest = tail.extractContents(); let last = b; for (const nb of blocks) { last.after(nb); last = nb; }
+  const lastLen = last.textContent.length; if (last.textContent === "") last.innerHTML = ""; last.appendChild(rest); fixEmpty(b); fixEmpty(last);
+  setCaret(last, lastLen); edSave();
+});
+document.addEventListener("selectionchange", () => { const ed = $("#d-ed"); const sel = getSelection(); if (ed && sel.rangeCount && ed.contains(sel.anchorNode)) S.edSel = sel.getRangeAt(0).cloneRange(); });
+document.addEventListener("mousedown", e => { if (e.target.closest('[data-act="ed-tool"]')) e.preventDefault(); });
 
 function render(){ document.body.classList.toggle("auth", S.mode !== "app"); renderSide(); renderMain(); }
 document.addEventListener("submit", async e => {

@@ -1,5 +1,5 @@
 // Offline-Cache: App-Dateien sofort aus dem Speicher, im Hintergrund aktualisieren.
-const CACHE = "para-cockpit-v4";
+const CACHE = "para-cockpit-v5";
 const SHELL = ["./", "./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
