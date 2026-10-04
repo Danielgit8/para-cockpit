@@ -1,5 +1,5 @@
 // Offline-Cache: App-Dateien sofort aus dem Speicher, im Hintergrund aktualisieren.
-const CACHE = "para-cockpit-v5";
+const CACHE = "para-cockpit-v6";
 const SHELL = ["./", "./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
@@ -11,6 +11,7 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
+  if (req.cache === "no-store") return; // Update-Prüfung der App geht immer ans Netz
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
   const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";

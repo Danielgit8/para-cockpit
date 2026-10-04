@@ -364,6 +364,8 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 "use strict";
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
+// Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
+const APP_VERSION = "2026-10-04.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -765,7 +767,7 @@ function renderStatus(){
 function setupSW(){
   if (!("serviceWorker" in navigator) || location.protocol !== "https:") return;
   navigator.serviceWorker.register("sw.js").then(reg => {
-    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { reg.update().catch(() => {}); checkUpdate(); } });
   }).catch(() => {});
   // Neue App-Version: sofort neu laden, wenn gerade nichts offen ist
   const had = !!navigator.serviceWorker.controller;
@@ -776,6 +778,24 @@ function setupSW(){
     clearTimeout(saveT); idb.set(stateKey(), snapshot()).catch(() => {}).finally(() => location.reload());
   });
   navigator.serviceWorker.addEventListener("message", e => { const d = e.data || {}; if (d.type === "open") openTarget(d); });
+}
+// Update-Prüfung: aktuelle index.html vom Server holen und Versionsnummer vergleichen
+function checkUpdate(){
+  if (!navigator.onLine || location.protocol !== "https:") return;
+  fetch("index.html?v=" + Date.now(), {cache:"no-store"}).then(r => r.ok ? r.text() : "").then(t => {
+    const m = t.match(/const APP_VERSION = "([^"]+)"/);
+    if (m && m[1] !== APP_VERSION) applyUpdate(false);
+  }).catch(() => {});
+}
+async function applyUpdate(force){
+  const busy = S.open || S.pop || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
+  if (busy && !force) { if (!S.updateNote) { S.updateNote = true; toast("Neue Version bereit. Sie lädt, sobald du den Eintrag schließt."); } S.updatePending = true; return; }
+  // Schutz gegen Neulade-Schleifen, falls der Server kurz noch alte Dateien ausliefert
+  try { const last = +sessionStorage.getItem("para-cockpit.reloaded") || 0; if (!force && Date.now() - last < 60000) return; sessionStorage.setItem("para-cockpit.reloaded", Date.now()); } catch(e){}
+  clearTimeout(saveT); await idb.set(stateKey(), snapshot()).catch(() => {});
+  try { const reg = await navigator.serviceWorker?.getRegistration(); if (reg) await reg.update().catch(() => {}); } catch(e){}
+  try { for (const k of await caches.keys()) await caches.delete(k); } catch(e){}
+  location.reload();
 }
 function openTarget(d){
   if (S.mode !== "app" || !d) return;
@@ -793,6 +813,7 @@ async function boot(){
   let last = null; try { last = JSON.parse(localStorage.getItem(LAST) || "null"); } catch(e){}
   if (last && last.id) { S.user = last; await loadLocal(); S.mode = "app"; S.view = S.settings.start || "today"; applySettings(); render(); openFromHash(); checkReminders(); }
   else { S.mode = "login"; render(); }
+  checkUpdate();
   sb.auth.onAuthStateChange((ev, session) => { if (ev === "SIGNED_IN" && session) setTimeout(() => onSignedIn(session.user), 0); });
   try {
     const {data} = await sb.auth.getSession();
@@ -1251,11 +1272,13 @@ function settingsHTML(){
       <p class="hint">Angemeldet als <b style="color:var(--text)">${esc((S.user && S.user.email) || "")}</b>. Alles wird zuerst auf diesem Gerät gespeichert und abgeglichen, sobald du Internet hast.${S.lastSync ? ` Letzter Abgleich: ${new Date(S.lastSync).toLocaleString("de-DE", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}.` : ""}</p>
       <div class="pills" style="gap:10px">
         <button class="btn" data-act="sync">Jetzt abgleichen</button>
+        <button class="btn ghost" data-act="update">${ic("restore")}Nach Update suchen</button>
         <button class="btn ghost" data-act="export">${ic("download")}Sicherung herunterladen</button>
         <label class="btn ghost" for="import-file">${ic("upload")}Sicherung einspielen</label><input type="file" id="import-file" accept="application/json,.json" hidden>
         ${exCount ? `<button class="btn ghost" data-act="del-examples">Beispiele entfernen (${exCount})</button>` : ""}
         <button class="btn ghost" data-act="logout">Abmelden</button>
       </div>
+      <p class="hint" style="margin-top:14px">App-Version <code>${APP_VERSION}</code></p>
       <p class="hint" style="margin-top:18px"><b style="color:var(--text)">Neue Funktion gewünscht?</b> Beschreib sie Claude im Chat, etwa „Füge bei Rezepten Zutaten und Portionen hinzu“. Claude baut sie ein und lädt die neue Version hoch. Deine Daten bleiben erhalten; die App holt sich die neue Version beim nächsten Öffnen mit Internet.</p></section>
   </div>`;
 }
@@ -1393,7 +1416,7 @@ function downloadIcs(list, name){
   const ics = icsFile(list); if (!ics) { toast("Keine Erinnerung mit Uhrzeit (bei Aufgaben auch mit Datum) gefunden."); return; }
   saveBlob(new Blob([ics], {type:"text/calendar"}), name.replace(/[^\wäöüÄÖÜß -]+/g, "").trim().replace(/\s+/g, "-") + ".ics");
 }
-function closeDetail(){ S.open = null; $("#overlay").innerHTML = ""; renderMain(); }
+function closeDetail(){ S.open = null; $("#overlay").innerHTML = ""; renderMain(); if (S.updatePending) applyUpdate(false); }
 function refreshDetail(){
   const it = S.open && S.items.get(S.open);
   if (!S.open) return;
@@ -1645,6 +1668,7 @@ document.addEventListener("click", e => {
     case "del-kind": S.confirmKind = id; renderMain(); break;
     case "del-kind-yes": { const kid = S.confirmKind; for (const x of all()) if (x.kind === kid) { x.kind = "note"; persist(x); } S.settings.kinds = S.settings.kinds.filter(k => k.id !== kid); S.confirmKind = null; saveSettings(0); renderMain(); renderSide(); break; }
     case "export": exportData(); break;
+    case "update": if (!navigator.onLine) { toast("Dafür brauchst du Internet."); break; } toast("Lade die neueste Version …"); applyUpdate(true); break;
     case "sync": S.syncError = null; S.online = navigator.onLine; sync(); break;
     case "logout": logout(); break;
     case "relogin": S.mode = "login"; S.authMode = "login"; closeOverlay(); render(); break;
