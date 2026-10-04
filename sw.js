@@ -1,12 +1,16 @@
-// Offline-Cache: App-Dateien sofort aus dem Speicher, im Hintergrund aktualisieren.
-const CACHE = "para-cockpit-v6";
-const SHELL = ["./", "./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
+// Offline-Cache. Wichtig: Installieren und Aktivieren warten nie auf das Netz,
+// sonst kann ein hängender Download ein Update dauerhaft blockieren.
+const CACHE = "para-cockpit-v7";
+const SHELL = ["./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, {cache: "reload"})))).then(() => self.skipWaiting()));
-});
+self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  // App-Dateien im Hintergrund vorladen (für offline), ohne die Aktivierung aufzuhalten
+  caches.open(CACHE).then(c => Promise.all(SHELL.map(u =>
+    withTimeout(fetch(u, {cache: "no-store"}), 15000).then(res => res.ok ? c.put(u, res) : null).catch(() => null)
+  ))).catch(() => {});
 });
 self.addEventListener("fetch", e => {
   const req = e.request;
@@ -18,7 +22,7 @@ self.addEventListener("fetch", e => {
   if (!sameOrigin && !isFont) return; // Supabase-Anfragen gehen direkt ans Netz
   // App-Seite: zuerst frisch aus dem Netz (damit Updates sofort ankommen), nach 3 s oder offline aus dem Speicher
   if (req.mode === "navigate") {
-    const net = fetch("./index.html", {cache: "no-store"}).then(async res => {
+    const net = withTimeout(fetch("./index.html", {cache: "no-store"}), 20000).then(async res => {
       if (res && res.ok) { const c = await caches.open(CACHE); await c.put("./index.html", res.clone()); }
       return res;
     });
@@ -27,16 +31,15 @@ self.addEventListener("fetch", e => {
     e.respondWith(Promise.race([
       net.then(res => res && res.ok ? res : fallback()).catch(fallback),
       new Promise(r => setTimeout(r, 3000)).then(fallback).then(hit => hit || net)
-    ]));
+    ]).then(res => res || fetch(req)));
     return;
   }
-  const key = req;
-  const fresh = fetch(req).then(async res => {
-    if (res && (res.ok || res.type === "opaque")) { const c = await caches.open(CACHE); await c.put(key, res.clone()); }
+  const fresh = withTimeout(fetch(req), 20000).then(async res => {
+    if (res && (res.ok || res.type === "opaque")) { const c = await caches.open(CACHE); await c.put(req, res.clone()); }
     return res;
   });
   e.waitUntil(fresh.catch(() => {}));
-  e.respondWith(caches.match(key, {ignoreSearch: true}).then(hit => hit || fresh));
+  e.respondWith(caches.match(req, {ignoreSearch: true}).then(hit => hit || fresh));
 });
 
 // Tipp auf eine Erinnerung: App öffnen und den Eintrag zeigen

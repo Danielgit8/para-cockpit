@@ -365,7 +365,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-04.2";
+const APP_VERSION = "2026-10-04.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -793,7 +793,9 @@ async function applyUpdate(force){
   // Schutz gegen Neulade-Schleifen, falls der Server kurz noch alte Dateien ausliefert
   try { const last = +sessionStorage.getItem("para-cockpit.reloaded") || 0; if (!force && Date.now() - last < 60000) return; sessionStorage.setItem("para-cockpit.reloaded", Date.now()); } catch(e){}
   clearTimeout(saveT); await idb.set(stateKey(), snapshot()).catch(() => {});
-  try { const reg = await navigator.serviceWorker?.getRegistration(); if (reg) await reg.update().catch(() => {}); } catch(e){}
+  // Offline-Dienst komplett neu aufsetzen (mit Zeitlimit, falls er festhängt); er registriert sich beim Neuladen wieder
+  const lim = p => Promise.race([p, new Promise(r => setTimeout(r, 3000))]);
+  try { const regs = await lim(navigator.serviceWorker ? navigator.serviceWorker.getRegistrations() : []); if (Array.isArray(regs)) await lim(Promise.all(regs.map(r => r.unregister().catch(() => {})))); } catch(e){}
   try { for (const k of await caches.keys()) await caches.delete(k); } catch(e){}
   location.reload();
 }
