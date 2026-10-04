@@ -274,6 +274,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .step .task-row{flex:2;min-width:220px;margin:0}
 .step .add{flex:2;min-width:220px}
 .stepn{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
+.md-tools{display:flex;gap:6px;flex-wrap:wrap}
 .md{font-size:14px;line-height:1.6;overflow-wrap:anywhere;padding:12px 14px;border:1px solid var(--line);border-radius:12px;min-height:80px}
 .md > :first-child{margin-top:0} .md > :last-child{margin-bottom:0}
 .md h2{font-size:19px;margin:.9em 0 .3em;letter-spacing:-.02em} .md h3{font-size:16px;margin:.8em 0 .3em} .md h4{font-size:14px;margin:.8em 0 .3em}
@@ -460,7 +461,7 @@ const tagsOf = i => Array.isArray(i.tags) ? i.tags : [];
 function allTags(){ const m = new Map(); for (const i of all()) if (!i.archived) for (const t of tagsOf(i)) { const k = t.toLowerCase(); const e = m.get(k) || {name:t, n:0}; e.n++; m.set(k, e); } return [...m.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)); }
 const tagChips = (i, max = 3) => tagsOf(i).slice(0, max).map(t => `<span class="chip" data-tag="${esc(t)}" role="link" tabindex="0">#${esc(t)}</span>`).join("");
 // Notizen: einfache Formatierung (Markdown-Teilmenge)
-const plain = s => String(s || "").replace(/^\s*#{1,3}\s+/gm, "").replace(/^\s*[-*]\s+\[[ xX>]\]\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ").replace(/^>\s?/gm, "").replace(/\*\*|`/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+const plain = s => String(s || "").replace(/^\s*#{1,3}\s*/gm, "").replace(/^\s*(?:[-*•–—]\s*)?\[[ xX>]\]\s*/gm, "").replace(/^\s*[-*•–—]\s+/gm, "• ").replace(/^>\s?/gm, "").replace(/\*\*|`/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 function mdInline(s){
   return s.replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
@@ -476,11 +477,11 @@ function mdHTML(src, it){
   lines.forEach((raw, i) => {
     const l = raw.replace(/\s+$/, ""); let m;
     if (!l.trim()) { flushP(); closeL(); return; }
-    if ((m = l.match(/^(#{1,3})\s+(.*)$/))) { flushP(); closeL(); const n = m[1].length + 1; html += `<h${n}>${mdInline(esc(m[2]))}</h${n}>`; return; }
+    if ((m = l.match(/^\s*(#{1,3})\s*([^#\s].*)$/))) { flushP(); closeL(); const n = m[1].length + 1; html += `<h${n}>${mdInline(esc(m[2]))}</h${n}>`; return; }
     if (/^(-{3,}|\*{3,})$/.test(l.trim())) { flushP(); closeL(); html += "<hr>"; return; }
     if ((m = l.match(/^>\s?(.*)$/))) { flushP(); closeL(); html += `<blockquote>${mdInline(esc(m[1]))}</blockquote>`; return; }
-    if ((m = l.match(/^\s*[-*]\s+\[( |x|X|>)\]\s+(.*)$/))) { flushP(); openL("ul"); html += cbHTML(m[1], m[2], i, it); return; }
-    if ((m = l.match(/^\s*[-*]\s+(.*)$/))) { flushP(); openL("ul"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
+    if ((m = l.match(/^\s*(?:[-*•–—]\s*)?\[( |x|X|>)\]\s*(.*)$/))) { flushP(); openL("ul"); html += cbHTML(m[1], m[2], i, it); return; }
+    if ((m = l.match(/^\s*[-*•–—]\s+(.*)$/))) { flushP(); openL("ul"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
     if ((m = l.match(/^\s*\d+[.)]\s+(.*)$/))) { flushP(); openL("ol"); html += `<li>${mdInline(esc(m[1]))}</li>`; return; }
     closeL(); para.push(l);
   });
@@ -1178,8 +1179,10 @@ function openDetail(id){
       <div><label class="sec-l" for="d-tag">Stichwörter</label><div class="tags-in"><span id="dy-tags" style="display:contents"></span><input id="d-tag" list="tag-list" placeholder="Stichwort eingeben, Enter" autocomplete="off" aria-label="Stichwort hinzufügen"></div>
         <datalist id="tag-list">${allTags().map(t => `<option value="${esc(t.name)}">`).join("")}</datalist></div>
       <div class="sec"><div class="sec-h"><label class="sec-l" for="d-body">Inhalt</label><button class="pill" id="d-mdmode" data-act="md-mode"></button></div>
-        <textarea class="field d-body" id="d-body" rows="7" placeholder="${bodyPh}">${esc(it.body || "")}</textarea><div class="md" id="d-md"></div>
-        <p class="hint" id="d-mdhint" style="margin:0"><code># Überschrift</code> <code>- Liste</code> <code>- [ ] Checkbox</code> <code>**fett**</code> <code>[Text](https://…)</code> · Aus einer Checkbox wird in der Ansicht per „→ Aufgabe“ eine echte Aufgabe.</p></div>
+        <div class="md-tools" id="d-mdtools">${[["h","Überschrift"],["ul","Liste"],["cb","Checkbox"],["bold","Fett"],["link","Link"]].map(([k, l]) => `<button class="pill" data-act="md-ins" data-k="${k}" type="button">${l}</button>`).join("")}</div>
+        <textarea class="field d-body" id="d-body" rows="7" placeholder="${bodyPh}">${esc(it.body || "")}</textarea>
+        <p class="hint" id="d-mdhint" style="margin:0">Tippe auf die Knöpfe oder schreib selbst: <code># Überschrift</code> <code>- Liste</code> <code>- [ ] Checkbox</code> <code>**fett**</code>. Enter setzt eine Liste fort. Darunter siehst du sofort, wie es aussieht.</p>
+        <span class="sec-l" id="d-mdlabel" style="margin:0">Vorschau</span><div class="md" id="d-md"></div></div>
       ${it.kind === "project" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Aufgaben im Projekt</span><span class="muted num" id="d-prog"></span></div><div id="dy-tasks"></div>
         <div class="add"><input id="d-addtask" placeholder="Aufgabe für dieses Projekt …" aria-label="Neue Aufgabe im Projekt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="d-addtask" data-rel="${it.id}" aria-label="Hinzufügen">${ic("plus")}</button></div></div>` : ""}
       ${it.kind === "habit" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Verlauf</span><span class="muted num" id="d-streak"></span></div><div id="dy-habit"></div></div>` : ""}
@@ -1195,6 +1198,31 @@ function openDetail(id){
   autoGrow($("#d-title"));
   refreshDetail();
   if (!it.title) $("#d-title").focus();
+}
+// Vorschau beim Schreiben aktualisieren (höchstens einmal pro Bild)
+let mdT = 0;
+function mdPreview(){
+  cancelAnimationFrame(mdT);
+  mdT = requestAnimationFrame(() => { const it = S.items.get(S.open), md = $("#d-md"); if (!it || !md) return; md.hidden = !it.body; $("#d-mdlabel").hidden = !it.body; md.innerHTML = mdHTML(it.body, it); });
+}
+const MD_PRE = /^(\s*)(#{1,3}\s*|[-*•–—]\s*\[[ xX>]\]\s*|\[[ xX>]\]\s*|[-*•–—]\s+|\d+[.)]\s+)/;
+function mdSet(ta, it, v, a, b = a){ ta.value = v; ta.focus(); ta.setSelectionRange(a, b); it.body = v; persist(it, 800); mdPreview(); }
+// Knöpfe: Zeile zur Überschrift/Liste/Checkbox machen (nochmal tippen = zurück), Auswahl fett oder als Link
+function mdInsert(k){
+  const ta = $("#d-body"), it = S.items.get(S.open); if (!ta || !it) return;
+  const v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+  if (k === "bold" || k === "link") {
+    const sel = v.slice(s, e) || (k === "bold" ? "fett" : "Text");
+    const ins = k === "bold" ? `**${sel}**` : `[${sel}](https://)`;
+    const a = k === "bold" ? s + 2 : s + sel.length + 3, b = k === "bold" ? a + sel.length : a + 8;
+    mdSet(ta, it, v.slice(0, s) + ins + v.slice(e), a, b); return;
+  }
+  const ls = v.lastIndexOf("\n", s - 1) + 1; const nx = v.indexOf("\n", ls); const le = nx < 0 ? v.length : nx;
+  const line = v.slice(ls, le); const m = line.match(MD_PRE); const ind = m ? m[1] : ""; const rest = m ? line.slice(m[0].length) : line;
+  const pre = {h:"# ", ul:"- ", cb:"- [ ] "}[k];
+  const same = m && ((k === "h" && /^#/.test(m[2])) || (k === "cb" && /\[/.test(m[2])) || (k === "ul" && /^[-*•–—]\s+$/.test(m[2])));
+  const nl = same ? ind + rest : ind + pre + rest;
+  mdSet(ta, it, v.slice(0, ls) + nl + v.slice(le), ls + nl.length);
 }
 function openDetailFresh(id){ const it = S.items.get(id); S.bodyEdit = !(it && it.body); S.hMonth = 0; openDetail(id); }
 // Monatsansicht einer Gewohnheit: Kalender, bei Zahlen zusätzlich Balken mit Ziellinie
@@ -1276,9 +1304,11 @@ function refreshDetail(){
   const ta = $("#d-body"), md = $("#d-md");
   if (ta && md) {
     const edit = !!S.bodyEdit;
-    ta.hidden = !edit; md.hidden = edit; $("#d-mdhint").hidden = !edit;
-    $("#d-mdmode").innerHTML = edit ? `${ic("check")}Ansicht` : `${ic("note")}Bearbeiten`;
-    if (!edit) md.innerHTML = it.body ? mdHTML(it.body, it) : `<span class="muted">Noch leer. Tippe auf „Bearbeiten“.</span>`;
+    ta.hidden = !edit; $("#d-mdhint").hidden = !edit; $("#d-mdtools").hidden = !edit; $("#d-mdlabel").hidden = !edit || !it.body;
+    md.hidden = edit && !it.body;
+    if (document.activeElement !== ta && ta.value !== (it.body || "")) ta.value = it.body || "";
+    $("#d-mdmode").innerHTML = edit ? `${ic("check")}Fertig` : `${ic("note")}Bearbeiten`;
+    md.innerHTML = it.body ? mdHTML(it.body, it) : `<span class="muted">Noch leer. Tippe auf „Bearbeiten“.</span>`;
   }
   const tg = $("#dy-tags"); if (tg) tg.innerHTML = tagsOf(it).map(t => `<span class="relchip"><button class="o" data-tag="${esc(t)}">#${esc(t)}</button><button class="x" data-act="untag" data-val="${esc(t)}" aria-label="Stichwort entfernen">${ic("close")}</button></span>`).join("");
   const rm = $("#dy-remind");
@@ -1483,10 +1513,11 @@ document.addEventListener("click", e => {
     case "hclear": setHabit(id, a.dataset.day, null); break;
     case "pop-close": closePop(); break;
     case "hmon": S.hMonth = Math.min(0, (S.hMonth || 0) + +a.dataset.d); refreshDetail(); break;
+    case "md-ins": mdInsert(a.dataset.k); break;
     case "md-mode": if (it) { S.bodyEdit = !S.bodyEdit; $("#d-body").value = it.body || ""; refreshDetail(); if (S.bodyEdit) { const ta = $("#d-body"); ta.focus(); } } break;
     case "md-cb": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; ls[n] = ls[n].replace(/\[( |x|X)\]/, (_, s) => s === " " ? "[x]" : "[ ]"); it.body = ls.join("\n"); persist(it); refreshDetail(); } break;
-    case "md-task": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; const m = ls[n].match(/^(\s*[-*]\s+)\[ \]\s+(.*)$/); if (!m) break;
-      const t = create("task", plain(m[2]).trim(), {tags:[...tagsOf(it)]}); linkItems(it.id, t.id); ls[n] = `${m[1]}[>] ${plain(m[2]).trim()}`; it.body = ls.join("\n"); persist(it); refreshDetail(); renderMain(); renderSide(); toast("Aufgabe angelegt und verknüpft"); } break;
+    case "md-task": if (it) { const ls = (it.body || "").split("\n"); const n = +a.dataset.line; const m = ls[n].match(/^(\s*(?:[-*•–—]\s*)?)\[ \]\s*(.*)$/); if (!m) break;
+      const t = create("task", plain(m[2]).trim(), {tags:[...tagsOf(it)]}); linkItems(it.id, t.id); ls[n] = `${m[1] || "- "}[>] ${plain(m[2]).trim()}`; it.body = ls.join("\n"); persist(it); refreshDetail(); renderMain(); renderSide(); toast("Aufgabe angelegt und verknüpft"); } break;
     case "untag": if (it) { it.tags = tagsOf(it).filter(t => t !== a.dataset.val); persist(it); refreshDetail(); renderMain(); } break;
     case "rday": if (it) { const d = +a.dataset.d; const ds = new Set(it.repeatDays || []); ds.has(d) ? ds.delete(d) : ds.add(d); it.repeatDays = [...ds].sort(); persist(it); a.classList.toggle("on", ds.has(d)); renderMain(); } break;
     case "ics": if (it) downloadIcs([it], it.title || "Erinnerung"); break;
@@ -1530,7 +1561,7 @@ document.addEventListener("input", e => {
   if (t.id === "q") { searchRender(t.value); return; }
   if (t.id === "d-pick-q") { pickerRender(); return; }
   if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
-  if (it && t.id === "d-body") { it.body = t.value; persist(it, 800); return; }
+  if (it && t.id === "d-body") { it.body = t.value; persist(it, 800); mdPreview(); return; }
   if (it && t.id === "d-target") { it.target = Math.max(1, Math.min(7, +t.value || 7)); persist(it, 600); return; }
   if (it && t.id === "d-goal") { it.goal = parseFloat(t.value.replace(",", ".")) || 0; persist(it, 600); return; }
   if (it && t.id === "d-unit") { it.unit = t.value.trim(); persist(it, 600); return; }
@@ -1576,6 +1607,15 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
   const t = e.target;
   if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
+  if (t.id === "d-body" && e.key === "Enter" && !e.isComposing && !e.shiftKey && t.selectionStart === t.selectionEnd) {
+    const it = S.items.get(S.open); const v = t.value, s = t.selectionStart; const ls = v.lastIndexOf("\n", s - 1) + 1;
+    const m = v.slice(ls, s).match(/^(\s*)([-*•–—]\s*\[[ xX>]\]\s*|[-*•–—]\s+|\d+[.)]\s+)/);
+    if (!it || !m) return;
+    e.preventDefault();
+    if (!v.slice(ls, s).slice(m[0].length).trim()) { mdSet(t, it, v.slice(0, ls) + v.slice(s), ls); return; }
+    let p = m[2].replace(/\[[xX>]\]/, "[ ]"); const n = p.match(/^(\d+)([.)])/); if (n) p = `${+n[1] + 1}${n[2]} `;
+    const ins = "\n" + m[1] + p; mdSet(t, it, v.slice(0, s) + ins + v.slice(s), s + ins.length); return;
+  }
   if (e.key !== "Enter" || e.isComposing) return;
   if (t.dataset.hnum) { e.preventDefault(); t.blur(); return; }
   if (t.id === "new-title") { e.preventDefault(); doCreate(); }
