@@ -284,7 +284,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .mded > [data-t]:first-child{margin-top:0}
 .mded > [data-t=ul],.mded > [data-t=ol],.mded > [data-t=cb]{padding-left:28px}
 .mded > [data-t=ul]::before{content:"•";position:absolute;left:9px;top:0;font-weight:800}
-.mded > :not([data-t=ol]){counter-reset:ol}
+.mded > :not([data-t=ol]){counter-set:ol 0}
 .mded > [data-t=ol]{counter-increment:ol}
 .mded > [data-t=ol]::before{content:counter(ol) ".";position:absolute;left:3px;top:0;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
 .mded > [data-t=cb]::before{content:"";position:absolute;left:1px;top:.22em;width:18px;height:18px;border-radius:50%;border:1.6px solid var(--line-2);box-sizing:border-box;cursor:pointer}
@@ -365,7 +365,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-04.4";
+const APP_VERSION = "2026-10-05.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
