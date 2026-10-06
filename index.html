@@ -229,6 +229,24 @@ code{font-family:var(--f-num);font-size:12px;background:var(--soft);padding:1px 
 .lrow .t a,.lrow .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 .lrow .t small{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lrow img{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
+/* ---------- Bilder-Galerie im Eintrag ---------- */
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.shot{margin:0;display:flex;flex-direction:column;gap:5px;min-width:0}
+.shot-img{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--soft);display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.shot-img img{width:100%;height:100%;object-fit:cover;display:block}
+.shot-t{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.72);color:#fff;font-size:10.5px;padding:1px 7px;border-radius:999px}
+.shot figcaption{font-size:12px;line-height:1.35;color:var(--text);overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.lightbox{position:fixed;inset:0;z-index:60;background:rgba(5,5,7,.94);display:flex;flex-direction:column;color:#fff}
+.lb-img{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:calc(60px + env(safe-area-inset-top,0px)) 16px 8px;min-height:0}
+.lb-img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
+.lb-cap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.lb-cap .pill{color:#fff;border-color:rgba(255,255,255,.3);text-decoration:none}
+.lb-in{flex:1 1 260px;min-width:0;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;padding:0 12px;font-size:16px;outline:none}
+.lb-in:focus{border-color:rgba(255,255,255,.6)}
+.lightbox .ibtn{color:#fff;background:rgba(255,255,255,.12)}
+.lb-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center}
+.lb-nav.l{left:10px}.lb-nav.r{right:10px}
 .ibtn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted);flex:none;text-decoration:none}
 .ibtn:hover{background:var(--soft);color:var(--text)}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
@@ -419,7 +437,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-06.1";
+const APP_VERSION = "2026-10-06.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -461,7 +479,7 @@ const P = {
   sun:"M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4L7 17M17 7l1.4-1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
   review:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16M9 15l2 2 4-4", tag:"M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
   bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4", repeat:"M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1",
-  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16"
+  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -1130,6 +1148,7 @@ function itemCard(i){
   else metaBits.push(`<span class="chip">${ic(k.icon)}${esc(k.label)}</span>`);
   if ((i.links || []).length) metaBits.push(`<span class="chip num">${ic("link")}${i.links.length}</span>`);
   if ((i.files || []).length) metaBits.push(`<span class="chip num">${ic("file")}${i.files.length}</span>`);
+  if ((i.shots || []).length) metaBits.push(`<span class="chip num" title="Bilder">${ic("img")}${i.shots.length}</span>`);
   const rc = related(i.id).length; if (rc) metaBits.push(`<span class="chip num" title="Verknüpfungen">↔ ${rc}</span>`);
   if (i.example) metaBits.push(`<span class="chip ex">Beispiel</span>`);
   metaBits.push(tagChips(i));
@@ -1552,7 +1571,7 @@ function searchRender(q){
   if (!q) { box.innerHTML = ""; return; }
   const tq = q.startsWith("#") ? q.slice(1) : null;
   const hits = all().filter(i => i.kind !== "day").filter(i => tq != null ? tagsOf(i).some(t => t.toLowerCase().startsWith(tq))
-    : (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || tagsOf(i).some(t => t.toLowerCase().includes(q)) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q))).slice(0, 12);
+    : (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || tagsOf(i).some(t => t.toLowerCase().includes(q)) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q)) || (i.shots || []).some(s => (s.cap || "").toLowerCase().includes(q))).slice(0, 12);
   box.innerHTML = `<div class="search-res">${hits.map(i => `<button class="res" data-open="${i.id}">${ic(kindOf(i).icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(kindOf(i).label)}${i.archived ? " · Archiv" : ""}</small></button>`).join("") || `<div class="res muted">Nichts gefunden.</div>`}</div>`;
 }
 
@@ -1603,6 +1622,7 @@ function openDetail(id){
         <div class="md-tools" id="d-mdtools">${[["h","Überschrift"],["ul","Liste"],["cb","Checkbox"],["bold","Fett"],["task","→ Aufgabe"]].map(([k, l]) => `<button class="pill" data-act="ed-tool" data-k="${k}" type="button">${l}</button>`).join("")}</div>
         <div class="mded" id="d-ed" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="d-ed-l" data-ph="${esc(bodyPh)}" spellcheck="true"></div>
         <p class="hint" style="margin:0">Wie in Notion: <code>#</code> + Leertaste = Überschrift, <code>-</code> + Leertaste = Liste, <code>[]</code> + Leertaste = Checkbox, <code>**fett**</code>. Kreis antippen = abhaken. „→ Aufgabe“ macht die aktuelle Zeile zu einer echten Aufgabe.</p></div>
+      ${hasShots(it) ? `<div class="sec"><div class="sec-h"><span class="sec-l">Bilder</span><span class="muted num" id="d-shots-n"></span><label class="pill" for="d-shots" id="d-shup" style="cursor:pointer">${ic("img")}Bilder hinzufügen</label><input type="file" id="d-shots" accept="image/*" multiple hidden></div><div id="dy-shots"></div></div>` : ""}
       ${it.kind === "project" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Aufgaben im Projekt</span><span class="muted num" id="d-prog"></span></div><div id="dy-tasks"></div>
         <div class="add"><input id="d-addtask" placeholder="Aufgabe für dieses Projekt …" aria-label="Neue Aufgabe im Projekt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="d-addtask" data-rel="${it.id}" aria-label="Hinzufügen">${ic("plus")}</button></div></div>` : ""}
       ${it.kind === "habit" ? `<div class="sec"><div class="sec-h"><span class="sec-l">Verlauf</span><span class="muted num" id="d-streak"></span></div><div id="dy-habit"></div></div>` : ""}
@@ -1647,7 +1667,34 @@ function habitMonthHTML(h){
 // Kleines Fenster zum Eintragen eines Tages (Zahl oder Auswahl)
 function openPop(id, day){ S.pop = {id, day}; renderPop(); const inp = document.querySelector("#pop input"); if (inp) inp.focus(); }
 function closePop(){ S.pop = null; $("#pop").innerHTML = ""; }
+// Bilder-Galerie: Screenshots aus Videos o. Ä. mit Zeitmarke (t, Sekunden) und Beschreibung (cap)
+const hasShots = it => !["task","habit"].includes(it.kind);
+const shotsOf = it => (it.shots || []).map((s, i) => ({s, i})).sort((a, b) => (a.s.t ?? 1e9) - (b.s.t ?? 1e9) || a.i - b.i);
+const fmtT = t => { t = Math.round(t); const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60; return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`; };
+function ytLink(it, t){
+  for (const l of it.links || []) { const m = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|live\/))([\w-]{11})/.exec(l.url || ""); if (m) return `https://youtu.be/${m[1]}` + (t != null ? `?t=${Math.round(t)}` : ""); }
+  return "";
+}
+function shotsHTML(it){
+  const list = shotsOf(it);
+  if (!list.length) return `<p class="hint" style="margin:0">Screenshots oder Bilder, z. B. aus einem Video, mit Zeitmarke und Beschreibung. Antippen vergrößert, die Zeitmarke springt an die Stelle im Video.</p>`;
+  return `<div class="shots">${list.map(({s}, k) => { const url = fileUrl(s);
+    return `<figure class="shot"><button class="shot-img" data-act="shot-open" data-k="${k}" aria-label="Bild groß anzeigen">${url ? `<img src="${esc(url)}" alt="${esc(s.cap || "")}" loading="lazy">` : navigator.onLine ? "Lädt …" : "Braucht Internet"}${s.t != null ? `<span class="shot-t num">${fmtT(s.t)}</span>` : ""}</button>${s.cap ? `<figcaption>${esc(s.cap)}</figcaption>` : ""}</figure>`; }).join("")}</div>`;
+}
+function renderShotPop(){
+  const it = S.items.get(S.pop.id); const list = it ? shotsOf(it) : []; if (!list.length) { closePop(); return; }
+  const k = ((S.pop.k % list.length) + list.length) % list.length; S.pop.k = k; const {s, i} = list[k]; const url = fileUrl(s); const yt = s.t != null ? ytLink(it, s.t) : "";
+  $("#pop").innerHTML = `<div class="lightbox" role="dialog" aria-label="Bild ${k + 1} von ${list.length}">
+    <button class="ibtn lb-x" data-act="pop-close" title="Schließen (Esc)" aria-label="Schließen">${ic("close")}</button>
+    ${list.length > 1 ? `<button class="lb-nav l" data-act="shot-nav" data-d="-1" aria-label="Voriges Bild">${ic("left")}</button><button class="lb-nav r" data-act="shot-nav" data-d="1" aria-label="Nächstes Bild">${ic("right")}</button>` : ""}
+    <div class="lb-img" data-act="pop-close">${url ? `<img src="${esc(url)}" alt="${esc(s.cap || "")}">` : `<span>${navigator.onLine ? "Lädt …" : "Zum Anzeigen brauchst du Internet."}</span>`}</div>
+    <div class="lb-cap"><span class="num" style="opacity:.7">${k + 1}/${list.length}</span>
+      ${s.t != null ? (yt ? `<a class="pill num" href="${esc(yt)}" target="_blank" rel="noopener">▶ ${fmtT(s.t)} im Video</a>` : `<span class="pill num">${fmtT(s.t)}</span>`) : ""}
+      <input class="lb-in" id="lb-cap" data-shot="${i}" value="${esc(s.cap || "")}" placeholder="Beschreibung hinzufügen …" aria-label="Bildbeschreibung">
+      <button class="ibtn" data-act="shot-del" data-i="${i}" title="Bild löschen" aria-label="Bild löschen">${ic("trash")}</button></div></div>`;
+}
 function renderPop(){
+  if (S.pop && S.pop.shots) { renderShotPop(); return; }
   if (S.pop && S.pop.cal) { renderCalPop(); return; }
   const p = S.pop; const h = p && S.items.get(p.id); if (!h) { closePop(); return; }
   $("#pop").innerHTML = `<div class="scrim" data-act="pop-close"></div><div class="modal" role="dialog" aria-label="Tag eintragen">
@@ -1716,6 +1763,7 @@ function refreshDetail(){
       <button class="ibtn" data-act="dl" data-i="${i}" title="Herunterladen" aria-label="Herunterladen">${ic("download")}</button>
       <button class="ibtn" data-act="del-file" data-i="${i}" title="Datei löschen" aria-label="Datei löschen">${ic("trash")}</button></div>`; }).join("")
     + (S.uploading ? `<div class="lrow muted">Lade hoch …</div>` : "");
+  const shb = $("#dy-shots"); if (shb) { shb.innerHTML = shotsHTML(it) + (S.uploading === "shots" ? `<div class="lrow muted" style="margin-top:8px">Lade hoch …</div>` : ""); $("#d-shots-n").textContent = (it.shots || []).length || ""; const su = $("#d-shup"); if (su) su.hidden = !(sb && S.user); }
   const upd = $("#d-upd"); if (upd) upd.textContent = fmtTs(it.updated);
   if (S.picker) pickerRender();
 }
@@ -1774,7 +1822,7 @@ function unlinkItems(aId, bId){
 }
 async function deleteItem(id){
   const it = S.items.get(id); if (!it) return;
-  const paths = (it.files || []).map(f => f.path).filter(Boolean);
+  const paths = [...(it.files || []), ...(it.shots || [])].map(f => f.path).filter(Boolean);
   if (paths.length && sb && navigator.onLine) sb.storage.from("files").remove(paths).catch(() => {});
   for (const o of all()) if ((o.rel || []).includes(id)) { o.rel = o.rel.filter(r => r !== id); persist(o); }
   removeItem(id); closeDetail(); renderSide(); toast("Gelöscht");
@@ -1791,13 +1839,13 @@ function queueUrl(path){
       const {data} = await sb.storage.from("files").createSignedUrls(paths, 3600);
       (data || []).forEach((r, i) => { if (r && r.signedUrl) S.urls[paths[i]] = {url:r.signedUrl, exp:Date.now() + 3500e3}; });
     } catch(e){}
-    renderMain(); refreshDetail();
+    renderMain(); refreshDetail(); if (S.pop && S.pop.shots) renderPop();
   }, 60);
 }
-async function uploadFiles(files){
+async function uploadFiles(files, field = "files"){
   const it = S.items.get(S.open); if (!it || !sb || !S.user) return;
   if (!navigator.onLine) { toast("Zum Hochladen brauchst du Internet."); return; }
-  S.uploading = true; refreshDetail();
+  S.uploading = field === "shots" ? "shots" : true; refreshDetail();
   for (const f of files) {
     if (f.size > 50 * 1048576) { toast(`„${f.name}“ ist größer als 50 MB.`); continue; }
     const safe = (f.name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-80)) || "datei";
@@ -1805,7 +1853,10 @@ async function uploadFiles(files){
     const {error} = await sb.storage.from("files").upload(path, f, {contentType: f.type || "application/octet-stream", upsert: false});
     if (error) { toast(`„${f.name}“ konnte nicht hochgeladen werden.`); continue; }
     const cur = S.items.get(it.id); if (!cur) break;
-    cur.files = [...(cur.files || []), {path, name: f.name, type: f.type || "", size: f.size}]; persist(cur);
+    const rec = {path, name: f.name, type: f.type || "", size: f.size};
+    // Dateiname "t=125 Beschreibung.jpg" → Zeitmarke 125 s und Beschreibung
+    if (field === "shots") { const m = /^t=(\d+(?:\.\d+)?)\s*(.*?)\.[a-z0-9]+$/i.exec(f.name); rec.t = m ? +m[1] : null; rec.cap = m ? m[2].replace(/_/g, " ").trim() : ""; }
+    cur[field] = [...(cur[field] || []), rec]; persist(cur);
   }
   S.uploading = false; refreshDetail();
 }
@@ -1958,6 +2009,11 @@ document.addEventListener("click", e => {
       const n = document.getElementById(`pb-${nb.id}-title`); if (n) { n.focus(); n.select(); } break; }
     case "pb-del": { ownPlans(); const p = planById(a.dataset.plan); if (p) { p.blocks = p.blocks.filter(b => b.id !== id); saveSettings(0); renderMain(); } break; }
     case "pb-color": { const b = planBlock(a.dataset.plan, id); if (b) { b.color = CAL_COLORS[(CAL_COLORS.indexOf(b.color) + 1) % CAL_COLORS.length]; saveSettings(0); renderMain(); } break; }
+    case "shot-open": S.pop = {shots:true, id:S.open, k:+a.dataset.k}; renderPop(); break;
+    case "shot-nav": S.pop.k += +a.dataset.d; renderPop(); break;
+    case "shot-del": { const x = S.pop && S.items.get(S.pop.id); if (!x) break; const i = +a.dataset.i; const f = (x.shots || [])[i]; if (!f) break;
+      if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um das Bild zu löschen"); break; }
+      x.shots = x.shots.filter((_, j) => j !== i); persist(x); if (sb && f.path) sb.storage.from("files").remove([f.path]).catch(() => {}); renderPop(); refreshDetail(); renderMain(); break; }
     case "export": exportData(); break;
     case "update": if (!navigator.onLine) { toast("Dafür brauchst du Internet."); break; } toast("Lade die neueste Version …"); applyUpdate(true); break;
     case "sync": S.syncError = null; S.online = navigator.onLine; sync(); break;
@@ -1971,6 +2027,7 @@ document.addEventListener("input", e => {
   const t = e.target; const it = S.open && S.items.get(S.open);
   if (t.id === "q") { searchRender(t.value); return; }
   if (t.id === "d-pick-q") { pickerRender(); return; }
+  if (t.id === "lb-cap") { const x = S.pop && S.items.get(S.pop.id); const s = x && (x.shots || [])[+t.dataset.shot]; if (s) { s.cap = t.value; persist(x, 800); const sh = $("#dy-shots"); if (sh && S.open === x.id) sh.innerHTML = shotsHTML(x); } return; }
   if (t.dataset.pb && t.dataset.f === "title") { const b = planBlock(t.dataset.pb, t.dataset.id); if (b) { b.title = t.value; saveSettings(700); } return; }
   if (t.dataset.planName) { ownPlans(); const p = planById(t.dataset.planName); if (p) { p.name = t.value; saveSettings(700); } return; }
   if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
@@ -1987,6 +2044,7 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t = e.target; const it = S.open && S.items.get(S.open);
+  if (t.id === "d-shots") { const fs = [...t.files].filter(f => (f.type || "").startsWith("image/")); if (fs.length) uploadFiles(fs, "shots"); else toast("Bitte Bilddateien wählen."); t.value = ""; return; }
   if (t.id === "d-file") { uploadFiles([...t.files]); t.value = ""; return; }
   if (t.id === "import-file") { if (t.files[0]) importData(t.files[0]); t.value = ""; return; }
   if (t.dataset.hnum) { const v = parseFloat(t.value.replace(",", ".")); setHabit(t.dataset.hnum, t.dataset.day, isNaN(v) ? null : v); return; }
@@ -2026,6 +2084,7 @@ function addTag(it, raw){
   persist(it); refreshDetail(); renderMain();
 }
 document.addEventListener("keydown", e => {
+  if (S.pop && S.pop.shots && (e.key === "ArrowLeft" || e.key === "ArrowRight") && e.target.id !== "lb-cap") { S.pop.k += e.key === "ArrowLeft" ? -1 : 1; renderPop(); return; }
   if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
   const t = e.target;
   if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
