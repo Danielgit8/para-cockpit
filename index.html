@@ -367,6 +367,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .cal-ev.short{padding:0 6px;display:flex;align-items:center;font-size:11px;line-height:1.15}
 .cal-ev.short b span{font-weight:600;opacity:.65}
 .cal-ev.off b{text-decoration:line-through}
+.cal-ev.pt{border-radius:999px}
 .cal-now{position:absolute;left:0;right:0;height:2px;background:var(--late);z-index:3;pointer-events:none}
 .cal-now::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--late)}
 .plan-row{display:grid;grid-template-columns:28px 104px 104px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
@@ -437,7 +438,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-07.1";
+const APP_VERSION = "2026-10-07.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1231,10 +1232,11 @@ function setDayPlan(k, pid){
 }
 // Blöcke und Termine eines Tages mit Spalten bei Überschneidungen
 function dayEntries(d){
-  const evs = d.events.filter(e => toMin(e.from) != null).map(e => { const s = toMin(e.from), en = toMin(e.to); return {kind:"event", id:e.id, s, e: en != null && en > s ? en : s + 60, title:e.title || "Termin", c:"var(--ink)"}; });
-  const bls = d.blocks.filter(b => toMin(b.start) != null).map(b => { const s = toMin(b.start), en = toMin(b.end); return {kind:"block", id:b.id, s, e: en != null && en > s ? en : s + 30, title:b.title || "Block", c:b.color || CAL_COLORS[0], ref:b.ref}; });
-  for (const b of bls) b.off = evs.some(v => v.s < b.e && v.e > b.s);
-  const list = [...evs, ...bls].sort((a, b) => a.s - b.s || b.e - a.e);
+  // Ohne "Bis" ist ein Eintrag ein Zeitpunkt ohne Dauer (pt), z. B. „21:00 Ins Bett“.
+  const evs = d.events.filter(e => toMin(e.from) != null).map(e => { const s = toMin(e.from), en = toMin(e.to), pt = en == null; return {kind:"event", id:e.id, s, e: pt ? s : en > s ? en : s + 60, pt, title:e.title || "Termin", c:"var(--ink)"}; });
+  const bls = d.blocks.filter(b => toMin(b.start) != null).map(b => { const s = toMin(b.start), en = toMin(b.end), pt = en == null; return {kind:"block", id:b.id, s, e: pt ? s : en > s ? en : s + 30, pt, title:b.title || "Block", c:b.color || CAL_COLORS[0], ref:b.ref}; });
+  for (const b of bls) b.off = evs.some(v => !v.pt && v.s < Math.max(b.e, b.s + 1) && v.e > b.s);
+  const list = [...evs, ...bls].sort((a, b) => a.s - b.s || b.pt - a.pt || b.e - a.e);
   let group = [], end = -1;
   const flush = () => { const cols = []; for (const x of group) { let i = cols.findIndex(c => c <= x.s); if (i < 0) { i = cols.length; cols.push(0); } cols[i] = x.e; x.col = i; } for (const x of group) x.cols = cols.length; group = []; };
   for (const x of list) { if (group.length && x.s >= end) flush(); group.push(x); end = Math.max(end, x.e); }
@@ -1253,8 +1255,8 @@ function calColHTML(d, lo, hi, hh, compact){
   const items = dayEntries(d).map(x => {
     let top = (x.s - lo * 60) / 60 * hh, h = Math.max(minH, (x.e - x.s) / 60 * hh) - 2;
     if (x.cols === 1 && top < floor) { const bottom = top + h; top = floor; h = Math.max(minH - 2, bottom - top); }
-    floor = Math.max(floor, top + h + 2); const w = 100 / x.cols; const tm = `${toHM(x.s)}–${toHM(x.e)}`; const short = h < 30;
-    return `<button class="cal-ev ${x.kind === "event" ? "event" : ""} ${x.off ? "off" : ""} ${short ? "short" : ""}" style="--c:${esc(x.c)};top:${top}px;height:${h}px;left:calc(${x.col * w}% + 3px);width:calc(${w}% - 6px)" data-act="${x.kind === "event" ? "cal-event" : "cal-block"}" data-day="${d.k}" data-id="${x.id}" title="${esc(tm + " · " + x.title)}">${short ? `<b><span class="num">${toHM(x.s)}</span> ${esc(x.title)}</b>` : `<b>${esc(x.title)}</b><small class="num">${tm}</small>`}</button>`; }).join("");
+    floor = Math.max(floor, top + h + 2); const w = 100 / x.cols; const tm = x.pt ? toHM(x.s) : `${toHM(x.s)}–${toHM(x.e)}`; const short = x.pt || h < 30;
+    return `<button class="cal-ev ${x.kind === "event" ? "event" : ""} ${x.off ? "off" : ""} ${short ? "short" : ""} ${x.pt ? "pt" : ""}" style="--c:${esc(x.c)};top:${top}px;height:${h}px;left:calc(${x.col * w}% + 3px);width:calc(${w}% - 6px)" data-act="${x.kind === "event" ? "cal-event" : "cal-block"}" data-day="${d.k}" data-id="${x.id}" title="${esc(tm + " · " + x.title)}">${short ? `<b><span class="num">${toHM(x.s)}</span> ${esc(x.title)}</b>` : `<b>${esc(x.title)}</b><small class="num">${tm}</small>`}</button>`; }).join("");
   const nowLine = d.k === dkey() && nm >= lo * 60 && nm <= hi * 60 ? `<i class="cal-now" style="top:${(nm - lo * 60) / 60 * hh}px"></i>` : "";
   return `<div class="cal-col" data-act="cal-slot" data-day="${d.k}" data-lo="${lo}" data-hh="${hh}" style="height:${(hi - lo) * hh}px">${items}${nowLine}</div>`;
 }
@@ -1288,7 +1290,7 @@ function calPlansHTML(){
   const opt = sel => ps.map(p => `<option value="${p.id}" ${sel === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("") + `<option value="none" ${planById(sel) ? "" : "selected"}>Keine Vorlage</option>`;
   const names = ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
   return `<div class="two"><section class="card"><div class="card-h"><h2>Welche Vorlage gilt wann?</h2></div>
-      <p class="hint">Jeder Wochentag bekommt eine Vorlage. Einzelne Tage änderst du in der Tages- oder Wochenansicht, die Vorlage bleibt dabei gleich.</p>
+      <p class="hint">Jeder Wochentag bekommt eine Vorlage. Einzelne Tage änderst du in der Tages- oder Wochenansicht, die Vorlage bleibt dabei gleich. Lässt du bei einem Block „Bis“ leer, ist er nur eine Uhrzeit ohne Dauer.</p>
       ${names.map((n, i) => `<div class="set-row"><span style="width:96px;flex:none;font-weight:600">${n}</span><select class="field" data-wk="${i + 1}" aria-label="Vorlage für ${n}">${opt(wk[i + 1])}</select></div>`).join("")}</section>
     <section class="card"><div class="card-h"><h2>Neue Vorlage</h2></div>
       <p class="hint">Zum Beispiel „Ausflugstag“, „Bürotag“ oder „Krank“. Im Kalender wählst du sie dann für einzelne Tage aus.</p>
@@ -1297,7 +1299,7 @@ function calPlansHTML(){
         <button class="pill" data-act="plan-dup" data-id="${p.id}">Kopieren</button>${ps.length > 1 ? `<button class="ibtn" data-act="plan-del" data-id="${p.id}" title="Vorlage löschen" aria-label="Vorlage löschen">${ic("trash")}</button>` : ""}</div>
       ${sortBlocks(p.blocks).map(b => `<div class="plan-row"><button data-act="pb-color" data-plan="${p.id}" data-id="${b.id}" title="Farbe wechseln" aria-label="Farbe wechseln"><span class="cdot" style="--c:${esc(b.color || CAL_COLORS[0])}"></span></button>
         <input class="field num" type="time" id="pb-${b.id}-start" value="${esc(b.start)}" data-pb="${p.id}" data-id="${b.id}" data-f="start" aria-label="Von">
-        <input class="field num" type="time" id="pb-${b.id}-end" value="${esc(b.end)}" data-pb="${p.id}" data-id="${b.id}" data-f="end" aria-label="Bis">
+        <input class="field num" type="time" id="pb-${b.id}-end" value="${esc(b.end)}" data-pb="${p.id}" data-id="${b.id}" data-f="end" aria-label="Bis (leer = nur Uhrzeit)" title="Leer lassen = nur Uhrzeit ohne Dauer">
         <input class="field pt" id="pb-${b.id}-title" value="${esc(b.title)}" data-pb="${p.id}" data-id="${b.id}" data-f="title" aria-label="Titel">
         <button class="ibtn" data-act="pb-del" data-plan="${p.id}" data-id="${b.id}" title="Block löschen" aria-label="Block löschen">${ic("trash")}</button></div>`).join("") || `<div class="muted" style="font-size:13px">Noch keine Blöcke.</div>`}
       <button class="pill" style="margin-top:12px" data-act="pb-add" data-plan="${p.id}">${ic("plus")}Block hinzufügen</button></section>`).join("")}`;
@@ -1316,9 +1318,9 @@ function calHTML(){
 function dayPlanCardHTML(){
   const k = dkey(); const d = dayPlan(k); const now = new Date(); const nm = now.getHours() * 60 + now.getMinutes();
   const ents = dayEntries(d); const off = new Set(ents.filter(x => x.off).map(x => x.id));
-  const rows = [...d.events.filter(e => toMin(e.from) == null).map(e => ({ev:true, id:e.id, s:null, e:null, title:e.title, c:"var(--ink)"})), ...ents.map(x => ({ev:x.kind === "event", id:x.id, s:x.s, e:x.e, title:x.title, c:x.c}))];
+  const rows = [...d.events.filter(e => toMin(e.from) == null).map(e => ({ev:true, id:e.id, s:null, e:null, title:e.title, c:"var(--ink)"})), ...ents.map(x => ({ev:x.kind === "event", id:x.id, s:x.s, e:x.e, pt:x.pt, title:x.title, c:x.c}))];
   const html = rows.map(r => { const isNow = r.s != null && r.s <= nm && nm < r.e; const past = r.e != null && r.e <= nm;
-    return `<div class="dp-row ${isNow ? "now" : past ? "past" : ""} ${off.has(r.id) ? "off" : ""}" style="--c:${esc(r.c)}"><span class="bar"></span><span class="tm num">${r.s == null ? "Ganztägig" : `${toHM(r.s)}–${toHM(r.e)}`}</span>
+    return `<div class="dp-row ${isNow ? "now" : past ? "past" : ""} ${off.has(r.id) ? "off" : ""}" style="--c:${esc(r.c)}"><span class="bar"></span><span class="tm num">${r.s == null ? "Ganztägig" : r.pt ? toHM(r.s) : `${toHM(r.s)}–${toHM(r.e)}`}</span>
       <button class="t" data-act="${r.ev ? "cal-event" : "cal-block"}" data-day="${k}" data-id="${r.id}">${esc(r.title || "")}</button>${isNow ? `<span class="chip">Jetzt</span>` : ""}</div>`; }).join("");
   return `<section class="card"><div class="card-h"><h2>Tagesplan</h2>${d.hidden ? "" : d.plan ? `<span class="pill">${esc(d.plan.name)}${d.custom ? " · angepasst" : ""}</span>` : ""}<span class="grow"></span><button class="pill" data-go="cal">${ic("cal")}Kalender</button></div>
     ${html || `<div class="empty">Für heute ist nichts geplant. Lege im <button class="pill" data-go="cal">Kalender</button> unter „Vorlagen“ fest, wann was dran ist.</div>`}</section>`;
@@ -1327,13 +1329,13 @@ function dayPlanCardHTML(){
 function calPop(day, id, from){
   const d = dayPlan(day); const b = id ? d.blocks.find(x => x.id === id) : null;
   const a = from ?? (b ? toMin(b.start) : 9 * 60);
-  S.pop = {cal:true, day, id: b ? b.id : null, type:"block", title: b ? b.title : "", from: b ? b.start : toHM(a), to: b ? b.end : toHM(a + 60), color: b ? b.color || CAL_COLORS[0] : CAL_COLORS[1], ref: (b && b.ref) || "", allday:false, hide:false};
+  S.pop = {cal:true, day, id: b ? b.id : null, type:"block", title: b ? b.title : "", from: b ? b.start : toHM(a), to: b ? b.end : toHM(a + 60), color: b ? b.color || CAL_COLORS[0] : CAL_COLORS[1], ref: (b && b.ref) || "", allday:false, hide:false, point: !!b && toMin(b.end) == null};
   renderPop(); const t = $("#cp-title"); if (t && !b) t.focus();
 }
 function calPopRead(){
   const p = S.pop; if (!p || !p.cal) return p;
   for (const [k, id] of [["title","cp-title"],["from","cp-from"],["to","cp-to"],["ref","cp-ref"]]) { const n = document.getElementById(id); if (n) p[k] = n.value; }
-  for (const [k, id] of [["allday","cp-allday"],["hide","cp-hide"]]) { const n = document.getElementById(id); if (n) p[k] = n.checked; }
+  for (const [k, id] of [["allday","cp-allday"],["hide","cp-hide"],["point","cp-point"]]) { const n = document.getElementById(id); if (n) p[k] = n.checked; }
   return p;
 }
 function renderCalPop(){
@@ -1346,7 +1348,9 @@ function renderCalPop(){
       : `<div class="pills">${[["block","Block im Tagesplan"],["event","Termin"]].map(([v, l]) => `<button class="pill ${p.type === v ? "on" : ""}" data-act="cp-type" data-val="${v}">${l}</button>`).join("")}</div>`}
     <input class="field" id="cp-title" value="${esc(p.title)}" placeholder="${isEv ? "z. B. Ausflug ans Meer" : "z. B. Französisch"}" aria-label="Titel" style="height:46px;font-size:16px">
     ${isEv ? `<label class="hint" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="cp-allday" data-act="cp-allday" ${p.allday ? "checked" : ""}>Ganztägig</label>` : ""}
-    ${isEv && p.allday ? "" : `<div class="d-fields" style="grid-template-columns:1fr 1fr"><div><label for="cp-from">Von</label><input class="field num" type="time" id="cp-from" value="${esc(p.from)}"></div><div><label for="cp-to">Bis</label><input class="field num" type="time" id="cp-to" value="${esc(p.to)}"></div></div>`}
+    ${isEv && p.allday ? "" : `<label class="hint" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="cp-point" data-act="cp-point" ${p.point ? "checked" : ""}>Nur Uhrzeit, ohne Dauer (z. B. 21:00 Ins Bett)</label>
+      ${p.point ? `<div class="d-fields" style="grid-template-columns:1fr 1fr"><div><label for="cp-from">Um</label><input class="field num" type="time" id="cp-from" value="${esc(p.from)}"></div></div>`
+        : `<div class="d-fields" style="grid-template-columns:1fr 1fr"><div><label for="cp-from">Von</label><input class="field num" type="time" id="cp-from" value="${esc(p.from)}"></div><div><label for="cp-to">Bis</label><input class="field num" type="time" id="cp-to" value="${esc(p.to)}"></div></div>`}`}
     ${isEv ? `<label class="hint" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="cp-hide" ${p.hide ? "checked" : ""}>Tagesvorlage an diesem Tag ausblenden (z. B. bei einem Ausflug)</label>`
       : `<div><label class="sec-l">Farbe</label><div class="cdots">${CAL_COLORS.map(c => `<button class="${p.color === c ? "on" : ""}" data-act="cp-color" data-c="${c}" aria-label="Farbe"><span class="cdot" style="--c:${c}"></span></button>`).join("")}</div></div>
         <div><label class="sec-l" for="cp-ref">Verknüpft mit (optional)</label><select class="field" id="cp-ref"><option value="">Nichts</option>${refs.map(i => `<option value="${i.id}" ${p.ref === i.id ? "selected" : ""}>${esc(kindOf(i).label)}: ${esc(i.title || "Ohne Titel")}</option>`).join("")}</select></div>`}
@@ -1364,13 +1368,13 @@ function calSave(scope){
   const a = toMin(p.from); let b = toMin(p.to);
   if (scope === "event") {
     if (!p.allday && a == null) { toast("Bitte eine Startzeit angeben oder „Ganztägig“ wählen."); return; }
-    if (!p.allday && (b == null || b <= a)) b = a + 60;
-    create("event", title, {date:p.day, from: p.allday ? "" : toHM(a), to: p.allday ? "" : toHM(b), hidePlan: !!p.hide});
+    if (!p.allday && !p.point && (b == null || b <= a)) b = a + 60;
+    create("event", title, {date:p.day, from: p.allday ? "" : toHM(a), to: p.allday || p.point ? "" : toHM(b), hidePlan: !!p.hide});
     closePop(); renderMain(); toast("Termin angelegt. Antippen für Ort, Notizen und Links."); return;
   }
   if (a == null) { toast("Bitte eine Startzeit angeben."); return; }
-  if (b == null || b <= a) b = Math.min(1439, a + 30);
-  const blk = {id: p.id || uid(), start: toHM(a), end: toHM(b), title, color: p.color || CAL_COLORS[0]}; if (p.ref) blk.ref = p.ref;
+  if (!p.point && (b == null || b <= a)) b = Math.min(1439, a + 30);
+  const blk = {id: p.id || uid(), start: toHM(a), end: p.point ? "" : toHM(b), title, color: p.color || CAL_COLORS[0]}; if (p.ref) blk.ref = p.ref;
   const put = list => { const i = list.findIndex(x => x.id === blk.id); if (i >= 0) list[i] = {...blk}; else list.push({...blk}); return sortBlocks(list); };
   if (scope === "plan") {
     const d = dayPlan(p.day); if (!d.plan) { toast("An diesem Tag gilt keine Vorlage."); return; }
@@ -1598,7 +1602,7 @@ function openDetail(id){
     <div><label for="d-edate2">Bis (mehrtägig)</label><input class="field" type="date" id="d-edate2" value="${esc(it.dateTo || "")}"></div>
     <div><label for="d-efrom">Von</label><input class="field num" type="time" id="d-efrom" value="${esc(it.from || "")}"></div>
     <div><label for="d-eto">Bis</label><input class="field num" type="time" id="d-eto" value="${esc(it.to || "")}"></div>
-    <div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600"><input type="checkbox" id="d-ehide" ${it.hidePlan ? "checked" : ""}>Tagesvorlage an diesen Tagen ausblenden</label><p class="hint" style="margin:4px 0 0">Ohne Uhrzeit gilt der Termin als ganztägig.</p></div>`;
+    <div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600"><input type="checkbox" id="d-ehide" ${it.hidePlan ? "checked" : ""}>Tagesvorlage an diesen Tagen ausblenden</label><p class="hint" style="margin:4px 0 0">Ohne Uhrzeit gilt der Termin als ganztägig. Ohne „Bis“ ist er nur eine Uhrzeit ohne Dauer.</p></div>`;
   if (it.kind === "habit") { const m = hmode(it);
     fields += `<div><label for="d-hmode">Eintragen als</label><select class="field" id="d-hmode"><option value="check">Haken</option><option value="number" ${m === "number" ? "selected" : ""}>Zahl (z. B. Stunden)</option><option value="choice" ${m === "choice" ? "selected" : ""}>Auswahl (z. B. Ober-/Unterkörper)</option></select></div>
     ${m === "number" ? `<div><label for="d-goal">Ziel pro Tag</label><input class="field num" type="text" inputmode="decimal" id="d-goal" value="${it.goal ? fmtNum(+it.goal) : ""}" placeholder="z. B. 7"></div>
@@ -2002,12 +2006,13 @@ document.addEventListener("click", e => {
     case "cp-type": calPopRead(); S.pop.type = a.dataset.val; renderPop(); $("#cp-title").focus(); break;
     case "cp-color": calPopRead(); S.pop.color = a.dataset.c; renderPop(); break;
     case "cp-allday": calPopRead(); renderPop(); break;
+    case "cp-point": { calPopRead(); if (!S.pop.point && toMin(S.pop.to) == null) { const a = toMin(S.pop.from); if (a != null) S.pop.to = toHM(Math.min(1439, a + 30)); } renderPop(); break; }
     case "cp-save": calSave(a.dataset.scope); break;
     case "cp-del": calDel(a.dataset.scope); break;
     case "plan-add": { const inp = $("#new-plan"); const n = inp.value.trim(); if (!n) { inp.focus(); break; } ownPlans().push({id:"p" + uid(), name:n, blocks:[]}); inp.value = ""; saveSettings(0); renderMain(); toast(`Vorlage „${n}“ angelegt`); break; }
     case "plan-dup": { const src = planById(id); if (!src) break; ownPlans().push({id:"p" + uid(), name:src.name + " (Kopie)", blocks:clone(src.blocks).map(b => ({...b, id:uid()}))}); saveSettings(0); renderMain(); toast("Vorlage kopiert"); break; }
     case "plan-del": { if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um die Vorlage zu löschen"); break; } ownPlans(); S.settings.plans = S.settings.plans.filter(p => p.id !== id); saveSettings(0); renderMain(); toast("Vorlage gelöscht"); break; }
-    case "pb-add": { ownPlans(); const p = planById(a.dataset.plan); if (!p) break; const last = sortBlocks(p.blocks).slice(-1)[0]; const s = last ? toMin(last.end) ?? 480 : 480;
+    case "pb-add": { ownPlans(); const p = planById(a.dataset.plan); if (!p) break; const last = sortBlocks(p.blocks).slice(-1)[0]; const s = last ? toMin(last.end) ?? Math.min(1380, (toMin(last.start) ?? 450) + 30) : 480;
       const nb = {id:uid(), start:toHM(s), end:toHM(s + 30), title:"Neuer Block", color:CAL_COLORS[1]}; p.blocks.push(nb); saveSettings(0); renderMain();
       const n = document.getElementById(`pb-${nb.id}-title`); if (n) { n.focus(); n.select(); } break; }
     case "pb-del": { ownPlans(); const p = planById(a.dataset.plan); if (p) { p.blocks = p.blocks.filter(b => b.id !== id); saveSettings(0); renderMain(); } break; }
@@ -2053,7 +2058,9 @@ document.addEventListener("change", e => {
   if (t.dataset.hnum) { const v = parseFloat(t.value.replace(",", ".")); setHabit(t.dataset.hnum, t.dataset.day, isNaN(v) ? null : v); return; }
   if (t.id === "rv-day") { S.settings.reviewDay = +t.value; saveSettings(); renderSide(); return; }
   if (t.id === "rv-time") { S.settings.reviewTime = t.value; saveSettings(); return; }
-  if (t.dataset.pb && t.dataset.f !== "title") { const b = planBlock(t.dataset.pb, t.dataset.id); if (b && t.value) { b[t.dataset.f] = t.value; if (toMin(b.end) <= toMin(b.start)) b.end = toHM(toMin(b.start) + 30); saveSettings(0); renderMain(); } return; }
+  if (t.dataset.pb && t.dataset.f !== "title") { const b = planBlock(t.dataset.pb, t.dataset.id);
+    if (b && t.dataset.f === "end" && !t.value) { b.end = ""; saveSettings(0); renderMain(); return; }
+    if (b && t.value) { b[t.dataset.f] = t.value; if (toMin(b.end) != null && toMin(b.end) <= toMin(b.start)) b.end = toHM(toMin(b.start) + 30); saveSettings(0); renderMain(); } return; }
   if (t.dataset.wk) { ownPlans(); S.settings.week[t.dataset.wk] = t.value; saveSettings(0); renderMain(); return; }
   if (t.id === "cal-plan") { setDayPlan(calDay(), t.value); return; }
   if (!it) return;
