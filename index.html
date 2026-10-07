@@ -364,7 +364,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .cal-ev.event{background:var(--ink);color:var(--on-ink);border-left-color:var(--ink);z-index:2}
 .cal-ev.event small{color:inherit;opacity:.7}
 .cal-ev.off{opacity:.4}
-.cal-ev.short{padding:0 6px;display:flex;align-items:center;font-size:10.5px;line-height:1.1}
+.cal-ev.short{padding:0 6px;display:flex;align-items:center;font-size:11px;line-height:1.15}
 .cal-ev.short b span{font-weight:600;opacity:.65}
 .cal-ev.off b{text-decoration:line-through}
 .cal-now{position:absolute;left:0;right:0;height:2px;background:var(--late);z-index:3;pointer-events:none}
@@ -437,7 +437,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-06.2";
+const APP_VERSION = "2026-10-07.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1249,8 +1249,11 @@ function calRange(days){
 function calHoursHTML(lo, hi, hh){ return `<div class="cal-hours" style="height:${(hi - lo) * hh}px">${Array.from({length:hi - lo}, (_, i) => `<span class="num" style="top:${i * hh}px${i ? "" : ";transform:none"}">${pad(lo + i)}:00</span>`).join("")}</div>`; }
 function calColHTML(d, lo, hi, hh, compact){
   const now = new Date(); const nm = now.getHours() * 60 + now.getMinutes();
+  const minH = compact ? 20 : 24; let floor = -1;
   const items = dayEntries(d).map(x => {
-    const top = (x.s - lo * 60) / 60 * hh, h = Math.max(11, (x.e - x.s) / 60 * hh - 1); const w = 100 / x.cols; const tm = `${toHM(x.s)}–${toHM(x.e)}`; const short = h < 30;
+    let top = (x.s - lo * 60) / 60 * hh, h = Math.max(minH, (x.e - x.s) / 60 * hh) - 2;
+    if (x.cols === 1 && top < floor) { const bottom = top + h; top = floor; h = Math.max(minH - 2, bottom - top); }
+    floor = Math.max(floor, top + h + 2); const w = 100 / x.cols; const tm = `${toHM(x.s)}–${toHM(x.e)}`; const short = h < 30;
     return `<button class="cal-ev ${x.kind === "event" ? "event" : ""} ${x.off ? "off" : ""} ${short ? "short" : ""}" style="--c:${esc(x.c)};top:${top}px;height:${h}px;left:calc(${x.col * w}% + 3px);width:calc(${w}% - 6px)" data-act="${x.kind === "event" ? "cal-event" : "cal-block"}" data-day="${d.k}" data-id="${x.id}" title="${esc(tm + " · " + x.title)}">${short ? `<b><span class="num">${toHM(x.s)}</span> ${esc(x.title)}</b>` : `<b>${esc(x.title)}</b><small class="num">${tm}</small>`}</button>`; }).join("");
   const nowLine = d.k === dkey() && nm >= lo * 60 && nm <= hi * 60 ? `<i class="cal-now" style="top:${(nm - lo * 60) / 60 * hh}px"></i>` : "";
   return `<div class="cal-col" data-act="cal-slot" data-day="${d.k}" data-lo="${lo}" data-hh="${hh}" style="height:${(hi - lo) * hh}px">${items}${nowLine}</div>`;
