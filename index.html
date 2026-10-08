@@ -372,6 +372,24 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .cal-now::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--late)}
 .plan-row{display:grid;grid-template-columns:28px 104px 104px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .plan-row .field{height:36px;padding:0 8px}
+.bs-row{display:grid;grid-template-columns:minmax(0,1.3fr) 104px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.bs-row .field{height:36px;padding:0 10px}
+.bs-head{border-top:0;padding:0 0 2px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.bs-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.bs-kpis>div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.bs-kpis span{font-size:12px;color:var(--muted)}
+.bs-kpis b{font-size:18px;white-space:nowrap}
+.bs-kpis small{font-size:12px;color:var(--muted)}
+.bs-lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:16px 0 6px}
+.bs-goal{height:auto;min-height:84px;padding:10px 12px;resize:vertical;line-height:1.45;font:inherit}
+.bs-log{padding:10px 0;border-top:1px solid var(--line)}
+.bs-log-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.bs-log-h .ibtn{margin-left:auto;width:28px;height:28px}
+.bs-chg{margin:4px 0 8px;font-size:14px;overflow-wrap:anywhere}
+.bs-chg s{color:var(--muted)}
+.bs-delta{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid var(--line-2);margin-left:4px}
+.bs-log .field{height:34px;font-size:13px}
+@media (max-width:560px){.bs-row{grid-template-columns:minmax(0,1fr) 92px 32px}.bs-row .bs-3{grid-column:1/3;order:5}.bs-head .bs-3{display:none}}
 .cdot{display:block;width:22px;height:22px;border-radius:50%;background:var(--c);border:2px solid var(--panel-solid);box-shadow:0 0 0 1px var(--line-2)}
 .cdots{display:flex;gap:8px;flex-wrap:wrap}
 .cdots button.on .cdot{box-shadow:0 0 0 2px var(--ink)}
@@ -438,7 +456,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-07.2";
+const APP_VERSION = "2026-10-08.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -480,7 +498,7 @@ const P = {
   sun:"M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4L7 17M17 7l1.4-1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
   review:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16M9 15l2 2 4-4", tag:"M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
   bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4", repeat:"M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1",
-  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01"
+  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -956,6 +974,7 @@ function applySettings(){
 function navItems(){
   const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}];
   for (const id of ["task","habit","project"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
+  out.push({v:"basis", label:"Basis", icon:"pulse"});
   out.push({v:"review", label:"Wochenrückblick", icon:"review"});
   for (const id of ["area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   for (const c of S.settings.kinds || []) out.push({v:c.id, label:c.label, icon:"folder"});
@@ -963,7 +982,7 @@ function navItems(){
   out.push({v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"});
   return out;
 }
-function go(v){ S.view = v; $("#side").classList.remove("open"); render(); window.scrollTo({top:0}); }
+function go(v){ bsFlush(); S.view = v; $("#side").classList.remove("open"); render(); window.scrollTo({top:0}); }
 
 function renderSide(){
   const counts = {};
@@ -1017,6 +1036,7 @@ function viewHTML(){
   if (v === "today") return todayHTML();
   if (v === "cal") return calHTML();
   if (v === "review") return reviewHTML();
+  if (v === "basis") return basisHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
   if (v === "habit") return habitsHTML();
@@ -1938,6 +1958,103 @@ function quickAdd(kind, inputId, relId){
   renderMain(); renderSide(); refreshDetail(); inp.focus();
 }
 
+/* ================= Basis: tägliche Standards, Kalorienverbrauch, Änderungsverlauf ================= */
+// Liegt in S.settings.basis. Jede Änderung (beim Verlassen des Felds) kommt mit Zeitpunkt in basis.log.
+// Mehrere Änderungen am selben Feld innerhalb von 10 Minuten werden zu einem Verlaufseintrag zusammengefasst.
+const DEF_BASIS = {goal:"",
+  metrics:[{id:"steps", name:"Schritte", value:"", unit:"pro Tag"}, {id:"z2", name:"Rad Zone 2", value:"", unit:"Min. pro Tag"}, {id:"kcal", name:"Kalorien essen", value:"", unit:"kcal pro Tag"}],
+  burn:[{id:"bmr", name:"Grundumsatz", kcal:"", note:""}, {id:"bsteps", name:"Schritte", kcal:"", note:""}, {id:"bz2", name:"Rad Zone 2", kcal:"", note:""}], log:[]};
+const BS_LIST = {metrics:"Basis", burn:"Verbrauch"};
+function basis(){ if (!S.settings.basis) S.settings.basis = clone(DEF_BASIS); const b = S.settings.basis; for (const k of ["metrics","burn","log"]) if (!Array.isArray(b[k])) b[k] = []; return b; }
+// "1.950" und "1950" werden 1950, "7,5" wird 7.5; leer bleibt "", keine Zahl gibt null
+const bsNum = s => { s = String(s ?? "").trim().replace(/\s/g, ""); if (!s) return ""; if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, ""); const n = Number(s.replace(",", ".")); return isNaN(n) ? null : n; };
+const bsFmt = (v, d = 1) => typeof v === "number" ? v.toLocaleString("de-DE", {maximumFractionDigits:d}) : String(v ?? "");
+const bsIn = v => typeof v === "number" ? String(v).replace(".", ",") : String(v ?? "");
+const bsEmpty = v => v === "" || v == null;
+const bsVal = (list, x) => list === "burn" ? (bsEmpty(x.kcal) ? "" : bsFmt(x.kcal) + " kcal") : (bsEmpty(x.value) ? "" : bsFmt(x.value) + (x.unit ? " " + x.unit : ""));
+const bsSum = () => basis().burn.reduce((s, c) => s + (typeof c.kcal === "number" ? c.kcal : 0), 0);
+function bsCalcHTML(){
+  const b = basis(), total = bsSum(); const m = b.metrics.find(x => /kcal/i.test(x.unit || "")); const eat = m && typeof m.value === "number" ? m.value : null;
+  let out = `<div class="bs-kpis"><div><span>Verbrauch gesamt</span><b class="num">${total ? bsFmt(total) + " kcal" : "–"}</b></div><div><span>Essen</span><b class="num">${eat != null ? bsFmt(eat) + " kcal" : "–"}</b></div>`;
+  if (eat != null && total) { const d = eat - total, kg = Math.round(d * 7 / 7700 * 100) / 100;
+    out += `<div><span>${d < 0 ? "Defizit" : d > 0 ? "Überschuss" : "Ausgeglichen"}</span><b class="num">${bsFmt(Math.abs(d))} kcal</b><small class="num">≈ ${kg > 0 ? "+" : kg < 0 ? "−" : ""}${bsFmt(Math.abs(kg), 2)} kg pro Woche</small></div>`; }
+  out += `</div><p class="hint" style="margin:10px 0 0">${!m ? "Gib bei einem Basis-Wert die Einheit „kcal“ an (z. B. „kcal pro Tag“), dann wird er hier als Essen gerechnet." : eat == null || !total ? "Trag ein, wie viel du isst und woraus sich dein Verbrauch zusammensetzt. Dann siehst du hier dein Defizit oder deinen Überschuss." : "Grobe Schätzung mit 7.700 kcal pro Kilo Körperfett."}</p>`;
+  return out;
+}
+function bsRow(list, x){
+  const m = list === "metrics", f2 = m ? "value" : "kcal", f3 = m ? "unit" : "note";
+  return `<div class="bs-row">
+    <input class="field" id="bs-${x.id}-name" value="${esc(x.name)}" data-bs="${list}" data-id="${x.id}" data-f="name" placeholder="Name" aria-label="Name">
+    <input class="field num" id="bs-${x.id}-v" inputmode="decimal" value="${esc(bsIn(x[f2]))}" data-bs="${list}" data-id="${x.id}" data-f="${f2}" placeholder="${m ? "Wert" : "kcal"}" aria-label="${m ? "Wert" : "Kalorien"}">
+    <input class="field bs-3" id="bs-${x.id}-x" value="${esc(x[f3])}" data-bs="${list}" data-id="${x.id}" data-f="${f3}" placeholder="${m ? "Einheit, z. B. pro Tag" : "Notiz, z. B. bei 8.000 Schritten"}" aria-label="${m ? "Einheit" : "Notiz"}">
+    <button class="ibtn" data-act="bs-del" data-list="${list}" data-id="${x.id}" title="Entfernen" aria-label="Entfernen">${ic("trash")}</button></div>`;
+}
+function bsLogHTML(){
+  const L = basis().log.slice().sort((a, b) => b.ts - a.ts);
+  if (!L.length) return `<div class="muted" style="font-size:13px">Noch keine Änderungen. Sobald du oben etwas einträgst oder änderst, steht hier, wann und was.</div>`;
+  const v = s => s ? esc(s) : `<span class="muted">leer</span>`;
+  return L.map(e => { const dn = typeof e.fromN === "number" && typeof e.toN === "number" ? Math.round((e.toN - e.fromN) * 10) / 10 : 0;
+    return `<div class="bs-log"><div class="bs-log-h"><span class="muted num">${esc(new Date(e.ts).toLocaleString("de-DE", {weekday:"short", day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit"}))}</span><b>${esc(e.what)}</b>
+      <button class="ibtn" data-act="bl-del" data-id="${e.id}" title="Aus dem Verlauf löschen" aria-label="Aus dem Verlauf löschen">${ic("trash")}</button></div>
+      <div class="bs-chg">${e.to === "entfernt" ? `<s>${v(e.from)}</s> entfernt` : `${e.from ? `<s>${esc(e.from)}</s>` : v("")} → <b>${v(e.to)}</b>`}${dn ? `<span class="bs-delta num">${dn > 0 ? "+" : "−"}${bsFmt(Math.abs(dn))}</span>` : ""}</div>
+      <input class="field" id="bl-${e.id}" value="${esc(e.why || "")}" data-bl-why="${e.id}" placeholder="Warum? z. B. Grundumsatz war zu hoch berechnet" aria-label="Grund der Änderung"></div>`; }).join("");
+}
+function basisHTML(){
+  const b = basis(), total = bsSum();
+  const head = m => `<div class="bs-row bs-head"><span>${m ? "Was" : "Komponente"}</span><span>${m ? "Wert" : "kcal"}</span><span class="bs-3">${m ? "Einheit" : "Notiz"}</span><span></span></div>`;
+  return header("Basis", "Deine täglichen Standards, dein Kalorienverbrauch und was du wann geändert hast") + banner() + `
+  <div class="two"><section class="card"><div class="card-h"><h2>Meine Basis</h2></div>
+      <p class="hint">Dein Standard pro Tag, zum Beispiel Schritte, Minuten auf dem Rad in Zone 2 und wie viel du isst.</p>
+      ${head(true)}${b.metrics.map(x => bsRow("metrics", x)).join("")}
+      <button class="pill" style="margin-top:12px" data-act="bs-add" data-list="metrics">${ic("plus")}Wert hinzufügen</button></section>
+    <section class="card"><div class="card-h"><h2>Bilanz und Ziel</h2></div>
+      <div id="bs-calc">${bsCalcHTML()}</div>
+      <label class="bs-lbl" for="bs-goal">Aktuelles Ziel</label>
+      <textarea class="field bs-goal" id="bs-goal" rows="3" placeholder="Was willst du damit gerade erreichen?">${esc(b.goal)}</textarea></section></div>
+  <section class="card"><div class="card-h"><h2>Kalorienverbrauch</h2><span class="grow"></span><span class="chip num" id="bs-sum">${total ? bsFmt(total) + " kcal pro Tag" : ""}</span></div>
+    <p class="hint">Woraus setzt sich dein Verbrauch pro Tag zusammen? Jede Komponente bekommt ihre Kalorien, die Summe ist dein Gesamtverbrauch.</p>
+    ${head(false)}${b.burn.map(x => bsRow("burn", x)).join("")}
+    <button class="pill" style="margin-top:12px" data-act="bs-add" data-list="burn">${ic("plus")}Komponente hinzufügen</button></section>
+  <section class="card"><div class="card-h"><h2>Verlauf der Änderungen</h2></div>
+    <p class="hint">Jede Änderung oben steht hier mit Datum und Uhrzeit, die neueste zuerst. Den Grund kannst du dazuschreiben.</p>
+    <div id="bs-log">${bsLogHTML()}</div></section>`;
+}
+function bsCur(key){ const b = basis(); if (key === "goal") return {x:b, f:"goal", list:""}; const [list, id, f] = key.split("|"); const x = (b[list] || []).find(y => y.id === id); return x ? {x, f, list} : null; }
+function bsInput(key, raw){
+  const c = bsCur(key); if (!c) return; S.bsOrig = S.bsOrig || {};
+  if (!(key in S.bsOrig)) S.bsOrig[key] = c.x[c.f] ?? "";
+  if (c.f === "kcal") { const n = bsNum(raw); if (n === null) return; c.x.kcal = n; }
+  else if (c.f === "value") { const n = bsNum(raw); c.x.value = n === null ? raw.trim() : n; }
+  else c.x[c.f] = raw;
+  saveSettings(700);
+  const calc = $("#bs-calc"); if (calc) calc.innerHTML = bsCalcHTML();
+  const sum = $("#bs-sum"); if (sum) { const t = bsSum(); sum.textContent = t ? bsFmt(t) + " kcal pro Tag" : ""; }
+}
+function bsLogAdd(key, what, from, to, fromN, toN){
+  const b = basis(), last = b.log[b.log.length - 1], now = Date.now();
+  if (key && last && last.key === key && !last.why && now - last.ts < 600000) { Object.assign(last, {ts:now, what, to, toN: typeof toN === "number" ? toN : null}); if (last.from === last.to) b.log.pop(); return; }
+  if (from === to) return;
+  b.log.push({id:uid(), key, ts:now, what, from: from ?? "", to: to ?? "", fromN: typeof fromN === "number" ? fromN : null, toN: typeof toN === "number" ? toN : null, why:""});
+}
+function bsCommit(key){
+  if (!S.bsOrig || !(key in S.bsOrig)) return false; const old = S.bsOrig[key]; delete S.bsOrig[key];
+  const c = bsCur(key); if (!c) return false; const {x, f, list} = c;
+  if (typeof x[f] === "string") x[f] = x[f].trim();
+  const now = x[f]; if (old === now) return false;
+  const L = BS_LIST[list], name = x.name || (list === "burn" ? "Komponente" : "Wert");
+  if (f === "goal") bsLogAdd(key, "Aktuelles Ziel", old, now);
+  else if (f === "name") bsLogAdd(key, old ? `${L}: umbenannt` : `${L}: neu`, old, now);
+  else if (f === "value" || f === "kcal") bsLogAdd(key, `${L}: ${name}`, bsVal(list, {...x, [f]:old}), bsVal(list, x), old, now);
+  else bsLogAdd(key, `${L}: ${name}, ${f === "unit" ? "Einheit" : "Notiz"}`, old, now);
+  return true;
+}
+function bsFlush(){ if (!S.bsOrig) return; let any = false; for (const k of Object.keys(S.bsOrig)) any = bsCommit(k) || any; if (any) saveSettings(0); }
+function bsLogRefresh(){
+  setTimeout(() => { const box = $("#bs-log"); if (!box) return; const a = document.activeElement, fid = a && box.contains(a) ? a.id : null;
+    box.innerHTML = bsLogHTML(); if (fid) { const n = document.getElementById(fid); if (n) n.focus({preventScroll:true}); } }, 0);
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) bsFlush(); });
+
 /* ================= events ================= */
 document.addEventListener("click", e => {
   if (edClick(e)) return;
@@ -2022,6 +2139,15 @@ document.addEventListener("click", e => {
     case "shot-del": { const x = S.pop && S.items.get(S.pop.id); if (!x) break; const i = +a.dataset.i; const f = (x.shots || [])[i]; if (!f) break;
       if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um das Bild zu löschen"); break; }
       x.shots = x.shots.filter((_, j) => j !== i); persist(x); if (sb && f.path) sb.storage.from("files").remove([f.path]).catch(() => {}); renderPop(); refreshDetail(); renderMain(); break; }
+    case "bs-add": { const b = basis(), list = a.dataset.list; const nx = list === "burn" ? {id:uid(), name:"", kcal:"", note:""} : {id:uid(), name:"", value:"", unit:""};
+      b[list].push(nx); saveSettings(0); renderMain(); const n = document.getElementById(`bs-${nx.id}-name`); if (n) n.focus(); break; }
+    case "bs-del": { const b = basis(), list = a.dataset.list; const x = (b[list] || []).find(y => y.id === id); if (!x) break;
+      const has = !!x.name || !bsEmpty(list === "burn" ? x.kcal : x.value);
+      if (has && a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen zum Entfernen"); break; }
+      bsFlush(); if (has) bsLogAdd(null, `${BS_LIST[list]}: ${x.name || "ohne Name"}`, bsVal(list, x) || x.name, "entfernt");
+      b[list] = b[list].filter(y => y.id !== id); saveSettings(0); renderMain(); break; }
+    case "bl-del": { if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um den Eintrag aus dem Verlauf zu löschen"); break; }
+      const b = basis(); b.log = b.log.filter(e => e.id !== id); saveSettings(0); renderMain(); break; }
     case "export": exportData(); break;
     case "update": if (!navigator.onLine) { toast("Dafür brauchst du Internet."); break; } toast("Lade die neueste Version …"); applyUpdate(true); break;
     case "sync": S.syncError = null; S.online = navigator.onLine; sync(); break;
@@ -2038,6 +2164,9 @@ document.addEventListener("input", e => {
   if (t.id === "lb-cap") { const x = S.pop && S.items.get(S.pop.id); const s = x && (x.shots || [])[+t.dataset.shot]; if (s) { s.cap = t.value; persist(x, 800); const sh = $("#dy-shots"); if (sh && S.open === x.id) sh.innerHTML = shotsHTML(x); } return; }
   if (t.dataset.pb && t.dataset.f === "title") { const b = planBlock(t.dataset.pb, t.dataset.id); if (b) { b.title = t.value; saveSettings(700); } return; }
   if (t.dataset.planName) { ownPlans(); const p = planById(t.dataset.planName); if (p) { p.name = t.value; saveSettings(700); } return; }
+  if (t.dataset.bs) { bsInput(`${t.dataset.bs}|${t.dataset.id}|${t.dataset.f}`, t.value); return; }
+  if (t.id === "bs-goal") { bsInput("goal", t.value); return; }
+  if (t.dataset.blWhy) { const e = basis().log.find(x => x.id === t.dataset.blWhy); if (e) { e.why = t.value; saveSettings(700); } return; }
   if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
 
   if (it && t.id === "d-target") { it.target = Math.max(1, Math.min(7, +t.value || 7)); persist(it, 600); return; }
@@ -2061,6 +2190,11 @@ document.addEventListener("change", e => {
   if (t.dataset.pb && t.dataset.f !== "title") { const b = planBlock(t.dataset.pb, t.dataset.id);
     if (b && t.dataset.f === "end" && !t.value) { b.end = ""; saveSettings(0); renderMain(); return; }
     if (b && t.value) { b[t.dataset.f] = t.value; if (toMin(b.end) != null && toMin(b.end) <= toMin(b.start)) b.end = toHM(toMin(b.start) + 30); saveSettings(0); renderMain(); } return; }
+  if (t.dataset.bs || t.id === "bs-goal") { const f = t.dataset.f, key = t.id === "bs-goal" ? "goal" : `${t.dataset.bs}|${t.dataset.id}|${f}`;
+    if (f === "kcal" && bsNum(t.value) === null) toast("Bitte nur eine Zahl eintragen, z. B. 1950.");
+    if (bsCommit(key)) saveSettings(0);
+    if (f === "kcal" || f === "value") { const c = bsCur(key); if (c) t.value = bsIn(c.x[f]); }
+    bsLogRefresh(); return; }
   if (t.dataset.wk) { ownPlans(); S.settings.week[t.dataset.wk] = t.value; saveSettings(0); renderMain(); return; }
   if (t.id === "cal-plan") { setDayPlan(calDay(), t.value); return; }
   if (!it) return;
