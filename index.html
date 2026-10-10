@@ -415,6 +415,33 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .tr-head>span{text-align:center}.tr-head>span:nth-child(2){text-align:left}.tr-head>span:first-child{text-align:right}
 .tr-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .tr-legend b{color:var(--text)}
+.tr-seg{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px}
+.tr-seg .pill{height:34px;padding:0 14px;font-size:13px}
+.tr-dbadd{display:grid;grid-template-columns:minmax(0,1fr) 170px auto;gap:8px}
+.tr-dbadd .pill{height:40px}
+.tr-dbq{margin-top:12px}
+.tr-dblist{max-height:min(60vh,560px);overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:14px;margin-top:10px}
+.tr-dbg{position:sticky;top:0;z-index:1;background:var(--panel-solid);padding:9px 12px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
+.tr-dbrow{display:grid;grid-template-columns:minmax(0,1.3fr) 150px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line)}
+.tr-dbrow:last-child{border-bottom:0}
+.tr-dbrow .field{height:36px;padding:0 10px}
+.tr-dbempty{padding:14px;font-size:13px;color:var(--muted)}
+.tr-dd{position:fixed;z-index:58;background:var(--panel-solid);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow);overflow-y:auto;overscroll-behavior:contain;padding:4px;-webkit-overflow-scrolling:touch}
+.tr-dd-g{position:sticky;top:-4px;z-index:1;background:var(--panel-solid);margin:0 -4px;padding:9px 14px 4px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.tr-dd-o{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;width:100%;min-height:40px;padding:7px 10px;border:0;border-radius:10px;background:transparent;color:var(--text);text-align:left;font:inherit;font-size:14px;line-height:1.3;cursor:pointer}
+.tr-dd-o>span,.tr-dd-o>small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-dd-o>small{font-size:12px;color:var(--muted)}
+.tr-dd-o:hover,.tr-dd-o.on{background:var(--soft)}
+.tr-dd-add{flex-direction:row;align-items:center;gap:8px;font-weight:600;margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+.tr-dd-add svg{width:16px;height:16px;flex:none}
+.tr-dd-add>span{white-space:normal}
+.tr-dd-empty{padding:10px;font-size:13px;color:var(--muted);line-height:1.45}
+@media (max-width:560px){
+  .tr-dbadd{grid-template-columns:minmax(0,1fr) auto}.tr-dbadd>input{grid-column:1/-1}
+  .tr-dbrow{grid-template-columns:minmax(0,1fr) 32px;padding:10px}
+  .tr-dbrow>:nth-child(1){grid-column:1;grid-row:1}.tr-dbrow>:nth-child(4){grid-column:2;grid-row:1}
+  .tr-dbrow>:nth-child(2){grid-column:1/-1;grid-row:2}.tr-dbrow>:nth-child(3){grid-column:1/-1;grid-row:3}
+}
 @media (max-width:560px){
   .tr-meta{grid-template-columns:minmax(0,1fr)}
   .tr-row{display:flex;flex-wrap:wrap;gap:6px 8px;padding:10px 0}
@@ -490,7 +517,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-10.1";
+const APP_VERSION = "2026-10-10.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2095,10 +2122,12 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) bsFlu
 /* ================= Training: eigene Trainingspläne als Tabelle ================= */
 // Liegt in S.settings.training = {cur, plans:[{id, name, rhythm, note, days:[{id, name, ex:[{id, name, sets, reps, rir, pause}]}]}]}.
 // Aufgebaut wie die Excel-Tabellen von Germanbull3: Übung, Sätze, Wiederholungen, RIR, Pause, Summe pro Tag.
-const TR_MOVES = ["Brustpresse (Chest Press)","Schrägbankdrücken","Butterfly","Seitheben (Side Laterals)","Schulterdrücken","Latzug (Lat Pull)","Latzug-Kombi (eng + breit)","Klimmzüge",
-  "Rudern oberer Rücken (Upper Back Row)","Shrugs","Reverse Butterfly (Rear Delt Fly)","Trizeps-Extension","Trizeps-Pushdowns","Enges Bankdrücken / Dips","Bizeps-Curl","Hammer-Curl",
-  "Beinbeuger (Leg Curl)","SLDL / Ham Hypers","Hip Thrust","RDL (Rumänisches Kreuzheben)","Kniebeuge","Beinpresse","Beinstrecker (Leg Extension)","Adduktoren","Abduktoren",
-  "Wadenheben gestrecktes Bein","Bauch-Crunch"];
+// Übungsdatenbank in training.moves = [{id, name, group, note}]; die Pläne speichern den Namen als Text.
+const TR_GROUPS = ["Brust","Schultern","Rücken","Bizeps","Trizeps","Beine","Po","Waden","Bauch","Cardio","Sonstiges"];
+const TR_SEED = {Brust:["Brustpresse","Schrägbankdrücken","Butterfly"], Schultern:["Seitheben","Schulterdrücken","Reverse Butterfly"],
+  "Rücken":["Latzug","Latzug-Kombi (eng + breit)","Klimmzüge","Rudern oberer Rücken","Shrugs"], Bizeps:["Bizeps-Curl","Hammer-Curl"],
+  Trizeps:["Trizeps-Extension","Trizeps-Pushdowns","Enges Bankdrücken / Dips"], Beine:["Beinbeuger","SLDL / Ham Hypers","Kniebeuge","Beinpresse","Beinstrecker","Adduktoren","Abduktoren"],
+  Po:["Hip Thrust","RDL (Rumänisches Kreuzheben)"], Waden:["Wadenheben gestrecktes Bein"], Bauch:["Bauch-Crunch"]};
 const TR_TPL = {
   gk: {name:"GK-Basisplan (Germanbull3)", rhythm:"1 Tag Training, 1 Tag Pause", reps:"5–8+", days:[["Ganzkörper", [["Brustpresse",1],["Seitheben",1],["Latzug",1],["Rudern oberer Rücken",1],
     ["Trizeps-Extension",1],["Bizeps-Curl",1],["Beinbeuger",1],["Hip Thrust",1,5],["Beinstrecker",1],["Adduktoren",1],["Wadenheben gestrecktes Bein",1],["Bauch-Crunch",1]]]]},
@@ -2106,7 +2135,7 @@ const TR_TPL = {
     ["Oberkörper", [["Flach- oder Schrägbank-Brustpresse",1],["Seitheben",2],["Butterfly",2],["Latzug-Kombi (eng + breit)",2],["Rudern oberer Rücken",1],["Reverse Butterfly",1],["Bizeps-Curl einarmig",2],["Trizeps-Pushdowns einarmig",2]]],
     ["Unterkörper", [["Bauch-Crunch",2],["Beinbeuger",2],["Kniebeuge oder Beinpresse",1,5],["Beinstrecker",2],["Adduktoren",2],["Hip Thrust",1,5],["RDL",1,5],["Wadenheben gestrecktes Bein",2]]]]}
 };
-function training(){ if (!S.settings.training) S.settings.training = {cur:"", plans:[]}; const t = S.settings.training; if (!Array.isArray(t.plans)) t.plans = []; return t; }
+function training(){ if (!S.settings.training) S.settings.training = {cur:"", plans:[]}; const t = S.settings.training; if (!Array.isArray(t.plans)) t.plans = []; if (!Array.isArray(t.moves)) t.moves = []; return t; }
 function trPlan(){ const t = training(); return t.plans.find(p => p.id === t.cur) || t.plans[0] || null; }
 const trEx = () => ({id:uid(), name:"", sets:"", reps:"", rir:"", pause:""});
 function trMake(tpl){
@@ -2126,7 +2155,7 @@ function trKpisHTML(p){
 function trRow(d, e, i){
   const c = (f, label, ph, mode) => `<label class="tr-c"><span>${label}</span><input class="field${f === "sets" ? " num" : ""}" id="tr-${e.id}-${f}" ${mode ? `inputmode="${mode}"` : ""} value="${esc(f === "sets" ? bsIn(e.sets) : e[f] || "")}" data-tr="${f}" data-day="${d.id}" data-id="${e.id}" placeholder="${ph}" aria-label="${label}"></label>`;
   return `<div class="tr-row"><span class="tr-n num">${i + 1}</span>
-    <input class="field tr-name" id="tr-${e.id}-name" list="tr-moves" value="${esc(e.name)}" data-tr="name" data-day="${d.id}" data-id="${e.id}" placeholder="Übung, z. B. Brustpresse" aria-label="Übung">
+    <input class="field tr-name" id="tr-${e.id}-name" autocomplete="off" role="combobox" aria-autocomplete="list" value="${esc(e.name)}" data-tr="name" data-day="${d.id}" data-id="${e.id}" placeholder="Übung, z. B. Brustpresse" aria-label="Übung">
     ${c("sets", "Sätze", "1", "decimal")}${c("reps", "Wdh.", "5–8", "")}${c("rir", "RIR", "0–1", "")}${c("pause", "Pause", "3", "")}
     <span class="tr-acts"><button class="ibtn" data-act="tr-ex-move" data-day="${d.id}" data-id="${e.id}" data-d="-1" title="Nach oben" aria-label="Nach oben">${ic("up")}</button><button class="ibtn" data-act="tr-ex-move" data-day="${d.id}" data-id="${e.id}" data-d="1" title="Nach unten" aria-label="Nach unten">${ic("down")}</button><button class="ibtn" data-act="tr-ex-del" data-day="${d.id}" data-id="${e.id}" title="Übung entfernen" aria-label="Übung entfernen">${ic("trash")}</button></span></div>`;
 }
@@ -2143,6 +2172,9 @@ function trainingHTML(){
   const t = training(), p = trPlan();
   const tabs = t.plans.map(x => `<button class="pill ${p && x.id === p.id ? "on" : ""}" id="tr-tab-${x.id}" data-act="tr-pick" data-id="${x.id}">${esc(x.name || "Ohne Namen")}</button>`).join("");
   let out = header("Training", "Deine Trainingspläne als Tabelle: Übungen, Sätze, Wiederholungen, RIR und Pause") + banner() + `
+  <div class="tr-seg"><button class="pill ${S.trTab !== "db" ? "on" : ""}" data-act="tr-tab" data-v="plans">Pläne</button><button class="pill ${S.trTab === "db" ? "on" : ""}" data-act="tr-tab" data-v="db">Übungsdatenbank <span class="num">${t.moves.length}</span></button></div>`;
+  if (S.trTab === "db") return out + trDbHTML();
+  out += `
   <section class="card"><div class="card-h"><h2>Meine Pläne</h2></div>
     ${t.plans.length ? `<div class="tr-tabs">${tabs}</div>` : `<p class="hint">Noch kein Plan. Leg einen leeren Plan an oder starte mit einer der Tabellen aus den Germanbull3-Videos und pass sie an.</p>`}
     <div class="tr-new"><button class="pill" data-act="tr-new" data-tpl="">${ic("plus")}Neuer Plan</button><span class="muted">oder als Vorlage:</span>
@@ -2156,9 +2188,92 @@ function trainingHTML(){
     <div class="bs-kpis tr-kpis" id="tr-kpis">${trKpisHTML(p)}</div></section>
   ${p.days.map((d, k) => trDayHTML(d, k, p.days.length)).join("")}
   <div class="tr-foot" style="margin:0 0 20px"><button class="pill" data-act="tr-day-add">${ic("plus")}Trainingstag hinzufügen</button></div>
-  <section class="card"><p class="hint tr-legend" style="margin:0"><b>Sätze:</b> Arbeitssätze pro Übung. <b>Wdh.:</b> Wiederholungsbereich, z. B. 5–8. <b>RIR:</b> Wiederholungen, die noch im Tank sind, 0 heißt bis zum Muskelversagen. <b>Pause:</b> Minuten zwischen den Sätzen. Bei den Übungen schlägt dir das Feld Bewegungen aus den Videos vor, du kannst aber alles frei eintippen.</p></section>`;
-  return out + `<datalist id="tr-moves">${TR_MOVES.map(m => `<option value="${esc(m)}">`).join("")}</datalist>`;
+  <section class="card"><p class="hint tr-legend" style="margin:0"><b>Sätze:</b> Arbeitssätze pro Übung. <b>Wdh.:</b> Wiederholungsbereich, z. B. 5–8. <b>RIR:</b> Wiederholungen, die noch im Tank sind, 0 heißt bis zum Muskelversagen. <b>Pause:</b> Minuten zwischen den Sätzen. Tippst du auf ein Übungsfeld, öffnet sich die Auswahl aus deiner Übungsdatenbank. Du kannst aber auch frei schreiben.</p></section>`;
+  return out;
 }
+const trGroupIdx = g => { const i = TR_GROUPS.indexOf(g); return i < 0 ? TR_GROUPS.length : i; };
+const trSorted = list => list.slice().sort((a, b) => trGroupIdx(a.group) - trGroupIdx(b.group) || a.name.localeCompare(b.name, "de"));
+const trMatch = (m, q) => !q || m.name.toLowerCase().includes(q) || (m.group || "").toLowerCase().includes(q) || (m.note || "").toLowerCase().includes(q);
+function trDbListHTML(){
+  const all = training().moves, q = (S.trDbQ || "").trim().toLowerCase(), list = trSorted(all.filter(m => trMatch(m, q)));
+  if (!all.length) return `<div class="tr-dbempty">Noch keine Übungen. Trag oben deine erste ein.</div>`;
+  if (!list.length) return `<div class="tr-dbempty">Keine Übung gefunden.</div>`;
+  let g = null, out = "";
+  for (const m of list) { const gg = m.group || "Ohne Gruppe"; if (gg !== g) { out += `<div class="tr-dbg">${esc(gg)}</div>`; g = gg; }
+    out += `<div class="tr-dbrow"><input class="field" id="trm-${m.id}-name" value="${esc(m.name)}" data-trm="name" data-id="${m.id}" placeholder="Name" aria-label="Name der Übung">
+      <select class="field" data-trm="group" data-id="${m.id}" aria-label="Muskelgruppe"><option value="">Ohne Gruppe</option>${TR_GROUPS.map(x => `<option ${x === m.group ? "selected" : ""}>${x}</option>`).join("")}</select>
+      <input class="field" id="trm-${m.id}-note" value="${esc(m.note || "")}" data-trm="note" data-id="${m.id}" placeholder="Notiz, z. B. Gerät oder Ausführung" aria-label="Notiz">
+      <button class="ibtn" data-act="tr-db-del" data-id="${m.id}" title="Aus der Datenbank löschen" aria-label="Aus der Datenbank löschen">${ic("trash")}</button></div>`; }
+  return out;
+}
+function trDbHTML(){
+  const n = training().moves.length, lg = S.trLastGroup || "";
+  return `<section class="card"><div class="card-h"><h2>Übungsdatenbank</h2><span class="grow"></span><span class="chip num" id="tr-db-n">${n} ${n === 1 ? "Übung" : "Übungen"}</span></div>
+    <p class="hint">Trag hier deine Übungen ein. In den Plänen tippst du auf das Feld „Übung“ und wählst sie aus der Liste aus. Benennst du hier eine Übung um, ändert sich der Name auch in deinen Plänen.</p>
+    <div class="tr-dbadd"><input class="field" id="tr-db-new" placeholder="Neue Übung, z. B. Brustpresse" autocomplete="off">
+      <select class="field" id="tr-db-newg" aria-label="Muskelgruppe"><option value="">Muskelgruppe</option>${TR_GROUPS.map(x => `<option ${x === lg ? "selected" : ""}>${x}</option>`).join("")}</select>
+      <button class="pill" data-act="tr-db-add">${ic("plus")}Hinzufügen</button></div>
+    ${n ? `<input class="field tr-dbq" id="tr-db-q" value="${esc(S.trDbQ || "")}" placeholder="In der Datenbank suchen …" autocomplete="off">` : ""}
+    <div class="tr-dblist" id="tr-dblist">${trDbListHTML()}</div>
+    ${n ? "" : `<div class="tr-foot"><button class="pill" data-act="tr-db-seed">${ic("plus")}Übungen aus den Germanbull3-Videos übernehmen</button></div>`}</section>`;
+}
+function trDbRefresh(){ const l = $("#tr-dblist"); if (l) l.innerHTML = trDbListHTML(); const n = training().moves.length, c = $("#tr-db-n"); if (c) c.textContent = `${n} ${n === 1 ? "Übung" : "Übungen"}`; }
+function trDbAdd(name, group){
+  name = String(name || "").trim(); if (!name) return null; const t = training();
+  const have = t.moves.find(m => m.name.toLowerCase() === name.toLowerCase()); if (have) return {m:have, dup:true};
+  const m = {id:uid(), name, group: group || "", note:""}; t.moves.push(m); saveSettings(0); return {m, dup:false};
+}
+
+/* Auswahlmenü fürs Übungsfeld: liegt fest unter (oder über) dem Feld, eigene Höhe, scrollt in sich */
+function trDdOpen(inp){
+  S.trDd = {inp, k:-1, items:[]};
+  let dd = $("#tr-dd"); if (!dd) { dd = document.createElement("div"); dd.id = "tr-dd"; dd.className = "tr-dd"; dd.setAttribute("role", "listbox"); document.body.appendChild(dd); }
+  trDdRender();
+}
+function trDdClose(){ const dd = $("#tr-dd"); if (dd) dd.remove(); S.trDd = null; }
+function trDdRender(){
+  const st = S.trDd, dd = $("#tr-dd"); if (!st || !dd) return;
+  const all = training().moves, qv = st.inp.value.trim(), q = qv.toLowerCase();
+  const items = trSorted(all.filter(m => trMatch(m, q))); st.items = items;
+  const canSave = !!qv && !all.some(m => m.name.toLowerCase() === q); st.max = items.length + (canSave ? 1 : 0) - 1;
+  let g = null, out = "";
+  items.forEach((m, i) => { const gg = m.group || "Ohne Gruppe"; if (gg !== g) { out += `<div class="tr-dd-g">${esc(gg)}</div>`; g = gg; }
+    out += `<button type="button" class="tr-dd-o ${i === st.k ? "on" : ""}" data-act="tr-dd-pick" data-i="${i}" role="option"><span>${esc(m.name)}</span>${m.note ? `<small>${esc(m.note)}</small>` : ""}</button>`; });
+  if (!all.length) out += `<div class="tr-dd-empty">Deine Übungsdatenbank ist noch leer. Trag Übungen unter „Übungsdatenbank“ ein oder speichere hier die getippte.</div>`;
+  else if (!items.length) out += `<div class="tr-dd-empty">Keine passende Übung in deiner Datenbank.</div>`;
+  if (canSave) out += `<button type="button" class="tr-dd-o tr-dd-add ${st.k === items.length ? "on" : ""}" data-act="tr-dd-save" role="option">${ic("plus")}<span>„${esc(qv)}“ in der Datenbank speichern</span></button>`;
+  dd.innerHTML = out; trDdPos();
+  const on = dd.querySelector(".tr-dd-o.on"); if (on) on.scrollIntoView({block:"nearest"});
+}
+function trDdPos(){
+  const st = S.trDd, dd = $("#tr-dd"); if (!st || !dd) return;
+  if (!document.body.contains(st.inp)) { trDdClose(); return; }
+  const r = st.inp.getBoundingClientRect(), vv = window.visualViewport, nav = $("#bottom"), nr = nav && nav.getBoundingClientRect();
+  // Unten nicht unter die Handy-Leiste oder die Tastatur rutschen
+  const vh = Math.min(vv ? vv.height + vv.offsetTop : innerHeight, nr && nr.height ? nr.top : Infinity);
+  const below = vh - r.bottom - 12, above = r.top - 12, up = below < 180 && above > below;
+  const w = Math.min(Math.max(r.width, 260), innerWidth - 16), left = Math.max(8, Math.min(r.left, innerWidth - w - 8));
+  dd.style.width = w + "px"; dd.style.left = left + "px"; dd.style.maxHeight = Math.max(120, Math.min(320, up ? above : below)) + "px";
+  if (up) { dd.style.top = ""; dd.style.bottom = (innerHeight - r.top + 6) + "px"; } else { dd.style.bottom = ""; dd.style.top = (r.bottom + 6) + "px"; }
+}
+function trDdPick(name){
+  const st = S.trDd; if (!st) return; const inp = st.inp, {d, e} = trFind(inp.dataset.day, inp.dataset.id);
+  inp.value = name; if (e) { e.name = name; saveSettings(0); trRefresh(d); }
+  trDdClose(); trFocus(`tr-${inp.dataset.id}-sets`);
+}
+document.addEventListener("focusin", e => { const t = e.target; if (t.classList && t.classList.contains("tr-name")) { if (!S.trDd || S.trDd.inp !== t) trDdOpen(t); } });
+document.addEventListener("focusout", e => { const t = e.target; if (S.trDd && S.trDd.inp === t) setTimeout(() => { if (S.trDd && S.trDd.inp === t && document.activeElement !== t) trDdClose(); }, 120); });
+document.addEventListener("mousedown", e => { if (e.target.closest("#tr-dd")) e.preventDefault(); });
+document.addEventListener("keydown", e => {
+  const st = S.trDd; if (!st || e.target !== st.inp || e.isComposing) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); st.k = e.key === "ArrowDown" ? Math.min(st.max, st.k + 1) : Math.max(-1, st.k - 1); trDdRender(); }
+  else if (e.key === "Enter") { e.preventDefault(); if (st.k >= 0 && st.k < st.items.length) trDdPick(st.items[st.k].name); else if (st.k === st.items.length) { const b = $('#tr-dd [data-act="tr-dd-save"]'); if (b) b.click(); } else { trDdClose(); trFocus(`tr-${st.inp.dataset.id}-sets`); } }
+  else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); trDdClose(); }
+  else if (e.key === "Tab") trDdClose();
+}, true);
+window.addEventListener("scroll", () => trDdPos(), true);
+window.addEventListener("resize", () => trDdPos());
+if (window.visualViewport) visualViewport.addEventListener("resize", () => trDdPos());
 function trRefresh(d){ const p = trPlan(); if (d) { const c = $(`#tr-sum-${d.id}`); if (c) c.textContent = trDayInfo(d); } const k = $("#tr-kpis"); if (k && p) k.innerHTML = trKpisHTML(p); }
 function trFocus(id){ const n = document.getElementById(id); if (n) n.focus(); }
 
@@ -2256,6 +2371,17 @@ document.addEventListener("click", e => {
     case "bl-del": { if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um den Eintrag aus dem Verlauf zu löschen"); break; }
       const b = basis(); b.log = b.log.filter(e => e.id !== id); saveSettings(0); renderMain(); break; }
     case "tr-pick": training().cur = id; saveSettings(0); renderMain(); break;
+    case "tr-tab": S.trTab = a.dataset.v; trDdClose(); renderMain(); break;
+    case "tr-dd-pick": { const st = S.trDd; const m = st && st.items[+a.dataset.i]; if (m) trDdPick(m.name); break; }
+    case "tr-dd-save": { const st = S.trDd; if (!st) break; const r = trDbAdd(st.inp.value); if (r) { toast(r.dup ? "Die Übung gibt es schon." : "In der Übungsdatenbank gespeichert"); trDdPick(r.m.name); } break; }
+    case "tr-db-add": { const inp = $("#tr-db-new"), g = $("#tr-db-newg").value; if (!inp.value.trim()) { inp.focus(); break; }
+      const r = trDbAdd(inp.value, g); S.trLastGroup = g; if (r.dup) { toast(`„${r.m.name}“ gibt es schon.`); break; }
+      if (!$("#tr-db-q")) { renderMain(); trFocus("tr-db-new"); break; }
+      inp.value = ""; trDbRefresh(); inp.focus(); break; }
+    case "tr-db-seed": { for (const [g, names] of Object.entries(TR_SEED)) for (const n of names) trDbAdd(n, g); renderMain(); toast("Übungen übernommen. Du kannst sie jetzt anpassen oder löschen."); break; }
+    case "tr-db-del": { const t = training(), m = t.moves.find(x => x.id === id); if (!m) break;
+      if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast(`Nochmal tippen, um „${m.name || "die Übung"}“ zu löschen. Deine Pläne bleiben, wie sie sind.`); break; }
+      t.moves = t.moves.filter(x => x !== m); saveSettings(0); trDbRefresh(); break; }
     case "tr-new": { const t = training(), p = trMake(a.dataset.tpl); t.plans.push(p); t.cur = p.id; saveSettings(0); renderMain();
       if (!a.dataset.tpl) trFocus("tr-p-name"); else toast("Vorlage angelegt. Du kannst jetzt alles anpassen."); break; }
     case "tr-plan-dup": { const t = training(), p = trPlan(); if (!p) break; const c = clone(p); c.id = uid(); c.name = (p.name || "Plan") + " (Kopie)";
@@ -2299,7 +2425,11 @@ document.addEventListener("input", e => {
   if (t.dataset.blWhy) { const e = basis().log.find(x => x.id === t.dataset.blWhy); if (e) { e.why = t.value; saveSettings(700); } return; }
   if (t.dataset.tr) { const {d, e} = trFind(t.dataset.day, t.dataset.id); if (!e) return; const f = t.dataset.tr;
     if (f === "sets") { const n = bsNum(t.value); if (n === null) return; e.sets = n; } else e[f] = t.value;
-    saveSettings(700); trRefresh(d); return; }
+    saveSettings(700); trRefresh(d); if (f === "name" && S.trDd && S.trDd.inp === t) { S.trDd.k = -1; trDdRender(); } return; }
+  if (t.id === "tr-db-q") { S.trDbQ = t.value; trDbRefresh(); return; }
+  if (t.dataset.trm && t.dataset.trm !== "group") { const m = training().moves.find(x => x.id === t.dataset.id); if (!m) return;
+    if (t.dataset.trm === "name") { S.trmOrig = S.trmOrig || {}; if (!(m.id in S.trmOrig)) S.trmOrig[m.id] = m.name; }
+    m[t.dataset.trm] = t.value; saveSettings(700); return; }
   if (t.dataset.trd) { const {d} = trFind(t.dataset.trd); if (d) { d.name = t.value; saveSettings(700); } return; }
   if (t.dataset.trp) { const p = trPlan(); if (!p) return; p[t.dataset.trp] = t.value; saveSettings(700);
     if (t.dataset.trp === "name") { const b = $(`#tr-tab-${p.id}`); if (b) b.textContent = p.name || "Ohne Namen"; } return; }
@@ -2331,6 +2461,13 @@ document.addEventListener("change", e => {
     if (bsCommit(key)) saveSettings(0);
     if (f === "kcal" || f === "value") { const c = bsCur(key); if (c) t.value = bsIn(c.x[f]); }
     bsLogRefresh(); return; }
+  if (t.dataset.trm) { const m = training().moves.find(x => x.id === t.dataset.id); if (!m) return;
+    if (t.dataset.trm === "group") { m.group = t.value; saveSettings(0); trDbRefresh(); return; }
+    if (t.dataset.trm === "name") { const old = (S.trmOrig || {})[m.id]; if (S.trmOrig) delete S.trmOrig[m.id]; m.name = m.name.trim();
+      if (!m.name && old) { m.name = old; t.value = old; toast("Der Name darf nicht leer sein."); }
+      else if (old && old !== m.name) { let n = 0; for (const p of training().plans) for (const d of p.days) for (const e of d.ex) if (e.name === old) { e.name = m.name; n++; }
+        if (n) toast(`Auch in deinen Plänen umbenannt (${n}×).`); } }
+    saveSettings(0); return; }
   if (t.dataset.tr || t.dataset.trd || t.dataset.trp) {
     if (t.dataset.tr === "sets") { const {e} = trFind(t.dataset.day, t.dataset.id); if (e) { if (bsNum(t.value) === null) toast("Bei Sätze bitte nur eine Zahl eintragen."); t.value = bsIn(e.sets); } }
     saveSettings(0); return; }
@@ -2373,6 +2510,7 @@ document.addEventListener("keydown", e => {
   if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
   if (e.key !== "Enter" || e.isComposing) return;
   if (t.dataset.hnum) { e.preventDefault(); t.blur(); return; }
+  if (t.id === "tr-db-new") { e.preventDefault(); const b = document.querySelector('[data-act="tr-db-add"]'); if (b) b.click(); return; }
   if (t.id === "new-title") { e.preventDefault(); doCreate(); }
   else if (t.id === "dash-add") { e.preventDefault(); quickAdd("task", "dash-add"); }
   else if (t.id === "today-add") { e.preventDefault(); quickAdd("task", "today-add"); }
