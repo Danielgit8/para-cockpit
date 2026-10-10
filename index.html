@@ -427,6 +427,65 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .tr-dbrow .field{height:36px;padding:0 10px}
 .tr-dbempty{padding:14px;font-size:13px;color:var(--muted)}
 .tr-dd{position:fixed;z-index:58;background:var(--panel-solid);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow);overflow-y:auto;overscroll-behavior:contain;padding:4px;-webkit-overflow-scrolling:touch}
+/* Boards (Whiteboard) */
+.bd-tpls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.bd-grid > .empty{grid-column:1/-1}
+.bd-card{position:relative;border-radius:var(--r-md);background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden;min-width:0;transition:transform .15s}
+.bd-card:hover{transform:translateY(-2px)}
+.bd-open{display:flex;flex-direction:column;width:100%;text-align:left;min-width:0}
+.bd-th{width:100%;aspect-ratio:16/10;background:#fff center/contain no-repeat;border-bottom:1px solid var(--line);display:grid;place-items:center;color:#adb5bd}
+.bd-th .i{width:34px;height:34px}
+.bd-cb{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;min-width:0;width:100%}
+.bd-cb h3{margin:0;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd-cb .meta{display:flex;gap:4px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+.bd-more{position:absolute;top:8px;right:8px;background:var(--panel-solid);box-shadow:var(--shadow)}
+.bd-dprev{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%}
+.bd-dprev img{width:100%;max-height:220px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#fff}
+body.bd-on{overflow:hidden}
+.bd-ov{position:fixed;inset:0;z-index:48;background:var(--bg-hi);display:flex;flex-direction:column}
+.bd-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:var(--panel-solid);border-bottom:1px solid var(--line);min-width:0}
+.bd-bar .rbtn{width:36px;height:36px;box-shadow:none;flex:none}
+.bd-title{flex:1 1 120px;min-width:70px;font:inherit;font-weight:700;font-size:15px;border:0;background:transparent;color:var(--text);padding:6px 8px;border-radius:10px}
+.bd-title:focus{outline:none;background:var(--soft)}
+.bd-state{flex:none}
+.bd-tools{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:0 1 auto;min-width:0}
+.bd-tools::-webkit-scrollbar{display:none}
+.bd-tools .pill{height:34px;flex:none}
+.bd-canvas{flex:1;position:relative;min-height:0}
+.bd-load{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-weight:600;padding:20px;text-align:center}
+.bd-menu{position:fixed;z-index:49;top:calc(58px + env(safe-area-inset-top,0px));right:10px;width:min(380px,calc(100vw - 20px));max-height:min(72vh,580px);overflow-y:auto;background:var(--panel-solid);border:1px solid var(--line-2);border-radius:16px;box-shadow:var(--shadow);padding:6px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.bd-mh{padding:8px 12px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.bd-mi{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:9px 12px;border-radius:12px}
+.bd-mi:hover,.bd-mi:focus-visible{background:var(--soft)}
+.bd-mi b{font-size:13.5px}
+.bd-mi small{color:var(--muted);font-size:12px;line-height:1.35}
+.bd-sw{display:flex;flex-wrap:wrap;gap:10px;padding:6px 12px 10px}
+.bd-sw button{width:46px;height:46px;border-radius:10px;border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.bd-sw button.on{outline:2px solid var(--ink);outline-offset:2px}
+.bd-tm{display:flex;flex-wrap:wrap;gap:8px;padding:4px 12px 10px;align-items:center}
+.bd-tm .pill{height:34px}
+.bd-tm input{width:76px;height:34px}
+.bd-q{padding:4px 6px 6px}
+.bd-tips{margin:0;padding:2px 12px 10px 28px;font-size:13px;line-height:1.5}
+.bd-tips li{margin:5px 0}
+.bd-tips b{font-weight:700}
+.bd-pres{position:absolute;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:4px;background:rgba(13,13,15,.86);color:#fff;border-radius:999px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.bd-pres button{height:38px;min-width:38px;padding:0 12px;border-radius:999px;color:#fff;font-weight:700;display:grid;place-items:center}
+.bd-pres button:hover{background:rgba(255,255,255,.14)}
+.bd-pres span{padding:0 6px;font-size:13px;font-weight:600;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+.bd-ov.presenting .bd-bar,.bd-ov.presenting .bd-menu{display:none}
+.bd-timer span{font-variant-numeric:tabular-nums}
+.bd-timer.end{background:var(--late);color:#fff;border-color:transparent}
+@media (max-width:700px){
+  .bd-tools .pill:not(.run) span{display:none}
+  .bd-tools .pill{padding:0 10px}
+  .bd-state{display:none}
+  .bd-pres{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .bd-tpls{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px}
+  .bd-tpls::-webkit-scrollbar{display:none}
+  .bd-tpls > *{flex:none}
+}
 .tr-dd-g{position:sticky;top:-4px;z-index:1;background:var(--panel-solid);margin:0 -4px;padding:9px 14px 4px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .tr-dd-o{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;width:100%;min-height:40px;padding:7px 10px;border:0;border-radius:10px;background:transparent;color:var(--text);text-align:left;font:inherit;font-size:14px;line-height:1.3;cursor:pointer}
 .tr-dd-o>span,.tr-dd-o>small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -517,7 +576,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-10.2";
+const APP_VERSION = "2026-10-10.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -560,7 +619,9 @@ const P = {
   review:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16M9 15l2 2 4-4", tag:"M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
   bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4", repeat:"M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1",
   grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
-  up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11"
+  up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11",
+  board:"M3 4h18v12H3zM12 16v4M8 20h8M7 8h6M7 11h4", layout:"M4 4h16v16H4zM4 10h16M10 10v10", sticky:"M5 4h14v10l-6 6H5zM13 20v-6h6",
+  play:"M7 5l12 7-12 7z", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -592,9 +653,11 @@ const S = {
   mode: "boot", user: null, authMode: "login", dirty: new Set(), tombs: new Set(), settingsDirty: false, cursor: null, syncing: false, online: navigator.onLine, urls: {}, newKind: "task",
 };
 function kinds(){ const k = {...BASE}; for (const c of S.settings.kinds || []) k[c.id] = {label:c.label, plural:c.label, icon:"folder", custom:true}; return k; }
-const kindOf = it => kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
+const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
+const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
+const HIDDEN_K = ["day", "boardlib"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -829,6 +892,7 @@ function saveLocal(){
 function scheduleSync(ms = 1200){ clearTimeout(syncT); syncT = setTimeout(sync, ms); }
 function persist(it, delay = 0){
   it.updated = Date.now(); S.items.set(it.id, it); S.dirty.add(it.id); S.tombs.delete(it.id);
+  if (S.bd && S.bd.id === it.id) S.bd.ver = it.updated;
   saveLocal(); scheduleSync(Math.max(1200, delay + 800)); renderStatus();
 }
 function removeItem(id){ S.items.delete(id); S.tombs.add(id); S.dirty.add(id); saveLocal(); scheduleSync(); renderStatus(); }
@@ -891,7 +955,7 @@ async function sync(){
     }
     S.lastSync = Date.now(); S.syncError = null; S.online = true; S.needLogin = false;
     saveLocal();
-    if (changed) { applySettings(); renderMain(); renderSide(); refreshDetail(); }
+    if (changed) { applySettings(); renderMain(); renderSide(); refreshDetail(); bdRemote(); }
     if (S.pendingOpen && S.items.has(S.pendingOpen)) { const id = S.pendingOpen; S.pendingOpen = null; openDetailFresh(id); }
   } catch(e) {
     const msg = (e && (e.message || e.error_description)) || String(e || "");
@@ -929,7 +993,7 @@ function setupSW(){
   const had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!had) return;
-    const busy = S.open || S.pop || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+    const busy = S.open || S.pop || S.bd || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
     if (busy) { toast("Neue Version bereit. Sie ist beim nächsten Öffnen aktiv."); return; }
     clearTimeout(saveT); idb.set(stateKey(), snapshot()).catch(() => {}).finally(() => location.reload());
   });
@@ -944,7 +1008,7 @@ function checkUpdate(){
   }).catch(() => {});
 }
 async function applyUpdate(force){
-  const busy = S.open || S.pop || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
+  const busy = S.open || S.pop || S.bd || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
   if (busy && !force) { if (!S.updateNote) { S.updateNote = true; toast("Neue Version bereit. Sie lädt, sobald du den Eintrag schließt."); } S.updatePending = true; return; }
   // Schutz gegen Neulade-Schleifen, falls der Server kurz noch alte Dateien ausliefert
   try { const last = +sessionStorage.getItem("para-cockpit.reloaded") || 0; if (!force && Date.now() - last < 60000) return; sessionStorage.setItem("para-cockpit.reloaded", Date.now()); } catch(e){}
@@ -962,6 +1026,7 @@ function openTarget(d){
   if (d.id) { if (S.items.has(d.id)) openDetailFresh(d.id); else S.pendingOpen = d.id; }
 }
 function openFromHash(){
+  if (/addLibrary=/.test(location.hash)) { const b = live("board").sort((x, y) => y.updated - x.updated)[0] || create("board", "Neues Board", {elements:[], bg:"#ffffff"}); go("board"); bdOpen(b.id); return; }
   const m = location.hash.match(/^#(open|view)=([\w-]+)/); if (!m) return;
   history.replaceState(null, "", location.pathname + location.search);
   openTarget(m[1] === "open" ? {id:m[2]} : {view:m[2]});
@@ -1030,6 +1095,7 @@ function applySettings(){
   $("#user-css").textContent = S.settings.css || "";
   const t = S.settings.theme;
   if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+  if (S.bd && S.bd.ctrl) S.bd.ctrl.setTheme(bdTheme());
 }
 
 /* ================= navigation ================= */
@@ -1040,6 +1106,7 @@ function navItems(){
   out.push({v:"training", label:"Training", icon:"dumbbell"});
   out.push({v:"review", label:"Wochenrückblick", icon:"review"});
   for (const id of ["area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
+  out.push({v:"board", label:"Boards", icon:"board"});
   for (const c of S.settings.kinds || []) out.push({v:c.id, label:c.label, icon:"folder"});
   out.push({v:"tags", label:"Stichwörter", icon:"tag"});
   out.push({v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"});
@@ -1101,6 +1168,7 @@ function viewHTML(){
   if (v === "review") return reviewHTML();
   if (v === "basis") return basisHTML();
   if (v === "training") return trainingHTML();
+  if (v === "board") return boardsHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
   if (v === "habit") return habitsHTML();
@@ -1661,7 +1729,7 @@ function searchRender(q){
   q = q.trim().toLowerCase();
   if (!q) { box.innerHTML = ""; return; }
   const tq = q.startsWith("#") ? q.slice(1) : null;
-  const hits = all().filter(i => i.kind !== "day").filter(i => tq != null ? tagsOf(i).some(t => t.toLowerCase().startsWith(tq))
+  const hits = all().filter(i => !HIDDEN_K.includes(i.kind)).filter(i => tq != null ? tagsOf(i).some(t => t.toLowerCase().startsWith(tq))
     : (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || tagsOf(i).some(t => t.toLowerCase().includes(q)) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q)) || (i.shots || []).some(s => (s.cap || "").toLowerCase().includes(q))).slice(0, 12);
   box.innerHTML = `<div class="search-res">${hits.map(i => `<button class="res" data-open="${i.id}">${ic(kindOf(i).icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(kindOf(i).label)}${i.archived ? " · Archiv" : ""}</small></button>`).join("") || `<div class="res muted">Nichts gefunden.</div>`}</div>`;
 }
@@ -1672,7 +1740,8 @@ function openDetail(id){
   S.open = id; S.picker = false; S.confirmDel = null;
   const k = kindOf(it);
   const kopts = Object.entries(kinds()).map(([v, x]) => `<option value="${v}" ${v === it.kind ? "selected" : ""}>${esc(x.label)}</option>`).join("");
-  let fields = `<div><label for="d-kind">Art</label><select class="field" id="d-kind">${kopts}</select></div>`;
+  let fields = it.kind === "board" ? `<div style="grid-column:1/-1"><button class="bd-dprev" data-act="bd-open" data-id="${it.id}">${it.thumb ? `<img src="${it.thumb}" alt="Vorschau">` : ""}<span class="btn">${ic("board")}Board öffnen</span></button></div>`
+    : `<div><label for="d-kind">Art</label><select class="field" id="d-kind">${kopts}</select></div>`;
   if (it.kind === "task") fields += `<div><label for="d-due">Fällig am</label><input class="field" type="date" id="d-due" value="${esc(it.due || "")}"></div>
     <div><label for="d-prio">Priorität</label><select class="field" id="d-prio"><option value="normal">Normal</option><option value="hoch" ${it.prio === "hoch" ? "selected" : ""}>Hoch</option></select></div>
     <div><label for="d-repeat">Wiederholen</label><select class="field" id="d-repeat">${Object.entries(REPEAT).map(([v, l]) => `<option value="${v}" ${(it.repeat || "") === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
@@ -1822,7 +1891,7 @@ function downloadIcs(list, name){
   const ics = icsFile(list); if (!ics) { toast("Keine Erinnerung mit Uhrzeit (bei Aufgaben auch mit Datum) gefunden."); return; }
   saveBlob(new Blob([ics], {type:"text/calendar"}), name.replace(/[^\wäöüÄÖÜß -]+/g, "").trim().replace(/\s+/g, "-") + ".ics");
 }
-function closeDetail(){ S.open = null; $("#overlay").innerHTML = ""; renderMain(); if (S.updatePending) applyUpdate(false); }
+function closeDetail(){ S.open = null; $("#overlay").innerHTML = ""; if (S.bd && !S.items.has(S.bd.id)) bdClose(true, true); renderMain(); if (S.updatePending && !S.bd) applyUpdate(false); }
 function refreshDetail(){
   const it = S.open && S.items.get(S.open);
   if (!S.open) return;
@@ -1862,7 +1931,7 @@ function pickerRender(){
   const it = S.items.get(S.open); const box = $("#d-pick-res"); if (!it || !box) return;
   const q = ($("#d-pick-q").value || "").trim().toLowerCase();
   const relIds = new Set(related(it.id).map(r => r.id));
-  const cands = all().filter(o => o.kind !== "day" && o.id !== it.id && !relIds.has(o.id) && !o.archived && (!q || (o.title || "").toLowerCase().includes(q)))
+  const cands = all().filter(o => !HIDDEN_K.includes(o.kind) && o.id !== it.id && !relIds.has(o.id) && !o.archived && (!q || (o.title || "").toLowerCase().includes(q)))
     .sort((a, b) => b.updated - a.updated).slice(0, 10);
   const newKinds = Object.entries(kinds()).map(([v, x]) => `<option value="${v}">${esc(x.label)}</option>`).join("");
   box.innerHTML = cands.map(o => `<button class="res" data-act="link" data-id="${o.id}">${ic(kindOf(o).icon)}<span class="t">${esc(o.title || "Ohne Titel")}</span><small>${esc(kindOf(o).label)}</small></button>`).join("")
@@ -2372,6 +2441,20 @@ document.addEventListener("click", e => {
       const b = basis(); b.log = b.log.filter(e => e.id !== id); saveSettings(0); renderMain(); break; }
     case "tr-pick": training().cur = id; saveSettings(0); renderMain(); break;
     case "tr-tab": S.trTab = a.dataset.v; trDdClose(); renderMain(); break;
+    case "bd-new": { const t = BOARD_TPL.find(x => x.id === a.dataset.tpl); const b = create("board", t ? t.name : "Neues Board", {elements:[], bg:"#ffffff"}); renderSide(); bdOpen(b.id, t && t.id, !t); break; }
+    case "bd-open": bdOpen(id); break;
+    case "bd-close": bdClose(); break;
+    case "bd-menu": if (S.bd) bdMenu(S.bd.menu === a.dataset.m ? null : a.dataset.m); break;
+    case "bd-tpl": if (S.bd && S.bd.ctrl) { S.bd.ctrl.insertTemplate(id); bdMenu(null); } break;
+    case "bd-note": if (S.bd && S.bd.ctrl) { S.bdNote = a.dataset.c; S.bd.ctrl.addNote(a.dataset.c); bdMenu(null); toast("Notiz eingefügt. Doppelklick zum Schreiben."); } break;
+    case "bd-card": { const t = S.items.get(id); if (S.bd && S.bd.ctrl && t) { S.bd.ctrl.insertCard({title:t.title || "Ohne Titel", sub:kindOf(t).label, url:location.origin + location.pathname + "#open=" + id, color:BD_CARD[t.kind] || "#ffffff"}); linkItems(S.bd.id, id); bdMenu(null); toast("Eingefügt und mit dem Board verknüpft"); } break; }
+    case "bd-present": bdMenu(null); bdPresent(); break;
+    case "bd-prev": if (S.bd && S.bd.ctrl) bdPresUI(S.bd.ctrl.present.step(-1)); break;
+    case "bd-next": if (S.bd && S.bd.ctrl) bdPresUI(S.bd.ctrl.present.step(1)); break;
+    case "bd-pstop": bdPresStop(); break;
+    case "bd-tstart": { const m = +a.dataset.min || parseFloat(($("#bd-tmin") || {}).value || "0"); if (m > 0) bdTimerStart(m); else toast("Bitte Minuten eingeben."); break; }
+    case "bd-tstop": bdTimerStop(); bdMenu(null); break;
+    case "bd-info": if (S.bd) { bdMenu(null); openDetailFresh(S.bd.id); } break;
     case "tr-dd-pick": { const st = S.trDd; const m = st && st.items[+a.dataset.i]; if (m) trDdPick(m.name); break; }
     case "tr-dd-save": { const st = S.trDd; if (!st) break; const r = trDbAdd(st.inp.value); if (r) { toast(r.dup ? "Die Übung gibt es schon." : "In der Übungsdatenbank gespeichert"); trDdPick(r.m.name); } break; }
     case "tr-db-add": { const inp = $("#tr-db-new"), g = $("#tr-db-newg").value; if (!inp.value.trim()) { inp.focus(); break; }
@@ -2581,6 +2664,228 @@ document.addEventListener("paste", e => {
 });
 document.addEventListener("selectionchange", () => { const ed = $("#d-ed"); const sel = getSelection(); if (ed && sel.rangeCount && ed.contains(sel.anchorNode)) S.edSel = sel.getRangeAt(0).cloneRange(); });
 document.addEventListener("mousedown", e => { if (e.target.closest('[data-act="ed-tool"]')) e.preventDefault(); });
+
+/* ================= Boards: Whiteboard mit Excalidraw (vendor/excalidraw, gebaut in ../board-build) ================= */
+const BOARD_TPL = [
+  {id:"kanban", name:"Kanban-Board", desc:"Drei Spalten für Aufgaben, die du per Ziehen weiterschiebst"},
+  {id:"mindmap", name:"Mindmap", desc:"Zentrales Thema mit sechs Ästen. Strg + Pfeiltaste fügt weitere Knoten an"},
+  {id:"flow", name:"Flussdiagramm", desc:"Start, Schritte, Entscheidung und Ende, mit Pfeilen verbunden"},
+  {id:"swot", name:"SWOT-Analyse", desc:"Stärken, Schwächen, Chancen und Risiken auf einen Blick"},
+  {id:"eisenhower", name:"Eisenhower-Matrix", desc:"Aufgaben nach wichtig und dringend sortieren"},
+  {id:"woche", name:"Wochenplan", desc:"Sieben Tagesspalten von Montag bis Sonntag"},
+  {id:"brainstorm", name:"Brainstorming", desc:"Eine Frage in der Mitte, neun leere Haftnotizen für Ideen"},
+  {id:"retro", name:"Rückblick", desc:"Was lief gut, was verbessern, Ideen und nächste Schritte"},
+  {id:"roadmap", name:"Zeitleiste", desc:"Fünf Meilensteine auf einer Linie, ideal für Ziele und Projekte"},
+  {id:"procon", name:"Pro & Contra", desc:"Zwei Spalten, um eine Entscheidung abzuwägen"},
+  {id:"slides", name:"Präsentation", desc:"Vier Folien als Rahmen. Mit „Präsentieren“ blätterst du sie durch"},
+  {id:"moodboard", name:"Moodboard", desc:"Raster für Bilder und Inspiration. Bilder einfach hineinziehen"},
+];
+const BD_NOTES = [["gelb","#fff3a3","Gelb"],["orange","#ffd8a8","Orange"],["rosa","#fcc2d7","Rosa"],["lila","#e5dbff","Lila"],["blau","#d0ebff","Blau"],["gruen","#d3f9d8","Grün"],["grau","#e9ecef","Grau"]];
+const BD_CARD = {project:"#d0ebff", task:"#fff3bf", area:"#e5dbff", resource:"#d3f9d8", note:"#f1f3f5", habit:"#ffe8cc", event:"#ffe3e3"};
+const bdTheme = () => (document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+
+function boardsHTML(){
+  const list = live("board").sort((a, b) => b.updated - a.updated);
+  return header("Boards", "Whiteboards zum Planen, Skizzieren und Präsentieren.") + banner() + `
+  <div class="bd-tpls"><button class="btn" data-act="bd-new">${ic("plus")}Neues Board</button><span class="muted" style="font-size:12.5px;margin:0 4px">oder mit Vorlage:</span>${BOARD_TPL.map(t => `<button class="pill" data-act="bd-new" data-tpl="${t.id}" title="${esc(t.desc)}">${esc(t.name)}</button>`).join("")}</div>
+  <div class="bd-grid">${list.map(bdCard).join("") || `<div class="empty"><b>Noch kein Board.</b><br>Leg ein leeres Board an oder starte mit einer Vorlage wie Kanban, Mindmap oder Wochenplan. Alles wird automatisch gespeichert, geht offline und wird mit deinen Geräten abgeglichen.</div>`}</div>`;
+}
+function bdCard(b){
+  const n = (b.elements || []).length, rc = related(b.id).length;
+  return `<div class="bd-card"><button class="bd-open" data-act="bd-open" data-id="${b.id}" aria-label="${esc(b.title || "Board")} öffnen"><div class="bd-th" ${b.thumb ? `style="background-image:url('${b.thumb}')"` : ""}>${b.thumb ? "" : ic("board")}</div>
+    <div class="bd-cb"><h3>${esc(b.title || "Ohne Titel")}</h3><div class="meta"><span class="num">${n} ${n === 1 ? "Element" : "Elemente"}</span><span>· ${fmtTs(b.updated)}</span>${rc ? `<span class="num">· ↔ ${rc}</span>` : ""}</div>${tagChips(b)}</div></button>
+    <button class="ibtn bd-more" data-open="${b.id}" title="Details: umbenennen, verknüpfen, löschen" aria-label="Details">${ic("pen")}</button></div>`;
+}
+function bdLoad(){
+  if (!S.bdMod) {
+    window.EXCALIDRAW_ASSET_PATH = new URL("vendor/excalidraw/", location.href).href;
+    if (!$("#bd-css")) { const l = document.createElement("link"); l.id = "bd-css"; l.rel = "stylesheet"; l.href = "vendor/excalidraw/board.css"; document.head.appendChild(l); }
+    S.bdMod = import("./vendor/excalidraw/board.js").catch(e => { S.bdMod = null; throw e; });
+  }
+  return S.bdMod;
+}
+// Nach dem ersten Öffnen alle Kern-Dateien einmal abrufen, damit der Offline-Speicher sie hat
+function bdPrefetch(){
+  if (S.bdPre || !navigator.onLine || !navigator.serviceWorker || !navigator.serviceWorker.controller) return; S.bdPre = true;
+  fetch("vendor/excalidraw/core.json").then(r => r.json()).then(list => { let i = 0; const next = () => { if (i < list.length) fetch("vendor/excalidraw/" + list[i++]).catch(() => {}).finally(next); }; for (let k = 0; k < 4; k++) next(); }).catch(() => {});
+}
+function bdShellHTML(it){
+  const b = (act, icon, label, extra = "") => `<button class="pill" data-act="${act}" ${extra} title="${label}">${ic(icon)}<span>${label}</span></button>`;
+  return `<div class="bd-ov" id="board-ov" role="dialog" aria-label="Board">
+    <div class="bd-bar"><button class="rbtn" data-act="bd-close" title="Zurück zu den Boards" aria-label="Schließen">${ic("left")}</button>
+      <input class="bd-title" id="bd-title" value="${esc(it.title)}" placeholder="Board-Name" aria-label="Board-Name" autocomplete="off">
+      <span class="chip bd-state" id="bd-state">Speichert automatisch</span>
+      <div class="bd-tools">${b("bd-menu", "layout", "Vorlagen", 'data-m="tpl"')}${b("bd-menu", "sticky", "Notiz", 'data-m="note"')}${b("bd-menu", "link", "Eintrag", 'data-m="card"')}${b("bd-present", "play", "Präsentieren")}
+        <button class="pill bd-timer" id="bd-timer" data-act="bd-menu" data-m="timer" title="Timer">${ic("clock")}<span>Timer</span></button>${b("bd-menu", "tip", "Tipps", 'data-m="help"')}${b("bd-info", "pen", "Details")}</div></div>
+    <div class="bd-canvas" id="bd-canvas"><div class="bd-load">Board wird geladen …</div></div>
+    <div class="bd-pres" id="bd-pres" hidden></div>
+    <div class="bd-menu" id="bd-menu" hidden></div></div>`;
+}
+async function bdOpen(id, tpl, focusTitle){
+  const it = S.items.get(id); if (!it) return;
+  if (S.bd) await bdClose(true);
+  closeOverlay(); $("#side").classList.remove("open");
+  S.bd = {id, menu:null, changed:false, ver:it.updated};
+  document.body.insertAdjacentHTML("beforeend", bdShellHTML(it)); document.body.classList.add("bd-on");
+  if (focusTitle) { const t = $("#bd-title"); t.focus(); t.select(); }
+  let mod; try { mod = await bdLoad(); } catch(e) { const c = $("#bd-canvas"); if (c) c.innerHTML = `<div class="bd-load">Das Board konnte nicht geladen werden. Beim allerersten Öffnen brauchst du Internet, danach geht es auch offline.</div>`; return; }
+  if (!S.bd || S.bd.id !== id) return;
+  const box = $("#bd-canvas"); box.innerHTML = "";
+  let view = null; try { view = JSON.parse(localStorage.getItem("para-cockpit.bview." + id) || "null"); } catch(e){}
+  const lib = S.items.get("boardlib");
+  const ctrl = mod.mount(box, {
+    elements:it.elements || [], files:it.bfiles || {}, bg:it.bg, grid:it.grid, view, library:lib ? lib.items || [] : [],
+    theme:bdTheme(), libraryReturnUrl:location.origin + location.pathname,
+    onSave:sc => bdSave(id, sc), onView:v => { try { localStorage.setItem("para-cockpit.bview." + id, JSON.stringify(v)); } catch(e){} },
+    onLibraryChange:items => bdLib(items), onLinkOpen:url => bdLink(url),
+  });
+  S.bd.ctrl = ctrl;
+  await ctrl.ready; await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  if (tpl && S.bd && S.bd.ctrl === ctrl) ctrl.insertTemplate(tpl);
+  bdPrefetch();
+}
+async function bdClose(silent, gone){
+  const b = S.bd; if (!b) return;
+  S.bd = null; bdTimerStop(); const ov = $("#board-ov"); if (ov) ov.style.display = "none";
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  if (b.ctrl) {
+    if (b.ctrl.present.active) b.ctrl.present.stop();
+    if (!gone) {
+      b.ctrl.flush();
+      if (b.changed) { try { const t = await b.ctrl.thumb(); const cur = S.items.get(b.id); if (cur && t !== (cur.thumb || "")) { cur.thumb = t; persist(cur); } } catch(e){} }
+    }
+    b.ctrl.destroy();
+  }
+  if (ov) ov.remove(); if (!S.bd) document.body.classList.remove("bd-on");
+  if (!silent) { renderMain(); renderSide(); }
+  if (S.updatePending && !S.bd && !S.open) applyUpdate(false);
+}
+// Großes Bild verkleinern (max. 1600 px, WebP), damit der Abgleich schnell bleibt
+function bdShrink(f){
+  const keep = {id:f.id, mimeType:f.mimeType, dataURL:f.dataURL, created:f.created || Date.now()};
+  if (!f.dataURL || f.dataURL.length < 450000 || !/^data:image\/(png|jpeg|webp)/.test(f.dataURL)) return Promise.resolve(keep);
+  return new Promise(res => { const img = new Image();
+    img.onload = () => { try { const m = Math.min(1, 1600 / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = Math.round(img.width * m); c.height = Math.round(img.height * m); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      const d = c.toDataURL("image/webp", .82); res(d.startsWith("data:image/webp") && d.length < f.dataURL.length ? {...keep, dataURL:d, mimeType:"image/webp"} : keep); } catch(e) { res(keep); } };
+    img.onerror = () => res(keep); img.src = f.dataURL; });
+}
+async function bdSave(id, sc){
+  if (!S.items.has(id)) return;
+  const old = S.items.get(id).bfiles || {}, files = {};
+  for (const [fid, f] of Object.entries(sc.files || {})) files[fid] = old[fid] || await bdShrink(f);
+  const it = S.items.get(id); if (!it) return;
+  it.elements = sc.elements; it.bfiles = files; it.bg = sc.bg; it.grid = sc.grid; persist(it);
+  if (S.bd && S.bd.id === id) { S.bd.changed = true; const st = $("#bd-state"); if (st) st.textContent = "Gespeichert " + new Date().toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit"}); }
+  if (!S.bdWarned && JSON.stringify(it).length > 6e6) { S.bdWarned = true; toast("Dieses Board ist sehr groß (über 6 MB). Viele große Bilder machen den Abgleich langsam."); }
+}
+// Änderung von einem anderen Gerät: offenes Board aktualisieren, wenn hier gerade nichts ungespeichert ist
+function bdRemote(){
+  if (!S.bd || !S.bd.ctrl) return;
+  const it = S.items.get(S.bd.id);
+  if (!it) { bdClose(false, true); toast("Dieses Board wurde auf einem anderen Gerät gelöscht."); return; }
+  if (it.updated === S.bd.ver || S.dirty.has(it.id)) return;
+  S.bd.ver = it.updated; S.bd.ctrl.replace({elements:it.elements || [], files:it.bfiles || {}, bg:it.bg, grid:it.grid});
+  const t = $("#bd-title"); if (t && document.activeElement !== t) t.value = it.title || "";
+}
+function bdLib(items){
+  clearTimeout(S.bdLibT);
+  S.bdLibT = setTimeout(() => {
+    const json = JSON.stringify(items || []); let it = S.items.get("boardlib");
+    if (it && JSON.stringify(it.items || []) === json) return;
+    if (!it) { if (json === "[]") return; it = {id:"boardlib", kind:"boardlib", title:"Board-Bibliothek", body:"", rel:[], links:[], files:[], tags:[], archived:false, created:Date.now()}; }
+    it.items = JSON.parse(json); persist(it);
+  }, 800);
+}
+function bdLink(url){
+  const m = /#open=([\w-]+)/.exec(url || ""); if (!m) return false;
+  if (S.items.has(m[1])) openDetailFresh(m[1]); else toast("Diesen Eintrag gibt es nicht mehr.");
+  return true;
+}
+function bdMenu(m){
+  if (!S.bd) return; S.bd.menu = m; const box = $("#bd-menu"); if (!box) return;
+  box.hidden = !m; if (!m) { box.innerHTML = ""; return; }
+  if (m === "tpl") box.innerHTML = `<div class="bd-mh">Vorlage einfügen</div>${BOARD_TPL.map(t => `<button class="bd-mi" data-act="bd-tpl" data-id="${t.id}"><b>${esc(t.name)}</b><small>${esc(t.desc)}</small></button>`).join("")}`;
+  if (m === "note") box.innerHTML = `<div class="bd-mh">Haftnotiz einfügen</div><div class="bd-sw">${BD_NOTES.map(([id, c, n]) => `<button data-act="bd-note" data-c="${id}" class="${(S.bdNote || "gelb") === id ? "on" : ""}" style="background:${c}" title="${n}" aria-label="${n}e Notiz"></button>`).join("")}</div><p class="hint" style="margin:0 12px 10px">Doppelklick auf eine Notiz, um zu schreiben. Strg + D dupliziert sie, Alt + Ziehen auch.</p>`;
+  if (m === "card") { box.innerHTML = `<div class="bd-mh">Eintrag aus dem Cockpit einfügen</div><div class="bd-q"><input class="field" id="bd-q" placeholder="Projekt, Aufgabe, Notiz suchen …" autocomplete="off" aria-label="Eintrag suchen"></div><div id="bd-qres"></div>`; bdCardRes(""); setTimeout(() => { const q = $("#bd-q"); if (q && matchMedia("(pointer:fine)").matches) q.focus(); }, 30); }
+  if (m === "timer") box.innerHTML = `<div class="bd-mh">Timer</div>${S.bdTimer ? `<div class="bd-tm"><button class="pill" data-act="bd-tstop">Timer stoppen</button></div>` : ""}<div class="bd-tm">${[1, 3, 5, 10, 15, 25, 45].map(n => `<button class="pill num" data-act="bd-tstart" data-min="${n}">${n} min</button>`).join("")}</div><div class="bd-tm"><input class="field num" id="bd-tmin" type="number" min="1" max="600" placeholder="Min." aria-label="Minuten"><button class="pill" data-act="bd-tstart">Starten</button></div>`;
+  if (m === "help") box.innerHTML = `<div class="bd-mh">So nutzt du das Board</div><ul class="bd-tips">
+    <li><b>Haftnotizen:</b> Knopf „Notiz“, dann Doppelklick zum Schreiben.</li>
+    <li><b>Rahmen (Taste F):</b> fasst Bereiche zusammen. Beim Präsentieren wird jeder Rahmen eine Folie.</li>
+    <li><b>Verbinden:</b> Pfeil (A) von Form zu Form ziehen. Form markieren und <b>Strg + Pfeiltaste</b> erzeugt einen verbundenen Knoten wie in einer Mindmap.</li>
+    <li><b>Text zu Diagramm:</b> Werkzeugleiste → „Weitere Werkzeuge“ → Mermaid. Daraus wird ein fertiges Diagramm.</li>
+    <li><b>Bilder, PDFs als Bild, Screenshots:</b> hineinziehen oder mit Strg + V einfügen.</li>
+    <li><b>Webseiten und YouTube einbetten:</b> „Weitere Werkzeuge“ → Web-Einbettung, Link einfügen.</li>
+    <li><b>Laserpointer (K)</b> zum Zeigen, <b>Hand (H)</b> zum Verschieben, Mausrad + Strg zum Zoomen.</li>
+    <li><b>Bibliothek:</b> eigene Bausteine speichern oder fertige Sammlungen auf libraries.excalidraw.com holen.</li>
+    <li><b>Suchen:</b> Strg + F. <b>Alle Befehle:</b> Strg + /.</li>
+    <li><b>Gruppieren</b> Strg + G, <b>Sperren</b> Strg + Shift + L, <b>Ausrichten</b> über die Leiste links bei Auswahl.</li>
+    <li><b>Exportieren:</b> Menü ☰ → Bild exportieren (PNG, SVG, Zwischenablage) oder Datei speichern.</li>
+    <li><b>Eintrag:</b> fügt eine Karte mit Link zu deinem Projekt oder deiner Notiz ein und verknüpft beides.</li>
+  </ul>`;
+}
+function bdCardRes(q){
+  const box = $("#bd-qres"); if (!box || !S.bd) return; q = (q || "").trim().toLowerCase();
+  const list = live().filter(i => !HIDDEN_K.includes(i.kind) && i.kind !== "board" && i.id !== S.bd.id && !(i.kind === "task" && i.done) && (!q || (i.title || "").toLowerCase().includes(q))).sort((a, b) => b.updated - a.updated).slice(0, 40);
+  box.innerHTML = list.map(i => `<button class="bd-mi" data-act="bd-card" data-id="${i.id}"><b>${esc(i.title || "Ohne Titel")}</b><small>${esc(kindOf(i).label)}</small></button>`).join("") || `<p class="hint" style="margin:6px 12px 10px">Nichts gefunden.</p>`;
+}
+function bdPresent(){
+  const c = S.bd && S.bd.ctrl; if (!c) return;
+  const n = c.present.start(); if (!n) { toast("Lege zuerst Rahmen an (Taste F oder Vorlage „Präsentation“). Jeder Rahmen wird eine Folie."); return; }
+  S.bd.pres = true; const ov = $("#board-ov"); ov.classList.add("presenting");
+  if (ov.requestFullscreen) ov.requestFullscreen().catch(() => {});
+  bdPresUI(c.present.step(0));
+}
+function bdPresUI(r){
+  const box = $("#bd-pres"); if (!box) return; box.hidden = !r; if (!r) { box.innerHTML = ""; return; }
+  box.innerHTML = `<button data-act="bd-prev" aria-label="Vorherige Folie" ${r.i ? "" : "disabled"}>${ic("left")}</button><span>${r.i + 1} / ${r.n}${r.name ? " · " + esc(r.name) : ""}</span><button data-act="bd-next" aria-label="Nächste Folie" ${r.i < r.n - 1 ? "" : "disabled"}>${ic("right")}</button><button data-act="bd-pstop">Beenden</button>`;
+}
+function bdPresStop(){
+  if (!S.bd || !S.bd.pres) return; S.bd.pres = false;
+  if (S.bd.ctrl) S.bd.ctrl.present.stop(); const ov = $("#board-ov"); if (ov) ov.classList.remove("presenting"); bdPresUI(null);
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
+function bdTimerStart(min){
+  bdTimerStop(); S.bdTimer = {end:Date.now() + min * 60000, iv:setInterval(bdTimerTick, 250)}; bdTimerTick(); bdMenu(null);
+}
+function bdTimerTick(){
+  const t = S.bdTimer, el = $("#bd-timer"); if (!t) return;
+  const left = Math.max(0, t.end - Date.now()), s = Math.ceil(left / 1000);
+  if (el) { el.classList.add("run"); el.querySelector("span").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`; }
+  if (!left && !t.done) { t.done = true; clearInterval(t.iv); if (el) el.classList.add("end"); bdBeep(); toast("Die Zeit ist um."); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch(e){} }
+}
+function bdTimerStop(){
+  if (S.bdTimer) clearInterval(S.bdTimer.iv); S.bdTimer = null;
+  const el = $("#bd-timer"); if (el) { el.classList.remove("end", "run"); el.querySelector("span").textContent = "Timer"; }
+}
+function bdBeep(){
+  try { const a = new (window.AudioContext || window.webkitAudioContext)();
+    [0, .35, .7].forEach(t => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; o.connect(g); g.connect(a.destination);
+      g.gain.setValueAtTime(.0001, a.currentTime + t); g.gain.exponentialRampToValueAtTime(.3, a.currentTime + t + .02); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + t + .25); o.start(a.currentTime + t); o.stop(a.currentTime + t + .3); });
+  } catch(e){}
+}
+document.addEventListener("input", e => {
+  const t = e.target; if (!S.bd) return;
+  if (t.id === "bd-title") { const it = S.items.get(S.bd.id); if (it) { it.title = t.value; persist(it, 600); } return; }
+  if (t.id === "bd-q") { bdCardRes(t.value); return; }
+  if (t.id === "d-title" && S.open === S.bd.id) { const x = $("#bd-title"); if (x) x.value = t.value; }
+});
+document.addEventListener("keydown", e => {
+  if (!S.bd) return;
+  if (S.bd.pres && !S.open) {
+    const c = S.bd.ctrl, k = e.key;
+    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(k)) bdPresUI(c.present.step(1));
+    else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(k)) bdPresUI(c.present.step(-1));
+    else if (k === "Escape") bdPresStop();
+    else return;
+    e.preventDefault(); e.stopPropagation(); return;
+  }
+  if (e.key === "Escape" && S.bd.menu && !S.open) { bdMenu(null); e.stopPropagation(); return; }
+  if (e.key === "Enter" && e.target.id === "bd-title") { e.preventDefault(); e.target.blur(); return; }
+  if (e.key === "Enter" && e.target.id === "bd-q") { e.preventDefault(); const f = $('#bd-qres [data-act="bd-card"]'); if (f) f.click(); }
+}, true);
+document.addEventListener("pointerdown", e => { if (S.bd && S.bd.menu && !e.target.closest("#bd-menu") && !e.target.closest('[data-act="bd-menu"]')) bdMenu(null); }, true);
+try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (S.bd && S.bd.ctrl) S.bd.ctrl.setTheme(bdTheme()); }); } catch(e){}
+document.addEventListener("fullscreenchange", () => { if (S.bd && S.bd.pres && S.bd.ctrl) setTimeout(() => S.bd && S.bd.pres && bdPresUI(S.bd.ctrl.present.step(0)), 250); });
 
 function render(){ document.body.classList.toggle("auth", S.mode !== "app"); renderSide(); renderMain(); }
 document.addEventListener("submit", async e => {
