@@ -390,6 +390,40 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .bs-delta{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid var(--line-2);margin-left:4px}
 .bs-log .field{height:34px;font-size:13px}
 @media (max-width:560px){.bs-row{grid-template-columns:minmax(0,1fr) 92px 32px}.bs-row .bs-3{grid-column:1/3;order:5}.bs-head .bs-3{display:none}}
+.tr-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tr-tabs .pill{height:32px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tr-new{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tr-new .muted{font-size:12px;margin-right:2px}
+.tr-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.tr-meta label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted)}
+.tr-meta .field{font-weight:400;color:var(--text);font-size:14px}
+.tr-meta .tr-wide{grid-column:1/-1}
+.tr-meta textarea.field{min-height:64px}
+.tr-kpis{margin-top:14px}
+.tr-dh{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tr-dh .tr-dayname{flex:1 1 220px;width:auto;height:40px;font-weight:700;font-size:15px}
+.tr-dh .ibtn{width:30px;height:30px}
+.tr-row{display:grid;grid-template-columns:22px minmax(0,1fr) 64px 104px 84px 72px 96px;gap:8px;align-items:center;padding:5px 8px;border-top:1px solid var(--line)}
+.tr-row .field{height:36px;padding:0 10px}
+.tr-c{display:block;min-width:0}
+.tr-c>span{display:none}
+.tr-c .field{text-align:center;padding:0 6px}
+.tr-n{font-size:12px;color:var(--muted);text-align:right}
+.tr-acts{display:flex;justify-content:flex-end}
+.tr-acts .ibtn{width:30px;height:30px}
+.tr-head{background:var(--ink);color:var(--on-ink);border-radius:10px;border-top:0;padding:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.tr-head>span{text-align:center}.tr-head>span:nth-child(2){text-align:left}.tr-head>span:first-child{text-align:right}
+.tr-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.tr-legend b{color:var(--text)}
+@media (max-width:560px){
+  .tr-meta{grid-template-columns:minmax(0,1fr)}
+  .tr-row{display:flex;flex-wrap:wrap;gap:6px 8px;padding:10px 0}
+  .tr-row.tr-head,.tr-n{display:none}
+  .tr-row .tr-name{flex:1 1 calc(100% - 112px);min-width:0;width:auto}
+  .tr-acts{flex:none;order:1}
+  .tr-c{flex:1 1 20%;order:2}
+  .tr-c>span{display:block;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:0 0 3px;text-align:center}
+}
 .cdot{display:block;width:22px;height:22px;border-radius:50%;background:var(--c);border:2px solid var(--panel-solid);box-shadow:0 0 0 1px var(--line-2)}
 .cdots{display:flex;gap:8px;flex-wrap:wrap}
 .cdots button.on .cdot{box-shadow:0 0 0 2px var(--ink)}
@@ -456,7 +490,7 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-08.1";
+const APP_VERSION = "2026-10-10.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -498,7 +532,8 @@ const P = {
   sun:"M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4L7 17M17 7l1.4-1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
   review:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16M9 15l2 2 4-4", tag:"M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
   bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4", repeat:"M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1",
-  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4"
+  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
+  up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -975,6 +1010,7 @@ function navItems(){
   const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}];
   for (const id of ["task","habit","project"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   out.push({v:"basis", label:"Basis", icon:"pulse"});
+  out.push({v:"training", label:"Training", icon:"dumbbell"});
   out.push({v:"review", label:"Wochenrückblick", icon:"review"});
   for (const id of ["area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   for (const c of S.settings.kinds || []) out.push({v:c.id, label:c.label, icon:"folder"});
@@ -1037,6 +1073,7 @@ function viewHTML(){
   if (v === "cal") return calHTML();
   if (v === "review") return reviewHTML();
   if (v === "basis") return basisHTML();
+  if (v === "training") return trainingHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
   if (v === "habit") return habitsHTML();
@@ -2055,6 +2092,76 @@ function bsLogRefresh(){
 }
 document.addEventListener("visibilitychange", () => { if (document.hidden) bsFlush(); });
 
+/* ================= Training: eigene Trainingspläne als Tabelle ================= */
+// Liegt in S.settings.training = {cur, plans:[{id, name, rhythm, note, days:[{id, name, ex:[{id, name, sets, reps, rir, pause}]}]}]}.
+// Aufgebaut wie die Excel-Tabellen von Germanbull3: Übung, Sätze, Wiederholungen, RIR, Pause, Summe pro Tag.
+const TR_MOVES = ["Brustpresse (Chest Press)","Schrägbankdrücken","Butterfly","Seitheben (Side Laterals)","Schulterdrücken","Latzug (Lat Pull)","Latzug-Kombi (eng + breit)","Klimmzüge",
+  "Rudern oberer Rücken (Upper Back Row)","Shrugs","Reverse Butterfly (Rear Delt Fly)","Trizeps-Extension","Trizeps-Pushdowns","Enges Bankdrücken / Dips","Bizeps-Curl","Hammer-Curl",
+  "Beinbeuger (Leg Curl)","SLDL / Ham Hypers","Hip Thrust","RDL (Rumänisches Kreuzheben)","Kniebeuge","Beinpresse","Beinstrecker (Leg Extension)","Adduktoren","Abduktoren",
+  "Wadenheben gestrecktes Bein","Bauch-Crunch"];
+const TR_TPL = {
+  gk: {name:"GK-Basisplan (Germanbull3)", rhythm:"1 Tag Training, 1 Tag Pause", reps:"5–8+", days:[["Ganzkörper", [["Brustpresse",1],["Seitheben",1],["Latzug",1],["Rudern oberer Rücken",1],
+    ["Trizeps-Extension",1],["Bizeps-Curl",1],["Beinbeuger",1],["Hip Thrust",1,5],["Beinstrecker",1],["Adduktoren",1],["Wadenheben gestrecktes Bein",1],["Bauch-Crunch",1]]]]},
+  ul: {name:"2er-Split (Germanbull3)", rhythm:"Training, Training, Pause (Rotation)", reps:"4–10 (20)", days:[
+    ["Oberkörper", [["Flach- oder Schrägbank-Brustpresse",1],["Seitheben",2],["Butterfly",2],["Latzug-Kombi (eng + breit)",2],["Rudern oberer Rücken",1],["Reverse Butterfly",1],["Bizeps-Curl einarmig",2],["Trizeps-Pushdowns einarmig",2]]],
+    ["Unterkörper", [["Bauch-Crunch",2],["Beinbeuger",2],["Kniebeuge oder Beinpresse",1,5],["Beinstrecker",2],["Adduktoren",2],["Hip Thrust",1,5],["RDL",1,5],["Wadenheben gestrecktes Bein",2]]]]}
+};
+function training(){ if (!S.settings.training) S.settings.training = {cur:"", plans:[]}; const t = S.settings.training; if (!Array.isArray(t.plans)) t.plans = []; return t; }
+function trPlan(){ const t = training(); return t.plans.find(p => p.id === t.cur) || t.plans[0] || null; }
+const trEx = () => ({id:uid(), name:"", sets:"", reps:"", rir:"", pause:""});
+function trMake(tpl){
+  const T = TR_TPL[tpl];
+  if (!T) return {id:uid(), name:"", rhythm:"", note:"", days:[{id:uid(), name:"", ex:[trEx()]}]};
+  return {id:uid(), name:T.name, rhythm:T.rhythm, note:"", days:T.days.map(([n, ex]) => ({id:uid(), name:n,
+    ex:ex.map(([name, sets, pause]) => ({id:uid(), name, sets, reps:T.reps, rir:"0–1", pause: String(pause || 3)}))}))};
+}
+function trFind(dayId, exId){ const p = trPlan(); const d = p && p.days.find(x => x.id === dayId); const e = d && exId ? d.ex.find(x => x.id === exId) : null; return {p, d, e}; }
+const trSets = d => d.ex.reduce((s, e) => s + (typeof e.sets === "number" ? e.sets : 0), 0);
+const trDayInfo = d => { const n = d.ex.filter(e => e.name.trim()).length, s = trSets(d); return `${bsFmt(s)} ${s === 1 ? "Satz" : "Sätze"} · ${n} ${n === 1 ? "Übung" : "Übungen"}`; };
+function trKpisHTML(p){
+  const days = p.days.length, ex = p.days.reduce((s, d) => s + d.ex.filter(e => e.name.trim()).length, 0), sets = p.days.reduce((s, d) => s + trSets(d), 0);
+  return `<div><span>Trainingstage</span><b class="num">${days}</b></div><div><span>Übungen</span><b class="num">${ex}</b></div><div><span>Sätze gesamt</span><b class="num">${bsFmt(sets)}</b></div>
+    <div><span>Sätze pro Training</span><b class="num">${days ? bsFmt(sets / days) : "–"}</b><small>Richtwert 10–20</small></div>`;
+}
+function trRow(d, e, i){
+  const c = (f, label, ph, mode) => `<label class="tr-c"><span>${label}</span><input class="field${f === "sets" ? " num" : ""}" id="tr-${e.id}-${f}" ${mode ? `inputmode="${mode}"` : ""} value="${esc(f === "sets" ? bsIn(e.sets) : e[f] || "")}" data-tr="${f}" data-day="${d.id}" data-id="${e.id}" placeholder="${ph}" aria-label="${label}"></label>`;
+  return `<div class="tr-row"><span class="tr-n num">${i + 1}</span>
+    <input class="field tr-name" id="tr-${e.id}-name" list="tr-moves" value="${esc(e.name)}" data-tr="name" data-day="${d.id}" data-id="${e.id}" placeholder="Übung, z. B. Brustpresse" aria-label="Übung">
+    ${c("sets", "Sätze", "1", "decimal")}${c("reps", "Wdh.", "5–8", "")}${c("rir", "RIR", "0–1", "")}${c("pause", "Pause", "3", "")}
+    <span class="tr-acts"><button class="ibtn" data-act="tr-ex-move" data-day="${d.id}" data-id="${e.id}" data-d="-1" title="Nach oben" aria-label="Nach oben">${ic("up")}</button><button class="ibtn" data-act="tr-ex-move" data-day="${d.id}" data-id="${e.id}" data-d="1" title="Nach unten" aria-label="Nach unten">${ic("down")}</button><button class="ibtn" data-act="tr-ex-del" data-day="${d.id}" data-id="${e.id}" title="Übung entfernen" aria-label="Übung entfernen">${ic("trash")}</button></span></div>`;
+}
+function trDayHTML(d, k, n){
+  return `<section class="card"><div class="tr-dh"><input class="field tr-dayname" id="tr-d-${d.id}" value="${esc(d.name)}" data-trd="${d.id}" placeholder="Tag ${k + 1}, z. B. Oberkörper" aria-label="Name des Trainingstags">
+      <span class="chip num" id="tr-sum-${d.id}">${trDayInfo(d)}</span>
+      ${k > 0 ? `<button class="ibtn" data-act="tr-day-move" data-id="${d.id}" data-d="-1" title="Tag nach oben" aria-label="Tag nach oben">${ic("up")}</button>` : ""}${k < n - 1 ? `<button class="ibtn" data-act="tr-day-move" data-id="${d.id}" data-d="1" title="Tag nach unten" aria-label="Tag nach unten">${ic("down")}</button>` : ""}
+      <button class="ibtn" data-act="tr-day-dup" data-id="${d.id}" title="Tag kopieren" aria-label="Tag kopieren">${ic("copy")}</button><button class="ibtn" data-act="tr-day-del" data-id="${d.id}" title="Tag entfernen" aria-label="Tag entfernen">${ic("trash")}</button></div>
+    <div class="tr-row tr-head"><span>#</span><span>Übung</span><span>Sätze</span><span>Wdh.</span><span>RIR</span><span>Pause</span><span></span></div>
+    ${d.ex.map((e, i) => trRow(d, e, i)).join("")}
+    <div class="tr-foot"><button class="pill" data-act="tr-ex-add" data-day="${d.id}">${ic("plus")}Übung hinzufügen</button></div></section>`;
+}
+function trainingHTML(){
+  const t = training(), p = trPlan();
+  const tabs = t.plans.map(x => `<button class="pill ${p && x.id === p.id ? "on" : ""}" id="tr-tab-${x.id}" data-act="tr-pick" data-id="${x.id}">${esc(x.name || "Ohne Namen")}</button>`).join("");
+  let out = header("Training", "Deine Trainingspläne als Tabelle: Übungen, Sätze, Wiederholungen, RIR und Pause") + banner() + `
+  <section class="card"><div class="card-h"><h2>Meine Pläne</h2></div>
+    ${t.plans.length ? `<div class="tr-tabs">${tabs}</div>` : `<p class="hint">Noch kein Plan. Leg einen leeren Plan an oder starte mit einer der Tabellen aus den Germanbull3-Videos und pass sie an.</p>`}
+    <div class="tr-new"><button class="pill" data-act="tr-new" data-tpl="">${ic("plus")}Neuer Plan</button><span class="muted">oder als Vorlage:</span>
+      <button class="pill" data-act="tr-new" data-tpl="gk">GK-Basisplan</button><button class="pill" data-act="tr-new" data-tpl="ul">2er-Split</button></div></section>`;
+  if (p) out += `
+  <section class="card"><div class="card-h"><h2>Plan</h2><span class="grow"></span>
+      <button class="ibtn" data-act="tr-plan-dup" title="Plan kopieren" aria-label="Plan kopieren">${ic("copy")}</button><button class="ibtn" data-act="tr-plan-del" title="Plan löschen" aria-label="Plan löschen">${ic("trash")}</button></div>
+    <div class="tr-meta"><label>Name<input class="field" id="tr-p-name" value="${esc(p.name)}" data-trp="name" placeholder="z. B. Mein 2er-Split"></label>
+      <label>Rhythmus<input class="field" id="tr-p-rhythm" value="${esc(p.rhythm)}" data-trp="rhythm" placeholder="z. B. Training, Training, Pause"></label>
+      <label class="tr-wide">Notizen<textarea class="field" id="tr-p-note" rows="2" data-trp="note" placeholder="Ziel, Schwachstellen, was du geändert hast …">${esc(p.note)}</textarea></label></div>
+    <div class="bs-kpis tr-kpis" id="tr-kpis">${trKpisHTML(p)}</div></section>
+  ${p.days.map((d, k) => trDayHTML(d, k, p.days.length)).join("")}
+  <div class="tr-foot" style="margin:0 0 20px"><button class="pill" data-act="tr-day-add">${ic("plus")}Trainingstag hinzufügen</button></div>
+  <section class="card"><p class="hint tr-legend" style="margin:0"><b>Sätze:</b> Arbeitssätze pro Übung. <b>Wdh.:</b> Wiederholungsbereich, z. B. 5–8. <b>RIR:</b> Wiederholungen, die noch im Tank sind, 0 heißt bis zum Muskelversagen. <b>Pause:</b> Minuten zwischen den Sätzen. Bei den Übungen schlägt dir das Feld Bewegungen aus den Videos vor, du kannst aber alles frei eintippen.</p></section>`;
+  return out + `<datalist id="tr-moves">${TR_MOVES.map(m => `<option value="${esc(m)}">`).join("")}</datalist>`;
+}
+function trRefresh(d){ const p = trPlan(); if (d) { const c = $(`#tr-sum-${d.id}`); if (c) c.textContent = trDayInfo(d); } const k = $("#tr-kpis"); if (k && p) k.innerHTML = trKpisHTML(p); }
+function trFocus(id){ const n = document.getElementById(id); if (n) n.focus(); }
+
 /* ================= events ================= */
 document.addEventListener("click", e => {
   if (edClick(e)) return;
@@ -2148,6 +2255,29 @@ document.addEventListener("click", e => {
       b[list] = b[list].filter(y => y.id !== id); saveSettings(0); renderMain(); break; }
     case "bl-del": { if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um den Eintrag aus dem Verlauf zu löschen"); break; }
       const b = basis(); b.log = b.log.filter(e => e.id !== id); saveSettings(0); renderMain(); break; }
+    case "tr-pick": training().cur = id; saveSettings(0); renderMain(); break;
+    case "tr-new": { const t = training(), p = trMake(a.dataset.tpl); t.plans.push(p); t.cur = p.id; saveSettings(0); renderMain();
+      if (!a.dataset.tpl) trFocus("tr-p-name"); else toast("Vorlage angelegt. Du kannst jetzt alles anpassen."); break; }
+    case "tr-plan-dup": { const t = training(), p = trPlan(); if (!p) break; const c = clone(p); c.id = uid(); c.name = (p.name || "Plan") + " (Kopie)";
+      for (const d of c.days) { d.id = uid(); for (const e of d.ex) e.id = uid(); } t.plans.push(c); t.cur = c.id; saveSettings(0); renderMain(); trFocus("tr-p-name"); break; }
+    case "tr-plan-del": { const t = training(), p = trPlan(); if (!p) break;
+      if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast(`Nochmal tippen, um „${p.name || "Ohne Namen"}“ zu löschen`); break; }
+      t.plans = t.plans.filter(x => x.id !== p.id); t.cur = t.plans[0] ? t.plans[0].id : ""; saveSettings(0); renderMain(); break; }
+    case "tr-day-add": { const p = trPlan(); if (!p) break; const d = {id:uid(), name:"", ex:[trEx()]}; p.days.push(d); saveSettings(0); renderMain(); trFocus(`tr-d-${d.id}`); break; }
+    case "tr-day-dup": { const {p, d} = trFind(id); if (!d) break; const c = clone(d); c.id = uid(); c.name = (d.name || "Tag") + " (Kopie)"; for (const e of c.ex) e.id = uid();
+      p.days.splice(p.days.indexOf(d) + 1, 0, c); saveSettings(0); renderMain(); trFocus(`tr-d-${c.id}`); break; }
+    case "tr-day-move": { const {p, d} = trFind(id); if (!d) break; const i = p.days.indexOf(d), j = i + +a.dataset.d; if (j < 0 || j >= p.days.length) break;
+      p.days.splice(i, 1); p.days.splice(j, 0, d); saveSettings(0); renderMain(); break; }
+    case "tr-day-del": { const {p, d} = trFind(id); if (!d) break;
+      if (d.ex.some(e => e.name.trim()) && a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um den ganzen Tag zu entfernen"); break; }
+      p.days = p.days.filter(x => x !== d); saveSettings(0); renderMain(); break; }
+    case "tr-ex-add": { const {d} = trFind(a.dataset.day); if (!d) break; const e = trEx(); const last = d.ex[d.ex.length - 1];
+      if (last) { e.reps = last.reps; e.rir = last.rir; e.pause = last.pause; } d.ex.push(e); saveSettings(0); renderMain(); trFocus(`tr-${e.id}-name`); break; }
+    case "tr-ex-move": { const {d, e} = trFind(a.dataset.day, id); if (!e) break; const i = d.ex.indexOf(e), j = i + +a.dataset.d; if (j < 0 || j >= d.ex.length) break;
+      d.ex.splice(i, 1); d.ex.splice(j, 0, e); saveSettings(0); renderMain(); break; }
+    case "tr-ex-del": { const {d, e} = trFind(a.dataset.day, id); if (!e) break;
+      if (e.name.trim() && a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen zum Entfernen"); break; }
+      d.ex = d.ex.filter(x => x !== e); saveSettings(0); renderMain(); break; }
     case "export": exportData(); break;
     case "update": if (!navigator.onLine) { toast("Dafür brauchst du Internet."); break; } toast("Lade die neueste Version …"); applyUpdate(true); break;
     case "sync": S.syncError = null; S.online = navigator.onLine; sync(); break;
@@ -2167,6 +2297,12 @@ document.addEventListener("input", e => {
   if (t.dataset.bs) { bsInput(`${t.dataset.bs}|${t.dataset.id}|${t.dataset.f}`, t.value); return; }
   if (t.id === "bs-goal") { bsInput("goal", t.value); return; }
   if (t.dataset.blWhy) { const e = basis().log.find(x => x.id === t.dataset.blWhy); if (e) { e.why = t.value; saveSettings(700); } return; }
+  if (t.dataset.tr) { const {d, e} = trFind(t.dataset.day, t.dataset.id); if (!e) return; const f = t.dataset.tr;
+    if (f === "sets") { const n = bsNum(t.value); if (n === null) return; e.sets = n; } else e[f] = t.value;
+    saveSettings(700); trRefresh(d); return; }
+  if (t.dataset.trd) { const {d} = trFind(t.dataset.trd); if (d) { d.name = t.value; saveSettings(700); } return; }
+  if (t.dataset.trp) { const p = trPlan(); if (!p) return; p[t.dataset.trp] = t.value; saveSettings(700);
+    if (t.dataset.trp === "name") { const b = $(`#tr-tab-${p.id}`); if (b) b.textContent = p.name || "Ohne Namen"; } return; }
   if (it && t.id === "d-title") { it.title = t.value.replace(/\n/g, " "); autoGrow(t); persist(it, 600); return; }
 
   if (it && t.id === "d-target") { it.target = Math.max(1, Math.min(7, +t.value || 7)); persist(it, 600); return; }
@@ -2195,6 +2331,9 @@ document.addEventListener("change", e => {
     if (bsCommit(key)) saveSettings(0);
     if (f === "kcal" || f === "value") { const c = bsCur(key); if (c) t.value = bsIn(c.x[f]); }
     bsLogRefresh(); return; }
+  if (t.dataset.tr || t.dataset.trd || t.dataset.trp) {
+    if (t.dataset.tr === "sets") { const {e} = trFind(t.dataset.day, t.dataset.id); if (e) { if (bsNum(t.value) === null) toast("Bei Sätze bitte nur eine Zahl eintragen."); t.value = bsIn(e.sets); } }
+    saveSettings(0); return; }
   if (t.dataset.wk) { ownPlans(); S.settings.week[t.dataset.wk] = t.value; saveSettings(0); renderMain(); return; }
   if (t.id === "cal-plan") { setDayPlan(calDay(), t.value); return; }
   if (!it) return;
