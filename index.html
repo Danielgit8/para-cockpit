@@ -417,6 +417,65 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .tr-legend b{color:var(--text)}
 .tr-seg{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px}
 .tr-seg .pill{height:34px;padding:0 14px;font-size:13px}
+.wo-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.wo-day{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:1px solid var(--line-2);border-radius:14px;padding:12px 14px;background:var(--panel-solid);min-width:0}
+.wo-day:hover{border-color:var(--ink)}
+.wo-day b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.wo-day small{font-size:12px;color:var(--muted)}
+.wo-day .chip{background:var(--ink);color:var(--on-ink)}
+.wo-resume{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.wo-resume>div{flex:1 1 220px;font-size:14px}
+.wo-row{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;padding:10px 4px;border-top:1px solid var(--line)}
+.wo-row:first-child{border-top:0}
+.wo-row:hover b{text-decoration:underline}
+.wo-row .muted{font-size:12px}
+.wo-row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wo-row .i{width:16px;height:16px;color:var(--muted)}
+.wo-ex .tr-dh .wo-name{flex:1 1 200px;width:auto;height:40px;font-weight:700;font-size:15px}
+.wo-last{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:13px;margin:0 0 6px}
+.wo-last .muted{font-size:12px}
+.wo-goal{display:flex;gap:8px;align-items:flex-start;font-size:13px;background:var(--soft);border-radius:10px;padding:8px 10px;margin:0 0 10px}
+.wo-goal .i{width:16px;height:16px;flex:0 0 auto;margin-top:1px;color:var(--good)}
+.wo-set{display:grid;grid-template-columns:40px minmax(0,1fr) minmax(0,1fr) 34px 32px;gap:8px;align-items:center;padding:5px 8px;border-top:1px solid var(--line)}
+.wo-set .field{height:40px;text-align:center;padding:0 6px;font-size:15px}
+.wo-set .ibtn{width:30px;height:30px}
+.wo-set.wo-head{background:var(--ink);color:var(--on-ink);border-radius:10px;border-top:0;padding:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.wo-set.wo-head>span{text-align:center}
+.wo-stc{display:flex;justify-content:center}
+.wo-n{font-size:12px;color:var(--muted);text-align:center}
+.wo-st{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;font-weight:700;font-size:13px;color:var(--muted);background:var(--soft)}
+.wo-st .i{width:15px;height:15px}
+.wo-st.up{color:var(--good)}
+.wo-chart{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.wo-ms{margin:0}
+.wo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:20px}
+.wo-grid .card{margin:0}
+.wo-pch{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:12px}
+.wo-pch b{font-size:15px;flex:1 1 auto;min-width:0}
+.wo-pch .num{font-size:13px}
+.wo-pch .up{color:var(--good);font-weight:600}
+.trc{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:150px auto;column-gap:8px}
+.trc-y{position:relative;min-width:28px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.trc-y span{position:absolute;right:0;transform:translateY(-50%);white-space:nowrap}
+.trc-plot{position:relative;touch-action:pan-y;cursor:crosshair;
+  background:linear-gradient(var(--line-2),var(--line-2)) 0 8%/100% 1px no-repeat,linear-gradient(var(--line),var(--line)) 0 50%/100% 1px no-repeat,linear-gradient(var(--line-2),var(--line-2)) 0 92%/100% 1px no-repeat}
+.trc-plot svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.trc-plot polyline{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.trc-dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--panel-solid)}
+.trc-dot.on{width:13px;height:13px;margin:-6.5px 0 0 -6.5px}
+.trc-cross{position:absolute;top:0;bottom:0;width:1px;background:var(--line-2);display:none;pointer-events:none}
+.trc-tip{position:absolute;display:none;flex-direction:column;gap:1px;padding:7px 10px;border-radius:10px;background:var(--ink);color:var(--on-ink);font-size:12px;pointer-events:none;z-index:2;max-width:240px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.trc-tip small{opacity:.75;font-size:11px}
+.trc-tip b{font-size:14px}
+.trc-plot.on .trc-cross{display:block}.trc-plot.on .trc-tip{display:flex}
+.trc-x{grid-column:2;display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding-top:6px}
+.trc-note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.trc-tbl{margin-top:8px;font-size:12px}
+.trc-tbl summary{cursor:pointer;color:var(--muted)}
+.trc-tbl table{width:100%;border-collapse:collapse;margin-top:6px}
+.trc-tbl td,.trc-tbl th{text-align:left;padding:4px 6px;border-top:1px solid var(--line);font-weight:400}
+.trc-tbl th{color:var(--muted);font-weight:600}
+@media (max-width:560px){.wo-set{grid-template-columns:30px minmax(0,1fr) minmax(0,1fr) 30px 30px;gap:6px;padding:5px 4px}.wo-grid{grid-template-columns:minmax(0,1fr)}.wo-row{grid-template-columns:78px minmax(0,1fr) auto}}
 .tr-dbadd{display:grid;grid-template-columns:minmax(0,1fr) 170px auto;gap:8px}
 .tr-dbadd .pill{height:40px}
 .tr-dbq{margin-top:12px}
@@ -576,7 +635,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-10.3";
+const APP_VERSION = "2026-10-11.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -621,7 +680,7 @@ const P = {
   grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
   up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11",
   board:"M3 4h18v12H3zM12 16v4M8 20h8M7 8h6M7 11h4", layout:"M4 4h16v16H4zM4 10h16M10 10v10", sticky:"M5 4h14v10l-6 6H5zM13 20v-6h6",
-  play:"M7 5l12 7-12 7z", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3"
+  play:"M7 5l12 7-12 7z", chart:"M4 4v16h16M7 15l4-4 3 3 6-7", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -657,7 +716,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["day", "boardlib"];
+const HIDDEN_K = ["day", "boardlib", "workout"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -2240,9 +2299,13 @@ function trDayHTML(d, k, n){
 function trainingHTML(){
   const t = training(), p = trPlan();
   const tabs = t.plans.map(x => `<button class="pill ${p && x.id === p.id ? "on" : ""}" id="tr-tab-${x.id}" data-act="tr-pick" data-id="${x.id}">${esc(x.name || "Ohne Namen")}</button>`).join("");
-  let out = header("Training", "Deine Trainingspläne als Tabelle: Übungen, Sätze, Wiederholungen, RIR und Pause") + banner() + `
-  <div class="tr-seg"><button class="pill ${S.trTab !== "db" ? "on" : ""}" data-act="tr-tab" data-v="plans">Pläne</button><button class="pill ${S.trTab === "db" ? "on" : ""}" data-act="tr-tab" data-v="db">Übungsdatenbank <span class="num">${t.moves.length}</span></button></div>`;
-  if (S.trTab === "db") return out + trDbHTML();
+  if (!S.trTab) { try { S.trTab = localStorage.getItem("trTab") || "plans"; } catch (e) { S.trTab = "plans"; } }
+  const tb = S.trTab, seg = (v, l) => `<button class="pill ${tb === v ? "on" : ""}" data-act="tr-tab" data-v="${v}">${l}</button>`;
+  let out = header("Training", "Deine Pläne, dein Logbuch und dein Fortschritt bei jeder Übung") + banner() + `
+  <div class="tr-seg">${seg("plans", "Pläne")}${seg("log", "Logbuch")}${seg("prog", "Fortschritt")}${seg("db", `Übungsdatenbank <span class="num">${t.moves.length}</span>`)}</div>`;
+  if (tb === "db") return out + trDbHTML();
+  if (tb === "log") return out + woLogHTML();
+  if (tb === "prog") return out + woProgHTML();
   out += `
   <section class="card"><div class="card-h"><h2>Meine Pläne</h2></div>
     ${t.plans.length ? `<div class="tr-tabs">${tabs}</div>` : `<p class="hint">Noch kein Plan. Leg einen leeren Plan an oder starte mit einer der Tabellen aus den Germanbull3-Videos und pass sie an.</p>`}
@@ -2326,9 +2389,12 @@ function trDdPos(){
   if (up) { dd.style.top = ""; dd.style.bottom = (innerHeight - r.top + 6) + "px"; } else { dd.style.bottom = ""; dd.style.top = (r.bottom + 6) + "px"; }
 }
 function trDdPick(name){
-  const st = S.trDd; if (!st) return; const inp = st.inp, {d, e} = trFind(inp.dataset.day, inp.dataset.id);
+  const st = S.trDd; if (!st) return; const inp = st.inp;
+  if (inp.dataset.wo) { const wo = woGet(inp.dataset.wo), e = woFindEx(wo, inp.dataset.ex); inp.value = name; trDdClose();
+    if (e) { e.name = name; persist(wo); woExRefresh(wo, e, e.sets[0] ? `wo-${e.sets[0].id}-w` : null); } return; }
+  const {d, e} = trFind(inp.dataset.day, inp.dataset.id);
   inp.value = name; if (e) { e.name = name; saveSettings(0); trRefresh(d); }
-  trDdClose(); trFocus(`tr-${inp.dataset.id}-sets`);
+  trDdClose(); trDdNext(inp);
 }
 document.addEventListener("focusin", e => { const t = e.target; if (t.classList && t.classList.contains("tr-name")) { if (!S.trDd || S.trDd.inp !== t) trDdOpen(t); } });
 document.addEventListener("focusout", e => { const t = e.target; if (S.trDd && S.trDd.inp === t) setTimeout(() => { if (S.trDd && S.trDd.inp === t && document.activeElement !== t) trDdClose(); }, 120); });
@@ -2336,7 +2402,7 @@ document.addEventListener("mousedown", e => { if (e.target.closest("#tr-dd")) e.
 document.addEventListener("keydown", e => {
   const st = S.trDd; if (!st || e.target !== st.inp || e.isComposing) return;
   if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); st.k = e.key === "ArrowDown" ? Math.min(st.max, st.k + 1) : Math.max(-1, st.k - 1); trDdRender(); }
-  else if (e.key === "Enter") { e.preventDefault(); if (st.k >= 0 && st.k < st.items.length) trDdPick(st.items[st.k].name); else if (st.k === st.items.length) { const b = $('#tr-dd [data-act="tr-dd-save"]'); if (b) b.click(); } else { trDdClose(); trFocus(`tr-${st.inp.dataset.id}-sets`); } }
+  else if (e.key === "Enter") { e.preventDefault(); if (st.k >= 0 && st.k < st.items.length) trDdPick(st.items[st.k].name); else if (st.k === st.items.length) { const b = $('#tr-dd [data-act="tr-dd-save"]'); if (b) b.click(); } else { const inp = st.inp; trDdClose(); trDdNext(inp); } }
   else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); trDdClose(); }
   else if (e.key === "Tab") trDdClose();
 }, true);
@@ -2345,6 +2411,207 @@ window.addEventListener("resize", () => trDdPos());
 if (window.visualViewport) visualViewport.addEventListener("resize", () => trDdPos());
 function trRefresh(d){ const p = trPlan(); if (d) { const c = $(`#tr-sum-${d.id}`); if (c) c.textContent = trDayInfo(d); } const k = $("#tr-kpis"); if (k && p) k.innerHTML = trKpisHTML(p); }
 function trFocus(id){ const n = document.getElementById(id); if (n) n.focus(); }
+function trDdNext(inp){
+  if (!inp.dataset.wo) { trFocus(`tr-${inp.dataset.id}-sets`); return; }
+  const e = woFindEx(woGet(inp.dataset.wo), inp.dataset.ex); if (e && e.sets[0]) trFocus(`wo-${e.sets[0].id}-w`);
+}
+
+/* ================= Training: Logbuch und Fortschritt ================= */
+// Jede Einheit ist ein eigener Eintrag {kind:"workout", title, date, plan, day, note, done, ex:[{id, name, target, sets:[{id, w, r}]}]}.
+// w = Gewicht in kg, r = Wiederholungen, jeweils Zahl oder "". Ein Satz zählt, sobald Wiederholungen drinstehen.
+// "workout"-Einträge stehen in HIDDEN_K, tauchen also nicht in Suche und Listen auf.
+const woAll = () => live("workout").sort((a, b) => (b.date || "").localeCompare(a.date || "") || b.created - a.created);
+const woGet = id => { const w = id && S.items.get(id); return w && w.kind === "workout" ? w : null; };
+const woFindEx = (wo, exId) => wo ? wo.ex.find(e => e.id === exId) || null : null;
+const woKey = s => String(s || "").trim().toLowerCase();
+const woIsNum = v => typeof v === "number";
+const woDone = s => woIsNum(s.r) && s.r > 0;
+const woSets = ex => ex.sets.filter(woDone);
+const woSetTxt = s => s.w > 0 ? `${bsFmt(s.w, 2)} kg × ${s.r}` : `${s.r} Wdh.`;
+const woBefore = (a, b) => (a.date || "") < (b.date || "") || (a.date === b.date && a.created < b.created);
+const woNewEx = () => ({id:uid(), name:"", target:"", sets:[{id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}]});
+// Das letzte frühere Training, in dem diese Übung mit mindestens einem Satz vorkommt
+function woPrev(wo, name){
+  const k = woKey(name); if (!k) return null;
+  for (const x of woAll()) { if (x.id === wo.id || !woBefore(x, wo)) continue;
+    const e = x.ex.find(y => woKey(y.name) === k && woSets(y).length); if (e) return {wo:x, ex:e}; }
+  return null;
+}
+const woTop = sets => sets.reduce((b, s) => !b || (s.w || 0) > (b.w || 0) || ((s.w || 0) === (b.w || 0) && s.r > b.r) ? s : b, null);
+function woGoal(ex, pv){
+  const top = woTop(woSets(pv.ex)); if (!top) return "";
+  const n = String(ex.target || pv.ex.target || "").match(/\d+/g) || [], lo = n.length ? +n[0] : 0, hi = n.length > 1 ? +n[1] : lo;
+  const w = top.w > 0 ? top.w : 0;
+  if (w && hi && top.r >= hi) return `Du warst am oberen Ende (${hi} Wdh.). Steiger das Gewicht, z. B. ${bsFmt(w + 2.5, 2)} kg × ${lo || top.r}.`;
+  return w ? `${bsFmt(w, 2)} kg × ${top.r + 1}, also eine Wiederholung mehr, oder mehr Gewicht.` : `${top.r + 1} Wiederholungen oder mehr.`;
+}
+// 1 = mehr als letztes Mal, 2 = gleich, -1 = weniger, 0 = nichts zu vergleichen
+function woCmp(s, p){
+  if (!woDone(s) || !p || !woDone(p)) return 0; const a = s.w || 0, b = p.w || 0;
+  if (a > b || (a === b && s.r > p.r)) return 1; if (a === b && s.r === p.r) return 2; return -1;
+}
+function woStHTML(s, p){
+  const c = woCmp(s, p); if (!c) return "";
+  if (c === 1) return `<span class="wo-st up" title="Mehr als letztes Mal">${ic("up")}</span>`;
+  return c === 2 ? `<span class="wo-st" title="Gleich wie letztes Mal">=</span>` : `<span class="wo-st" title="Weniger als letztes Mal">${ic("down")}</span>`;
+}
+function woStats(wo){
+  let sets = 0, vol = 0, up = 0;
+  for (const e of wo.ex) { const pv = woPrev(wo, e.name), ps = pv ? woSets(pv.ex) : [];
+    e.sets.forEach((s, k) => { if (!woDone(s)) return; sets++; vol += (s.w || 0) * s.r; if (woCmp(s, ps[k]) === 1) up++; }); }
+  return {sets, vol, up, ex: wo.ex.filter(e => e.name.trim()).length};
+}
+function woKpis(wo){
+  const st = woStats(wo);
+  return `<div><span>Übungen</span><b class="num">${st.ex}</b></div><div><span>Sätze erledigt</span><b class="num">${st.sets}</b></div>
+    <div><span>Volumen</span><b class="num">${bsFmt(st.vol, 0)} kg</b><small>Gewicht × Wdh.</small></div><div><span>Besser als letztes Mal</span><b class="num">${st.up}</b><small>${st.up === 1 ? "Satz" : "Sätze"}</small></div>`;
+}
+function woKpiRefresh(wo){ const k = $("#wo-kpis"); if (k) k.innerHTML = woKpis(wo); }
+function woExHTML(wo, e, i){
+  const pv = woPrev(wo, e.name), ps = pv ? woSets(pv.ex) : [], n = wo.ex.length;
+  const at = `data-wo="${wo.id}" data-ex="${e.id}"`;
+  const sets = e.sets.map((s, k) => { const p = ps[k];
+    return `<div class="wo-set"><span class="wo-n num">${k + 1}</span>
+      <input class="field num" id="wo-${s.id}-w" inputmode="decimal" autocomplete="off" value="${esc(bsIn(s.w))}" placeholder="${p && p.w > 0 ? esc(bsIn(p.w)) : "kg"}" ${at} data-set="${s.id}" data-wf="w" aria-label="Satz ${k + 1}: Gewicht in kg">
+      <input class="field num" id="wo-${s.id}-r" inputmode="numeric" autocomplete="off" value="${esc(bsIn(s.r))}" placeholder="${p ? esc(String(p.r)) : "Wdh."}" ${at} data-set="${s.id}" data-wf="r" aria-label="Satz ${k + 1}: Wiederholungen">
+      <span class="wo-stc" id="wo-st-${s.id}">${woStHTML(s, p)}</span>
+      <button class="ibtn" data-act="wo-set-del" ${at} data-id="${s.id}" title="Satz entfernen" aria-label="Satz entfernen">${ic("close")}</button></div>`; }).join("");
+  const last = pv ? `<div class="wo-last"><span class="muted">Letztes Mal, ${esc(fmtLong(pv.wo.date))}:</span><b class="num">${esc(ps.map(woSetTxt).join(" · "))}</b></div>
+      <div class="wo-goal">${ic("up")}<span><b>Ziel heute:</b> ${esc(woGoal(e, pv))}</span></div>`
+    : e.name.trim() ? `<div class="wo-last muted">Diese Übung steht zum ersten Mal im Logbuch. Heute legst du die Basis.</div>` : "";
+  const chart = S.trWoChart && S.trWoChart[e.id];
+  return `<section class="card wo-ex" id="wo-ex-${e.id}"><div class="tr-dh"><span class="tr-n num">${i + 1}</span>
+      <input class="field tr-name wo-name" id="wo-${e.id}-name" autocomplete="off" role="combobox" aria-autocomplete="list" value="${esc(e.name)}" ${at} data-wf="name" placeholder="Übung, z. B. Brustpresse" aria-label="Übung">
+      ${e.target ? `<span class="chip num" title="Wiederholungsbereich aus deinem Plan">${esc(e.target)} Wdh.</span>` : ""}
+      <button class="ibtn ${chart ? "on" : ""}" data-act="wo-chart" ${at} title="Verlauf als Diagramm" aria-label="Verlauf als Diagramm" aria-pressed="${chart ? "true" : "false"}">${ic("chart")}</button>
+      ${i > 0 ? `<button class="ibtn" data-act="wo-ex-move" ${at} data-d="-1" title="Nach oben" aria-label="Nach oben">${ic("up")}</button>` : ""}${i < n - 1 ? `<button class="ibtn" data-act="wo-ex-move" ${at} data-d="1" title="Nach unten" aria-label="Nach unten">${ic("down")}</button>` : ""}
+      <button class="ibtn" data-act="wo-ex-del" ${at} title="Übung entfernen" aria-label="Übung entfernen">${ic("trash")}</button></div>
+    ${last}
+    <div class="wo-set wo-head"><span>Satz</span><span>kg</span><span>Wdh.</span><span></span><span></span></div>
+    ${sets}
+    <div class="tr-foot"><button class="pill" data-act="wo-set-add" ${at}>${ic("plus")}Satz</button>${ps.some(s => s.w > 0) && e.sets.some(s => bsEmpty(s.w)) ? `<button class="pill" data-act="wo-fill" ${at}>Gewichte von letztem Mal eintragen</button>` : ""}</div>
+    ${chart ? `<div class="wo-chart">${woMetricPills()}${e.name.trim() ? trChartHTML(e.name, woSeries(e.name, woMetric())) : `<p class="trc-note">Wähle zuerst eine Übung.</p>`}</div>` : ""}</section>`;
+}
+function woExRefresh(wo, e, fid){
+  const el = document.getElementById(`wo-ex-${e.id}`); if (!el) return;
+  const a = document.activeElement; fid = fid || (a && el.contains(a) ? a.id : null);
+  el.outerHTML = woExHTML(wo, e, wo.ex.indexOf(e)); woKpiRefresh(wo);
+  if (fid) { const n = document.getElementById(fid); if (n) n.focus({preventScroll:true}); }
+}
+function woHTML(wo){
+  return `<section class="card"><div class="card-h"><button class="pill" data-act="wo-close">${ic("left")}Zum Logbuch</button><span class="grow"></span>
+      ${wo.done ? `<span class="chip">Abgeschlossen</span>` : `<span class="chip">Läuft</span>`}
+      <button class="ibtn" data-act="wo-del" data-id="${wo.id}" title="Training löschen" aria-label="Training löschen">${ic("trash")}</button></div>
+    <div class="tr-meta"><label>Training<input class="field" id="wo-title" value="${esc(wo.title)}" data-wo="${wo.id}" data-wf="title" placeholder="z. B. Oberkörper"></label>
+      <label>Datum<input class="field" type="date" id="wo-date" value="${esc(wo.date)}" data-wo="${wo.id}" data-wf="date"></label></div>
+    <div class="bs-kpis tr-kpis" id="wo-kpis">${woKpis(wo)}</div>
+    <p class="hint" style="margin:12px 0 0">Graue Zahlen in den Feldern zeigen, was du letztes Mal in diesem Satz geschafft hast. Der Pfeil nach oben heißt: mehr als letztes Mal.</p></section>
+  ${wo.ex.map((e, i) => woExHTML(wo, e, i)).join("")}
+  <div class="tr-foot" style="margin:0 0 20px"><button class="pill" data-act="wo-ex-add" data-wo="${wo.id}">${ic("plus")}Übung hinzufügen</button></div>
+  <section class="card"><label class="bs-lbl" for="wo-note" style="margin-top:0">Notiz zum Training</label>
+    <textarea class="field" id="wo-note" rows="2" data-wo="${wo.id}" data-wf="note" placeholder="Wie lief's? Schlaf, Energie, Technik …">${esc(wo.note || "")}</textarea>
+    <div class="tr-foot"><button class="btn" data-act="wo-finish" data-id="${wo.id}">${ic("check")}${wo.done ? "Fertig" : "Training abschließen"}</button></div></section>`;
+}
+function woStart(p, d){
+  const wo = create("workout", d ? (d.name || "Training") : "Freies Training", {date:dkey(), plan: d ? p.id : "", day: d ? d.id : "", note:"", done:false, ex:[]});
+  wo.ex = d ? d.ex.filter(e => e.name.trim()).map(e => { const pv = woPrev(wo, e.name);
+    const n = woIsNum(e.sets) && e.sets > 0 ? Math.round(e.sets) : pv ? woSets(pv.ex).length : 3;
+    return {id:uid(), name:e.name.trim(), target:e.reps || "", sets:Array.from({length:Math.max(1, Math.min(10, n))}, () => ({id:uid(), w:"", r:""}))}; }) : [];
+  if (!wo.ex.length) wo.ex.push(woNewEx());
+  persist(wo); return wo;
+}
+function woLogHTML(){
+  const wo = woGet(S.trWo); if (wo) return woHTML(wo);
+  S.trWo = null;
+  const p = trPlan(), list = woAll(), open = list.find(x => !x.done);
+  let out = "";
+  if (open) out += `<section class="card wo-resume"><div><b>${esc(open.title || "Training")}</b> vom ${esc(fmtLong(open.date))} ist noch nicht abgeschlossen.</div>
+    <button class="btn" data-act="wo-open" data-id="${open.id}">${ic("play")}Weitermachen</button></section>`;
+  let days = "";
+  if (p && p.days.length) {
+    const lastOf = d => list.find(x => x.plan === p.id && x.day === d.id);
+    const latest = list.find(x => x.plan === p.id && p.days.some(d => d.id === x.day));
+    const nextId = latest ? p.days[(p.days.findIndex(d => d.id === latest.day) + 1) % p.days.length].id : p.days[0].id;
+    days = `<p class="hint">Aus deinem Plan „${esc(p.name || "Ohne Namen")}“. Übungen und Sätze werden übernommen, daneben steht, was du letztes Mal geschafft hast.</p>
+      <div class="wo-days">${p.days.map((d, k) => { const l = lastOf(d);
+        return `<button class="wo-day" data-act="wo-start" data-id="${d.id}">${d.id === nextId && p.days.length > 1 ? `<span class="chip">Als Nächstes</span>` : ""}<b>${esc(d.name || "Tag " + (k + 1))}</b>
+          <small>${trDayInfo(d)}</small><small>${l ? "Zuletzt " + esc(fmtLong(l.date)) : "Noch nie gemacht"}</small></button>`; }).join("")}</div>`;
+  } else days = `<p class="hint">Leg unter „Pläne“ einen Trainingsplan an. Dann startest du hier ein Training mit einem Tipp und alle Übungen stehen schon drin.</p>`;
+  out += `<section class="card"><div class="card-h"><h2>Training starten</h2></div>${days}
+    <div class="tr-foot"><button class="pill" data-act="wo-start" data-id="">${ic("plus")}Freies Training ohne Plan</button></div></section>`;
+  const shown = S.woAllShown ? list : list.slice(0, 20);
+  out += `<section class="card"><div class="card-h"><h2>Verlauf</h2><span class="grow"></span><span class="chip num">${list.length} ${list.length === 1 ? "Training" : "Trainings"}</span></div>
+    ${list.length ? `<div>${shown.map(x => { const st = woStats(x);
+      return `<button class="wo-row" data-act="wo-open" data-id="${x.id}"><span class="num muted">${esc(fmtLong(x.date))}</span>
+        <span><b>${esc(x.title || "Training")}</b><span class="muted num">${st.ex} ${st.ex === 1 ? "Übung" : "Übungen"} · ${st.sets} Sätze · ${bsFmt(st.vol, 0)} kg${st.up ? ` · ${st.up}× mehr als letztes Mal` : ""}${x.done ? "" : " · läuft"}</span></span>${ic("right")}</button>`; }).join("")}</div>
+      ${list.length > shown.length ? `<div class="tr-foot"><button class="pill" data-act="wo-more">Alle ${list.length} anzeigen</button></div>` : ""}`
+    : `<p class="hint" style="margin:0">Noch keine Trainings gespeichert. Jedes Training, das du startest, landet hier.</p>`}</section>`;
+  return out;
+}
+
+/* Fortschritt: eine Linie pro Übung */
+const WO_M = {e:"Kraft (geschätzt)", w:"Schwerster Satz", v:"Volumen"};
+const woMetric = () => WO_M[S.trMetric] ? S.trMetric : "e";
+const woMetricPills = () => `<div class="tr-seg wo-ms">${Object.entries(WO_M).map(([k, l]) => `<button class="pill ${k === woMetric() ? "on" : ""}" data-act="wo-metric" data-v="${k}">${l}</button>`).join("")}</div>`;
+function woSeries(name, m){
+  const k = woKey(name), rows = [];
+  for (const x of woAll().reverse()) { const e = x.ex.find(y => woKey(y.name) === k); if (!e) continue; const ss = woSets(e); if (ss.length) rows.push({d:x.date, ss}); }
+  const hasW = rows.some(r => r.ss.some(s => s.w > 0));
+  const one = s => s.r === 1 ? (s.w || 0) : (s.w || 0) * (1 + Math.min(s.r, 30) / 30);
+  const val = ss => !hasW ? (m === "v" ? ss.reduce((a, s) => a + s.r, 0) : Math.max(...ss.map(s => s.r)))
+    : m === "w" ? Math.max(...ss.map(s => s.w || 0)) : m === "v" ? ss.reduce((a, s) => a + (s.w || 0) * s.r, 0) : Math.max(...ss.map(one));
+  return {name, unit: hasW ? "kg" : "Wdh.", reps: !hasW, pts: rows.map(r => ({d:r.d, v:Math.round(val(r.ss) * 10) / 10, s:r.ss.map(woSetTxt).join(" · ")}))};
+}
+function trChartHTML(name, sr){
+  const {pts, unit} = sr, n = pts.length;
+  if (!n) return `<p class="trc-note">Noch keine Werte. Trag Gewicht und Wiederholungen ein, dann erscheint hier die Linie.</p>`;
+  const vs = pts.map(p => p.v), mn = Math.min(...vs); let lo = mn, hi = Math.max(...vs);
+  if (hi === lo) { const d = Math.max(1, Math.abs(hi) * .1); lo -= d; hi += d; } else { const d = (hi - lo) * .15; lo -= d; hi += d; }
+  if (lo < 0 && mn >= 0) lo = 0;
+  const ts = pts.map(p => parseKey(p.d).getTime()), t0 = ts[0], span = ts[n - 1] - t0;
+  const xy = pts.map((p, i) => ({x: +(n === 1 ? 50 : span ? 4 + 92 * (ts[i] - t0) / span : 4 + 92 * i / (n - 1)).toFixed(2), y: +(8 + 84 * (hi - p.v) / (hi - lo)).toFixed(2), d:p.d, v:p.v, s:p.s}));
+  const f = v => bsFmt(v, hi - lo > 10 ? 0 : 1);
+  const line = n > 1 ? `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${xy.map(p => p.x + "," + p.y).join(" ")}" vector-effect="non-scaling-stroke"/></svg>` : "";
+  return `<div class="trc" role="img" aria-label="${esc(`${name}: ${n} ${n === 1 ? "Training" : "Trainings"}, zuletzt ${bsFmt(vs[n - 1], 1)} ${unit}`)}">
+      <div class="trc-y" aria-hidden="true"><span style="top:8%">${f(hi)}</span><span style="top:50%">${f((hi + lo) / 2)}</span><span style="top:92%">${f(lo)}</span></div>
+      <div class="trc-plot" data-pts="${esc(JSON.stringify(xy))}" data-unit="${esc(unit)}">${line}${xy.map(p => `<i class="trc-dot" style="left:${p.x}%;top:${p.y}%"></i>`).join("")}<div class="trc-cross"></div><div class="trc-tip"></div></div>
+      <div class="trc-x" aria-hidden="true">${n === 1 ? `<span style="margin:auto">${esc(fmtDay(pts[0].d))}</span>` : `<span>${esc(fmtDay(pts[0].d))}</span><span>${esc(fmtDay(pts[n - 1].d))}</span>`}</div></div>
+    ${n === 1 ? `<p class="trc-note">Ab dem zweiten Training mit dieser Übung siehst du hier eine Linie.</p>` : ""}
+    ${sr.reps ? `<p class="trc-note">Ohne Gewicht eingetragen, deshalb zählen hier die Wiederholungen.</p>` : ""}
+    <details class="trc-tbl"><summary>Werte als Tabelle</summary><table><tr><th>Datum</th><th>Wert</th><th>Sätze</th></tr>
+      ${pts.slice().reverse().map(p => `<tr><td class="num">${esc(fmtLong(p.d))}</td><td class="num">${esc(bsFmt(p.v, 1))} ${esc(unit)}</td><td class="num">${esc(p.s)}</td></tr>`).join("")}</table></details>`;
+}
+function woProgHTML(){
+  const seen = new Map();
+  for (const x of woAll()) for (const e of x.ex) { const k = woKey(e.name); if (k && !seen.has(k) && woSets(e).length) seen.set(k, e.name.trim()); }
+  const m = woMetric();
+  let out = `<section class="card"><div class="card-h"><h2>Fortschritt je Übung</h2></div>
+    <p class="hint">Jede Linie zeigt eine Übung über alle Trainings. Tipp oder fahr mit der Maus über die Linie, um die Werte zu sehen. <b>Kraft (geschätzt)</b> rechnet Gewicht und Wiederholungen in ein Gewicht für eine einzige Wiederholung um. So steigt die Linie auch, wenn du bei gleichem Gewicht mehr Wiederholungen schaffst.</p>
+    ${woMetricPills()}</section>`;
+  if (!seen.size) return out + `<section class="card"><p class="hint" style="margin:0">Noch keine Daten. Sobald du im Logbuch ein Training einträgst, erscheint hier für jede Übung ein Diagramm.</p></section>`;
+  out += `<div class="wo-grid">`;
+  for (const name of seen.values()) { const sr = woSeries(name, m), p = sr.pts, n = p.length, d = n > 1 ? p[n - 1].v - p[0].v : 0;
+    out += `<section class="card"><div class="wo-pch"><b>${esc(name)}</b><span class="num">${esc(bsFmt(p[n - 1].v, 1))} ${esc(sr.unit)}</span>
+      ${n > 1 ? `<span class="num ${d > 0 ? "up" : "muted"}">${d > 0 ? "+" : d < 0 ? "−" : "±"}${esc(bsFmt(Math.abs(d), 1))} seit ${esc(fmtDay(p[0].d))}</span>` : ""}</div>${trChartHTML(name, sr)}</section>`; }
+  return out + `</div>`;
+}
+function trcPointer(e){
+  const pl = e.target && e.target.closest ? e.target.closest(".trc-plot") : null;
+  if (S.trcOn && S.trcOn !== pl) { S.trcOn.classList.remove("on"); S.trcOn.querySelectorAll(".trc-dot.on").forEach(d => d.classList.remove("on")); S.trcOn = null; }
+  if (!pl) return;
+  const pts = pl._pts || (pl._pts = JSON.parse(pl.dataset.pts)), r = pl.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width * 100;
+  let k = 0; for (let i = 1; i < pts.length; i++) if (Math.abs(pts[i].x - fx) < Math.abs(pts[k].x - fx)) k = i;
+  const p = pts[k], tip = pl.querySelector(".trc-tip");
+  tip.innerHTML = `<small>${esc(fmtLong(p.d))}</small><b class="num">${esc(bsFmt(p.v, 1))} ${esc(pl.dataset.unit)}</b><small class="num">${esc(p.s)}</small>`;
+  pl.classList.add("on"); S.trcOn = pl;
+  pl.querySelectorAll(".trc-dot").forEach((d, i) => d.classList.toggle("on", i === k));
+  pl.querySelector(".trc-cross").style.left = p.x + "%";
+  const tw = tip.offsetWidth, th = tip.offsetHeight, px = p.x / 100 * r.width, py = p.y / 100 * r.height;
+  tip.style.left = Math.max(0, Math.min(r.width - tw, px - tw / 2)) + "px";
+  tip.style.top = (py - th - 12 >= 0 ? py - th - 12 : Math.min(r.height - th, py + 12)) + "px";
+}
+document.addEventListener("pointermove", trcPointer);
+document.addEventListener("pointerdown", trcPointer);
 
 /* ================= events ================= */
 document.addEventListener("click", e => {
@@ -2440,7 +2707,7 @@ document.addEventListener("click", e => {
     case "bl-del": { if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um den Eintrag aus dem Verlauf zu löschen"); break; }
       const b = basis(); b.log = b.log.filter(e => e.id !== id); saveSettings(0); renderMain(); break; }
     case "tr-pick": training().cur = id; saveSettings(0); renderMain(); break;
-    case "tr-tab": S.trTab = a.dataset.v; trDdClose(); renderMain(); break;
+    case "tr-tab": S.trTab = a.dataset.v; try { localStorage.setItem("trTab", S.trTab); } catch (er) {} trDdClose(); renderMain(); window.scrollTo({top:0}); break;
     case "bd-new": { const t = BOARD_TPL.find(x => x.id === a.dataset.tpl); const b = create("board", t ? t.name : "Neues Board", {elements:[], bg:"#ffffff"}); renderSide(); bdOpen(b.id, t && t.id, !t); break; }
     case "bd-open": bdOpen(id); break;
     case "bd-close": bdClose(); break;
@@ -2455,6 +2722,31 @@ document.addEventListener("click", e => {
     case "bd-tstart": { const m = +a.dataset.min || parseFloat(($("#bd-tmin") || {}).value || "0"); if (m > 0) bdTimerStart(m); else toast("Bitte Minuten eingeben."); break; }
     case "bd-tstop": bdTimerStop(); bdMenu(null); break;
     case "bd-info": if (S.bd) { bdMenu(null); openDetailFresh(S.bd.id); } break;
+    case "wo-start": { const p = trPlan(), d = id && p ? p.days.find(x => x.id === id) : null; const wo = woStart(p, d); S.trWo = wo.id; renderMain(); window.scrollTo({top:0});
+      if (!d) trFocus(`wo-${wo.ex[0].id}-name`); else toast("Training gestartet. Es wird automatisch gespeichert."); break; }
+    case "wo-open": S.trWo = id; S.trTab = "log"; renderMain(); window.scrollTo({top:0}); break;
+    case "wo-close": S.trWo = null; renderMain(); window.scrollTo({top:0}); break;
+    case "wo-more": S.woAllShown = true; renderMain(); break;
+    case "wo-metric": S.trMetric = a.dataset.v; { const ex = a.closest(".wo-ex"), wo = woGet(S.trWo);
+      if (ex && wo) { const e = woFindEx(wo, ex.id.slice(6)); if (e) { woExRefresh(wo, e); break; } } renderMain(); } break;
+    case "wo-finish": { const wo = woGet(id); if (!wo) break; const st = woStats(wo); wo.done = true; persist(wo); S.trWo = null; renderMain(); window.scrollTo({top:0});
+      toast(st.up ? `Gespeichert. ${st.up} ${st.up === 1 ? "Satz" : "Sätze"} besser als letztes Mal.` : "Training gespeichert."); break; }
+    case "wo-del": { const wo = woGet(id); if (!wo) break;
+      if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um dieses Training zu löschen"); break; }
+      removeItem(wo.id); S.trWo = null; renderMain(); toast("Training gelöscht"); break; }
+    case "wo-ex-add": { const wo = woGet(a.dataset.wo); if (!wo) break; const e = woNewEx(); wo.ex.push(e); persist(wo); renderMain(); trFocus(`wo-${e.id}-name`); break; }
+    case "wo-ex-del": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (!e) break;
+      if ((e.name.trim() || e.sets.some(s => !bsEmpty(s.w) || !bsEmpty(s.r))) && a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um die Übung aus diesem Training zu entfernen"); break; }
+      wo.ex = wo.ex.filter(x => x !== e); persist(wo); renderMain(); break; }
+    case "wo-ex-move": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (!e) break; const i = wo.ex.indexOf(e), j = i + +a.dataset.d; if (j < 0 || j >= wo.ex.length) break;
+      wo.ex.splice(i, 1); wo.ex.splice(j, 0, e); persist(wo); renderMain(); break; }
+    case "wo-set-add": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (!e) break; const l = e.sets[e.sets.length - 1];
+      const s = {id:uid(), w: l ? l.w : "", r:""}; e.sets.push(s); persist(wo); woExRefresh(wo, e, `wo-${s.id}-${bsEmpty(s.w) ? "w" : "r"}`); break; }
+    case "wo-set-del": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (!e) break; const s = e.sets.find(x => x.id === id); if (!s) break;
+      e.sets = e.sets.filter(x => x !== s); persist(wo); woExRefresh(wo, e); break; }
+    case "wo-fill": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (!e) break; const pv = woPrev(wo, e.name); if (!pv) break; const ps = woSets(pv.ex);
+      e.sets.forEach((s, k) => { const p = ps[Math.min(k, ps.length - 1)]; if (bsEmpty(s.w) && p && p.w > 0) s.w = p.w; }); persist(wo); woExRefresh(wo, e); break; }
+    case "wo-chart": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (!e) break; S.trWoChart = S.trWoChart || {}; S.trWoChart[e.id] = !S.trWoChart[e.id]; woExRefresh(wo, e); break; }
     case "tr-dd-pick": { const st = S.trDd; const m = st && st.items[+a.dataset.i]; if (m) trDdPick(m.name); break; }
     case "tr-dd-save": { const st = S.trDd; if (!st) break; const r = trDbAdd(st.inp.value); if (r) { toast(r.dup ? "Die Übung gibt es schon." : "In der Übungsdatenbank gespeichert"); trDdPick(r.m.name); } break; }
     case "tr-db-add": { const inp = $("#tr-db-new"), g = $("#tr-db-newg").value; if (!inp.value.trim()) { inp.focus(); break; }
@@ -2506,6 +2798,13 @@ document.addEventListener("input", e => {
   if (t.dataset.bs) { bsInput(`${t.dataset.bs}|${t.dataset.id}|${t.dataset.f}`, t.value); return; }
   if (t.id === "bs-goal") { bsInput("goal", t.value); return; }
   if (t.dataset.blWhy) { const e = basis().log.find(x => x.id === t.dataset.blWhy); if (e) { e.why = t.value; saveSettings(700); } return; }
+  if (t.dataset.wo) { const wo = woGet(t.dataset.wo); if (!wo) return; const f = t.dataset.wf;
+    if (f === "w" || f === "r") { const e = woFindEx(wo, t.dataset.ex), s = e && e.sets.find(x => x.id === t.dataset.set); if (!s) return;
+      const n = bsNum(t.value); if (n === null) return; s[f] = n === "" ? "" : f === "r" ? Math.max(0, Math.round(n)) : Math.max(0, n); persist(wo, 700);
+      const pv = woPrev(wo, e.name), c = $(`#wo-st-${s.id}`); if (c) c.innerHTML = woStHTML(s, pv ? woSets(pv.ex)[e.sets.indexOf(s)] : null); woKpiRefresh(wo); return; }
+    if (f === "name") { const e = woFindEx(wo, t.dataset.ex); if (!e) return; e.name = t.value; persist(wo, 700); if (S.trDd && S.trDd.inp === t) { S.trDd.k = -1; trDdRender(); } return; }
+    if (f === "title" || f === "note") { wo[f] = t.value; persist(wo, 700); }
+    return; }
   if (t.dataset.tr) { const {d, e} = trFind(t.dataset.day, t.dataset.id); if (!e) return; const f = t.dataset.tr;
     if (f === "sets") { const n = bsNum(t.value); if (n === null) return; e.sets = n; } else e[f] = t.value;
     saveSettings(700); trRefresh(d); if (f === "name" && S.trDd && S.trDd.inp === t) { S.trDd.k = -1; trDdRender(); } return; }
@@ -2551,6 +2850,12 @@ document.addEventListener("change", e => {
       else if (old && old !== m.name) { let n = 0; for (const p of training().plans) for (const d of p.days) for (const e of d.ex) if (e.name === old) { e.name = m.name; n++; }
         if (n) toast(`Auch in deinen Plänen umbenannt (${n}×).`); } }
     saveSettings(0); return; }
+  if (t.dataset.wo) { const wo = woGet(t.dataset.wo); if (!wo) return; const f = t.dataset.wf;
+    if (f === "w" || f === "r") { const e = woFindEx(wo, t.dataset.ex), s = e && e.sets.find(x => x.id === t.dataset.set); if (!s) return;
+      if (bsNum(t.value) === null) toast("Bitte nur eine Zahl eintragen, z. B. 62,5."); t.value = bsIn(s[f]); return; }
+    if (f === "name") { const e = woFindEx(wo, t.dataset.ex); if (!e) return; e.name = e.name.trim(); persist(wo); setTimeout(() => woExRefresh(wo, e), 0); return; }
+    if (f === "date" && t.value) { wo.date = t.value; persist(wo); renderMain(); }
+    return; }
   if (t.dataset.tr || t.dataset.trd || t.dataset.trp) {
     if (t.dataset.tr === "sets") { const {e} = trFind(t.dataset.day, t.dataset.id); if (e) { if (bsNum(t.value) === null) toast("Bei Sätze bitte nur eine Zahl eintragen."); t.value = bsIn(e.sets); } }
     saveSettings(0); return; }
