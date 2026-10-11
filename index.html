@@ -432,6 +432,10 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .wo-row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wo-row .i{width:16px;height:16px;color:var(--muted)}
 .wo-ex .tr-dh .wo-name{flex:1 1 200px;width:auto;height:40px;font-weight:700;font-size:15px}
+.wo-note{display:flex;gap:8px;align-items:flex-start;margin:0 0 10px}
+.wo-note .i{width:16px;height:16px;flex:0 0 auto;margin-top:11px;color:var(--muted)}
+.wo-note textarea.field{min-height:38px;padding:8px 12px;font-size:13px;line-height:1.45;resize:none;overflow:hidden}
+.wo-pnote{width:100%;font-size:12px;color:var(--muted);white-space:pre-wrap}
 .wo-last{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:13px;margin:0 0 6px}
 .wo-last .muted{font-size:12px}
 .wo-goal{display:flex;gap:8px;align-items:flex-start;font-size:13px;background:var(--soft);border-radius:10px;padding:8px 10px;margin:0 0 10px}
@@ -635,7 +639,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-11.1";
+const APP_VERSION = "2026-10-11.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2429,6 +2433,7 @@ const woDone = s => woIsNum(s.r) && s.r > 0;
 const woSets = ex => ex.sets.filter(woDone);
 const woSetTxt = s => s.w > 0 ? `${bsFmt(s.w, 2)} kg × ${s.r}` : `${s.r} Wdh.`;
 const woBefore = (a, b) => (a.date || "") < (b.date || "") || (a.date === b.date && a.created < b.created);
+const woMove = name => { const k = woKey(name); return k ? training().moves.find(m => woKey(m.name) === k) || null : null; };
 const woNewEx = () => ({id:uid(), name:"", target:"", sets:[{id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}]});
 // Das letzte frühere Training, in dem diese Übung mit mindestens einem Satz vorkommt
 function woPrev(wo, name){
@@ -2486,6 +2491,8 @@ function woExHTML(wo, e, i){
       <button class="ibtn ${chart ? "on" : ""}" data-act="wo-chart" ${at} title="Verlauf als Diagramm" aria-label="Verlauf als Diagramm" aria-pressed="${chart ? "true" : "false"}">${ic("chart")}</button>
       ${i > 0 ? `<button class="ibtn" data-act="wo-ex-move" ${at} data-d="-1" title="Nach oben" aria-label="Nach oben">${ic("up")}</button>` : ""}${i < n - 1 ? `<button class="ibtn" data-act="wo-ex-move" ${at} data-d="1" title="Nach unten" aria-label="Nach unten">${ic("down")}</button>` : ""}
       <button class="ibtn" data-act="wo-ex-del" ${at} title="Übung entfernen" aria-label="Übung entfernen">${ic("trash")}</button></div>
+    ${e.name.trim() ? (() => { const mn = (woMove(e.name) || {}).note || "";
+      return `<div class="wo-note">${ic("pen")}<textarea class="field" id="wo-${e.id}-mnote" rows="${Math.max(1, mn.split("\n").length)}" ${at} data-wf="mnote" placeholder="Notiz für jedes Training, z. B. Sitz Stufe 4" aria-label="Notiz zur Übung, gilt für jedes Training">${esc(mn)}</textarea></div>`; })() : ""}
     ${last}
     <div class="wo-set wo-head"><span>Satz</span><span>kg</span><span>Wdh.</span><span></span><span></span></div>
     ${sets}
@@ -2591,8 +2598,9 @@ function woProgHTML(){
   if (!seen.size) return out + `<section class="card"><p class="hint" style="margin:0">Noch keine Daten. Sobald du im Logbuch ein Training einträgst, erscheint hier für jede Übung ein Diagramm.</p></section>`;
   out += `<div class="wo-grid">`;
   for (const name of seen.values()) { const sr = woSeries(name, m), p = sr.pts, n = p.length, d = n > 1 ? p[n - 1].v - p[0].v : 0;
+    const mn = (woMove(name) || {}).note || "";
     out += `<section class="card"><div class="wo-pch"><b>${esc(name)}</b><span class="num">${esc(bsFmt(p[n - 1].v, 1))} ${esc(sr.unit)}</span>
-      ${n > 1 ? `<span class="num ${d > 0 ? "up" : "muted"}">${d > 0 ? "+" : d < 0 ? "−" : "±"}${esc(bsFmt(Math.abs(d), 1))} seit ${esc(fmtDay(p[0].d))}</span>` : ""}</div>${trChartHTML(name, sr)}</section>`; }
+      ${n > 1 ? `<span class="num ${d > 0 ? "up" : "muted"}">${d > 0 ? "+" : d < 0 ? "−" : "±"}${esc(bsFmt(Math.abs(d), 1))} seit ${esc(fmtDay(p[0].d))}</span>` : ""}${mn ? `<span class="wo-pnote">${esc(mn)}</span>` : ""}</div>${trChartHTML(name, sr)}</section>`; }
   return out + `</div>`;
 }
 function trcPointer(e){
@@ -2803,6 +2811,9 @@ document.addEventListener("input", e => {
       const n = bsNum(t.value); if (n === null) return; s[f] = n === "" ? "" : f === "r" ? Math.max(0, Math.round(n)) : Math.max(0, n); persist(wo, 700);
       const pv = woPrev(wo, e.name), c = $(`#wo-st-${s.id}`); if (c) c.innerHTML = woStHTML(s, pv ? woSets(pv.ex)[e.sets.indexOf(s)] : null); woKpiRefresh(wo); return; }
     if (f === "name") { const e = woFindEx(wo, t.dataset.ex); if (!e) return; e.name = t.value; persist(wo, 700); if (S.trDd && S.trDd.inp === t) { S.trDd.k = -1; trDdRender(); } return; }
+    if (f === "mnote") { const e = woFindEx(wo, t.dataset.ex); if (!e || !e.name.trim()) return; let m = woMove(e.name);
+      if (!m) { const r = trDbAdd(e.name); m = r && r.m; if (m) toast(`„${m.name}“ in der Übungsdatenbank angelegt. Die Notiz gilt für jedes Training.`); }
+      if (m) { m.note = t.value; saveSettings(700); } autoGrow(t); return; }
     if (f === "title" || f === "note") { wo[f] = t.value; persist(wo, 700); }
     return; }
   if (t.dataset.tr) { const {d, e} = trFind(t.dataset.day, t.dataset.id); if (!e) return; const f = t.dataset.tr;
@@ -2848,7 +2859,8 @@ document.addEventListener("change", e => {
     if (t.dataset.trm === "name") { const old = (S.trmOrig || {})[m.id]; if (S.trmOrig) delete S.trmOrig[m.id]; m.name = m.name.trim();
       if (!m.name && old) { m.name = old; t.value = old; toast("Der Name darf nicht leer sein."); }
       else if (old && old !== m.name) { let n = 0; for (const p of training().plans) for (const d of p.days) for (const e of d.ex) if (e.name === old) { e.name = m.name; n++; }
-        if (n) toast(`Auch in deinen Plänen umbenannt (${n}×).`); } }
+        let w = 0; for (const x of live("workout")) { let ch = false; for (const e of x.ex) if (woKey(e.name) === woKey(old)) { e.name = m.name; ch = true; } if (ch) { persist(x); w++; } }
+        if (n || w) toast(`Auch umbenannt: ${n ? `${n}× in deinen Plänen` : ""}${n && w ? ", " : ""}${w ? `${w} ${w === 1 ? "Training" : "Trainings"} im Logbuch` : ""}.`); } }
     saveSettings(0); return; }
   if (t.dataset.wo) { const wo = woGet(t.dataset.wo); if (!wo) return; const f = t.dataset.wf;
     if (f === "w" || f === "r") { const e = woFindEx(wo, t.dataset.ex), s = e && e.sets.find(x => x.id === t.dataset.set); if (!s) return;
