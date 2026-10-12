@@ -432,6 +432,23 @@ body.auth .app{grid-template-columns:minmax(0,1fr)}
 .wo-row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wo-row .i{width:16px;height:16px;color:var(--muted)}
 .wo-ex .tr-dh .wo-name{flex:1 1 200px;width:auto;height:40px;font-weight:700;font-size:15px}
+.rest-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:60;width:min(440px,calc(100% - 24px));background:var(--ink);color:var(--on-ink);border-radius:18px;padding:10px 12px 12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center}
+.rest-bar.over{background:var(--good);color:#fff}
+.rest-info{display:flex;flex-direction:column;min-width:0}
+.rest-l{font-size:12px;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rest-t{font-size:28px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.rest-btns{display:flex;gap:6px}
+.rest-btns button{min-width:44px;height:40px;padding:0 10px;border-radius:999px;border:1px solid currentColor;border-color:color-mix(in srgb,currentColor 35%,transparent);color:inherit;font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+.rest-btns .i{width:16px;height:16px}
+.rest-p{grid-column:1/-1;height:4px;border-radius:999px;background:color-mix(in srgb,currentColor 20%,transparent);overflow:hidden}
+.rest-p i{display:block;height:100%;width:0;background:currentColor;border-radius:999px}
+body.has-rest #main{margin-bottom:110px}
+body.has-rest .toast{bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+@media (max-width:860px){.rest-bar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}body.has-rest .toast{bottom:calc(184px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:no-preference){.rest-bar.over{animation:restpulse 1.2s ease-in-out 3}}
+@keyframes restpulse{50%{transform:translateX(-50%) scale(1.03)}}
+.wo-auto{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px;cursor:pointer}
+.wo-auto input{width:18px;height:18px;accent-color:var(--ink)}
 .wo-note{display:flex;gap:8px;align-items:flex-start;margin:0 0 10px}
 .wo-note .i{width:16px;height:16px;flex:0 0 auto;margin-top:11px;color:var(--muted)}
 .wo-note textarea.field{min-height:38px;padding:8px 12px;font-size:13px;line-height:1.45;resize:none;overflow:hidden}
@@ -639,7 +656,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-11.2";
+const APP_VERSION = "2026-10-12.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2434,7 +2451,7 @@ const woSets = ex => ex.sets.filter(woDone);
 const woSetTxt = s => s.w > 0 ? `${bsFmt(s.w, 2)} kg × ${s.r}` : `${s.r} Wdh.`;
 const woBefore = (a, b) => (a.date || "") < (b.date || "") || (a.date === b.date && a.created < b.created);
 const woMove = name => { const k = woKey(name); return k ? training().moves.find(m => woKey(m.name) === k) || null : null; };
-const woNewEx = () => ({id:uid(), name:"", target:"", sets:[{id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}]});
+const woNewEx = () => ({id:uid(), name:"", target:"", rest:0, sets:[{id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}, {id:uid(), w:"", r:""}]});
 // Das letzte frühere Training, in dem diese Übung mit mindestens einem Satz vorkommt
 function woPrev(wo, name){
   const k = woKey(name); if (!k) return null;
@@ -2496,7 +2513,7 @@ function woExHTML(wo, e, i){
     ${last}
     <div class="wo-set wo-head"><span>Satz</span><span>kg</span><span>Wdh.</span><span></span><span></span></div>
     ${sets}
-    <div class="tr-foot"><button class="pill" data-act="wo-set-add" ${at}>${ic("plus")}Satz</button>${ps.some(s => s.w > 0) && e.sets.some(s => bsEmpty(s.w)) ? `<button class="pill" data-act="wo-fill" ${at}>Gewichte von letztem Mal eintragen</button>` : ""}</div>
+    <div class="tr-foot"><button class="pill" data-act="wo-set-add" ${at}>${ic("plus")}Satz</button><button class="pill" id="wo-rest-${e.id}" data-act="rest-start" ${at} title="Pausen-Timer starten">${ic("clock")}Pause ${fmtRest(woRestOf(wo, e))}</button>${ps.some(s => s.w > 0) && e.sets.some(s => bsEmpty(s.w)) ? `<button class="pill" data-act="wo-fill" ${at}>Gewichte von letztem Mal eintragen</button>` : ""}</div>
     ${chart ? `<div class="wo-chart">${woMetricPills()}${e.name.trim() ? trChartHTML(e.name, woSeries(e.name, woMetric())) : `<p class="trc-note">Wähle zuerst eine Übung.</p>`}</div>` : ""}</section>`;
 }
 function woExRefresh(wo, e, fid){
@@ -2512,6 +2529,7 @@ function woHTML(wo){
     <div class="tr-meta"><label>Training<input class="field" id="wo-title" value="${esc(wo.title)}" data-wo="${wo.id}" data-wf="title" placeholder="z. B. Oberkörper"></label>
       <label>Datum<input class="field" type="date" id="wo-date" value="${esc(wo.date)}" data-wo="${wo.id}" data-wf="date"></label></div>
     <div class="bs-kpis tr-kpis" id="wo-kpis">${woKpis(wo)}</div>
+    <label class="wo-auto"><input type="checkbox" id="wo-restauto" ${training().restAuto !== false ? "checked" : ""}>Pausen-Timer automatisch starten, sobald du Wiederholungen einträgst</label>
     <p class="hint" style="margin:12px 0 0">Graue Zahlen in den Feldern zeigen, was du letztes Mal in diesem Satz geschafft hast. Der Pfeil nach oben heißt: mehr als letztes Mal.</p></section>
   ${wo.ex.map((e, i) => woExHTML(wo, e, i)).join("")}
   <div class="tr-foot" style="margin:0 0 20px"><button class="pill" data-act="wo-ex-add" data-wo="${wo.id}">${ic("plus")}Übung hinzufügen</button></div>
@@ -2523,7 +2541,7 @@ function woStart(p, d){
   const wo = create("workout", d ? (d.name || "Training") : "Freies Training", {date:dkey(), plan: d ? p.id : "", day: d ? d.id : "", note:"", done:false, ex:[]});
   wo.ex = d ? d.ex.filter(e => e.name.trim()).map(e => { const pv = woPrev(wo, e.name);
     const n = woIsNum(e.sets) && e.sets > 0 ? Math.round(e.sets) : pv ? woSets(pv.ex).length : 3;
-    return {id:uid(), name:e.name.trim(), target:e.reps || "", sets:Array.from({length:Math.max(1, Math.min(10, n))}, () => ({id:uid(), w:"", r:""}))}; }) : [];
+    return {id:uid(), name:e.name.trim(), target:e.reps || "", rest: restParse(e.pause) || (pv && pv.ex.rest) || 0, sets:Array.from({length:Math.max(1, Math.min(10, n))}, () => ({id:uid(), w:"", r:""}))}; }) : [];
   if (!wo.ex.length) wo.ex.push(woNewEx());
   persist(wo); return wo;
 }
@@ -2618,6 +2636,76 @@ function trcPointer(e){
   tip.style.left = Math.max(0, Math.min(r.width - tw, px - tw / 2)) + "px";
   tip.style.top = (py - th - 12 >= 0 ? py - th - 12 : Math.min(r.height - th, py + 12)) + "px";
 }
+/* Pausen-Timer: Leiste unten, läuft über Zeitstempel weiter, auch nach Neuladen */
+// Pause im Plan ist ein Text in Minuten ("3", "2,5", "2–3"); Werte über 15 gelten als Sekunden
+function restParse(p){ const m = String(p || "").replace(",", ".").match(/\d+(\.\d+)?/); const v = m ? +m[0] : 0; return v ? Math.round(v > 15 ? v : v * 60) : 0; }
+const fmtRest = sec => { const a = Math.abs(Math.round(sec)); return `${Math.floor(a / 60)}:${String(a % 60).padStart(2, "0")}`; };
+function woRestOf(wo, e){ if (e.rest) return e.rest; const pv = woPrev(wo, e.name); return (pv && pv.ex.rest) || training().rest || 120; }
+const REST_KEY = "restTimer";
+function restSave(){ try { if (S.rest) localStorage.setItem(REST_KEY, JSON.stringify(S.rest)); else localStorage.removeItem(REST_KEY); } catch (e) {} }
+function restStart(wo, e){
+  const sec = woRestOf(wo, e);
+  S.rest = {end: Date.now() + sec * 1000, total: sec, name: e.name.trim(), wo: wo.id, ex: e.id, done: false};
+  restSave(); restAudio(); restWake(true); restTick(true);
+}
+function restStop(){ S.rest = null; restSave(); restBeepsOff(); restTick(true); }
+function restAdj(d){
+  const r = S.rest; if (!r) return;
+  if (r.done || r.end < Date.now()) { r.end = Date.now() + Math.max(15, d) * 1000; r.done = false; }
+  else r.end = Math.max(Date.now() + 5000, r.end + d * 1000);
+  r.total = Math.max(15, r.total + d);
+  // Die neue Länge merkt sich die Übung für die nächsten Sätze und Trainings
+  const wo = woGet(r.wo), e = woFindEx(wo, r.ex);
+  if (e) { e.rest = r.total; persist(wo, 700); const b = $(`#wo-rest-${e.id}`); if (b) b.innerHTML = `${ic("clock")}Pause ${fmtRest(e.rest)}`; }
+  training().rest = r.total; saveSettings(1500);
+  restSave(); restAudio(); restTick(true);
+}
+function restTick(resched){
+  clearTimeout(S.restT); const r = S.rest; let bar = $("#rest-bar");
+  if (!r) { if (bar) bar.remove(); document.body.classList.remove("has-rest"); restWake(false); return; }
+  const left = (r.end - Date.now()) / 1000;
+  if (left < -180) { restStop(); return; }
+  if (!bar) { bar = document.createElement("div"); bar.id = "rest-bar"; bar.className = "rest-bar"; bar.setAttribute("role", "timer");
+    bar.innerHTML = `<div class="rest-info"><span class="rest-l" id="rest-l"></span><b class="rest-t" id="rest-t" aria-live="off"></b></div>
+      <div class="rest-btns"><button data-act="rest-adj" data-d="-15" aria-label="15 Sekunden weniger">−15</button><button data-act="rest-adj" data-d="15" aria-label="15 Sekunden mehr">+15</button><button data-act="rest-stop" aria-label="Timer beenden" title="Timer beenden">${ic("close")}</button></div>
+      <div class="rest-p"><i id="rest-p"></i></div>`;
+    document.body.appendChild(bar); document.body.classList.add("has-rest"); }
+  if (resched) restBeeps(left);
+  if (left <= 0 && !r.done) { r.done = true; restSave(); restAlarm(r); }
+  const over = left <= 0;
+  bar.classList.toggle("over", over);
+  $("#rest-l").textContent = over ? `Pause vorbei · weiter${r.name ? " mit " + r.name : ""}` : `Pause${r.name ? " · " + r.name : ""}`;
+  $("#rest-t").textContent = over ? `+${fmtRest(-left)}` : fmtRest(Math.ceil(left));
+  $("#rest-p").style.width = (over ? 100 : Math.min(100, Math.max(0, 100 * (1 - left / r.total)))) + "%";
+  S.restT = setTimeout(() => restTick(false), 250);
+}
+// Ton: wird beim Start im Voraus eingeplant, damit er auch kommt, wenn der Browser Zeitgeber drosselt
+function restAudio(){
+  try { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; if (!S.ac) S.ac = new C(); if (S.ac.state === "suspended") S.ac.resume(); } catch (e) {}
+}
+function restBeepsOff(){ for (const o of S.restOsc || []) try { o.stop(); } catch (e) {} S.restOsc = []; }
+function restBeeps(left){
+  restBeepsOff(); const ac = S.ac; if (!ac || left <= 0) return;
+  try { const t0 = ac.currentTime + left;
+    [0, .35, .7].forEach((d, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = "sine"; o.frequency.value = i === 2 ? 1320 : 880;
+      g.gain.setValueAtTime(0, t0 + d); g.gain.linearRampToValueAtTime(.3, t0 + d + .02); g.gain.linearRampToValueAtTime(0, t0 + d + .25);
+      o.connect(g).connect(ac.destination); o.start(t0 + d); o.stop(t0 + d + .3); S.restOsc.push(o); }); } catch (e) {}
+}
+async function restAlarm(r){
+  try { navigator.vibrate && navigator.vibrate([300, 150, 300, 150, 300]); } catch (e) {}
+  if (document.hidden && notifyState() === "granted") {
+    const reg = navigator.serviceWorker ? await navigator.serviceWorker.getRegistration().catch(() => null) : null;
+    const opts = {body: r.name ? `Nächster Satz: ${r.name}` : "Weiter geht's", icon:"icon-192.png", badge:"icon-192.png", tag:"rest"};
+    try { if (reg) await reg.showNotification("Pause vorbei", opts); else new Notification("Pause vorbei", opts); } catch (e) {}
+  }
+}
+// Bildschirm bleibt während der Pause an, sonst schläft das Handy ein und der Ton bleibt aus
+async function restWake(on){
+  try { if (on && !S.wake && navigator.wakeLock && !document.hidden) { S.wake = await navigator.wakeLock.request("screen"); S.wake.addEventListener("release", () => { S.wake = null; }); }
+    else if (!on && S.wake) { const w = S.wake; S.wake = null; await w.release(); } } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && S.rest) { restWake(true); restTick(false); } });
+setTimeout(() => { try { S.rest = JSON.parse(localStorage.getItem(REST_KEY) || "null"); } catch (e) { S.rest = null; } if (S.rest) restTick(false); }, 0);
 document.addEventListener("pointermove", trcPointer);
 document.addEventListener("pointerdown", trcPointer);
 
@@ -2730,6 +2818,9 @@ document.addEventListener("click", e => {
     case "bd-tstart": { const m = +a.dataset.min || parseFloat(($("#bd-tmin") || {}).value || "0"); if (m > 0) bdTimerStart(m); else toast("Bitte Minuten eingeben."); break; }
     case "bd-tstop": bdTimerStop(); bdMenu(null); break;
     case "bd-info": if (S.bd) { bdMenu(null); openDetailFresh(S.bd.id); } break;
+    case "rest-start": { const wo = woGet(a.dataset.wo), e = woFindEx(wo, a.dataset.ex); if (e) restStart(wo, e); break; }
+    case "rest-adj": restAdj(+a.dataset.d); break;
+    case "rest-stop": restStop(); break;
     case "wo-start": { const p = trPlan(), d = id && p ? p.days.find(x => x.id === id) : null; const wo = woStart(p, d); S.trWo = wo.id; renderMain(); window.scrollTo({top:0});
       if (!d) trFocus(`wo-${wo.ex[0].id}-name`); else toast("Training gestartet. Es wird automatisch gespeichert."); break; }
     case "wo-open": S.trWo = id; S.trTab = "log"; renderMain(); window.scrollTo({top:0}); break;
@@ -2862,9 +2953,11 @@ document.addEventListener("change", e => {
         let w = 0; for (const x of live("workout")) { let ch = false; for (const e of x.ex) if (woKey(e.name) === woKey(old)) { e.name = m.name; ch = true; } if (ch) { persist(x); w++; } }
         if (n || w) toast(`Auch umbenannt: ${n ? `${n}× in deinen Plänen` : ""}${n && w ? ", " : ""}${w ? `${w} ${w === 1 ? "Training" : "Trainings"} im Logbuch` : ""}.`); } }
     saveSettings(0); return; }
+  if (t.id === "wo-restauto") { training().restAuto = t.checked; saveSettings(0); return; }
   if (t.dataset.wo) { const wo = woGet(t.dataset.wo); if (!wo) return; const f = t.dataset.wf;
     if (f === "w" || f === "r") { const e = woFindEx(wo, t.dataset.ex), s = e && e.sets.find(x => x.id === t.dataset.set); if (!s) return;
-      if (bsNum(t.value) === null) toast("Bitte nur eine Zahl eintragen, z. B. 62,5."); t.value = bsIn(s[f]); return; }
+      if (bsNum(t.value) === null) toast("Bitte nur eine Zahl eintragen, z. B. 62,5."); t.value = bsIn(s[f]);
+      if (f === "r" && woDone(s) && training().restAuto !== false) restStart(wo, e); return; }
     if (f === "name") { const e = woFindEx(wo, t.dataset.ex); if (!e) return; e.name = e.name.trim(); persist(wo); setTimeout(() => woExRefresh(wo, e), 0); return; }
     if (f === "date" && t.value) { wo.date = t.value; persist(wo); renderMain(); }
     return; }
