@@ -1748,7 +1748,8 @@ function resourcesHTML(){
 }
 function notesHTML(kind){
   const k = kinds()[kind]; if (!k) { S.view = "dashboard"; return dashboardHTML(); }
-  const list = live(kind).sort((a, b) => b.updated - a.updated);
+  // Eigene Rubriken (z. B. ein Leitfaden mit Kapiteln) nach Titel samt Nummer, Notizen nach zuletzt geändert
+  const list = live(kind).sort(k.custom ? (a, b) => (a.title || "").localeCompare(b.title || "", "de", {numeric:true}) : (a, b) => b.updated - a.updated);
   return header(k.plural, kind === "note" ? "Gedanken, Erkenntnisse, Protokolle." : "Eigene Rubrik") + banner() + addBar(kind, `Neue ${k.label === "Notiz" ? "Notiz" : "Eintrag"} …`) +
     `<div class="cards">${list.map(itemCard).join("") || `<div class="empty">Noch leer.</div>`}</div>`;
 }
