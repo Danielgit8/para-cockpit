@@ -635,6 +635,77 @@ body.bd-on{overflow:hidden}
   .search input{width:100%}
   .card{padding:18px}
 }
+
+/* Brand & Business: eigene Akzentfarbe, damit die Seite für das Hauptziel heraussticht */
+:root{--brand:#B4530F;--brand-2:#E08A1E;--brand-soft:rgba(180,83,15,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--brand:#F2A23A;--brand-2:#F7C66B;--brand-soft:rgba(242,162,58,.14)}}
+:root[data-theme="dark"]{--brand:#F2A23A;--brand-2:#F7C66B;--brand-soft:rgba(242,162,58,.14)}
+.nav.nav-brand{color:var(--brand);background:var(--brand-soft)}
+.nav.nav-brand.on{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff}
+.br-hero{background:linear-gradient(135deg,#1B1208,#3A2209 60%,#5C3510);color:#FFF6EA;border-color:transparent}
+.br-hero-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.br-kicker{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#F7C66B;font-weight:700}
+.br-hero h2{margin:4px 0 0;font-size:21px;line-height:1.3;max-width:640px}
+.br-pill{border-color:rgba(255,255,255,.28);color:#FFF6EA}
+.br-goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:20px}
+.br-goal{display:flex;flex-direction:column;gap:6px;min-width:0}
+.br-goal-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:rgba(255,246,234,.75)}
+.br-goal-h b{font-size:20px;color:#FFF6EA;white-space:nowrap}
+.br-goal-h small{font-size:12px;color:rgba(255,246,234,.6)}
+.br-track{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+.br-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#F2A23A,#F7C66B)}
+.br-goal>small,.br-last{font-size:12px;color:rgba(255,246,234,.65);line-height:1.45}
+.br-last{margin:16px 0 0}
+.br-gform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14)}
+.br-gform label,.br-form label,.br-ed label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.br-gform label{color:rgba(255,246,234,.75)}
+.br-gform .field{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#FFF6EA}
+.br-wide{grid-column:1/-1}
+.br-form{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end}
+.br-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:20px}
+.br-charts h3,.br-sub{font-size:13px;margin:0 0 8px}
+.br-sub{margin-top:20px}
+.br-cols{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start}
+.br-col{background:var(--soft);border-radius:var(--r-md);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.br-col-h{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:2px 4px}
+.br-col-h b{color:var(--text)}
+.br-col-empty{font-size:12px;color:var(--muted);margin:2px 4px}
+.br-vc{background:var(--panel-solid);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.br-vc.open{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.br-vc-t{text-align:left;font-weight:600;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.br-vc-m{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px}
+.br-vc-a{display:flex;justify-content:space-between}
+.br-vc-a .ibtn{width:28px;height:28px}
+.br-vc-a .ibtn:disabled{opacity:.25;cursor:default}
+.br-edit{border-color:var(--brand)}
+.br-ed{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.br-ed textarea.field{height:auto;padding:10px 12px;resize:vertical;line-height:1.5}
+.br-ed-f{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.br-row{display:grid;grid-template-columns:minmax(0,1fr) auto 180px 150px;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:8px}
+.br-row.due{border-color:var(--brand);background:var(--brand-soft)}
+.br-row.open{border-color:var(--brand)}
+.br-row-t{text-align:left;font-weight:600;overflow-wrap:anywhere;min-width:0}
+.br-row-t small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.br-row .field{height:34px;padding:0 10px}
+.br-row-ed{margin:-2px 0 12px;padding:12px;border:1px solid var(--brand);border-radius:var(--r-sm)}
+.br-scroll{overflow-x:auto}
+.br-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.br-tbl th,.br-tbl td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.br-tbl th{font-size:11.5px;color:var(--muted);font-weight:600}
+.br-tbl .num{text-align:right;white-space:nowrap}
+.br-bars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end;height:170px;margin:8px 0 4px}
+.br-bar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;min-width:0}
+.br-bar i{display:block;width:100%;max-width:46px;min-height:2px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--brand-2),var(--brand))}
+.br-bar span{font-size:11px}
+.br-bar small{font-size:11px;color:var(--muted)}
+.br-sk{display:grid;grid-template-columns:minmax(0,1.1fr) auto minmax(0,1fr) 32px;gap:10px;align-items:center;margin-bottom:8px}
+.br-dots{display:flex;gap:5px}
+.br-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2)}
+.br-dot.on{background:var(--brand);border-color:var(--brand)}
+.br-links{display:flex;flex-wrap:wrap;gap:8px}
+.br-links .pill{height:34px}
+@media (max-width:900px){.br-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) auto 32px}.br-sk .br-sk-n{grid-column:1/-1;order:5}.br-hero h2{font-size:18px}}
 </style>
 <style id="user-css"></style>
 </head>
@@ -656,7 +727,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-12.1";
+const APP_VERSION = "2026-10-14.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -701,7 +772,7 @@ const P = {
   grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
   up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11",
   board:"M3 4h18v12H3zM12 16v4M8 20h8M7 8h6M7 11h4", layout:"M4 4h16v16H4zM4 10h16M10 10v10", sticky:"M5 4h14v10l-6 6H5zM13 20v-6h6",
-  play:"M7 5l12 7-12 7z", chart:"M4 4v16h16M7 15l4-4 3 3 6-7", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3"
+  play:"M7 5l12 7-12 7z", chart:"M4 4v16h16M7 15l4-4 3 3 6-7", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3", star:"M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
 
@@ -737,7 +808,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["day", "boardlib", "workout"];
+const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -1180,7 +1251,7 @@ function applySettings(){
 
 /* ================= navigation ================= */
 function navItems(){
-  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}];
+  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"brand", label:"Brand & Business", icon:"star"}, {v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}];
   for (const id of ["task","habit","project"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   out.push({v:"basis", label:"Basis", icon:"pulse"});
   out.push({v:"training", label:"Training", icon:"dumbbell"});
@@ -1202,10 +1273,10 @@ function renderSide(){
   const items = navItems();
   $("#side").innerHTML = `
     <div class="brand"><span class="brand-mark">P</span>PARA Cockpit</div>
-    ${items.map((n, i) => `${i === 1 ? '<div class="nav-label">Umsetzung</div>' : ""}${n.v === "area" ? '<div class="nav-label">Wissen</div>' : ""}${n.v === "archive" ? '<div class="nav-label">System</div>' : ""}
-      <button class="nav ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`).join("")}
+    ${items.map((n, i) => `${n.v === "brand" ? '<div class="nav-label">Mein Ziel</div>' : ""}${n.v === "today" ? '<div class="nav-label">Umsetzung</div>' : ""}${n.v === "area" ? '<div class="nav-label">Wissen</div>' : ""}${n.v === "archive" ? '<div class="nav-label">System</div>' : ""}
+      <button class="nav ${n.v === "brand" ? "nav-brand" : ""} ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`).join("")}
     <div class="side-foot" id="side-status"></div>`;
-  const bottom = [{v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"resource", label:"Wissen", icon:"resource"}];
+  const bottom = [{v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"brand", label:"Brand", icon:"star"}];
   $("#bottom").innerHTML = bottom.map(b => `<button class="${S.view === b.v ? "on" : ""}" data-go="${b.v}">${ic(b.icon)}${b.label}</button>`).join("") +
     `<button data-act="menu">${ic("menu")}Mehr</button>`;
   renderStatus();
@@ -1248,6 +1319,7 @@ function viewHTML(){
   if (v === "review") return reviewHTML();
   if (v === "basis") return basisHTML();
   if (v === "training") return trainingHTML();
+  if (v === "brand") return brandHTML();
   if (v === "board") return boardsHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
@@ -2318,6 +2390,266 @@ function trDayHTML(d, k, n){
     ${d.ex.map((e, i) => trRow(d, e, i)).join("")}
     <div class="tr-foot"><button class="pill" data-act="tr-ex-add" data-day="${d.id}">${ic("plus")}Übung hinzufügen</button></div></section>`;
 }
+/* ================= Brand & Business ================= */
+// Eigene Seite für das Hauptziel: Content, Personal Brand und Geld verdienen.
+// Ziele, Wochenzahlen und Fähigkeiten liegen in settings.brand. Videos, Kontakte und Einnahmen sind eigene,
+// versteckte Einträge (kind "video" | "contact" | "income", in HIDDEN_K), damit die Einstellungen nicht mitwachsen.
+const BR_STAGES = [["idee","Idee"],["skript","Skript"],["gedreht","Gedreht"],["geschnitten","Geschnitten"],["gepostet","Gepostet"]];
+const BR_ROLES = [["creator","Creator"],["marke","Marke"],["mentor","Mentor"],["kunde","Kunde"],["sonst","Sonstige"]];
+const BR_CSTAT = [["idee","Kennenlernen"],["angeschrieben","Angeschrieben"],["gespraech","Im Gespräch"],["zusammen","Zusammenarbeit"],["ruht","Ruht"]];
+const BR_ITYPE = [["ugc","UGC"],["deal","Brand Deal"],["produkt","Eigenes Produkt"],["dienst","Coaching / Dienstleistung"],["sonst","Sonstiges"]];
+const BR_SKILLS = ["Hooks schreiben", "Skripte schreiben", "Frei vor der Kamera sprechen", "Licht und Bildaufbau", "Schnitt in CapCut", "Zahlen auswerten", "Verkaufen", "Leute anlernen und führen"];
+const brLabel = (list, v) => (list.find(x => x[0] === v) || list[list.length - 1])[1];
+const brOpts = (list, v) => list.map(([k, l]) => `<option value="${k}" ${k === v ? "selected" : ""}>${esc(l)}</option>`).join("");
+const brUrl = u => /^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : "";
+const brMonth = mk => parseKey(mk + "-01").toLocaleDateString("de-DE", {month:"long"});
+const brMoney = n => `${(+n || 0).toLocaleString("de-DE", {minimumFractionDigits:(+n || 0) % 1 ? 2 : 0, maximumFractionDigits:2})} €`;
+function brand(){
+  if (!S.settings.brand) S.settings.brand = {};
+  const b = S.settings.brand;
+  b.goals = Object.assign({followers:{target:"", by:""}, views:{target:""}, revenue:{target:""}}, b.goals || {});
+  if (!Array.isArray(b.stats)) b.stats = [];
+  if (!Array.isArray(b.skills)) b.skills = [];
+  return b;
+}
+// Zahl aus deutscher Eingabe: "1.250" = 1250, "12,50" = 12.5
+function brNum(v){
+  let s = String(v ?? "").trim().replace(/\s/g, ""); if (!s) return null;
+  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", "."); else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  const n = parseFloat(s); return isNaN(n) ? null : n;
+}
+const brArea = () => live("area").find(a => a.id === brand().area) || live("area").find(a => /personal.?brand/i.test(a.title || ""));
+const brHabit = () => live("habit").find(h => h.id === brand().habit) || live("habit").find(h => /gepostet/i.test(h.title || ""));
+function brStreak(h){
+  if (!h) return 0; let d = today0(); if (!hdone(h, dkey(d))) d = addDays(d, -1);
+  let n = 0; while (n < 2000 && hdone(h, dkey(d))) { n++; d = addDays(d, -1); } return n;
+}
+// Offene Aufgaben aus dem Bereich, seinen Projekten und verknüpften Notizen (z. B. dem Fahrplan)
+function brTasks(){
+  const a = brArea(); if (!a) return [];
+  const hubs = new Set([a.id]); for (const r of related(a.id)) if ((r.kind === "project" || r.kind === "note") && !r.archived) hubs.add(r.id);
+  const out = new Map(); for (const h of hubs) for (const r of related(h)) if (r.kind === "task" && !r.done && !r.archived) out.set(r.id, r);
+  return [...out.values()].sort(taskByDate);
+}
+const brSum = mk => live("income").filter(i => (i.date || "").startsWith(mk)).reduce((s, i) => s + (+i.amount || 0), 0);
+function brGoalBar(label, cur, target, sub){
+  const t = brNum(target), pct = t && cur != null ? Math.max(0, Math.min(100, cur / t * 100)) : 0;
+  return `<div class="br-goal"><div class="br-goal-h"><span>${esc(label)}</span><b class="num">${cur == null ? "noch offen" : esc(bsFmt(cur, label === "Einnahmen" ? 2 : 0))}${t ? ` <small>/ ${esc(bsFmt(t, 0))}</small>` : ""}</b></div>
+    <div class="br-track"><i style="width:${pct.toFixed(1)}%"></i></div><small>${esc(sub || (t ? `${Math.round(pct)} % geschafft` : "Ziel unter „Ziele bearbeiten“ festlegen"))}</small></div>`;
+}
+function brGoalBarsHTML(){
+  const b = brand(), g = b.goals, st = b.stats, last = st[st.length - 1], prev = st[st.length - 2], mk = dkey().slice(0, 7);
+  const fol = last && last.followers != null ? last.followers : null, vw = last && last.views != null ? last.views : null;
+  const by = g.followers.by, days = by ? Math.round((parseKey(by) - today0()) / 864e5) : null;
+  const folSub = [prev && fol != null && prev.followers != null ? `${fol - prev.followers >= 0 ? "+" : ""}${bsFmt(fol - prev.followers, 0)} seit ${fmtDay(prev.d)}` : "",
+    by ? (days >= 0 ? `Ziel bis ${fmtDay(by)}, noch ${days} Tage` : `Zieldatum ${fmtDay(by)} ist vorbei`) : ""].filter(Boolean).join(" · ");
+  const inc = brSum(mk);
+  return brGoalBar("Follower", fol, g.followers.target, folSub) + brGoalBar("Aufrufe pro Woche", vw, g.views.target) +
+    brGoalBar("Einnahmen", inc, g.revenue.target, brNum(g.revenue.target) ? `im ${brMonth(mk)}, Ziel ${brMoney(brNum(g.revenue.target))} pro Monat` : `im ${brMonth(mk)}`);
+}
+function brandHTML(){
+  if (!S.brTab) { try { S.brTab = localStorage.getItem("brTab") || "over"; } catch (e) { S.brTab = "over"; } }
+  const vids = live("video"), cons = live("contact"), tab = S.brTab;
+  const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
+  const out = header("Brand & Business", "Content, Personal Brand und Geld verdienen an einem Ort") + banner() +
+    `<div class="tr-seg">${seg("over", "Überblick")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
+  if (tab === "vid") return out + brVideosHTML(vids);
+  if (tab === "con") return out + brContactsHTML(cons);
+  if (tab === "inc") return out + brIncomeHTML();
+  if (tab === "skill") return out + brSkillsHTML();
+  return out + brOverHTML(vids, cons);
+}
+function brOverHTML(vids, cons){
+  const b = brand(), g = b.goals, st = b.stats, last = st[st.length - 1], tk = dkey(), mk = tk.slice(0, 7);
+  const h = brHabit(), streak = brStreak(h), tasks = brTasks();
+  const posted = vids.filter(v => v.stage === "gepostet" && (v.date || "").startsWith(mk)).length, inWork = vids.filter(v => v.stage !== "gepostet").length;
+  const dueC = cons.filter(c => c.next && c.next <= tk && c.status !== "ruht").length;
+  const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
+  const lfKind = (S.settings.kinds || []).find(k => /leitfaden/i.test(k.label));
+  const find = re => live().find(i => !HIDDEN_K.includes(i.kind) && re.test(i.title || ""));
+  const links = [lfKind ? `<button class="pill" data-go="${lfKind.id}">${ic("folder")}Leitfaden</button>` : "",
+    ...[[/markenkern/i, "Mein Markenkern"], [/video-check/i, "Video-Check"], [/skript-vorlage/i, "Skript-Vorlage"], [/fahrplan/i, "Fahrplan"]].map(([re, l]) => { const x = find(re); return x ? `<button class="pill" data-open="${x.id}">${ic(kindOf(x).icon)}${l}</button>` : ""; }),
+    a ? `<button class="pill" data-open="${a.id}">${ic("area")}${esc(a.title)}</button>` : "",
+    ...projs.map(p => `<button class="pill" data-open="${p.id}">${ic("project")}${esc(p.title)}</button>`)].filter(Boolean).join("");
+  const pts = k => st.filter(s => s[k] != null).map(s => ({d:s.d, v:s[k], s:""}));
+  return `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
+      <button class="pill br-pill" data-bact="goals">${S.brGoals ? "Fertig" : "Ziele bearbeiten"}</button></div>
+    <div class="br-goals" id="br-goalbars">${brGoalBarsHTML()}</div>
+    ${S.brGoals ? `<div class="br-gform">
+      <label class="br-wide">Mein Ziel in einem Satz<input class="field" data-bg="goalText" value="${esc(b.goalText || "")}" placeholder="Wofür machst du das?"></label>
+      <label>Follower-Ziel<input class="field" inputmode="numeric" data-bg="goals.followers.target" value="${esc(g.followers.target)}" placeholder="z. B. 10000"></label>
+      <label>bis zum<input class="field" type="date" data-bg="goals.followers.by" value="${esc(g.followers.by || "")}"></label>
+      <label>Aufrufe pro Woche<input class="field" inputmode="numeric" data-bg="goals.views.target" value="${esc(g.views.target)}" placeholder="z. B. 50000"></label>
+      <label>Einnahmen pro Monat in €<input class="field" inputmode="decimal" data-bg="goals.revenue.target" value="${esc(g.revenue.target)}" placeholder="z. B. 1000"></label></div>` : ""}
+    <p class="br-last">${last ? `Zahlen zuletzt eingetragen am ${esc(fmtLong(last.d))}.` : "Trag unten deine ersten Zahlen ein, dann füllen sich die Balken."}</p></section>
+  <section class="card"><div class="card-h"><h2>Dranbleiben</h2></div>
+    <div class="bs-kpis"><div><span>Serie „${esc(h ? h.title : "Video gepostet")}“</span><b class="num">${streak} ${streak === 1 ? "Tag" : "Tage"}</b><small>${h ? `diese Woche ${weekCount(h)} von ${h.target || 7}` : "Gewohnheit nicht gefunden"}</small></div>
+      <div><span>Gepostet</span><b class="num">${posted}</b><small>Videos im ${esc(brMonth(mk))}</small></div>
+      <div><span>In Arbeit</span><b class="num">${inWork}</b><small>von der Idee bis geschnitten</small></div>
+      <div><span>Nachhaken</span><b class="num">${dueC}</b><small>${dueC === 1 ? "Kontakt ist" : "Kontakte sind"} dran</small></div></div>
+    <h3 class="br-sub">Nächste Schritte${a ? ` aus „${esc(a.title)}“` : ""}</h3>
+    ${tasks.slice(0, 5).map(t => taskRow(t, tk)).join("") || `<div class="empty">Keine offenen Aufgaben im Bereich ${a ? `„${esc(a.title)}“` : "Personal Brand"}.</div>`}</section>
+  <section class="card"><div class="card-h"><h2>Zahlen der Woche</h2></div>
+    <p class="hint">Einmal pro Woche eintragen, z. B. sonntags beim Wochenrückblick. Follower: aktueller Stand. Aufrufe: alle Videos der letzten 7 Tage zusammen (Instagram: Profi-Dashboard).</p>
+    <div class="br-form"><label>Datum<input class="field" type="date" id="br-s-d" value="${tk}"></label>
+      <label>Follower<input class="field" id="br-s-f" inputmode="numeric" placeholder="z. B. 1250"></label>
+      <label>Aufrufe (7 Tage)<input class="field" id="br-s-v" inputmode="numeric" placeholder="z. B. 18000"></label>
+      <button class="btn" data-bact="stat-save">Eintragen</button></div>
+    ${st.length ? `<div class="br-charts"><div><h3>Follower</h3>${trChartHTML("Follower", {pts:pts("followers"), unit:"Follower", col:false, empty:"Noch keine Follower eingetragen.", one:"Ab dem zweiten Eintrag siehst du hier eine Linie."})}</div>
+      <div><h3>Aufrufe pro Woche</h3>${trChartHTML("Aufrufe", {pts:pts("views"), unit:"Aufrufe", col:false, empty:"Noch keine Aufrufe eingetragen.", one:"Ab dem zweiten Eintrag siehst du hier eine Linie."})}</div></div>
+      <details class="trc-tbl"><summary>Alle Einträge</summary><table><tr><th>Datum</th><th>Follower</th><th>Aufrufe</th><th></th></tr>
+        ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</section>
+  <section class="card"><div class="card-h"><h2>Wissen und Plan</h2></div><div class="br-links">${links || `<p class="hint">Noch nichts verknüpft.</p>`}</div></section>`;
+}
+function brVideosHTML(vids){
+  const open = S.brOpen && vids.find(v => v.id === S.brOpen);
+  const posted = vids.filter(v => v.stage === "gepostet" && v.views != null).sort((x, y) => y.views - x.views);
+  const byF = {}; for (const v of posted) { const f = (v.format || "ohne Format").trim(); (byF[f] = byF[f] || []).push(v); }
+  const fRows = Object.entries(byF).map(([f, l]) => [f, l.length, l.reduce((s, v) => s + v.views, 0) / l.length, l.reduce((s, v) => s + (v.follows || 0), 0) / l.length]).sort((x, y) => y[2] - x[2]);
+  return `<section class="card"><div class="add"><input id="br-v-new" placeholder="Neue Video-Idee, Enter zum Speichern" aria-label="Neue Video-Idee"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-bact="v-add" aria-label="Video-Idee speichern">${ic("plus")}</button></div>
+    <p class="hint" style="margin:10px 0 0">Mit den Pfeilen schiebst du ein Video eine Stufe weiter. Tipp auf den Titel für Hook, Format, Skript und Zahlen.</p></section>
+  ${open ? `<section class="card br-edit"><div class="card-h"><h2>Video bearbeiten</h2></div>${brVidForm(open)}</section>` : ""}
+  <div class="br-cols">${BR_STAGES.map(([k, l]) => { const list = vids.filter(v => (v.stage || "idee") === k).sort(k === "gepostet" ? (x, y) => (y.date || "").localeCompare(x.date || "") : (x, y) => x.created - y.created);
+    return `<div class="br-col"><div class="br-col-h"><b>${l}</b><span class="num">${list.length}</span></div>${list.map(brVidCard).join("") || `<p class="br-col-empty">leer</p>`}</div>`; }).join("")}</div>
+  <section class="card" style="margin-top:16px"><div class="card-h"><h2>Was läuft</h2></div>
+    ${posted.length ? `<p class="hint">Sam Gaudet zählt nur zwei Zahlen: Aufrufe und neue Follower pro Video.</p>
+      <div class="br-scroll"><table class="br-tbl"><tr><th>Video</th><th>Format</th><th class="num">Aufrufe</th><th class="num">Follower</th><th class="num">pro 1.000</th></tr>
+      ${posted.slice(0, 15).map(v => `<tr><td><button class="br-row-t" data-bact="edit" data-id="${v.id}">${esc(v.title || "Ohne Titel")}</button></td><td>${esc(v.format || "")}</td><td class="num">${esc(bsFmt(v.views, 0))}</td><td class="num">${v.follows == null ? "" : esc(bsFmt(v.follows, 0))}</td><td class="num">${v.follows == null || !v.views ? "" : esc(bsFmt(v.follows / v.views * 1000, 1))}</td></tr>`).join("")}</table></div>
+      ${fRows.length > 1 ? `<h3 class="br-sub">Nach Format, im Schnitt</h3><div class="br-scroll"><table class="br-tbl"><tr><th>Format</th><th class="num">Videos</th><th class="num">Aufrufe</th><th class="num">Follower</th></tr>
+        ${fRows.map(r => `<tr><td>${esc(r[0])}</td><td class="num">${r[1]}</td><td class="num">${esc(bsFmt(r[2], 0))}</td><td class="num">${esc(bsFmt(r[3], 0))}</td></tr>`).join("")}</table></div>` : ""}`
+    : `<p class="hint" style="margin:0">Sobald du bei geposteten Videos Aufrufe einträgst, siehst du hier, welche Videos und Formate am besten laufen.</p>`}</section>`;
+}
+function brVidCard(v){
+  const i = Math.max(0, BR_STAGES.findIndex(s => s[0] === (v.stage || "idee"))), p = v.stage === "gepostet";
+  return `<div class="br-vc ${S.brOpen === v.id ? "open" : ""}"><button class="br-vc-t" data-bact="edit" data-id="${v.id}">${esc(v.title || "Ohne Titel")}</button>
+    ${v.format || p ? `<div class="br-vc-m">${v.format ? `<span class="chip">${esc(v.format)}</span>` : ""}${p ? `<span class="muted num">${v.views != null ? `${esc(bsFmt(v.views, 0))} Aufrufe` : "Zahlen fehlen"}${v.follows != null ? ` · +${esc(bsFmt(v.follows, 0))}` : ""}</span>` : ""}</div>` : ""}
+    <div class="br-vc-a"><button class="ibtn" data-bact="v-move" data-id="${v.id}" data-d="-1" ${i === 0 ? "disabled" : ""} title="Eine Stufe zurück" aria-label="Eine Stufe zurück">${ic("left")}</button><button class="ibtn" data-bact="v-move" data-id="${v.id}" data-d="1" ${i === BR_STAGES.length - 1 ? "disabled" : ""} title="Eine Stufe weiter" aria-label="Eine Stufe weiter">${ic("right")}</button></div></div>`;
+}
+function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${id}">${ic("trash")}${S.brDel === id ? "Wirklich löschen?" : "Löschen"}</button>`; }
+function brVidForm(v){
+  const f = (k, l, extra = "") => `<label>${l}<input class="field" data-bv="${k}" data-id="${v.id}" value="${esc(v[k] ?? "")}" ${extra}></label>`;
+  const u = brUrl(v.url);
+  return `<div class="br-ed">${f("title", "Titel")}${f("format", "Format", 'placeholder="z. B. Talking Head, Q&A, Vlog"')}
+    <label>Stufe<select class="field" data-bv="stage" data-id="${v.id}">${brOpts(BR_STAGES, v.stage || "idee")}</select></label>
+    <label class="br-wide">Hook<textarea class="field" rows="2" data-bv="hook" data-id="${v.id}" placeholder="Der erste Satz, die ersten drei Sekunden">${esc(v.hook || "")}</textarea></label>
+    <label>Gepostet am<input class="field" type="date" data-bv="date" data-id="${v.id}" value="${esc(v.date || "")}"></label>
+    ${f("url", "Link zum Video", 'placeholder="https://"')}${f("views", "Aufrufe", 'inputmode="numeric" data-num="1"')}${f("follows", "Neue Follower", 'inputmode="numeric" data-num="1"')}
+    <label class="br-wide">Skript und Notizen<textarea class="field" rows="6" data-bv="note" data-id="${v.id}" placeholder="Stichpunkte, Skript, was du beim nächsten Mal anders machst">${esc(v.note || "")}</textarea></label>
+    <div class="br-ed-f">${u ? `<a class="pill" href="${esc(u)}" target="_blank" rel="noopener">${ic("ext")}Video öffnen</a>` : ""}<span class="grow"></span>${brDelBtn(v.id)}<button class="pill on" data-bact="edit" data-id="${v.id}">Fertig</button></div></div>`;
+}
+function brContactsHTML(cons){
+  const tk = dkey(), ord = s => BR_CSTAT.findIndex(x => x[0] === (s || "idee"));
+  const due = c => c.next && c.next <= tk && c.status !== "ruht";
+  const list = cons.slice().sort((x, y) => due(y) - due(x) || (x.next || "9999").localeCompare(y.next || "9999") || ord(x.status) - ord(y.status) || (x.title || "").localeCompare(y.title || "", "de"));
+  return `<section class="card"><div class="add"><input id="br-c-new" placeholder="Name, Enter zum Speichern" aria-label="Neuer Kontakt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-bact="c-add" aria-label="Kontakt speichern">${ic("plus")}</button></div>
+    <p class="hint" style="margin:10px 0 0">Creator, Marken und Mentoren, mit denen du in Kontakt kommen willst. Mit Datum zum Nachhaken rutscht ein Kontakt nach oben, sobald er dran ist.</p></section>
+  <section class="card">${list.map(c => `<div class="br-row ${due(c) ? "due" : ""} ${S.brOpen === c.id ? "open" : ""}"><button class="br-row-t" data-bact="edit" data-id="${c.id}">${esc(c.title || "Ohne Namen")}<small>${esc(brLabel(BR_ROLES, c.role))}${due(c) ? " · nachhaken" : ""}</small></button>
+      <span></span><select class="field" data-bv="status" data-id="${c.id}" aria-label="Status">${brOpts(BR_CSTAT, c.status || "idee")}</select>
+      <input class="field" type="date" data-bv="next" data-id="${c.id}" value="${esc(c.next || "")}" aria-label="Nachhaken am" title="Nachhaken am"></div>
+    ${S.brOpen === c.id ? `<div class="br-row-ed br-ed"><label>Name<input class="field" data-bv="title" data-id="${c.id}" value="${esc(c.title || "")}"></label>
+      <label>Art<select class="field" data-bv="role" data-id="${c.id}">${brOpts(BR_ROLES, c.role || "creator")}</select></label>
+      <label>Profil oder Link<input class="field" data-bv="url" data-id="${c.id}" value="${esc(c.url || "")}" placeholder="https://instagram.com/…"></label>
+      <label class="br-wide">Notizen<textarea class="field" rows="3" data-bv="note" data-id="${c.id}" placeholder="Wie kennt ihr euch, was hast du geschrieben, was ist der nächste Schritt?">${esc(c.note || "")}</textarea></label>
+      <div class="br-ed-f">${brUrl(c.url) ? `<a class="pill" href="${esc(brUrl(c.url))}" target="_blank" rel="noopener">${ic("ext")}Profil öffnen</a>` : ""}<span class="grow"></span>${brDelBtn(c.id)}<button class="pill on" data-bact="edit" data-id="${c.id}">Fertig</button></div></div>` : ""}`).join("")
+    || `<div class="empty">Noch keine Kontakte. Wen willst du kennenlernen? Sam Gaudet rät: nur Leute, deren Publikum zu deinem passt.</div>`}</section>`;
+}
+function brIncomeHTML(){
+  const b = brand(), list = live("income").sort((x, y) => (y.date || "").localeCompare(x.date || "") || y.created - x.created), tk = dkey(), mk = tk.slice(0, 7);
+  const months = Array.from({length:6}, (_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 5 + i); return dkey(d).slice(0, 7); });
+  const sums = months.map(brSum), goal = brNum(b.goals.revenue.target), mx = Math.max(1, ...sums, goal || 0);
+  const year = list.filter(i => (i.date || "").startsWith(tk.slice(0, 4))).reduce((s, i) => s + (+i.amount || 0), 0), total = list.reduce((s, i) => s + (+i.amount || 0), 0);
+  return `<section class="card"><div class="card-h"><h2>Einnahme eintragen</h2></div>
+    <div class="br-ed"><label>Quelle<input class="field" id="br-i-t" placeholder="z. B. UGC-Video für Marke X"></label>
+      <label>Art<select class="field" id="br-i-k">${brOpts(BR_ITYPE, "ugc")}</select></label>
+      <label>Betrag in €<input class="field" id="br-i-a" inputmode="decimal" placeholder="z. B. 30"></label>
+      <label>Datum<input class="field" type="date" id="br-i-d" value="${tk}"></label>
+      <div class="br-ed-f"><button class="btn" data-bact="i-add">Eintragen</button></div></div></section>
+  <section class="card"><div class="card-h"><h2>Verlauf</h2></div>
+    <div class="bs-kpis"><div><span>${esc(brMonth(mk))}</span><b class="num">${esc(brMoney(brSum(mk)))}</b><small>${goal ? `Ziel ${esc(brMoney(goal))}` : "kein Monatsziel"}</small></div>
+      <div><span>${esc(brMonth(months[4]))}</span><b class="num">${esc(brMoney(sums[4]))}</b><small>Vormonat</small></div>
+      <div><span>${tk.slice(0, 4)}</span><b class="num">${esc(brMoney(year))}</b><small>dieses Jahr</small></div>
+      <div><span>Insgesamt</span><b class="num">${esc(brMoney(total))}</b><small>${list.length} ${list.length === 1 ? "Eintrag" : "Einträge"}</small></div></div>
+    <div class="br-bars" role="img" aria-label="Einnahmen der letzten sechs Monate">${months.map((m, i) => `<div class="br-bar"><span class="num">${esc(bsFmt(sums[i], 0))}</span><i style="height:${(sums[i] / mx * 100).toFixed(1)}%"></i><small>${esc(brMonth(m).slice(0, 3))}</small></div>`).join("")}</div></section>
+  <section class="card"><div class="card-h"><h2>Alle Einnahmen</h2></div>
+    ${list.length ? `<div class="br-scroll"><table class="br-tbl"><tr><th>Datum</th><th>Quelle</th><th>Art</th><th class="num">Betrag</th><th></th></tr>
+      ${list.map(i => `<tr><td class="num" style="text-align:left">${esc(fmtLong(i.date || tk))}</td><td>${esc(i.title)}</td><td>${esc(brLabel(BR_ITYPE, i.type))}</td><td class="num">${esc(brMoney(+i.amount))}</td><td><button class="ibtn" data-bact="del" data-id="${i.id}" title="${S.brDel === i.id ? "Nochmal tippen zum Löschen" : "Löschen"}" aria-label="Einnahme löschen" style="${S.brDel === i.id ? "color:var(--late)" : ""}">${ic("trash")}</button></td></tr>`).join("")}</table></div>`
+    : `<div class="empty">Noch keine Einnahmen. Die erste ist die schwerste, laut Mino Lee geht es mit UGC am schnellsten (Leitfaden, Kapitel 10).</div>`}</section>`;
+}
+function brSkillsHTML(){
+  const sk = brand().skills;
+  return `<section class="card"><div class="card-h"><h2>Meine Fähigkeiten</h2></div>
+    <p class="hint">Deine Skill-Leiter (Leitfaden, Kapitel 11). Stufe 1: fange gerade an. Stufe 3: mache es sicher. Stufe 5: andere bezahlen mich dafür.</p>
+    ${sk.map(s => `<div class="br-sk"><input class="field" data-bsk="name" data-id="${s.id}" value="${esc(s.name)}" aria-label="Fähigkeit">
+      <div class="br-dots" role="group" aria-label="Stufe">${[1, 2, 3, 4, 5].map(l => `<button class="br-dot ${l <= (s.level || 0) ? "on" : ""}" data-bact="sk-lvl" data-id="${s.id}" data-l="${l}" title="Stufe ${l}" aria-label="Stufe ${l}"></button>`).join("")}</div>
+      <input class="field br-sk-n" data-bsk="note" data-id="${s.id}" value="${esc(s.note || "")}" placeholder="Woran arbeite ich gerade?" aria-label="Notiz">
+      <button class="ibtn" data-bact="sk-del" data-id="${s.id}" title="${S.brDel === s.id ? "Nochmal tippen zum Löschen" : "Löschen"}" aria-label="Fähigkeit löschen" style="${S.brDel === s.id ? "color:var(--late)" : ""}">${ic("trash")}</button></div>`).join("")
+    || `<div class="empty" style="margin-bottom:12px">Noch keine Fähigkeiten eingetragen.</div>`}
+    <div class="add" style="margin-top:12px"><input id="br-k-new" placeholder="Neue Fähigkeit, Enter zum Speichern" aria-label="Neue Fähigkeit"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-bact="sk-add" aria-label="Fähigkeit speichern">${ic("plus")}</button></div>
+    ${sk.length ? "" : `<button class="pill" style="margin-top:12px" data-bact="sk-tpl">${ic("plus")}Vorschläge aus dem Leitfaden übernehmen</button>`}</section>`;
+}
+function brAdd(kind){
+  const inp = $(kind === "video" ? "#br-v-new" : "#br-c-new"); const v = inp ? inp.value.trim() : "";
+  if (!v) { if (inp) inp.focus(); return; }
+  create(kind, v, kind === "video" ? {stage:"idee"} : {status:"idee", role:"creator"});
+  renderMain(); const n = $(kind === "video" ? "#br-v-new" : "#br-c-new"); if (n) n.focus();
+}
+function brStatSave(){
+  const b = brand(), d = ($("#br-s-d") || {}).value || dkey(), f = brNum(($("#br-s-f") || {}).value), v = brNum(($("#br-s-v") || {}).value);
+  if (f == null && v == null) { toast("Trag mindestens Follower oder Aufrufe ein."); return; }
+  const ex = b.stats.find(s => s.d === d);
+  if (ex) { if (f != null) ex.followers = f; if (v != null) ex.views = v; } else b.stats.push({d, followers:f, views:v});
+  b.stats.sort((x, y) => x.d.localeCompare(y.d)); saveSettings(0); toast("Zahlen gespeichert."); renderMain();
+}
+function brSetGoal(path, v){ const ks = path.split("."); let o = brand(); for (const k of ks.slice(0, -1)) o = o[k] = o[k] || {}; o[ks[ks.length - 1]] = v; }
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-bact]"); if (!a) return;
+  const act = a.dataset.bact, id = a.dataset.id, b = brand(), it = id && S.items.get(id);
+  if (act !== "del" && act !== "sk-del") S.brDel = null;
+  switch (act) {
+    case "tab": S.brTab = a.dataset.v; S.brOpen = null; try { localStorage.setItem("brTab", S.brTab); } catch (er) {} renderMain(); window.scrollTo({top:0}); return;
+    case "goals": S.brGoals = !S.brGoals; break;
+    case "edit": S.brOpen = S.brOpen === id ? null : id; break;
+    case "del": if (S.brDel === id) { removeItem(id); if (S.brOpen === id) S.brOpen = null; S.brDel = null; toast("Gelöscht."); } else S.brDel = id; break;
+    case "v-add": brAdd("video"); return;
+    case "c-add": brAdd("contact"); return;
+    case "v-move": if (it) { const i = Math.max(0, BR_STAGES.findIndex(s => s[0] === (it.stage || "idee"))), n = Math.max(0, Math.min(BR_STAGES.length - 1, i + +a.dataset.d));
+      it.stage = BR_STAGES[n][0]; if (it.stage === "gepostet" && !it.date) it.date = dkey(); persist(it); } break;
+    case "i-add": { const t = ($("#br-i-t") || {}).value.trim(), amt = brNum(($("#br-i-a") || {}).value);
+      if (!t || amt == null) { toast("Bitte Quelle und Betrag eintragen."); return; }
+      create("income", t, {amount:amt, type:$("#br-i-k").value, date:$("#br-i-d").value || dkey()}); toast("Einnahme gespeichert."); break; }
+    case "stat-save": brStatSave(); return;
+    case "stat-del": b.stats = b.stats.filter(s => s.d !== a.dataset.d); saveSettings(0); break;
+    case "sk-add": { const inp = $("#br-k-new"), v = inp ? inp.value.trim() : ""; if (!v) { if (inp) inp.focus(); return; }
+      b.skills.push({id:uid(), name:v, level:1, note:""}); saveSettings(0); renderMain(); const n = $("#br-k-new"); if (n) n.focus(); return; }
+    case "sk-tpl": for (const n of BR_SKILLS) b.skills.push({id:uid(), name:n, level:1, note:""}); saveSettings(0); break;
+    case "sk-lvl": { const s = b.skills.find(x => x.id === id); if (s) { const l = +a.dataset.l; s.level = s.level === l ? l - 1 : l; saveSettings(0); } break; }
+    case "sk-del": if (S.brDel === id) { b.skills = b.skills.filter(x => x.id !== id); S.brDel = null; saveSettings(0); } else S.brDel = id; break;
+    default: return;
+  }
+  renderMain();
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.bv && t.tagName !== "SELECT" && t.type !== "date") { const it = S.items.get(t.dataset.id); if (!it) return;
+    it[t.dataset.bv] = t.dataset.num ? brNum(t.value) : t.value; persist(it, 800);
+    if (t.dataset.bv === "title") document.querySelectorAll(`.br-vc-t[data-id="${it.id}"]`).forEach(n => { n.textContent = t.value || "Ohne Titel"; });
+    return; }
+  if (t.dataset.bg) { brSetGoal(t.dataset.bg, t.value); saveSettings(700); return; }
+  if (t.dataset.bsk) { const s = brand().skills.find(x => x.id === t.dataset.id); if (s) { s[t.dataset.bsk] = t.value; saveSettings(700); } return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.bv && (t.tagName === "SELECT" || t.type === "date")) { const it = S.items.get(t.dataset.id); if (!it) return;
+    it[t.dataset.bv] = t.value; if (t.dataset.bv === "stage" && t.value === "gepostet" && !it.date) it.date = dkey(); persist(it); renderMain(); return; }
+  if (t.dataset.bg) { const g = $("#br-goalbars"); if (g) g.innerHTML = brGoalBarsHTML(); return; }
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || e.isComposing) return;
+  const id = e.target.id;
+  const map = {"br-v-new":"v-add", "br-c-new":"c-add", "br-k-new":"sk-add", "br-s-f":"stat-save", "br-s-v":"stat-save", "br-i-a":"i-add", "br-i-t":"i-add"};
+  if (map[id]) { e.preventDefault(); const btn = document.querySelector(`[data-bact="${map[id]}"]`); if (btn) btn.click(); }
+});
+
 function trainingHTML(){
   const t = training(), p = trPlan();
   const tabs = t.plans.map(x => `<button class="pill ${p && x.id === p.id ? "on" : ""}" id="tr-tab-${x.id}" data-act="tr-pick" data-id="${x.id}">${esc(x.name || "Ohne Namen")}</button>`).join("");
@@ -2590,7 +2922,7 @@ function woSeries(name, m){
 }
 function trChartHTML(name, sr){
   const {pts, unit} = sr, n = pts.length;
-  if (!n) return `<p class="trc-note">Noch keine Werte. Trag Gewicht und Wiederholungen ein, dann erscheint hier die Linie.</p>`;
+  if (!n) return `<p class="trc-note">${esc(sr.empty || "Noch keine Werte. Trag Gewicht und Wiederholungen ein, dann erscheint hier die Linie.")}</p>`;
   const vs = pts.map(p => p.v), mn = Math.min(...vs); let lo = mn, hi = Math.max(...vs);
   if (hi === lo) { const d = Math.max(1, Math.abs(hi) * .1); lo -= d; hi += d; } else { const d = (hi - lo) * .15; lo -= d; hi += d; }
   if (lo < 0 && mn >= 0) lo = 0;
@@ -2602,10 +2934,10 @@ function trChartHTML(name, sr){
       <div class="trc-y" aria-hidden="true"><span style="top:8%">${f(hi)}</span><span style="top:50%">${f((hi + lo) / 2)}</span><span style="top:92%">${f(lo)}</span></div>
       <div class="trc-plot" data-pts="${esc(JSON.stringify(xy))}" data-unit="${esc(unit)}">${line}${xy.map(p => `<i class="trc-dot" style="left:${p.x}%;top:${p.y}%"></i>`).join("")}<div class="trc-cross"></div><div class="trc-tip"></div></div>
       <div class="trc-x" aria-hidden="true">${n === 1 ? `<span style="margin:auto">${esc(fmtDay(pts[0].d))}</span>` : `<span>${esc(fmtDay(pts[0].d))}</span><span>${esc(fmtDay(pts[n - 1].d))}</span>`}</div></div>
-    ${n === 1 ? `<p class="trc-note">Ab dem zweiten Training mit dieser Übung siehst du hier eine Linie.</p>` : ""}
+    ${n === 1 ? `<p class="trc-note">${esc(sr.one || "Ab dem zweiten Training mit dieser Übung siehst du hier eine Linie.")}</p>` : ""}
     ${sr.reps ? `<p class="trc-note">Ohne Gewicht eingetragen, deshalb zählen hier die Wiederholungen.</p>` : ""}
-    <details class="trc-tbl"><summary>Werte als Tabelle</summary><table><tr><th>Datum</th><th>Wert</th><th>Sätze</th></tr>
-      ${pts.slice().reverse().map(p => `<tr><td class="num">${esc(fmtLong(p.d))}</td><td class="num">${esc(bsFmt(p.v, 1))} ${esc(unit)}</td><td class="num">${esc(p.s)}</td></tr>`).join("")}</table></details>`;
+    <details class="trc-tbl"><summary>Werte als Tabelle</summary><table><tr><th>Datum</th><th>Wert</th>${sr.col === false ? "" : "<th>Sätze</th>"}</tr>
+      ${pts.slice().reverse().map(p => `<tr><td class="num">${esc(fmtLong(p.d))}</td><td class="num">${esc(bsFmt(p.v, 1))} ${esc(unit)}</td>${sr.col === false ? "" : `<td class="num">${esc(p.s)}</td>`}</tr>`).join("")}</table></details>`;
 }
 function woProgHTML(){
   const seen = new Map();
