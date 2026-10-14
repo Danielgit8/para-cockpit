@@ -705,7 +705,7 @@ body.bd-on{overflow:hidden}
 .br-links{display:flex;flex-wrap:wrap;gap:8px}
 .br-links .pill{height:34px}
 @media (max-width:900px){.br-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) auto 32px}.br-sk .br-sk-n{grid-column:1/-1;order:5}.br-hero h2{font-size:18px}}
+@media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) 32px;gap:8px;margin:0;padding:12px 0;border-bottom:1px solid var(--line)}.br-sk>input:first-child{grid-column:1/-1;font-weight:600}.br-sk .br-sk-n{grid-column:1/-1;order:5}.br-hero h2{font-size:18px}}
 </style>
 <style id="user-css"></style>
 </head>
@@ -727,7 +727,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-14.1";
+const APP_VERSION = "2026-10-14.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
