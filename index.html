@@ -735,6 +735,19 @@ body.bd-on{overflow:hidden}
 .br-track.br-track-l{background:var(--soft);margin-top:4px}
 .br-psec .card-h{flex-wrap:wrap;gap:6px}
 @media (max-width:560px){.br-kv{grid-template-columns:minmax(0,1fr);gap:2px}.br-chs,.br-src{grid-template-columns:minmax(0,1fr)}}
+/* Lesemodus: Einträge öffnen nur zum Lesen, ändern erst nach „Bearbeiten“ (gegen versehentliches Löschen) */
+.drawer.d-locked .md-tools,.drawer.d-locked #d-ed + .hint,.drawer.d-locked .tags-in input,.drawer.d-locked [data-act="picker"],.drawer.d-locked #d-picker,
+.drawer.d-locked [data-act="untag"],.drawer.d-locked [data-act="unlink"],.drawer.d-locked [data-act="del-link"],.drawer.d-locked [data-act="del-file"],
+.drawer.d-locked [data-act="shot-del"],.drawer.d-locked #d-upl,.drawer.d-locked #d-shup,.drawer.d-locked #dy-links + div,.drawer.d-locked [data-act="ask-del"]{display:none!important}
+.drawer.d-locked .field:disabled{opacity:1;cursor:default;color:var(--text);-webkit-text-fill-color:var(--text)}
+.drawer.d-locked .d-title,.drawer.d-locked #d-ed{cursor:default}
+.drawer.d-locked [data-act="rday"]{pointer-events:none}
+.d-editbtn.on{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.br-ans{margin:0;font-size:14px;font-weight:500;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.br-ans.empty{color:var(--muted);font-style:italic}
+.br-skr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.br-skr b{font-size:14px;overflow-wrap:anywhere}
+.br-skr p{grid-column:1/-1;margin:0;font-size:12.5px;color:var(--muted);line-height:1.45}
 </style>
 <style id="user-css"></style>
 </head>
@@ -756,7 +769,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-14.3";
+const APP_VERSION = "2026-10-14.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1019,6 +1032,7 @@ function edTool(k){
 function edClick(e){
   const ed = $("#d-ed"); if (!ed || !ed.contains(e.target)) return false;
   const a = e.target.closest("a"); if (a) { e.preventDefault(); window.open(a.href, "_blank", "noopener"); return true; }
+  if (!S.dEdit) return false;
   const b = e.target.closest('[data-t="cb"]'); if (!b || b.parentNode !== ed) return false;
   if (e.clientX - b.getBoundingClientRect().left > 28) return false;
   e.preventDefault();
@@ -1919,7 +1933,10 @@ function searchRender(q){
 /* ================= detail drawer ================= */
 function openDetail(id){
   const it = S.items.get(id); if (!it) return;
+  const same = S.open === id;
   S.open = id; S.picker = false; S.confirmDel = null;
+  // Neu angelegte Einträge sind sofort bearbeitbar, alle anderen öffnen zum Lesen. Beim Neuzeichnen desselben Eintrags bleibt der Modus.
+  if (!same) S.dEdit = !it.title || Date.now() - (it.created || 0) < 20000;
   const k = kindOf(it);
   const kopts = Object.entries(kinds()).map(([v, x]) => `<option value="${v}" ${v === it.kind ? "selected" : ""}>${esc(x.label)}</option>`).join("");
   let fields = it.kind === "board" ? `<div style="grid-column:1/-1"><button class="bd-dprev" data-act="bd-open" data-id="${it.id}">${it.thumb ? `<img src="${it.thumb}" alt="Vorschau">` : ""}<span class="btn">${ic("board")}Board öffnen</span></button></div>`
@@ -1950,6 +1967,7 @@ function openDetail(id){
   <aside class="drawer" role="dialog" aria-label="${esc(k.label)} bearbeiten">
     <div class="d-head"><span class="chip">${ic(k.icon)}${esc(k.label)}</span>${it.example ? '<span class="chip ex">Beispiel</span>' : ""}<span class="grow"></span>
       ${it.kind === "task" ? `<button class="pill ${it.done ? "on" : ""}" id="d-done" data-act="toggle" data-id="${it.id}">${ic("check")}${it.done ? "Erledigt" : "Abhaken"}</button>` : ""}
+      <button class="pill d-editbtn" id="d-editbtn" data-act="d-edit"></button>
       <button class="ibtn" data-act="archive" title="${it.archived ? "Zurückholen" : "Archivieren"}" aria-label="Archivieren">${ic(it.archived ? "restore" : "archive")}</button>
       <button class="ibtn" data-act="ask-del" title="Löschen" aria-label="Löschen">${ic("trash")}</button>
       <button class="ibtn" data-act="close" title="Schließen (Esc)" aria-label="Schließen">${ic("close")}</button></div>
@@ -1979,8 +1997,16 @@ function openDetail(id){
     </div></aside>`;
   autoGrow($("#d-title"));
   const ed = $("#d-ed"); ed.innerHTML = mdBlocks(it.body, it); edNormalize(ed);
-  refreshDetail();
+  refreshDetail(); dApplyLock();
   if (!it.title) $("#d-title").focus();
+}
+function dApplyLock(){
+  const dr = $("#overlay .drawer"); if (!dr) return; const lock = !S.dEdit;
+  dr.classList.toggle("d-locked", lock);
+  const t = $("#d-title"); if (t) t.readOnly = lock;
+  const ed = $("#d-ed"); if (ed) ed.contentEditable = lock ? "false" : "true";
+  dr.querySelectorAll(".d-fields input, .d-fields select, .d-fields textarea").forEach(x => { x.disabled = lock; });
+  const b = $("#d-editbtn"); if (b) { b.classList.toggle("on", !lock); b.innerHTML = ic(lock ? "pen" : "check") + (lock ? "Bearbeiten" : "Fertig"); b.title = lock ? "Inhalt bearbeiten" : "Bearbeiten beenden, danach ist der Eintrag wieder geschützt"; }
 }
 function openDetailFresh(id){ S.hMonth = 0; openDetail(id); }
 // Monatsansicht einer Gewohnheit: Kalender, bei Zahlen zusätzlich Balken mit Ziellinie
@@ -2603,11 +2629,15 @@ function brIncomeHTML(){
     : `<div class="empty">Noch keine Einnahmen. Die erste ist die schwerste, laut Mino Lee geht es mit UGC am schnellsten (Leitfaden, Kapitel 10).</div>`}</section>`;
 }
 function brSkillsHTML(){
-  const sk = brand().skills;
-  return `<section class="card"><div class="card-h"><h2>Meine Fähigkeiten</h2></div>
+  const sk = brand().skills, edit = S.brSkEdit = S.brSkEdit ?? !sk.length;
+  const dots = s => `<div class="br-dots" role="group" aria-label="Stufe">${[1, 2, 3, 4, 5].map(l => `<button class="br-dot ${l <= (s.level || 0) ? "on" : ""}" data-bact="sk-lvl" data-id="${s.id}" data-l="${l}" title="Stufe ${l}" aria-label="Stufe ${l}"></button>`).join("")}</div>`;
+  if (!edit) return `<section class="card"><div class="card-h"><h2>Meine Fähigkeiten</h2><span class="grow"></span><button class="pill d-editbtn" data-bact="sk-edit">${ic("pen")}Bearbeiten</button></div>
+    <p class="hint">Deine Skill-Leiter (Leitfaden, Kapitel 11). Stufe 1: fange gerade an. Stufe 3: mache es sicher. Stufe 5: andere bezahlen mich dafür. Die Stufe stellst du mit den Punkten ein.</p>
+    ${sk.map(s => `<div class="br-skr"><b>${esc(s.name || "Ohne Namen")}</b>${dots(s)}${String(s.note || "").trim() ? `<p>${esc(s.note)}</p>` : ""}</div>`).join("")}</section>`;
+  return `<section class="card"><div class="card-h"><h2>Meine Fähigkeiten</h2><span class="grow"></span>${sk.length ? `<button class="pill d-editbtn on" data-bact="sk-edit">${ic("check")}Fertig</button>` : ""}</div>
     <p class="hint">Deine Skill-Leiter (Leitfaden, Kapitel 11). Stufe 1: fange gerade an. Stufe 3: mache es sicher. Stufe 5: andere bezahlen mich dafür.</p>
     ${sk.map(s => `<div class="br-sk"><input class="field" data-bsk="name" data-id="${s.id}" value="${esc(s.name)}" aria-label="Fähigkeit">
-      <div class="br-dots" role="group" aria-label="Stufe">${[1, 2, 3, 4, 5].map(l => `<button class="br-dot ${l <= (s.level || 0) ? "on" : ""}" data-bact="sk-lvl" data-id="${s.id}" data-l="${l}" title="Stufe ${l}" aria-label="Stufe ${l}"></button>`).join("")}</div>
+      ${dots(s)}
       <input class="field br-sk-n" data-bsk="note" data-id="${s.id}" value="${esc(s.note || "")}" placeholder="Woran arbeite ich gerade?" aria-label="Notiz">
       <button class="ibtn" data-bact="sk-del" data-id="${s.id}" title="${S.brDel === s.id ? "Nochmal tippen zum Löschen" : "Löschen"}" aria-label="Fähigkeit löschen" style="${S.brDel === s.id ? "color:var(--late)" : ""}">${ic("trash")}</button></div>`).join("")
     || `<div class="empty" style="margin-bottom:12px">Noch keine Fähigkeiten eingetragen.</div>`}
@@ -2648,6 +2678,8 @@ document.addEventListener("click", e => {
     case "stat-del": b.stats = b.stats.filter(s => s.d !== a.dataset.d); saveSettings(0); break;
     case "sk-add": { const inp = $("#br-k-new"), v = inp ? inp.value.trim() : ""; if (!v) { if (inp) inp.focus(); return; }
       b.skills.push({id:uid(), name:v, level:1, note:""}); saveSettings(0); renderMain(); const n = $("#br-k-new"); if (n) n.focus(); return; }
+    case "p-edit": S.brPEdit = !S.brPEdit; if (!S.brPEdit) toast("Gespeichert. Das Profil ist wieder geschützt."); break;
+    case "sk-edit": S.brSkEdit = !S.brSkEdit; break;
     case "sk-tpl": for (const n of BR_SKILLS) b.skills.push({id:uid(), name:n, level:1, note:""}); saveSettings(0); break;
     case "sk-lvl": { const s = b.skills.find(x => x.id === id); if (s) { const l = +a.dataset.l; s.level = s.level === l ? l - 1 : l; saveSettings(0); } break; }
     case "sk-del": if (S.brDel === id) { b.skills = b.skills.filter(x => x.id !== id); S.brDel = null; saveSettings(0); } else S.brDel = id; break;
@@ -2717,13 +2749,17 @@ function brProfileHTML(){
   if (!t) return `<section class="card"><div class="empty">Die Vorlage für dein Brand-Profil ist noch nicht da. Sie kommt beim nächsten Abgleich.</div></section>`;
   const f = brFields(), done = f.filter(x => String(p[x.id] || "").trim()).length, seen = b.tplSeen || 0;
   const isNew = x => seen > 0 && (x.added || 1) > seen;
-  return `<section class="card"><div class="card-h"><h2>Mein Brand-Profil</h2><span class="grow"></span><span class="chip num">${done}/${f.length}</span></div>
+  const edit = S.brPEdit = S.brPEdit ?? done === 0;
+  const editBtn = `<button class="pill d-editbtn ${edit ? "on" : ""}" data-bact="p-edit">${ic(edit ? "check" : "pen")}${edit ? "Fertig" : "Bearbeiten"}</button>`;
+  return `<section class="card"><div class="card-h"><h2>Mein Brand-Profil</h2><span class="grow"></span><span class="chip num">${done}/${f.length}</span>${editBtn}</div>
     <p class="hint">Nur das, was du für deine eigene Brand festlegst. Die Fragen kommen aus dem Leitfaden und wachsen mit, wenn neues Wissen dazukommt. Alles speichert sich beim Tippen, du kannst jederzeit ändern.</p>
     <div class="br-track br-track-l"><i style="width:${f.length ? (done / f.length * 100).toFixed(1) : 0}%"></i></div>
     ${seen && seen < t.version ? `<div class="br-new"><b>Neu in der Vorlage (Stand ${esc(fmtLong(t.date))})</b><ul>${(t.changes || []).map(c => `<li>${esc(c)}</li>`).join("")}</ul><button class="pill" data-bact="tpl-seen">Gesehen</button></div>` : ""}</section>
   ${t.sections.map(s => `<section class="card br-psec"><div class="card-h"><h2>${esc(s.title)}</h2><span class="grow"></span>${(s.ch || []).map(n => { const id = brChapterId(n); return id ? `<button class="pill" data-open="${id}">Kapitel ${n}</button>` : ""; }).join("")}</div>
     ${s.why ? `<p class="hint">${esc(s.why)}</p>` : ""}
-    ${s.fields.map(x => `<label class="br-pf">${esc(x.label)}${isNew(x) ? `<span class="br-badge">Neu</span>` : ""}${x.hint ? `<small>${esc(x.hint)}</small>` : ""}<textarea class="field" rows="${x.rows || 2}" data-bp="${x.id}">${esc(p[x.id] || "")}</textarea></label>`).join("")}</section>`).join("")}`;
+    ${s.fields.map(x => edit ? `<label class="br-pf">${esc(x.label)}${isNew(x) ? `<span class="br-badge">Neu</span>` : ""}${x.hint ? `<small>${esc(x.hint)}</small>` : ""}<textarea class="field" rows="${x.rows || 2}" data-bp="${x.id}">${esc(p[x.id] || "")}</textarea></label>`
+      : `<div class="br-pf">${esc(x.label)}${isNew(x) ? `<span class="br-badge">Neu</span>` : ""}${String(p[x.id] || "").trim() ? `<p class="br-ans">${esc(p[x.id])}</p>` : `<p class="br-ans empty">noch leer</p>`}</div>`).join("")}</section>`).join("")}
+  <div style="display:flex;justify-content:flex-end;margin:0 0 20px">${editBtn}</div>`;
 }
 function brKnowHTML(){
   const ct = (S.settings.topics || []).find(t => /content/i.test(t.name || ""));
@@ -3162,6 +3198,7 @@ document.addEventListener("click", e => {
   const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
   switch (act) {
     case "menu": $("#side").classList.toggle("open"); break;
+    case "d-edit": if (S.dEdit) { const ed = $("#d-ed"); if (ed && document.activeElement === ed) ed.blur(); } S.dEdit = !S.dEdit; dApplyLock(); if (!S.dEdit) toast("Gespeichert. Der Eintrag ist wieder geschützt."); break;
     case "new": openNew(); break;
     case "newkind": S.newKind = a.dataset.kind; document.querySelectorAll("#new-kinds .pill").forEach(p => p.classList.toggle("on", p.dataset.kind === S.newKind)); $("#new-title").focus(); break;
     case "create": doCreate(); break;
