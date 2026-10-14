@@ -706,6 +706,35 @@ body.bd-on{overflow:hidden}
 .br-links .pill{height:34px}
 @media (max-width:900px){.br-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) 32px;gap:8px;margin:0;padding:12px 0;border-bottom:1px solid var(--line)}.br-sk>input:first-child{grid-column:1/-1;font-weight:600}.br-sk .br-sk-n{grid-column:1/-1;order:5}.br-hero h2{font-size:18px}}
+.br-links .pill{height:auto;min-height:34px;white-space:normal;text-align:left;max-width:100%;padding:6px 14px;line-height:1.3}
+.br-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.br-kv:last-child{border-bottom:0}
+.br-kv span{font-size:12px;color:var(--muted);font-weight:600;padding-top:2px}
+.br-kv p{margin:0;white-space:pre-wrap;line-height:1.5;font-size:14px;overflow-wrap:anywhere}
+.br-chs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.br-ch{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);text-align:left;min-width:0;background:var(--panel-solid)}
+.br-ch>b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-size:12px;flex:none}
+.br-ch>span{flex:1;min-width:0;font-weight:600;font-size:13.5px;line-height:1.35;overflow-wrap:anywhere}
+.br-ch small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:3px;line-height:1.4}
+.br-ch>.i{flex:none;color:var(--muted)}
+.br-h3{font-size:12px;margin:20px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.br-h3:first-child{margin-top:0}
+.br-src{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.br-sc{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;text-align:left;background:var(--panel-solid);min-width:0}
+.br-sc img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--soft)}
+.br-sc>div{padding:10px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.br-sc b{font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.br-sc small{font-size:12px;color:var(--muted);line-height:1.45}
+.br-pf{display:flex;flex-direction:column;gap:5px;font-size:13.5px;font-weight:700;margin-bottom:16px;min-width:0}
+.br-pf:last-child{margin-bottom:0}
+.br-pf small{font-weight:500;color:var(--muted);font-size:12px;line-height:1.45}
+.br-pf textarea.field{height:auto;padding:10px 12px;line-height:1.5;resize:vertical;min-height:46px;font-weight:500;font-size:14px}
+.br-badge{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;background:var(--brand);color:#fff;font-size:10.5px;vertical-align:2px}
+.br-new{margin-top:12px;padding:12px 14px;border-radius:var(--r-sm);background:var(--brand-soft);font-size:13px;line-height:1.5}
+.br-new ul{margin:6px 0 10px;padding-left:18px}
+.br-track.br-track-l{background:var(--soft);margin-top:4px}
+.br-psec .card-h{flex-wrap:wrap;gap:6px}
+@media (max-width:560px){.br-kv{grid-template-columns:minmax(0,1fr);gap:2px}.br-chs,.br-src{grid-template-columns:minmax(0,1fr)}}
 </style>
 <style id="user-css"></style>
 </head>
@@ -727,7 +756,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-14.2";
+const APP_VERSION = "2026-10-14.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -808,7 +837,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income"];
+const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income", "brandtpl"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -2452,7 +2481,9 @@ function brandHTML(){
   const vids = live("video"), cons = live("contact"), tab = S.brTab;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
   const out = header("Brand & Business", "Content, Personal Brand und Geld verdienen an einem Ort") + banner() +
-    `<div class="tr-seg">${seg("over", "Überblick")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
+    `<div class="tr-seg">${seg("over", "Überblick")}${seg("prof", `Mein Profil <span class="num">${brDone()}</span>`)}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
+  if (tab === "prof") return out + brProfileHTML();
+  if (tab === "know") return out + brKnowHTML();
   if (tab === "vid") return out + brVideosHTML(vids);
   if (tab === "con") return out + brContactsHTML(cons);
   if (tab === "inc") return out + brIncomeHTML();
@@ -2465,14 +2496,8 @@ function brOverHTML(vids, cons){
   const posted = vids.filter(v => v.stage === "gepostet" && (v.date || "").startsWith(mk)).length, inWork = vids.filter(v => v.stage !== "gepostet").length;
   const dueC = cons.filter(c => c.next && c.next <= tk && c.status !== "ruht").length;
   const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
-  const lfKind = (S.settings.kinds || []).find(k => /leitfaden/i.test(k.label));
-  const find = re => live().find(i => !HIDDEN_K.includes(i.kind) && re.test(i.title || ""));
-  const links = [lfKind ? `<button class="pill" data-go="${lfKind.id}">${ic("folder")}Leitfaden</button>` : "",
-    ...[[/markenkern/i, "Mein Markenkern"], [/video-check/i, "Video-Check"], [/skript-vorlage/i, "Skript-Vorlage"], [/fahrplan/i, "Fahrplan"]].map(([re, l]) => { const x = find(re); return x ? `<button class="pill" data-open="${x.id}">${ic(kindOf(x).icon)}${l}</button>` : ""; }),
-    a ? `<button class="pill" data-open="${a.id}">${ic("area")}${esc(a.title)}</button>` : "",
-    ...projs.map(p => `<button class="pill" data-open="${p.id}">${ic("project")}${esc(p.title)}</button>`)].filter(Boolean).join("");
   const pts = k => st.filter(s => s[k] != null).map(s => ({d:s.d, v:s[k], s:""}));
-  return `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
+  return brWayHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
       <button class="pill br-pill" data-bact="goals">${S.brGoals ? "Fertig" : "Ziele bearbeiten"}</button></div>
     <div class="br-goals" id="br-goalbars">${brGoalBarsHTML()}</div>
     ${S.brGoals ? `<div class="br-gform">
@@ -2499,7 +2524,9 @@ function brOverHTML(vids, cons){
       <div><h3>Aufrufe pro Woche</h3>${trChartHTML("Aufrufe", {pts:pts("views"), unit:"Aufrufe", col:false, empty:"Noch keine Aufrufe eingetragen.", one:"Ab dem zweiten Eintrag siehst du hier eine Linie."})}</div></div>
       <details class="trc-tbl"><summary>Alle Einträge</summary><table><tr><th>Datum</th><th>Follower</th><th>Aufrufe</th><th></th></tr>
         ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</section>
-  <section class="card"><div class="card-h"><h2>Wissen und Plan</h2></div><div class="br-links">${links || `<p class="hint">Noch nichts verknüpft.</p>`}</div></section>`;
+  <section class="card"><div class="card-h"><h2>Leitfaden</h2><span class="grow"></span><button class="pill" data-bact="tab" data-v="know">Alles Wissen</button></div>
+    <div class="br-chs">${brChapters().map(c => brChapterBtn(c)).join("") || `<p class="hint">Noch kein Leitfaden.</p>`}</div>
+    <h3 class="br-h3" style="margin-top:18px">Werkzeuge und Pläne</h3><div class="br-links">${brToolPills()}</div></section>`;
 }
 function brVideosHTML(vids){
   const open = S.brOpen && vids.find(v => v.id === S.brOpen);
@@ -2649,6 +2676,86 @@ document.addEventListener("keydown", e => {
   const map = {"br-v-new":"v-add", "br-c-new":"c-add", "br-k-new":"sk-add", "br-s-f":"stat-save", "br-s-v":"stat-save", "br-i-a":"i-add", "br-i-t":"i-add"};
   if (map[id]) { e.preventDefault(); const btn = document.querySelector(`[data-bact="${map[id]}"]`); if (btn) btn.click(); }
 });
+
+// ---- Wissen, Leitfaden und Brand-Profil ----
+// Die Vorlage fürs Profil ist ein versteckter Eintrag (kind "brandtpl", id "brandtpl-main", Feld tpl = {version, date, changes[], sections[{id,title,why,ch[],fields[{id,label,hint,rows,added}]}]}).
+// Sie wird per Import aktualisiert, wenn neues Wissen in den Leitfaden kommt. Die Antworten liegen in settings.brand.profile {feldId: Text}.
+const brTpl = () => { const t = S.items.get("brandtpl-main"); return t && !t.archived && t.tpl && Array.isArray(t.tpl.sections) ? t.tpl : null; };
+const brFields = () => { const t = brTpl(); return t ? t.sections.flatMap(s => s.fields) : []; };
+const brDone = () => { const p = brand().profile || {}, f = brFields(); return f.length ? `${f.filter(x => String(p[x.id] || "").trim()).length}/${f.length}` : ""; };
+const brLfKind = () => (S.settings.kinds || []).find(k => /leitfaden/i.test(k.label));
+const brLf = () => { const k = brLfKind(); return k ? live(k.id).sort((a, b) => (a.title || "").localeCompare(b.title || "", "de", {numeric:true})) : []; };
+const brChapters = () => brLf().filter(i => /^\d+\s*·/.test(i.title || ""));
+const brChapterId = n => { const c = brChapters().find(i => parseInt(i.title, 10) === n); return c ? c.id : ""; };
+function brExcerpt(body, n = 150){
+  const lines = String(body || "").split("\n"), q = lines.find(l => l.startsWith(">"));
+  let s = q ? q.replace(/^>\s*/, "").replace(/^Kurz gesagt:\s*/i, "") : (lines.find(l => l.trim() && !/^[#\-|>_*0-9]/.test(l.trim())) || "");
+  s = s.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+  return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + " …" : s;
+}
+function brChapterBtn(c, withText){
+  const m = (c.title || "").match(/^(\d+)\s*·\s*(.*)$/) || [0, "", c.title], srcN = related(c.id).filter(r => r.kind === "resource" && !r.archived).length;
+  return `<button class="br-ch" data-open="${c.id}"><b class="num">${esc(m[1])}</b><span>${esc(m[2])}${withText ? `<small>${esc(brExcerpt(c.body, 110))}${srcN ? ` · ${srcN} ${srcN === 1 ? "Quelle" : "Quellen"}` : ""}</small>` : ""}</span>${ic("right")}</button>`;
+}
+function brToolPills(){
+  const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
+  const fp = live("note").find(n => /fahrplan/i.test(n.title || ""));
+  return [`<button class="pill" data-bact="tab" data-v="prof">${ic("pen")}Mein Brand-Profil</button>`,
+    ...brLf().filter(i => /^Werkzeug/i.test(i.title || "")).map(i => `<button class="pill" data-open="${i.id}">${ic("tip")}${esc((i.title || "").replace(/^Werkzeug\s*·\s*/i, ""))}</button>`),
+    fp ? `<button class="pill" data-open="${fp.id}">${ic("note")}Fahrplan</button>` : "",
+    a ? `<button class="pill" data-open="${a.id}">${ic("area")}${esc(a.title)}</button>` : "",
+    ...projs.map(p => `<button class="pill" data-open="${p.id}">${ic("project")}${esc(p.title)}</button>`)].filter(Boolean).join("");
+}
+function brWayHTML(){
+  const p = brand().profile || {}, rows = [["Ich bin", "rolle"], ["Mein Ziel", "ziel"], ["Für wen", "person"], ["Meine Themen", "saeulen"], ["Mein Format", "format"]].filter(([, k]) => String(p[k] || "").trim());
+  return `<section class="card"><div class="card-h"><h2>Mein Weg</h2><span class="grow"></span><button class="pill" data-bact="tab" data-v="prof">${ic("pen")}Profil ${esc(brDone())}</button></div>
+    ${rows.length ? rows.map(([l, k]) => `<div class="br-kv"><span>${l}</span><p>${esc(p[k])}</p></div>`).join("")
+      : `<p class="hint" style="margin:0">Leg im Brand-Profil fest, wer du für deine Zuschauer bist, wofür du arbeitest und für wen du Videos machst. Dann steht es hier jeden Tag vor dir.</p>`}</section>`;
+}
+function brProfileHTML(){
+  const b = brand(), t = brTpl(), p = b.profile || {};
+  if (!t) return `<section class="card"><div class="empty">Die Vorlage für dein Brand-Profil ist noch nicht da. Sie kommt beim nächsten Abgleich.</div></section>`;
+  const f = brFields(), done = f.filter(x => String(p[x.id] || "").trim()).length, seen = b.tplSeen || 0;
+  const isNew = x => seen > 0 && (x.added || 1) > seen;
+  return `<section class="card"><div class="card-h"><h2>Mein Brand-Profil</h2><span class="grow"></span><span class="chip num">${done}/${f.length}</span></div>
+    <p class="hint">Nur das, was du für deine eigene Brand festlegst. Die Fragen kommen aus dem Leitfaden und wachsen mit, wenn neues Wissen dazukommt. Alles speichert sich beim Tippen, du kannst jederzeit ändern.</p>
+    <div class="br-track br-track-l"><i style="width:${f.length ? (done / f.length * 100).toFixed(1) : 0}%"></i></div>
+    ${seen && seen < t.version ? `<div class="br-new"><b>Neu in der Vorlage (Stand ${esc(fmtLong(t.date))})</b><ul>${(t.changes || []).map(c => `<li>${esc(c)}</li>`).join("")}</ul><button class="pill" data-bact="tpl-seen">Gesehen</button></div>` : ""}</section>
+  ${t.sections.map(s => `<section class="card br-psec"><div class="card-h"><h2>${esc(s.title)}</h2><span class="grow"></span>${(s.ch || []).map(n => { const id = brChapterId(n); return id ? `<button class="pill" data-open="${id}">Kapitel ${n}</button>` : ""; }).join("")}</div>
+    ${s.why ? `<p class="hint">${esc(s.why)}</p>` : ""}
+    ${s.fields.map(x => `<label class="br-pf">${esc(x.label)}${isNew(x) ? `<span class="br-badge">Neu</span>` : ""}${x.hint ? `<small>${esc(x.hint)}</small>` : ""}<textarea class="field" rows="${x.rows || 2}" data-bp="${x.id}">${esc(p[x.id] || "")}</textarea></label>`).join("")}</section>`).join("")}`;
+}
+function brKnowHTML(){
+  const ct = (S.settings.topics || []).find(t => /content/i.test(t.name || ""));
+  const res = live("resource").filter(r => (ct && r.topic === ct.id) || tagsOf(r).some(t => /^(content|personal-brand)$/i.test(t)));
+  const groups = [["Mino Lee", "mino-lee"], ["Ronny Mitchell", "ronny-mitchell"], ["Sam Gaudet", "sam-gaudet"]];
+  const used = new Set(), card = r => `<button class="br-sc" data-open="${r.id}">${r.image ? `<img src="${esc(r.image)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}<div><b>${esc(r.title || "Ohne Titel")}</b><small>${esc(brExcerpt(r.body, 140))}</small></div></button>`;
+  const grp = groups.map(([name, tag]) => { const l = res.filter(r => !used.has(r.id) && tagsOf(r).some(t => t.toLowerCase() === tag)); l.forEach(r => used.add(r.id)); return [name, l]; });
+  grp.push(["Vorlagen, Tools und Plattformen", res.filter(r => !used.has(r.id))]);
+  const a = brArea(), fp = live("note").find(n => /fahrplan/i.test(n.title || "")), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
+  const tools = brLf().filter(i => /^Werkzeug/i.test(i.title || ""));
+  return `<section class="card"><div class="card-h"><h2>Leitfaden</h2></div><p class="hint">Vom Content Creator zur Personal Brand, in fester Reihenfolge. Tipp ein Kapitel an, um es zu lesen.</p>
+      <div class="br-chs">${brChapters().map(c => brChapterBtn(c, true)).join("") || `<p class="hint">Noch kein Leitfaden.</p>`}</div></section>
+    <section class="card"><div class="card-h"><h2>Werkzeuge und Pläne</h2></div><div class="br-chs">
+      <button class="br-ch" data-bact="tab" data-v="prof"><b>${ic("pen")}</b><span>Mein Brand-Profil<small>Deine Antworten zu Weg, Zielgruppe, Themen und Auftritt · ${esc(brDone())}</small></span>${ic("right")}</button>
+      ${tools.map(i => `<button class="br-ch" data-open="${i.id}"><b>${ic("tip")}</b><span>${esc((i.title || "").replace(/^Werkzeug\s*·\s*/i, ""))}<small>${esc(brExcerpt(i.body, 100))}</small></span>${ic("right")}</button>`).join("")}
+      ${fp ? `<button class="br-ch" data-open="${fp.id}"><b>${ic("note")}</b><span>${esc(fp.title)}<small>Dein Plan mit Terminen</small></span>${ic("right")}</button>` : ""}
+      ${projs.map(p => `<button class="br-ch" data-open="${p.id}"><b>${ic("project")}</b><span>${esc(p.title)}<small>Projekt</small></span>${ic("right")}</button>`).join("")}
+      ${a ? `<button class="br-ch" data-open="${a.id}"><b>${ic("area")}</b><span>${esc(a.title)}<small>Bereich mit allen Verknüpfungen</small></span>${ic("right")}</button>` : ""}</div></section>
+    <section class="card"><div class="card-h"><h2>Quellen</h2><span class="grow"></span><span class="chip num">${res.length}</span></div><p class="hint">Alle Videos und Vorlagen, aus denen der Leitfaden entstanden ist.</p>
+      ${grp.filter(([, l]) => l.length).map(([name, l]) => `<h3 class="br-h3">${esc(name)} · ${l.length}</h3><div class="br-src">${l.map(card).join("")}</div>`).join("")}</section>`;
+}
+document.addEventListener("input", e => {
+  const t = e.target; if (!t.dataset.bp) return;
+  const b = brand(); if (!b.profile) b.profile = {}; b.profile[t.dataset.bp] = t.value; saveSettings(800);
+  t.style.height = "auto"; t.style.height = t.scrollHeight + 2 + "px";
+});
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-bact]"); if (!a) return;
+  const b = brand(), t = brTpl();
+  if (a.dataset.bact === "tpl-seen" && t) { b.tplSeen = t.version; saveSettings(0); renderMain(); }
+  if (a.dataset.bact === "tab" && a.dataset.v === "prof" && t && !b.tplSeen) { b.tplSeen = t.version; saveSettings(0); }
+}, true);
 
 function trainingHTML(){
   const t = training(), p = trPlan();
