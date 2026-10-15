@@ -797,7 +797,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-15.2";
+const APP_VERSION = "2026-10-15.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1582,8 +1582,8 @@ function pillarHTML(a, i){
   const hs = new Map(), ts = new Map();
   for (const h of hubs) for (const r of related(h.id)) { if (r.kind === "habit" && !r.archived) hs.set(r.id, r); if (r.kind === "task" && !r.done && !r.archived) ts.set(r.id, r); }
   const wk = weekDays(), tk = dkey();
-  const rows = [...hs.values()].slice(0, 3).map(h => { const n = wk.filter(d => hdone(h, dkey(d))).length, tg = Math.min(7, h.target || 7);
-    return `<span class="pl-h ${n >= tg ? "ok" : ""}"><span class="pl-hn">${esc(h.title)}</span><span class="pl-wk">${wk.map(d => { const k = dkey(d); return `<i class="${hdone(h, k) ? "on" : k > tk ? "fut" : ""}${k === tk ? " now" : ""}"></i>`; }).join("")}</span><b class="num">${n}/${tg}</b></span>`; }).join("");
+  const rows = [...hs.values()].slice(0, 3).map(h => { const n = wk.filter(d => hdone(h, dkey(d))).length, tg = h.target ? Math.min(7, h.target) : 0;
+    return `<span class="pl-h ${tg && n >= tg ? "ok" : ""}"><span class="pl-hn">${esc(h.title)}</span><span class="pl-wk">${wk.map(d => { const k = dkey(d); return `<i class="${hdone(h, k) ? "on" : k > tk ? "fut" : ""}${k === tk ? " now" : ""}"></i>`; }).join("")}</span><b class="num">${tg ? `${n}/${tg}` : `${n}×`}</b></span>`; }).join("");
   const next = [...ts.values()].sort((x, y) => (x.order ?? 1e15) - (y.order ?? 1e15) || (x.created || 0) - (y.created || 0))[0];
   const ba = brArea(), isBrand = ba && ba.id === a.id;
   return `<button class="pl" ${isBrand ? `data-go="brand"` : `data-open="${a.id}"`}><span class="pl-top"><span class="pl-n num">${i + 1}</span><b>${esc(a.title || "Bereich")}</b></span>${rows}${next ? `<span class="pl-t">Als Nächstes: ${esc(next.title || "Ohne Titel")}</span>` : rows ? "" : `<span class="pl-t">Antippen zum Öffnen</span>`}</button>`;
