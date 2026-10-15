@@ -765,6 +765,7 @@ body.bd-on{overflow:hidden}
 .pl-wk i{width:8px;height:8px;border-radius:50%;background:var(--line-2)}
 .pl-wk i.on{background:var(--good)} .pl-wk i.fut{opacity:.35} .pl-wk i.now{outline:1.5px solid var(--text);outline-offset:1px}
 .pl-t{font-size:12px;color:var(--muted);line-height:1.35;overflow-wrap:anywhere}
+.pl-lp{color:var(--text)} .pl-lp b{font-weight:700}
 .ot-card{border:1.5px solid var(--ink)}
 .ot-lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
 .ot-row{display:flex;align-items:center;gap:12px}
@@ -797,7 +798,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-15.3";
+const APP_VERSION = "2026-10-15.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1586,12 +1587,26 @@ function pillarHTML(a, i){
     return `<span class="pl-h ${tg && n >= tg ? "ok" : ""}"><span class="pl-hn">${esc(h.title)}</span><span class="pl-wk">${wk.map(d => { const k = dkey(d); return `<i class="${hdone(h, k) ? "on" : k > tk ? "fut" : ""}${k === tk ? " now" : ""}"></i>`; }).join("")}</span><b class="num">${tg ? `${n}/${tg}` : `${n}×`}</b></span>`; }).join("");
   const next = [...ts.values()].sort((x, y) => (x.order ?? 1e15) - (y.order ?? 1e15) || (x.created || 0) - (y.created || 0))[0];
   const ba = brArea(), isBrand = ba && ba.id === a.id;
-  return `<button class="pl" ${isBrand ? `data-go="brand"` : `data-open="${a.id}"`}><span class="pl-top"><span class="pl-n num">${i + 1}</span><b>${esc(a.title || "Bereich")}</b></span>${rows}${next ? `<span class="pl-t">Als Nächstes: ${esc(next.title || "Ohne Titel")}</span>` : rows ? "" : `<span class="pl-t">Antippen zum Öffnen</span>`}</button>`;
+  let extra = "";
+  if (a.one) { const lg = S.settings.oneLog || {}, n = wk.filter(d => lg[dkey(d)]).length;
+    extra += `<span class="pl-h"><span class="pl-hn">Meine eine Sache erledigt</span><span class="pl-wk">${wk.map(d => { const k = dkey(d); return `<i class="${lg[k] ? "on" : k > tk ? "fut" : ""}${k === tk ? " now" : ""}"></i>`; }).join("")}</span><b class="num">${n}×</b></span>`; }
+  if (a.learn) { const lp = lpNote(a.id); extra += `<span class="pl-t pl-lp">${lp ? `<b>${esc(lpMonth())}:</b> ${esc(lp.title || "Thema noch offen")}` : `Thema für ${esc(lpMonth())} festlegen`}</span>`; }
+  const act = a.learn ? `data-act="lp-open" data-id="${a.id}"` : isBrand ? `data-go="brand"` : `data-open="${a.id}"`;
+  return `<button class="pl" ${act}><span class="pl-top"><span class="pl-n num">${i + 1}</span><b>${esc(a.title || "Bereich")}</b></span>${rows}${extra}${next ? `<span class="pl-t">Als Nächstes: ${esc(next.title || "Ohne Titel")}</span>` : rows || extra ? "" : `<span class="pl-t">Antippen zum Öffnen</span>`}</button>`;
+}
+// Lehrplan: pro Monat eine Notiz mit month = "JJJJ-MM", verknüpft mit dem Bereich. Thema = Titel, darunter das Wissens-Journal.
+const lpMonth = () => new Date().toLocaleDateString("de-DE", {month:"long"});
+const lpNote = aid => live("note").find(n => n.month === dkey().slice(0, 7) && (n.rel || []).includes(aid));
+const LP_BODY = m => `Ein Thema für ${m}. Schreib es oben als Titel hin, z. B. „Verhandeln“ oder „Körpersprache“.\n\n## Warum dieses Thema?\n\n\n## Quellen\n- \n\n## Mein Journal: Was ich jetzt weiß\n- `;
+function lpOpen(aid){
+  let n = lpNote(aid);
+  if (!n) n = create("note", "", {month: dkey().slice(0, 7), rel:[aid], tags:["Lehrplan"], body: LP_BODY(lpMonth())});
+  openDetail(n.id);
 }
 function pillarsCardHTML(){
   const ps = pillars(); if (!ps.length) return "";
   const goal = (S.settings.focusGoal || "").trim();
-  return `<section class="card"><div class="card-h"><h2>Meine Säulen</h2><span class="grow"></span><button class="pill" data-go="settings" title="Säulen und Ziel ändern">Ändern</button></div>${goal ? `<p class="pl-goal">${esc(goal)}</p>` : ""}<div class="pl-grid">${ps.map(pillarHTML).join("")}</div></section>`;
+  return `<section class="card"><div class="card-h"><h2>Meine Säulen</h2><span class="grow"></span>${(() => { const vb = live("board").find(b => /vision/i.test(b.title || "")); return vb ? `<button class="pill" data-act="bd-open" data-id="${vb.id}">${ic("board")}Vision Board</button>` : `<button class="pill" data-act="vb-new" title="Vision Board anlegen">${ic("board")}Vision Board</button>`; })()}<button class="pill" data-go="settings" title="Säulen und Ziel ändern">Ändern</button></div>${goal ? `<p class="pl-goal">${esc(goal)}</p>` : ""}<div class="pl-grid">${ps.map(pillarHTML).join("")}</div></section>`;
 }
 function oneThingHTML(){
   const tk = dkey(), o = S.settings.oneThing || {}, t = o.d === tk && S.items.get(o.id);
@@ -2259,6 +2274,8 @@ function doCreate(){
 function toggleTask(id){
   const t = S.items.get(id); if (!t) return;
   t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
+  { const o = S.settings.oneThing, tk = dkey(); if (o && o.id === t.id && o.d === tk) { const lg = {...(S.settings.oneLog || {})}; if (t.done) lg[tk] = true; else delete lg[tk];
+    const lim = dkey(addDays(today0(), -60)); for (const k of Object.keys(lg)) if (k < lim) delete lg[k]; S.settings.oneLog = lg; saveSettings(); } }
   let msg = "";
   // Wiederkehrend: beim ersten Abhaken die nächste Aufgabe mit allen Verknüpfungen anlegen
   if (t.done && t.repeat && !t.spawned) {
@@ -3380,6 +3397,8 @@ document.addEventListener("click", e => {
     case "tr-tab": S.trTab = a.dataset.v; try { localStorage.setItem("trTab", S.trTab); } catch (er) {} trDdClose(); renderMain(); window.scrollTo({top:0}); break;
     case "bd-new": { const t = BOARD_TPL.find(x => x.id === a.dataset.tpl); const b = create("board", t ? t.name : "Neues Board", {elements:[], bg:"#ffffff"}); renderSide(); bdOpen(b.id, t && t.id, !t); break; }
     case "bd-open": bdOpen(id); break;
+    case "vb-new": { const b = create("board", "Vision Board", {elements:[], bg:"#ffffff"}); renderSide(); bdOpen(b.id, "moodboard"); break; }
+    case "lp-open": lpOpen(id); break;
     case "bd-close": bdClose(); break;
     case "bd-menu": if (S.bd) bdMenu(S.bd.menu === a.dataset.m ? null : a.dataset.m); break;
     case "bd-tpl": if (S.bd && S.bd.ctrl) { S.bd.ctrl.insertTemplate(id); bdMenu(null); } break;
