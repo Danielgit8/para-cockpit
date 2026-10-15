@@ -767,6 +767,13 @@ body.bd-on{overflow:hidden}
 .pl-t{font-size:12px;color:var(--muted);line-height:1.35;overflow-wrap:anywhere}
 .pl-lp{color:var(--text)} .pl-lp b{font-weight:700}
 .ot-card{border:1.5px solid var(--ink)}
+/* Mein Hauptprojekt (oben auf Heute und in Brand & Business) */
+.mp-card{border:1.5px solid var(--ink)}
+.mp-card .card-h{margin-bottom:6px}
+.mp-t{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.25;text-align:left;color:var(--text);overflow-wrap:anywhere}
+.mp-card .br-track{margin:10px 0 2px}
+.mp-docs{margin:12px 0 4px}
+.mp-hs{display:flex;flex-direction:column;gap:6px;margin-top:10px}
 .ot-lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
 .ot-row{display:flex;align-items:center;gap:12px}
 .ot-row .check{width:30px;height:30px}
@@ -1562,7 +1569,7 @@ function todayHTML(){
   const steps = nextSteps();
   const rv = reviewDue();
   return header("Heute", `${dateLine()} · <span class="chip num">${hd}/${hs.length} Gewohnheiten</span><span class="chip num ${late.length ? "late" : ""}">${late.length + due.length} Aufgaben</span>`) + banner() +
-  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") + pillarsCardHTML() + oneThingHTML() + dayPlanCardHTML() + `
+  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") + mainProjHTML() + pillarsCardHTML() + oneThingHTML() + dayPlanCardHTML() + `
   <div class="two">
     <section class="card"><div class="card-h"><h2>Gewohnheiten</h2><span class="grow"></span><span class="pill num">${hd}/${hs.length}</span></div>
       ${hs.length ? hs.map(h => habitRow(h, tk)).join("") : `<div class="empty">Noch keine Gewohnheiten. Lege sie unter <button class="pill" data-go="habit">Gewohnheiten</button> an.</div>`}</section>
@@ -1574,6 +1581,27 @@ function todayHTML(){
   </div>
   <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
     ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte. Sobald du eins anlegst, siehst du hier immer seinen nächsten Schritt.</div>`}</section>`;
+}
+
+/* --- Mein Hauptprojekt: ein angeheftetes Projekt mit Fahrplan-Notizen, Gewohnheiten und den nächsten Schritten --- */
+const mainProj = () => { const p = S.items.get(S.settings.mainProject || ""); return p && !p.archived ? p : null; };
+function mainProjHTML(){
+  const p = mainProj(); if (!p) return "";
+  const rel = related(p.id), tk = dkey(), wk = weekDays();
+  const docs = byOrd(rel.filter(r => r.kind === "note" && !r.archived));
+  const hs = rel.filter(r => r.kind === "habit" && !r.archived).slice(0, 2);
+  const open = rel.filter(r => r.kind === "task" && !r.done && !r.archived).sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999") || ord(a) - ord(b));
+  const pr = progress(p), ba = brArea();
+  const hRows = hs.map(h => { const n = wk.filter(d => hdone(h, dkey(d))).length, tg = h.target ? Math.min(7, h.target) : 0;
+    return `<span class="pl-h ${tg && n >= tg ? "ok" : ""}"><span class="pl-hn">${esc(h.title)}</span><span class="pl-wk">${wk.map(d => { const k = dkey(d); return `<i class="${hdone(h, k) ? "on" : k > tk ? "fut" : ""}${k === tk ? " now" : ""}"></i>`; }).join("")}</span><b class="num">${tg ? `${n}/${tg}` : `${n}×`}</b></span>`; }).join("");
+  return `<section class="card mp-card"><div class="card-h"><span class="ot-lbl" style="margin:0">Mein Hauptprojekt</span><span class="grow"></span>${pr.total ? `<span class="pill num">${pr.done}/${pr.total} Schritte</span>` : ""}</div>
+    <button class="mp-t" data-open="${p.id}">${esc(p.title || "Ohne Titel")}</button>
+    ${pr.total ? `<div class="br-track br-track-l"><i style="width:${(pr.done / pr.total * 100).toFixed(1)}%"></i></div>` : ""}
+    ${docs.length || ba ? `<div class="pills mp-docs">${docs.map(d => `<button class="pill" data-open="${d.id}">${ic("note")}${esc(d.title || "Notiz")}</button>`).join("")}${ba ? `<button class="pill" data-go="brand">${ic("star")}Brand & Business</button>` : ""}</div>` : ""}
+    ${hRows ? `<div class="mp-hs">${hRows}</div>` : ""}
+    <div class="sub-h">Als Nächstes</div>
+    ${open.slice(0, 3).map(t => taskRow(t, tk)).join("") || `<div class="add"><input id="mp-add" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="mp-add" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}
+    ${open.length > 3 ? `<div class="pills" style="margin-top:10px"><button class="pill" data-open="${p.id}">Alle ${open.length} offenen Schritte</button></div>` : ""}</section>`;
 }
 
 /* --- Meine Säulen (Bereiche mit focus = 1, 2, 3 …) und „Meine eine Sache heute“ --- */
@@ -2068,6 +2096,7 @@ function openDetail(id){
   <aside class="drawer" role="dialog" aria-label="${esc(k.label)} bearbeiten">
     <div class="d-head"><span class="chip">${ic(k.icon)}${esc(k.label)}</span>${it.example ? '<span class="chip ex">Beispiel</span>' : ""}<span class="grow"></span>
       ${it.kind === "task" ? `<button class="pill ${it.done ? "on" : ""}" id="d-done" data-act="toggle" data-id="${it.id}">${ic("check")}${it.done ? "Erledigt" : "Abhaken"}</button>` : ""}
+      ${it.kind === "project" ? `<button class="pill ${S.settings.mainProject === it.id ? "on" : ""}" data-act="main-proj" data-id="${it.id}" title="Ganz oben auf Heute anzeigen">${ic("star")}${S.settings.mainProject === it.id ? "Hauptprojekt" : "Als Hauptprojekt"}</button>` : ""}
       <button class="pill d-editbtn" id="d-editbtn" data-act="d-edit"></button>
       <button class="ibtn" data-act="archive" title="${it.archived ? "Zurückholen" : "Archivieren"}" aria-label="Archivieren">${ic(it.archived ? "restore" : "archive")}</button>
       <button class="ibtn" data-act="ask-del" title="Löschen" aria-label="Löschen">${ic("trash")}</button>
@@ -2211,7 +2240,7 @@ function refreshDetail(){
   const done = $("#d-done"); if (done) { done.classList.toggle("on", !!it.done); done.innerHTML = ic("check") + (it.done ? "Erledigt" : "Abhaken"); }
   const rel = related(it.id);
   const tasksBox = $("#dy-tasks");
-  if (tasksBox) { const ts = rel.filter(r => r.kind === "task" && !r.archived).sort((a, b) => a.done - b.done || (a.due || "9999").localeCompare(b.due || "9999")); tasksBox.innerHTML = ts.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px">Noch keine Aufgaben. Zerlege das Projekt in konkrete nächste Schritte.</div>`; const pr = progress(it); $("#d-prog").textContent = pr.total ? `${pr.done}/${pr.total} erledigt` : ""; }
+  if (tasksBox) { const ts = rel.filter(r => r.kind === "task" && !r.archived).sort((a, b) => a.done - b.done || (a.due || "9999").localeCompare(b.due || "9999") || ord(a) - ord(b)); tasksBox.innerHTML = ts.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px">Noch keine Aufgaben. Zerlege das Projekt in konkrete nächste Schritte.</div>`; const pr = progress(it); $("#d-prog").textContent = pr.total ? `${pr.done}/${pr.total} erledigt` : ""; }
   const hb = $("#dy-habit");
   if (hb) { hb.innerHTML = habitMonthHTML(it); $("#d-streak").textContent = `${inRow(streak(it))} · ${weekCount(it)}/${it.target || 7} diese Woche`; }
   const ed = $("#d-ed");
@@ -2626,7 +2655,7 @@ function brOverHTML(vids, cons){
   const dueC = cons.filter(c => c.next && c.next <= tk && c.status !== "ruht").length;
   const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
   const pts = k => st.filter(s => s[k] != null).map(s => ({d:s.d, v:s[k], s:""}));
-  return brWayHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
+  return mainProjHTML() + brWayHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
       <button class="pill br-pill" data-bact="goals">${S.brGoals ? "Fertig" : "Ziele bearbeiten"}</button></div>
     <div class="br-goals" id="br-goalbars">${brGoalBarsHTML()}</div>
     ${S.brGoals ? `<div class="br-gform">
@@ -3329,6 +3358,7 @@ document.addEventListener("click", e => {
     case "ot-pick": S.otPick = true; renderMain(); break;
     case "ot-cancel": S.otPick = false; renderMain(); break;
     case "ot-set": S.settings.oneThing = {d: dkey(), id}; S.otPick = false; saveSettings(); renderMain(); window.scrollTo({top:0}); break;
+    case "main-proj": S.settings.mainProject = S.settings.mainProject === id ? "" : id; saveSettings(); openDetail(id); renderMain(); toast(S.settings.mainProject ? "Steht jetzt ganz oben auf Heute" : "Nicht mehr Hauptprojekt"); break;
     case "ot-add": { const inp = $("#ot-new"), v = inp && inp.value.trim(); if (!v) { toast("Tipp zuerst ein, was du heute erledigen willst."); break; }
       const nt = create("task", v); S.settings.oneThing = {d: dkey(), id: nt.id}; S.otPick = false; saveSettings(); renderMain(); renderSide(); break; }
     case "nav-tog": { const h = new Set(S.settings.navHide || []), v = a.dataset.val; h.has(v) ? h.delete(v) : h.add(v); S.settings.navHide = [...h]; saveSettings(); renderSide(); renderMain(); break; }
