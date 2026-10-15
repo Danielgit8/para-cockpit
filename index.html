@@ -523,7 +523,7 @@ body.has-rest .toast{bottom:calc(120px + env(safe-area-inset-bottom,0px))}
 .bd-dprev{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%}
 .bd-dprev img{width:100%;max-height:220px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#fff}
 body.bd-on{overflow:hidden}
-.bd-ov{position:fixed;inset:0;z-index:48;background:var(--bg-hi);display:flex;flex-direction:column}
+.bd-ov{position:fixed;inset:0;z-index:48;background:var(--bg-hi);display:flex;flex-direction:column;touch-action:pan-x pan-y;overflow:hidden}
 .bd-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:var(--panel-solid);border-bottom:1px solid var(--line);min-width:0}
 .bd-bar .rbtn{width:36px;height:36px;box-shadow:none;flex:none}
 .bd-title{flex:1 1 120px;min-width:70px;font:inherit;font-weight:700;font-size:15px;border:0;background:transparent;color:var(--text);padding:6px 8px;border-radius:10px}
@@ -798,7 +798,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-15.4";
+const APP_VERSION = "2026-10-16.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3725,12 +3725,17 @@ function bdShellHTML(it){
     <div class="bd-pres" id="bd-pres" hidden></div>
     <div class="bd-menu" id="bd-menu" hidden></div></div>`;
 }
+// Am Handy darf sich bei offenem Board nur die Zeichenfläche zoomen, nicht die ganze Seite (sonst rutschen die Leisten aus dem Bild)
+function bdZoomLock(on){
+  const m = document.querySelector('meta[name="viewport"]'); if (!m) return;
+  m.setAttribute("content", "width=device-width,initial-scale=1,viewport-fit=cover" + (on ? ",maximum-scale=1,user-scalable=no" : ""));
+}
 async function bdOpen(id, tpl, focusTitle){
   const it = S.items.get(id); if (!it) return;
   if (S.bd) await bdClose(true);
   closeOverlay(); $("#side").classList.remove("open");
   S.bd = {id, menu:null, changed:false, ver:it.updated};
-  document.body.insertAdjacentHTML("beforeend", bdShellHTML(it)); document.body.classList.add("bd-on");
+  document.body.insertAdjacentHTML("beforeend", bdShellHTML(it)); document.body.classList.add("bd-on"); bdZoomLock(true);
   if (focusTitle) { const t = $("#bd-title"); t.focus(); t.select(); }
   let mod; try { mod = await bdLoad(); } catch(e) { const c = $("#bd-canvas"); if (c) c.innerHTML = `<div class="bd-load">Das Board konnte nicht geladen werden. Beim allerersten Öffnen brauchst du Internet, danach geht es auch offline.</div>`; return; }
   if (!S.bd || S.bd.id !== id) return;
@@ -3760,7 +3765,7 @@ async function bdClose(silent, gone){
     }
     b.ctrl.destroy();
   }
-  if (ov) ov.remove(); if (!S.bd) document.body.classList.remove("bd-on");
+  if (ov) ov.remove(); if (!S.bd) { document.body.classList.remove("bd-on"); bdZoomLock(false); }
   if (!silent) { renderMain(); renderSide(); }
   if (S.updatePending && !S.bd && !S.open) applyUpdate(false);
 }
