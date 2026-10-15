@@ -748,6 +748,34 @@ body.bd-on{overflow:hidden}
 .br-skr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .br-skr b{font-size:14px;overflow-wrap:anywhere}
 .br-skr p{grid-column:1/-1;margin:0;font-size:12.5px;color:var(--muted);line-height:1.45}
+/* Meine Säulen und „Meine eine Sache heute“ */
+.pl-goal{margin:-6px 0 14px;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.pl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+@media (max-width:560px){.pl-grid{grid-template-columns:1fr 1fr;gap:8px}.pl{padding:10px 11px}.pl-top b{font-size:13px}.pl-wk{gap:3px}.pl-wk i{width:7px;height:7px}}
+.pl{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px 13px;border-radius:14px;border:1px solid var(--line);background:var(--soft);min-width:0;color:var(--text)}
+.pl:hover{border-color:var(--line-2)}
+.pl-top{display:flex;align-items:center;gap:8px;min-width:0}
+.pl-top b{font-size:13.5px;line-height:1.3;overflow-wrap:anywhere}
+.pl-n{width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--on-ink);font-size:11px;font-weight:700;display:grid;place-items:center;flex:none}
+.pl-h{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;font-size:12px;color:var(--muted)}
+.pl-hn{grid-column:1/-1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-h b{font-size:11.5px;color:var(--text);text-align:right}
+.pl-h.ok b{color:var(--good)}
+.pl-wk{display:flex;gap:4px}
+.pl-wk i{width:8px;height:8px;border-radius:50%;background:var(--line-2)}
+.pl-wk i.on{background:var(--good)} .pl-wk i.fut{opacity:.35} .pl-wk i.now{outline:1.5px solid var(--text);outline-offset:1px}
+.pl-t{font-size:12px;color:var(--muted);line-height:1.35;overflow-wrap:anywhere}
+.ot-card{border:1.5px solid var(--ink)}
+.ot-lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+.ot-row{display:flex;align-items:center;gap:12px}
+.ot-row .check{width:30px;height:30px}
+.ot-t{font-size:18px;font-weight:700;text-align:left;flex:1;min-width:0;overflow-wrap:anywhere;color:var(--text)}
+.ot-done .ot-t{text-decoration:line-through;color:var(--muted)}
+.ot-card .hint{margin:10px 0}
+.ot-list{display:flex;flex-direction:column;max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:12px;margin:10px 0}
+.ot-opt{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px;font-weight:600;display:flex;flex-direction:column;gap:2px;color:var(--text)}
+.ot-opt small{font-size:11.5px;color:var(--muted);font-weight:500}
+.ot-opt:hover{background:var(--soft)}
 </style>
 <style id="user-css"></style>
 </head>
@@ -769,7 +797,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-15.1";
+const APP_VERSION = "2026-10-15.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -863,6 +891,7 @@ function progress(p){ const ts = related(p.id).filter(r => r.kind === "task" && 
 const hmode = h => h.mode || "check";
 const hval = (h, k) => (h.log || {})[k];
 function hdone(h, k){
+  if (h.auto === "workout" && all().some(w => w.kind === "workout" && w.done && w.date === k)) return true;
   const v = hval(h, k);
   if (v == null || v === false || v === "") return false;
   if (hmode(h) === "number" && typeof v === "number") return +h.goal > 0 ? v >= +h.goal : v > 0;
@@ -1429,7 +1458,7 @@ function habitCtl(h, k){
   if (m === "number") return `<span class="hin ${hdone(h, k) ? "ok" : ""}"><input class="num" id="hn-${h.id}-${k}" type="text" inputmode="decimal" data-hnum="${h.id}" data-day="${k}" value="${typeof v === "number" ? fmtNum(v) : ""}" placeholder="${h.goal ? fmtNum(+h.goal) : "0"}" aria-label="${esc(h.title)} Wert"><small>${esc(h.unit || "")}</small></span>`;
   if (m === "choice") { const opts = (h.options || []).length ? h.options : ["Erledigt"];
     return `<span class="hpills">${opts.map(o => `<button class="pill ${v === o ? "on" : ""}" data-act="hpick" data-id="${h.id}" data-day="${k}" data-val="${esc(o)}">${esc(o)}</button>`).join("")}</span>`; }
-  return `<button class="check ${v ? "on" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" aria-label="${esc(h.title)} abhaken">${ic("check")}</button>`;
+  return `<button class="check ${hdone(h, k) ? "on" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" aria-label="${esc(h.title)} abhaken">${ic("check")}</button>`;
 }
 function habitInfo(h){
   const s = streak(h), w = weekCount(h); const avg = hmode(h) === "number" ? weekAvg(h) : null;
@@ -1532,7 +1561,7 @@ function todayHTML(){
   const steps = nextSteps();
   const rv = reviewDue();
   return header("Heute", `${dateLine()} · <span class="chip num">${hd}/${hs.length} Gewohnheiten</span><span class="chip num ${late.length ? "late" : ""}">${late.length + due.length} Aufgaben</span>`) + banner() +
-  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") + dayPlanCardHTML() + `
+  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") + pillarsCardHTML() + oneThingHTML() + dayPlanCardHTML() + `
   <div class="two">
     <section class="card"><div class="card-h"><h2>Gewohnheiten</h2><span class="grow"></span><span class="pill num">${hd}/${hs.length}</span></div>
       ${hs.length ? hs.map(h => habitRow(h, tk)).join("") : `<div class="empty">Noch keine Gewohnheiten. Lege sie unter <button class="pill" data-go="habit">Gewohnheiten</button> an.</div>`}</section>
@@ -1544,6 +1573,41 @@ function todayHTML(){
   </div>
   <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
     ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte. Sobald du eins anlegst, siehst du hier immer seinen nächsten Schritt.</div>`}</section>`;
+}
+
+/* --- Meine Säulen (Bereiche mit focus = 1, 2, 3 …) und „Meine eine Sache heute“ --- */
+const pillars = () => live("area").filter(a => a.focus).sort((a, b) => a.focus - b.focus);
+function pillarHTML(a, i){
+  const hubs = [a, ...related(a.id).filter(r => r.kind === "project" && !r.archived)];
+  const hs = new Map(), ts = new Map();
+  for (const h of hubs) for (const r of related(h.id)) { if (r.kind === "habit" && !r.archived) hs.set(r.id, r); if (r.kind === "task" && !r.done && !r.archived) ts.set(r.id, r); }
+  const wk = weekDays(), tk = dkey();
+  const rows = [...hs.values()].slice(0, 3).map(h => { const n = wk.filter(d => hdone(h, dkey(d))).length, tg = Math.min(7, h.target || 7);
+    return `<span class="pl-h ${n >= tg ? "ok" : ""}"><span class="pl-hn">${esc(h.title)}</span><span class="pl-wk">${wk.map(d => { const k = dkey(d); return `<i class="${hdone(h, k) ? "on" : k > tk ? "fut" : ""}${k === tk ? " now" : ""}"></i>`; }).join("")}</span><b class="num">${n}/${tg}</b></span>`; }).join("");
+  const next = [...ts.values()].sort((x, y) => (x.order ?? 1e15) - (y.order ?? 1e15) || (x.created || 0) - (y.created || 0))[0];
+  const ba = brArea(), isBrand = ba && ba.id === a.id;
+  return `<button class="pl" ${isBrand ? `data-go="brand"` : `data-open="${a.id}"`}><span class="pl-top"><span class="pl-n num">${i + 1}</span><b>${esc(a.title || "Bereich")}</b></span>${rows}${next ? `<span class="pl-t">Als Nächstes: ${esc(next.title || "Ohne Titel")}</span>` : rows ? "" : `<span class="pl-t">Antippen zum Öffnen</span>`}</button>`;
+}
+function pillarsCardHTML(){
+  const ps = pillars(); if (!ps.length) return "";
+  const goal = (S.settings.focusGoal || "").trim();
+  return `<section class="card"><div class="card-h"><h2>Meine Säulen</h2><span class="grow"></span><button class="pill" data-go="settings" title="Säulen und Ziel ändern">Ändern</button></div>${goal ? `<p class="pl-goal">${esc(goal)}</p>` : ""}<div class="pl-grid">${ps.map(pillarHTML).join("")}</div></section>`;
+}
+function oneThingHTML(){
+  const tk = dkey(), o = S.settings.oneThing || {}, t = o.d === tk && S.items.get(o.id);
+  if (t && !t.archived && !S.otPick) return `<section class="card ot-card ${t.done ? "ot-done" : ""}"><div class="ot-lbl">Meine eine Sache heute</div>
+    <div class="ot-row"><button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button><button class="ot-t" data-open="${t.id}">${esc(t.title || "Ohne Titel")}</button></div>
+    <p class="hint">${t.done ? "Erledigt. Alles Weitere heute ist Bonus." : "Fang einfach mit fünf Minuten an. Danach läuft es oft von selbst."}</p>
+    <div class="pills"><button class="pill" data-act="ot-pick">Andere wählen</button></div></section>`;
+  if (!S.otPick) return `<section class="card ot-card"><div class="ot-lbl">Meine eine Sache heute</div>
+    <p class="hint">Welche eine Aufgabe würde deinen Tag gut machen, wenn nur sie klappt?</p><button class="btn" data-act="ot-pick">Aufgabe wählen</button></section>`;
+  const open = live("task").filter(x => !x.done).sort((x, y) => (x.due || "9999").localeCompare(y.due || "9999") || (x.order ?? 1e15) - (y.order ?? 1e15) || (x.created || 0) - (y.created || 0));
+  const where = x => { const p = related(x.id).find(r => (r.kind === "project" || r.kind === "area") && !r.archived); return p ? p.title : ""; };
+  return `<section class="card ot-card"><div class="ot-lbl">Meine eine Sache heute</div>
+    <p class="hint">Such dir eine Aufgabe aus. Nur eine.</p>
+    <div class="ot-list">${open.map(x => `<button class="ot-opt" data-act="ot-set" data-id="${x.id}">${esc(x.title || "Ohne Titel")}${where(x) ? `<small>${esc(where(x))}</small>` : ""}</button>`).join("") || `<div class="empty">Keine offenen Aufgaben.</div>`}</div>
+    <div class="add"><input id="ot-new" data-keep placeholder="Oder neue Aufgabe eintippen …" aria-label="Neue Aufgabe"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="ot-add" aria-label="Als eine Sache übernehmen">${ic("plus")}</button></div>
+    <div class="pills" style="margin-top:10px"><button class="pill" data-act="ot-cancel">Abbrechen</button></div></section>`;
 }
 
 /* --- Kalender: Tagesvorlagen, Änderungen pro Tag, Termine --- */
@@ -1898,6 +1962,10 @@ function settingsHTML(){
       ${(st.kinds || []).map(k => `<div class="set-row">${ic("folder")}<input class="field" id="kn-${k.id}" value="${esc(k.label)}" data-set="kind-name" data-id="${k.id}" aria-label="Name"><button class="ibtn" data-act="del-kind" data-id="${k.id}" aria-label="Rubrik löschen">${ic("trash")}</button></div>`).join("")}
       <div class="add" style="margin-top:10px"><input id="new-kind" data-keep placeholder="Neue Rubrik" aria-label="Neue Rubrik"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="add-kind" aria-label="Rubrik hinzufügen">${ic("plus")}</button></div>
       ${S.confirmKind ? `<div class="confirm" style="margin-top:10px">Rubrik löschen? Die Einträge darin werden zu Notizen.<button class="btn danger" data-act="del-kind-yes">Löschen</button><button class="btn ghost" data-act="cancel">Abbrechen</button></div>` : ""}</section>
+    <section class="card"><div class="card-h"><h2>Meine Säulen</h2></div>
+      <p class="hint">Dein großes Ziel und die Bereiche, die dafür am meisten zählen. Sie stehen als Kacheln oben auf „Heute“. Tippe einen Bereich an, um ihn als Säule zu zeigen oder herauszunehmen.</p>
+      <input class="field" id="focus-goal" data-set="focus-goal" value="${esc(st.focusGoal || "")}" placeholder="Mein großes Ziel" aria-label="Mein großes Ziel">
+      <div class="pills" style="margin-top:12px">${live("area").sort((a, b) => (a.focus || 99) - (b.focus || 99)).map(a => `<button class="pill ${a.focus ? "on" : ""}" data-act="pl-tog" data-id="${a.id}">${a.focus ? `${a.focus}. ` : ""}${esc(a.title || "Bereich")}</button>`).join("")}</div></section>
     <section class="card"><div class="card-h"><h2>Menü &amp; Ordnung</h2></div>
       <p class="hint">Tippe eine Seite an, um sie im Menü zu zeigen oder auszublenden. Ausgeblendete Seiten bleiben mit allen Einträgen erhalten und lassen sich hier jederzeit öffnen.</p>
       <div class="pills">${navItems().filter(n => n.v !== "dashboard" && n.v !== "settings").map(n => { const off = (st.navHide || []).includes(n.v); return `<button class="pill ${off ? "" : "on"}" data-act="nav-tog" data-val="${n.v}" title="${off ? "Ausgeblendet, antippen zum Zeigen" : "Sichtbar, antippen zum Ausblenden"}">${esc(n.label)}</button>`; }).join("")}</div>
@@ -3237,6 +3305,15 @@ document.addEventListener("click", e => {
     case "notify-on": enableNotify(); break;
     case "set-sort": S.settings.sort = {...(S.settings.sort || {}), [a.dataset.key]: a.dataset.val}; saveSettings(); renderMain(); break;
     case "set-start": S.settings.start = a.dataset.val; saveSettings(); renderMain(); break;
+    case "pl-tog": { const ar = S.items.get(id); if (!ar) break;
+      if (ar.focus) { const was = ar.focus; ar.focus = 0; persist(ar); for (const o of pillars()) if (o.focus > was) { o.focus--; persist(o); } }
+      else { ar.focus = pillars().length + 1; persist(ar); }
+      renderMain(); break; }
+    case "ot-pick": S.otPick = true; renderMain(); break;
+    case "ot-cancel": S.otPick = false; renderMain(); break;
+    case "ot-set": S.settings.oneThing = {d: dkey(), id}; S.otPick = false; saveSettings(); renderMain(); window.scrollTo({top:0}); break;
+    case "ot-add": { const inp = $("#ot-new"), v = inp && inp.value.trim(); if (!v) { toast("Tipp zuerst ein, was du heute erledigen willst."); break; }
+      const nt = create("task", v); S.settings.oneThing = {d: dkey(), id: nt.id}; S.otPick = false; saveSettings(); renderMain(); renderSide(); break; }
     case "nav-tog": { const h = new Set(S.settings.navHide || []), v = a.dataset.val; h.has(v) ? h.delete(v) : h.add(v); S.settings.navHide = [...h]; saveSettings(); renderSide(); renderMain(); break; }
     case "set-autoarch": { S.settings.autoArch = +a.dataset.val; saveSettings(); const n = autoArchive(); renderMain(); renderSide(); if (n) toast(n === 1 ? "1 erledigte Aufgabe ist jetzt im Archiv." : `${n} erledigte Aufgaben sind jetzt im Archiv.`); break; }
     case "review-save": saveReview(); break;
@@ -3425,6 +3502,7 @@ document.addEventListener("input", e => {
   if (set === "topic-name" || set === "topic-color") { const tp = S.settings.topics.find(x => x.id === t.dataset.id); if (tp) { tp[set === "topic-name" ? "name" : "color"] = t.value; saveSettings(); } }
   if (set === "kind-name") { const k = S.settings.kinds.find(x => x.id === t.dataset.id); if (k) { k.label = t.value; saveSettings(); renderSide(); } }
   if (set === "css") { S.settings.css = t.value; saveSettings(700); }
+  if (set === "focus-goal") { S.settings.focusGoal = t.value; saveSettings(700); }
 });
 document.addEventListener("change", e => {
   const t = e.target; const it = S.open && S.items.get(S.open);
