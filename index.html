@@ -769,7 +769,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-14.4";
+const APP_VERSION = "2026-10-15.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -858,7 +858,7 @@ function related(id){
   for (const o of all()) if (o.id !== id && (o.rel || []).includes(id)) ids.add(o.id);
   return [...ids].map(r => S.items.get(r));
 }
-function progress(p){ const ts = related(p.id).filter(r => r.kind === "task" && !r.archived); return {done: ts.filter(t => t.done).length, total: ts.length}; }
+function progress(p){ const ts = related(p.id).filter(r => r.kind === "task" && (!r.archived || r.done)); return {done: ts.filter(t => t.done).length, total: ts.length}; }
 // Gewohnheiten: Abhaken (true), Zahl (z. B. 7.5 Stunden) oder Auswahl (z. B. "Oberkörper")
 const hmode = h => h.mode || "check";
 const hval = (h, k) => (h.log || {})[k];
@@ -1090,6 +1090,13 @@ function persist(it, delay = 0){
   saveLocal(); scheduleSync(Math.max(1200, delay + 800)); renderStatus();
 }
 function removeItem(id){ S.items.delete(id); S.tombs.add(id); S.dirty.add(id); saveLocal(); scheduleSync(); renderStatus(); }
+// Erledigte Aufgaben wandern nach X Tagen ins Archiv (settings.autoArch, Standard 7, 0 = nie)
+function autoArchive(){
+  const d = S.settings.autoArch ?? 7; if (!d) return 0;
+  const lim = Date.now() - d * 864e5; let n = 0;
+  for (const t of [...S.items.values()]) if (t.kind === "task" && t.done && !t.archived && (t.doneAt || t.updated || 0) < lim) { t.archived = true; persist(t); n++; }
+  return n;
+}
 function saveSettings(delay = 400){
   S.settings.updated = Date.now(); S.settingsDirty = true; saveLocal(); scheduleSync(delay + 800); applySettings(); renderStatus();
 }
@@ -1148,6 +1155,7 @@ async function sync(){
       if (data.length < 1000) break;
     }
     S.lastSync = Date.now(); S.syncError = null; S.online = true; S.needLogin = false;
+    if (autoArchive()) changed = true;
     saveLocal();
     if (changed) { applySettings(); renderMain(); renderSide(); refreshDetail(); bdRemote(); }
     if (S.pendingOpen && S.items.has(S.pendingOpen)) { const id = S.pendingOpen; S.pendingOpen = null; openDetailFresh(id); }
@@ -1313,11 +1321,14 @@ function renderSide(){
   for (const i of live()) if (!(i.kind === "task" && i.done)) counts[i.kind] = (counts[i.kind] || 0) + 1;
   { const tk = dkey(); const n = live("task").filter(t => !t.done && t.due && t.due <= tk).length + live("habit").filter(h => !hdone(h, tk)).length; if (n) counts.today = n; }
   if (reviewDue()) counts.review = "•";
-  const items = navItems();
+  const hide = new Set(S.settings.navHide || []);
+  const items = navItems().filter(n => !hide.has(n.v) || S.view === n.v);
+  const grp = v => v === "dashboard" ? "" : v === "brand" ? "Mein Ziel" : (v === "archive" || v === "settings") ? "System" : ["today","cal","task","habit","project","basis","training","review"].includes(v) ? "Umsetzung" : "Wissen";
+  let lastG = "";
   $("#side").innerHTML = `
     <div class="brand"><span class="brand-mark">P</span>PARA Cockpit</div>
-    ${items.map((n, i) => `${n.v === "brand" ? '<div class="nav-label">Mein Ziel</div>' : ""}${n.v === "today" ? '<div class="nav-label">Umsetzung</div>' : ""}${n.v === "area" ? '<div class="nav-label">Wissen</div>' : ""}${n.v === "archive" ? '<div class="nav-label">System</div>' : ""}
-      <button class="nav ${n.v === "brand" ? "nav-brand" : ""} ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`).join("")}
+    ${items.map(n => { const g = grp(n.v), lbl = g && g !== lastG ? `<div class="nav-label">${g}</div>` : ""; lastG = g; return `${lbl}
+      <button class="nav ${n.v === "brand" ? "nav-brand" : ""} ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`; }).join("")}
     <div class="side-foot" id="side-status"></div>`;
   const bottom = [{v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"brand", label:"Brand", icon:"star"}];
   $("#bottom").innerHTML = bottom.map(b => `<button class="${S.view === b.v ? "on" : ""}" data-go="${b.v}">${ic(b.icon)}${b.label}</button>`).join("") +
@@ -1887,6 +1898,13 @@ function settingsHTML(){
       ${(st.kinds || []).map(k => `<div class="set-row">${ic("folder")}<input class="field" id="kn-${k.id}" value="${esc(k.label)}" data-set="kind-name" data-id="${k.id}" aria-label="Name"><button class="ibtn" data-act="del-kind" data-id="${k.id}" aria-label="Rubrik löschen">${ic("trash")}</button></div>`).join("")}
       <div class="add" style="margin-top:10px"><input id="new-kind" data-keep placeholder="Neue Rubrik" aria-label="Neue Rubrik"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="add-kind" aria-label="Rubrik hinzufügen">${ic("plus")}</button></div>
       ${S.confirmKind ? `<div class="confirm" style="margin-top:10px">Rubrik löschen? Die Einträge darin werden zu Notizen.<button class="btn danger" data-act="del-kind-yes">Löschen</button><button class="btn ghost" data-act="cancel">Abbrechen</button></div>` : ""}</section>
+    <section class="card"><div class="card-h"><h2>Menü &amp; Ordnung</h2></div>
+      <p class="hint">Tippe eine Seite an, um sie im Menü zu zeigen oder auszublenden. Ausgeblendete Seiten bleiben mit allen Einträgen erhalten und lassen sich hier jederzeit öffnen.</p>
+      <div class="pills">${navItems().filter(n => n.v !== "dashboard" && n.v !== "settings").map(n => { const off = (st.navHide || []).includes(n.v); return `<button class="pill ${off ? "" : "on"}" data-act="nav-tog" data-val="${n.v}" title="${off ? "Ausgeblendet, antippen zum Zeigen" : "Sichtbar, antippen zum Ausblenden"}">${esc(n.label)}</button>`; }).join("")}</div>
+      ${(st.navHide || []).length ? `<p class="hint" style="margin-top:12px">Ausgeblendete Seiten öffnen:</p><div class="pills">${navItems().filter(n => (st.navHide || []).includes(n.v)).map(n => `<button class="pill" data-go="${n.v}">${ic(n.icon)}${esc(n.label)}</button>`).join("")}</div>` : ""}
+      <div class="card-h" style="margin-top:22px"><h2>Erledigte Aufgaben</h2></div>
+      <p class="hint">Abgehakte Aufgaben wandern nach dieser Zeit von selbst ins Archiv. Der Fortschritt deiner Projekte zählt sie weiter mit.</p>
+      <div class="pills">${[[0,"Nie"],[1,"Nach 1 Tag"],[7,"Nach 7 Tagen"],[30,"Nach 30 Tagen"]].map(([v, l]) => `<button class="pill ${(st.autoArch ?? 7) === v ? "on" : ""}" data-act="set-autoarch" data-val="${v}">${l}</button>`).join("")}</div></section>
     <section class="card"><div class="card-h"><h2>Darstellung</h2></div>
       <p class="hint">Hell, dunkel oder automatisch wie dein Gerät.</p>
       ${pills("theme-set", [["system","Automatisch"],["light","Hell"],["dark","Dunkel"]], st.theme || "system").replace(/data-filter="theme-set"/g, 'data-act="set-theme"')}
@@ -3219,6 +3237,8 @@ document.addEventListener("click", e => {
     case "notify-on": enableNotify(); break;
     case "set-sort": S.settings.sort = {...(S.settings.sort || {}), [a.dataset.key]: a.dataset.val}; saveSettings(); renderMain(); break;
     case "set-start": S.settings.start = a.dataset.val; saveSettings(); renderMain(); break;
+    case "nav-tog": { const h = new Set(S.settings.navHide || []), v = a.dataset.val; h.has(v) ? h.delete(v) : h.add(v); S.settings.navHide = [...h]; saveSettings(); renderSide(); renderMain(); break; }
+    case "set-autoarch": { S.settings.autoArch = +a.dataset.val; saveSettings(); const n = autoArchive(); renderMain(); renderSide(); if (n) toast(n === 1 ? "1 erledigte Aufgabe ist jetzt im Archiv." : `${n} erledigte Aufgaben sind jetzt im Archiv.`); break; }
     case "review-save": saveReview(); break;
     case "addtask": quickAdd("task", a.dataset.src, a.dataset.rel); break;
     case "quick": quickAdd(a.dataset.kind, "add-" + a.dataset.kind); break;
