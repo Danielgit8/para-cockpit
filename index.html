@@ -796,6 +796,11 @@ body.bd-on{overflow:hidden}
 .br-skr b{font-size:14px;overflow-wrap:anywhere}
 .br-skr p{grid-column:1/-1;margin:0;font-size:12.5px;color:var(--muted);line-height:1.45}
 /* Meine Säulen und „Meine eine Sache heute“ */
+.pl-side{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.pl-side-l{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.pl-side .pill{font-size:12px;opacity:.85}
+.pl-side .pill b{font-weight:700;margin-left:4px;color:var(--muted)}
+.pl-grid.pl-top3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .pl-goal{margin:-6px 0 14px;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .pl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 @media (max-width:560px){.pl-grid{grid-template-columns:1fr 1fr;gap:8px}.pl{padding:10px 11px}.pl-top b{font-size:13px}.pl-wk{gap:3px}.pl-wk i{width:7px;height:7px}}
@@ -852,7 +857,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-16.2";
+const APP_VERSION = "2026-10-16.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1639,14 +1644,15 @@ S.todayMore = (() => { try { return !!localStorage.getItem("pc-more"); } catch(e
 function nowCands(){
   const tk = dkey(), mp = mainProj(), inMp = new Set(mp ? related(mp.id).map(r => r.id) : []);
   const rank = t => t.due && t.due <= tk ? 0 : inMp.has(t.id) ? 1 : t.due ? 2 : 3;
-  return live("task").filter(t => !t.done).sort((a, b) => rank(a) - rank(b) || taskByDate(a, b) || (a.created || 0) - (b.created || 0));
+  const scope = topAreas().length ? topScope() : null;
+  return live("task").filter(t => !t.done && (!scope || scope.has(t.id))).sort((a, b) => rank(a) - rank(b) || taskByDate(a, b) || (a.created || 0) - (b.created || 0));
 }
 function nowHTML(){
   if (S.otPick) return oneThingHTML();
   const tk = dkey(), o = S.settings.oneThing || {}, pk0 = o.d === tk && S.items.get(o.id), pk = pk0 && !pk0.archived ? pk0 : null;
   const t = pk && !pk.done ? pk : nowCands()[0];
   const ok = pk && pk.done ? `<p class="now-ok">${ic("check")}Deine eine Sache für heute ist erledigt. Alles Weitere ist Bonus.</p>` : "";
-  if (!t) return `<section class="card ot-card now-card">${ok}<div class="ot-lbl">Jetzt dran</div><p class="hint" style="margin:0 0 12px">Keine offenen Aufgaben. Was willst du als Nächstes angehen?</p>
+  if (!t) return `<section class="card ot-card now-card">${ok}<div class="ot-lbl">Jetzt dran</div><p class="hint" style="margin:0 0 12px">${topAreas().length ? "In deinen Schwerpunkten ist gerade nichts offen. Was ist der nächste Schritt?" : "Keine offenen Aufgaben. Was willst du als Nächstes angehen?"}</p>
     <div class="add"><input id="ot-new" data-keep placeholder="Aufgabe eintippen …" aria-label="Neue Aufgabe"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="ot-add" aria-label="Übernehmen">${ic("plus")}</button></div></section>`;
   const rel = related(t.id), p = rel.find(r => r.kind === "project" && !r.archived) || rel.find(r => r.kind === "area" && !r.archived);
   const pr = p && p.kind === "project" ? progress(p) : null;
@@ -1665,7 +1671,9 @@ function nowPlanHTML(){
   return `<button class="now-plan" data-go="cal" title="Kalender öffnen">${ic("cal")}${cur ? `<span><small>Gerade</small><b class="num">${toHM(cur.s)}–${toHM(cur.e)}</b> <b>${esc(cur.title)}</b></span>` : ""}${nxt ? `<span><small>Danach</small><b class="num">${toHM(nxt.s)}</b> <b>${esc(nxt.title)}</b></span>` : ""}</button>`;
 }
 function habitChipsHTML(){
-  const tk = dkey(), hs = byOrd(live("habit")); if (!hs.length) return "";
+  const tk = dkey(), scope = topAreas().length ? topScope() : null;
+  const hs = byOrd(live("habit")).map((h, i) => [h, i]).sort((x, y) => (scope ? (scope.has(y[0].id) - scope.has(x[0].id)) : 0) || x[1] - y[1]).map(x => x[0]);
+  if (!hs.length) return "";
   const hd = hs.filter(h => hdone(h, tk)).length;
   return `<section class="card"><div class="card-h"><h2>Gewohnheiten heute</h2><span class="grow"></span><span class="pill num">${hd}/${hs.length}</span></div>
     <div class="hchips">${hs.map(h => hmode(h) === "check"
@@ -1684,13 +1692,14 @@ function todayTasksHTML(tk){
 }
 function todayHTML(){
   const tk = dkey(), steps = nextSteps(), rv = reviewDue();
-  const more = S.todayMore ? `<div class="stack">${pillarsCardHTML()}${mainProjHTML()}${todayTasksHTML(tk)}
+  const front = topAreas().length;
+  const more = S.todayMore ? `<div class="stack">${front ? "" : pillarsCardHTML()}${mainProjHTML()}${todayTasksHTML(tk)}
     <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
     ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte.</div>`}</section></div>` : "";
   return header("Heute", dateLine()) + banner() +
   (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") +
-  nowHTML() + nowPlanHTML() + habitChipsHTML() +
-  `<button class="more-tg ${S.todayMore ? "open" : ""}" data-act="today-more" aria-expanded="${S.todayMore}">${S.todayMore ? "Weniger anzeigen" : "Mehr anzeigen: Säulen, Hauptprojekt, Aufgaben, Projekte"}${ic("down")}</button>` + more;
+  nowHTML() + nowPlanHTML() + (front ? pillarsCardHTML() : "") + habitChipsHTML() +
+  `<button class="more-tg ${S.todayMore ? "open" : ""}" data-act="today-more" aria-expanded="${S.todayMore}">${S.todayMore ? "Weniger anzeigen" : front ? "Mehr anzeigen: Hauptprojekt, Aufgaben, Projekte" : "Mehr anzeigen: Säulen, Hauptprojekt, Aufgaben, Projekte"}${ic("down")}</button>` + more;
 }
 
 /* --- Mein Hauptprojekt: ein angeheftetes Projekt mit Fahrplan-Notizen, Gewohnheiten und den nächsten Schritten --- */
@@ -1741,8 +1750,28 @@ function lpOpen(aid){
   if (!n) n = create("note", "", {month: dkey().slice(0, 7), rel:[aid], tags:["Lehrplan"], body: LP_BODY(lpMonth())});
   openDetail(n.id);
 }
+const topAreas = () => pillars().filter(a => a.top);
+function topScope(){
+  const set = new Set();
+  for (const a of topAreas()) { set.add(a.id); for (const r of related(a.id)) { set.add(r.id); if (r.kind === "project" && !r.archived) for (const x of related(r.id)) set.add(x.id); } }
+  return set;
+}
+function pillarSideHTML(a){
+  const ba = brArea(), act = a.learn ? `data-act="lp-open" data-id="${a.id}"` : ba && ba.id === a.id ? `data-go="brand"` : `data-open="${a.id}"`;
+  const hubs = [a, ...related(a.id).filter(r => r.kind === "project" && !r.archived)], wk = weekDays();
+  const h = hubs.flatMap(x => related(x.id)).find(r => r.kind === "habit" && !r.archived);
+  const n = h ? wk.filter(d => hdone(h, dkey(d))).length : null;
+  return `<button class="pill" ${act} title="${h ? esc(h.title) + ": diese Woche" : "Öffnen"}">${esc(a.title || "Bereich")}${h ? `<b class="num">${n}×</b>` : ""}</button>`;
+}
 function pillarsCardHTML(){
   const ps = pillars(); if (!ps.length) return "";
+  const tops = topAreas();
+  if (tops.length) {
+    const rest = ps.filter(a => !a.top), goal = (S.settings.focusGoal || "").trim();
+    return `<section class="card"><div class="card-h"><h2>Meine Schwerpunkte</h2><span class="grow"></span><button class="pill" data-go="settings" title="Schwerpunkte ändern">Ändern</button></div>${goal ? `<p class="pl-goal">${esc(goal)}</p>` : ""}
+      <div class="pl-grid pl-top3">${tops.map((a, i) => pillarHTML(a, i)).join("")}</div>
+      ${rest.length ? `<div class="pl-side"><span class="pl-side-l">Läuft nebenher</span>${rest.map(a => pillarSideHTML(a)).join("")}</div>` : ""}</section>`;
+  }
   const goal = (S.settings.focusGoal || "").trim();
   return `<section class="card"><div class="card-h"><h2>Meine Säulen</h2><span class="grow"></span>${(() => { const vb = live("board").find(b => /vision/i.test(b.title || "")); return vb ? `<button class="pill" data-act="bd-open" data-id="${vb.id}">${ic("board")}Vision Board</button>` : `<button class="pill" data-act="vb-new" title="Vision Board anlegen">${ic("board")}Vision Board</button>`; })()}<button class="pill" data-go="settings" title="Säulen und Ziel ändern">Ändern</button></div>${goal ? `<p class="pl-goal">${esc(goal)}</p>` : ""}<div class="pl-grid">${ps.map(pillarHTML).join("")}</div></section>`;
 }
@@ -2118,7 +2147,9 @@ function settingsHTML(){
     <section class="card"><div class="card-h"><h2>Meine Säulen</h2></div>
       <p class="hint">Dein großes Ziel und die Bereiche, die dafür am meisten zählen. Sie stehen als Kacheln oben auf „Heute“. Tippe einen Bereich an, um ihn als Säule zu zeigen oder herauszunehmen.</p>
       <input class="field" id="focus-goal" data-set="focus-goal" value="${esc(st.focusGoal || "")}" placeholder="Mein großes Ziel" aria-label="Mein großes Ziel">
-      <div class="pills" style="margin-top:12px">${live("area").sort((a, b) => (a.focus || 99) - (b.focus || 99)).map(a => `<button class="pill ${a.focus ? "on" : ""}" data-act="pl-tog" data-id="${a.id}">${a.focus ? `${a.focus}. ` : ""}${esc(a.title || "Bereich")}</button>`).join("")}</div></section>
+      <div class="pills" style="margin-top:12px">${live("area").sort((a, b) => (a.focus || 99) - (b.focus || 99)).map(a => `<button class="pill ${a.focus ? "on" : ""}" data-act="pl-tog" data-id="${a.id}">${a.focus ? `${a.focus}. ` : ""}${esc(a.title || "Bereich")}</button>`).join("")}</div>
+      ${pillars().length ? `<p class="hint" style="margin-top:16px"><b>Schwerpunkte:</b> Was kommt zuerst? Diese Säulen stehen groß auf „Heute“, und „Jetzt dran“ schlägt nur Aufgaben aus ihnen vor. Die anderen laufen klein nebenher. Am besten höchstens drei.</p>
+      <div class="pills">${pillars().map(a => `<button class="pill ${a.top ? "on" : ""}" data-act="pl-top" data-id="${a.id}">${a.top ? "★ " : ""}${esc(a.title || "Bereich")}</button>`).join("")}</div>` : ""}</section>
     <section class="card"><div class="card-h"><h2>Menü &amp; Ordnung</h2></div>
       <p class="hint">Tippe eine Seite an, um sie im Menü zu zeigen oder auszublenden. Ausgeblendete Seiten bleiben mit allen Einträgen erhalten und lassen sich hier jederzeit öffnen.</p>
       <div class="pills">${navItems().filter(n => n.v !== "dashboard" && n.v !== "settings").map(n => { const off = (st.navHide || []).includes(n.v); return `<button class="pill ${off ? "" : "on"}" data-act="nav-tog" data-val="${n.v}" title="${off ? "Ausgeblendet, antippen zum Zeigen" : "Sichtbar, antippen zum Ausblenden"}">${esc(n.label)}</button>`; }).join("")}</div>
@@ -3464,9 +3495,11 @@ document.addEventListener("click", e => {
     case "set-sort": S.settings.sort = {...(S.settings.sort || {}), [a.dataset.key]: a.dataset.val}; saveSettings(); renderMain(); break;
     case "set-start": S.settings.start = a.dataset.val; saveSettings(); renderMain(); break;
     case "pl-tog": { const ar = S.items.get(id); if (!ar) break;
-      if (ar.focus) { const was = ar.focus; ar.focus = 0; persist(ar); for (const o of pillars()) if (o.focus > was) { o.focus--; persist(o); } }
+      if (ar.focus) { const was = ar.focus; ar.focus = 0; ar.top = false; persist(ar); for (const o of pillars()) if (o.focus > was) { o.focus--; persist(o); } }
       else { ar.focus = pillars().length + 1; persist(ar); }
       renderMain(); break; }
+    case "pl-top": { const ar = S.items.get(id); if (!ar) break; ar.top = !ar.top; persist(ar);
+      const n = topAreas().length; toast(ar.top ? (n > 3 ? `${n} Schwerpunkte. Weniger ist hier mehr.` : "Als Schwerpunkt markiert") : "Läuft jetzt nebenher"); renderMain(); break; }
     case "ot-pick": S.otPick = true; renderMain(); break;
     case "ot-cancel": S.otPick = false; renderMain(); break;
     case "ot-set": S.settings.oneThing = {d: dkey(), id}; S.otPick = false; saveSettings(); renderMain(); window.scrollTo({top:0}); break;
