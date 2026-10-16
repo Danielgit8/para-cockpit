@@ -247,6 +247,8 @@ code{font-family:var(--f-num);font-size:12px;background:var(--soft);padding:1px 
   border-left:1px solid var(--line);box-shadow:-30px 0 60px -30px rgba(0,0,0,.35);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .d-head{display:flex;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--line)}
 .d-head .grow{flex:1}
+.xref{color:var(--text);text-decoration:underline;text-decoration-color:var(--brand);text-decoration-thickness:1.5px;text-underline-offset:3px;cursor:pointer;border-radius:4px}
+.xref:hover{background:var(--brand-soft)}
 .d-scroll{overflow:auto;padding:18px 22px 40px;display:flex;flex-direction:column;gap:22px}
 .d-scroll > *{flex-shrink:0}
 .d-title{width:100%;border:0;outline:none;background:transparent;font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;resize:none;padding:0;overflow:hidden}
@@ -857,7 +859,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-16.3";
+const APP_VERSION = "2026-10-16.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2235,7 +2237,7 @@ function openDetail(id){
   const bodyPh = {resource:"Zutaten, Zusammenfassung, wichtigste Punkte …", project:"Ziel, gewünschtes Ergebnis, nächste Schritte …", area:"Worum geht es in diesem Bereich? Welcher Standard ist dir wichtig?", habit:"Warum ist dir diese Gewohnheit wichtig?", event:"Ort, Treffpunkt, was du mitnehmen willst …"}[it.kind] || "Schreib hier alles hinein …";
   $("#overlay").innerHTML = `<div class="scrim" data-act="close"></div>
   <aside class="drawer" role="dialog" aria-label="${esc(k.label)} bearbeiten">
-    <div class="d-head"><span class="chip">${ic(k.icon)}${esc(k.label)}</span>${it.example ? '<span class="chip ex">Beispiel</span>' : ""}<span class="grow"></span>
+    <div class="d-head">${(S.dBack || []).length ? `<button class="pill" data-act="d-back" title="Zurück zu „${esc((S.items.get(S.dBack[S.dBack.length - 1]) || {}).title || "vorher")}“">${ic("left")}Zurück</button>` : ""}<span class="chip">${ic(k.icon)}${esc(k.label)}</span>${it.example ? '<span class="chip ex">Beispiel</span>' : ""}<span class="grow"></span>
       ${it.kind === "task" ? `<button class="pill ${it.done ? "on" : ""}" id="d-done" data-act="toggle" data-id="${it.id}">${ic("check")}${it.done ? "Erledigt" : "Abhaken"}</button>` : ""}
       ${it.kind === "project" ? `<button class="pill ${S.settings.mainProject === it.id ? "on" : ""}" data-act="main-proj" data-id="${it.id}" title="Ganz oben auf Heute anzeigen">${ic("star")}${S.settings.mainProject === it.id ? "Hauptprojekt" : "Als Hauptprojekt"}</button>` : ""}
       <button class="pill d-editbtn" id="d-editbtn" data-act="d-edit"></button>
@@ -2271,11 +2273,54 @@ function openDetail(id){
   refreshDetail(); dApplyLock();
   if (!it.title) $("#d-title").focus();
 }
+// Querverweise: Erwähnungen anderer Einträge (Titel in „…“, Listen mit ·, fette Begriffe, volle Titel) werden im Lesemodus antippbar.
+// Die Spans sind reine Anzeige: inlMd übernimmt nur ihren Text, gespeichert wird nichts davon.
+const xrNorm = s => String(s || "").toLowerCase().replace(/[„“”"‚‘’«»]/g, "").replace(/\s+/g, " ").trim();
+const xrW = c => !!c && /[\p{L}\d]/u.test(c);
+function xrAt(h, n){ let i = h.indexOf(n); while (i >= 0) { if (!xrW(h[i - 1]) && !xrW(h[i + n.length])) return i; i = h.indexOf(n, i + 1); } return -1; }
+function xrIndex(self){
+  return all().filter(i => !i.archived && i.id !== self && i.title && !HIDDEN_K.includes(i.kind)).map(i => { const n = xrNorm(i.title); return {id:i.id, n, core:n.replace(/^werkzeug · /, "").replace(/\s*\([^)]*\)$/, "").replace(/\s*\|.*$/, "").trim()}; }).filter(x => x.n.length >= 3);
+}
+function xrFind(c, idx, min = 2){
+  const n = xrNorm(c).replace(/[.,:;!?…]+$/, "").trim(); if (n.length < 4) return null;
+  let best = null, score = 0;
+  for (const x of idx) {
+    let sc = x.n === n ? 4 : x.core === n ? 3.5 : 0;
+    if (!sc && n.length >= 5) { const at = xrAt(x.n, n); if (at === 0) sc = 3; else if (at > 0 && n.length >= 7) sc = 2; }
+    if (sc > score || (sc && sc === score && x.n.length < best.n.length)) { best = x; score = sc; }
+  }
+  return score >= min ? best : null;
+}
+function xrLink(ed, it){
+  if (!ed || !it) return;
+  const idx = xrIndex(it.id); if (!idx.length) return;
+  const long = idx.filter(x => x.n.length >= 16);
+  const mk = (txt, id) => { const sp = document.createElement("span"); sp.className = "xref"; sp.dataset.open = id; sp.setAttribute("role", "link"); sp.textContent = txt; return sp; };
+  // Fette Begriffe nur bei (fast) genauem Treffer
+  ed.querySelectorAll("b, strong").forEach(b => { if (b.closest(".xref, a")) return; const x = xrFind(b.textContent, idx, 3.5); if (x) { const sp = mk("", x.id); while (b.firstChild) sp.appendChild(b.firstChild); b.appendChild(sp); } });
+  const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT), nodes = []; let n;
+  while ((n = w.nextNode())) if (!n.parentNode.closest("a, .xref, code")) nodes.push(n);
+  for (const tn of nodes) {
+    const txt = tn.nodeValue, hits = [];
+    const add = (st, seg) => { const t = seg.replace(/[.,:;!?…]+$/, "").trim(); if (!t) return; const off = st + seg.indexOf(t); const x = xrFind(t, idx); if (x) hits.push({s:off, e:off + t.length, id:x.id}); };
+    for (const m of txt.matchAll(/[„“"]([^„“”"\n]{3,90})[“”"]/g)) add(m.index + 1, m[1]);
+    if (txt.includes("·")) { let pos = 0; for (const part of txt.split("·")) { const q = part.match(/^(\s*[„“"]?)(.*?)([“”"]?\s*)$/s); add(pos + q[1].length, q[2]); pos += part.length + 1; } }
+    const low = txt.toLowerCase();
+    for (const x of long) { const at = xrAt(low, x.n); if (at >= 0) hits.push({s:at, e:at + x.n.length, id:x.id}); }
+    if (!hits.length) continue;
+    hits.sort((a, b) => a.s - b.s || (b.e - b.s) - (a.e - a.s));
+    const frag = document.createDocumentFragment(); let cur = 0;
+    for (const h of hits) { if (h.s < cur) continue; if (h.s > cur) frag.appendChild(document.createTextNode(txt.slice(cur, h.s))); frag.appendChild(mk(txt.slice(h.s, h.e), h.id)); cur = h.e; }
+    if (cur < txt.length) frag.appendChild(document.createTextNode(txt.slice(cur)));
+    tn.replaceWith(frag);
+  }
+}
+function xrUnlink(ed){ if (!ed) return; ed.querySelectorAll(".xref").forEach(sp => sp.replaceWith(...sp.childNodes)); ed.normalize(); }
 function dApplyLock(){
   const dr = $("#overlay .drawer"); if (!dr) return; const lock = !S.dEdit;
   dr.classList.toggle("d-locked", lock);
   const t = $("#d-title"); if (t) t.readOnly = lock;
-  const ed = $("#d-ed"); if (ed) ed.contentEditable = lock ? "false" : "true";
+  const ed = $("#d-ed"); if (ed) { ed.contentEditable = lock ? "false" : "true"; xrUnlink(ed); if (lock) xrLink(ed, S.items.get(S.open)); }
   dr.querySelectorAll(".d-fields input, .d-fields select, .d-fields textarea").forEach(x => { x.disabled = lock; });
   const b = $("#d-editbtn"); if (b) { b.classList.toggle("on", !lock); b.innerHTML = ic(lock ? "pen" : "check") + (lock ? "Bearbeiten" : "Fertig"); b.title = lock ? "Inhalt bearbeiten" : "Bearbeiten beenden, danach ist der Eintrag wieder geschützt"; }
 }
@@ -2385,7 +2430,7 @@ function refreshDetail(){
   const hb = $("#dy-habit");
   if (hb) { hb.innerHTML = habitMonthHTML(it); $("#d-streak").textContent = `${inRow(streak(it))} · ${weekCount(it)}/${it.target || 7} diese Woche`; }
   const ed = $("#d-ed");
-  if (ed && document.activeElement !== ed && edToMd(ed) !== (it.body || "")) { ed.innerHTML = mdBlocks(it.body, it); edNormalize(ed); }
+  if (ed && document.activeElement !== ed && edToMd(ed) !== (it.body || "")) { ed.innerHTML = mdBlocks(it.body, it); edNormalize(ed); if (!S.dEdit) xrLink(ed, it); }
   const tg = $("#dy-tags"); if (tg) tg.innerHTML = tagsOf(it).map(t => `<span class="relchip"><button class="o" data-tag="${esc(t)}">#${esc(t)}</button><button class="x" data-act="untag" data-val="${esc(t)}" aria-label="Stichwort entfernen">${ic("close")}</button></span>`).join("");
   const rm = $("#dy-remind");
   if (rm) rm.innerHTML = it.remind && (it.kind === "habit" || it.kind === "task") ? `<div class="lrow">${ic("bell")}<div class="t"><b>Erinnerung ${esc(it.remind)}${it.kind === "habit" ? " täglich" : it.due ? ` am ${fmtLong(it.due)}` : ""}</b><small>${it.kind === "task" && !it.due ? "Gib ein Fälligkeitsdatum an, damit die Erinnerung kommt." : notifyState() === "granted" ? "Kommt als Mitteilung, solange die App offen oder im Hintergrund ist." : "Mitteilungen sind noch nicht erlaubt (Anpassen → Erinnerungen)."}</small></div>
@@ -2523,7 +2568,7 @@ async function importData(file){
     renderMain(); renderSide(); toast(`${n} Einträge eingespielt`);
   } catch(e) { toast("Diese Datei ist keine gültige Sicherung."); }
 }
-function closeOverlay(){ S.open = null; $("#overlay").innerHTML = ""; closePop(); }
+function closeOverlay(){ S.open = null; S.dBack = []; $("#overlay").innerHTML = ""; closePop(); }
 
 /* ================= Erinnerungen ================= */
 // Mitteilungen kommen, solange die App offen oder im Hintergrund aktiv ist. Für Erinnerungen bei geschlossener App gibt es die Kalender-Datei.
@@ -3465,12 +3510,15 @@ document.addEventListener("click", e => {
   const side = $("#side"); if (side.classList.contains("open") && !e.target.closest("#side") && !e.target.closest('[data-act="menu"]')) side.classList.remove("open");
   const g = e.target.closest("[data-go]"); if (g) { closePop(); if (S.open) closeOverlay(); go(g.dataset.go); return; }
   const tg = e.target.closest("[data-tag]"); if (tg) { S.filter.tag = tg.dataset.tag; closeOverlay(); go("tags"); return; }
-  const o = e.target.closest("[data-open]"); if (o && !e.target.closest("[data-act]")) { const q = $("#q"); if (q && q.value) { q.value = ""; searchRender(""); } closePop(); openDetailFresh(o.dataset.open); return; }
+  const o = e.target.closest("[data-open]"); if (o && !e.target.closest("[data-act]")) { const q = $("#q"); if (q && q.value) { q.value = ""; searchRender(""); } closePop();
+    if (S.open && o.closest("#overlay")) { if (o.dataset.open !== S.open) { if (S.dEdit) edSave(); (S.dBack = S.dBack || []).push(S.open); } } else S.dBack = [];
+    openDetailFresh(o.dataset.open); return; }
   const fb = e.target.closest("[data-filter]"); if (fb) { S.filter[fb.dataset.filter] = fb.dataset.val; renderMain(); return; }
   const a = e.target.closest("[data-act]"); if (!a) { if (!e.target.closest(".search")) searchRender(""); return; }
   const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
   switch (act) {
     case "menu": $("#side").classList.toggle("open"); break;
+    case "d-back": { const bk = (S.dBack || []).pop(); if (bk && S.items.has(bk)) openDetailFresh(bk); else S.dBack = []; break; }
     case "grp": closePop(); if (S.open) closeOverlay(); goGroup(id); break;
     case "today-more": S.todayMore = !S.todayMore; try { localStorage.setItem("pc-more", S.todayMore ? "1" : ""); } catch(e){} renderMain(); break;
     case "d-edit": if (S.dEdit) { const ed = $("#d-ed"); if (ed && document.activeElement === ed) ed.blur(); } S.dEdit = !S.dEdit; dApplyLock(); if (!S.dEdit) toast("Gespeichert. Der Eintrag ist wieder geschützt."); break;
