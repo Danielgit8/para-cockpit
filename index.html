@@ -78,6 +78,50 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .nav:hover{color:var(--text);background:var(--soft)}
 .nav.on{background:var(--ink);color:var(--on-ink)}
 .nav .cnt{margin-left:auto;font-size:11px;opacity:.7}
+.nav-subs{display:flex;flex-direction:column;gap:2px;margin:2px 0 8px 23px;padding-left:10px;border-left:1px solid var(--line)}
+.nav-sub{display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border-radius:999px;color:var(--muted);font-weight:600;font-size:13.5px;text-align:left}
+.nav-sub svg{width:16px;height:16px}
+.nav-sub:hover,.nav-sub.on{color:var(--text);background:var(--soft)}
+.nav-extra{display:flex;flex-wrap:wrap;gap:2px;padding:14px 4px 6px;margin-top:auto}
+.nav-extra button{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);padding:6px 10px;border-radius:999px}
+.nav-extra button svg{width:14px;height:14px}
+.nav-extra button:hover,.nav-extra button.on{background:var(--soft);color:var(--text)}
+.nav-extra + .side-foot{margin-top:0}
+.gtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-8px 0 0;padding:0 4px 2px}
+.gtabs::-webkit-scrollbar{display:none}
+.gtab{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-weight:600;font-size:13.5px}
+.gtab svg{width:16px;height:16px}
+.gtab:hover{color:var(--text)}
+.gtab.on{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.rbtn.only-m{display:none}
+.now-card{margin:0}
+.now-t{display:block;text-align:left;font-size:clamp(22px,3.2vw,30px);font-weight:800;line-height:1.2;letter-spacing:-.01em;margin:6px 0 12px;color:var(--text)}
+.now-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.now-meta .late{color:var(--late);border-color:var(--late)}
+.now-act{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.now-act .btn{height:44px;padding:0 20px;font-size:14px}
+.now-act .btn svg{width:17px;height:17px}
+.now-ok{display:flex;gap:8px;align-items:center;color:var(--good);font-weight:700;margin:0 0 14px}
+.now-ok svg{width:17px;height:17px}
+.now-card .hint{margin:14px 0 0}
+.now-plan{display:flex;gap:22px;flex-wrap:wrap;align-items:center;width:100%;text-align:left;padding:12px 18px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel)}
+.now-plan > svg{width:18px;height:18px;color:var(--muted)}
+.now-plan small{display:block;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.now-plan b{font-weight:700}
+.hchips{display:flex;flex-wrap:wrap;gap:8px}
+.hchip{display:inline-flex;align-items:center;gap:9px;padding:8px 14px 8px 9px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel);font-weight:600;font-size:14px;color:var(--text);text-align:left}
+.hchip > svg{width:14px;height:14px;padding:3px;border-radius:50%;border:1.5px solid var(--line-2);color:transparent;flex:none}
+.hchip.on{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.hchip.on > svg{color:var(--on-ink);border-color:var(--on-ink)}
+.hchip-x{padding:5px 6px 5px 14px}
+.hchip-x .t{font-weight:600}
+.hchip-x .hin input{width:64px}
+.more-tg{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border:1px dashed var(--line-2);border-radius:var(--r-md);color:var(--muted);font-weight:600;font-size:13.5px}
+.more-tg:hover{color:var(--text);background:var(--soft)}
+.more-tg svg{width:16px;height:16px;transition:transform .2s}
+.more-tg.open svg{transform:rotate(180deg)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack > .card{margin:0}
 .side-foot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
 .dot.ok{background:var(--good)} .dot.warn{background:var(--late)}
@@ -620,6 +664,9 @@ body.bd-on{overflow:hidden}
   .bottom{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:44;background:var(--panel-solid);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);padding:6px;justify-content:space-between}
   .bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:var(--muted);padding:6px 0;border-radius:999px}
   .bottom button.on{background:var(--ink);color:var(--on-ink)}
+  .bottom button.nav-brand{color:var(--brand)}
+  .bottom button.nav-brand.on{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff}
+  .rbtn.only-m{display:grid}
   .tl,.tl-body{grid-template-columns:minmax(0,1fr)}
   .tl-label{display:none}
   .tl-head{grid-column:1}
@@ -805,7 +852,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-16.1";
+const APP_VERSION = "2026-10-16.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1351,25 +1398,51 @@ function navItems(){
   out.push({v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"});
   return out;
 }
-function go(v){ bsFlush(); S.view = v; $("#side").classList.remove("open"); render(); window.scrollTo({top:0}); }
+/* Menü in 5 Gruppen: jede Gruppe ist ein Menüpunkt, ihre Seiten stehen als Reiter oben auf der Seite */
+function navGroups(){
+  const k = kinds(), hide = new Set(S.settings.navHide || []);
+  const v = (id, label, icon) => ({v:id, label, icon});
+  const gs = [
+    {id:"today", label:"Heute", icon:"sun", views:[v("today", "Heute", "sun")]},
+    {id:"plan", label:"Planen", icon:"cal", views:[v("cal", "Kalender", "cal"), v("task", k.task.plural, k.task.icon), v("project", k.project.plural, k.project.icon), v("habit", k.habit.plural, k.habit.icon), v("review", "Wochenrückblick", "review")]},
+    {id:"brand", label:"Brand & Business", short:"Brand", icon:"star", views:[v("brand", "Brand & Business", "star")]},
+    {id:"body", label:"Körper", icon:"dumbbell", views:[v("training", "Training", "dumbbell"), v("basis", "Basis", "pulse")]},
+    {id:"know", label:"Wissen", icon:k.resource.icon, views:[...(S.settings.kinds || []).map(c => v(c.id, c.label, "folder")), v("resource", k.resource.plural, k.resource.icon), v("note", k.note.plural, k.note.icon), v("area", k.area.plural, k.area.icon), v("board", "Boards", "board")]},
+  ];
+  for (const g of gs) g.views = g.views.filter(x => !hide.has(x.v) || S.view === x.v);
+  return gs.filter(g => g.views.length);
+}
+const groupOf = v => navGroups().find(g => g.views.some(x => x.v === v));
+S.lastIn = (() => { try { return JSON.parse(localStorage.getItem("pc-last") || "{}") || {}; } catch(e) { return {}; } })();
+function goGroup(gid){
+  const g = navGroups().find(x => x.id === gid); if (!g) return;
+  const last = S.lastIn[gid];
+  go(g.views.some(x => x.v === last) ? last : g.views[0].v);
+}
+function groupTabs(){
+  const g = groupOf(S.view); if (!g || g.views.length < 2) return "";
+  return `<nav class="gtabs" aria-label="${esc(g.label)}">${g.views.map(x => `<button class="gtab ${x.v === S.view ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</nav>`;
+}
+function go(v){
+  bsFlush(); S.view = v; $("#side").classList.remove("open");
+  const g = groupOf(v); if (g) { S.lastIn[g.id] = v; try { localStorage.setItem("pc-last", JSON.stringify(S.lastIn)); } catch(e){} }
+  render(); window.scrollTo({top:0});
+  const t = document.querySelector(".gtab.on"); if (t) t.parentNode.scrollLeft = t.offsetLeft - 16;
+}
 
 function renderSide(){
-  const counts = {};
-  for (const i of live()) if (!(i.kind === "task" && i.done)) counts[i.kind] = (counts[i.kind] || 0) + 1;
-  { const tk = dkey(); const n = live("task").filter(t => !t.done && t.due && t.due <= tk).length + live("habit").filter(h => !hdone(h, tk)).length; if (n) counts.today = n; }
-  if (reviewDue()) counts.review = "•";
-  const hide = new Set(S.settings.navHide || []);
-  const items = navItems().filter(n => !hide.has(n.v) || S.view === n.v);
-  const grp = v => v === "dashboard" ? "" : v === "brand" ? "Mein Ziel" : (v === "archive" || v === "settings") ? "System" : ["today","cal","task","habit","project","basis","training","review"].includes(v) ? "Umsetzung" : "Wissen";
-  let lastG = "";
+  const tk = dkey(), counts = {};
+  { const n = live("task").filter(t => !t.done && t.due && t.due <= tk).length + live("habit").filter(h => !hdone(h, tk)).length; if (n) counts.today = n; }
+  if (reviewDue()) counts.plan = "•";
+  const gs = navGroups(), cur = groupOf(S.view), hide = new Set(S.settings.navHide || []);
+  const extra = [...(hide.has("tags") ? [] : [{v:"tags", label:"Stichwörter", icon:"tag"}]), {v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"}];
   $("#side").innerHTML = `
     <div class="brand"><span class="brand-mark">P</span>PARA Cockpit</div>
-    ${items.map(n => { const g = grp(n.v), lbl = g && g !== lastG ? `<div class="nav-label">${g}</div>` : ""; lastG = g; return `${lbl}
-      <button class="nav ${n.v === "brand" ? "nav-brand" : ""} ${S.view === n.v ? "on" : ""}" data-go="${n.v}">${ic(n.icon)}<span>${esc(n.label)}</span>${counts[n.v] ? `<span class="cnt num">${counts[n.v]}</span>` : ""}</button>`; }).join("")}
+    ${gs.map(g => `<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
+      ${cur && cur.id === g.id && g.views.length > 1 ? `<div class="nav-subs">${g.views.map(x => `<button class="nav-sub ${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>` : ""}`).join("")}
+    <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
     <div class="side-foot" id="side-status"></div>`;
-  const bottom = [{v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}, {v:"task", label:"Aufgaben", icon:"task"}, {v:"habit", label:"Habits", icon:"habit"}, {v:"brand", label:"Brand", icon:"star"}];
-  $("#bottom").innerHTML = bottom.map(b => `<button class="${S.view === b.v ? "on" : ""}" data-go="${b.v}">${ic(b.icon)}${b.label}</button>`).join("") +
-    `<button data-act="menu">${ic("menu")}Mehr</button>`;
+  $("#bottom").innerHTML = gs.map(g => `<button class="${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}${esc(g.short || g.label)}</button>`).join("");
   renderStatus();
 }
 
@@ -1380,8 +1453,9 @@ function header(title, sub){
     <div class="top-tools">
       <div class="search">${ic("search")}<input id="q" data-keep type="search" placeholder="Suchen oder #stichwort …" autocomplete="off" aria-label="Suche"><div id="search-res"></div></div>
       <button class="rbtn" data-act="theme" title="Hell / Dunkel umschalten" aria-label="Hell oder dunkel">${ic("moon")}</button>
+      <button class="rbtn only-m" data-act="menu" title="Menü: Archiv, Anpassen" aria-label="Menü">${ic("menu")}</button>
       <button class="rbtn ink" data-act="new" title="Neuer Eintrag" aria-label="Neuer Eintrag">${ic("plus")}</button>
-    </div></div>`;
+    </div></div>${groupTabs()}`;
 }
 function renderMain(){
   const main = $("#main");
@@ -1560,27 +1634,63 @@ function stepRows(list, tk){
   return list.map(({p, t}) => `<div class="step"><button class="t" data-open="${p.id}" title="${esc(p.title)}">${esc(p.title || "Ohne Titel")}</button>
     ${t ? taskRow(t, tk) : `<div class="add"><input id="ns-${p.id}" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt für ${esc(p.title)}"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="ns-${p.id}" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}</div>`).join("");
 }
-function todayHTML(){
-  const tk = dkey();
+// Heute: oben nur EINE Sache, darunter Gewohnheiten als Haken. Alles andere liegt unter „Mehr anzeigen“.
+S.todayMore = (() => { try { return !!localStorage.getItem("pc-more"); } catch(e) { return false; } })();
+function nowCands(){
+  const tk = dkey(), mp = mainProj(), inMp = new Set(mp ? related(mp.id).map(r => r.id) : []);
+  const rank = t => t.due && t.due <= tk ? 0 : inMp.has(t.id) ? 1 : t.due ? 2 : 3;
+  return live("task").filter(t => !t.done).sort((a, b) => rank(a) - rank(b) || taskByDate(a, b) || (a.created || 0) - (b.created || 0));
+}
+function nowHTML(){
+  if (S.otPick) return oneThingHTML();
+  const tk = dkey(), o = S.settings.oneThing || {}, pk0 = o.d === tk && S.items.get(o.id), pk = pk0 && !pk0.archived ? pk0 : null;
+  const t = pk && !pk.done ? pk : nowCands()[0];
+  const ok = pk && pk.done ? `<p class="now-ok">${ic("check")}Deine eine Sache für heute ist erledigt. Alles Weitere ist Bonus.</p>` : "";
+  if (!t) return `<section class="card ot-card now-card">${ok}<div class="ot-lbl">Jetzt dran</div><p class="hint" style="margin:0 0 12px">Keine offenen Aufgaben. Was willst du als Nächstes angehen?</p>
+    <div class="add"><input id="ot-new" data-keep placeholder="Aufgabe eintippen …" aria-label="Neue Aufgabe"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="ot-add" aria-label="Übernehmen">${ic("plus")}</button></div></section>`;
+  const rel = related(t.id), p = rel.find(r => r.kind === "project" && !r.archived) || rel.find(r => r.kind === "area" && !r.archived);
+  const pr = p && p.kind === "project" ? progress(p) : null;
+  const due = t.due ? (t.due < tk ? `<span class="pill late">überfällig</span>` : t.due === tk ? `<span class="pill">heute fällig</span>` : "") : "";
+  return `<section class="card ot-card now-card">${ok}<div class="ot-lbl">${pk && !pk.done ? "Meine eine Sache heute" : "Jetzt dran"}</div>
+    <button class="now-t" data-open="${t.id}">${esc(t.title || "Ohne Titel")}</button>
+    <div class="now-meta">${p ? `<button class="pill" data-open="${p.id}">${esc(p.title || "Projekt")}</button>` : ""}${pr && pr.total ? `<span class="pill num">Schritt ${Math.min(pr.done + 1, pr.total)} von ${pr.total}</span>` : ""}${due}</div>
+    <div class="now-act"><button class="btn" data-act="toggle" data-id="${t.id}">${ic("check")}Erledigt</button><button class="btn ghost" data-act="ot-pick">Etwas anderes</button></div>
+    <p class="hint">Fang mit fünf Minuten an. Danach läuft es oft von selbst.</p></section>`;
+}
+function nowPlanHTML(){
+  const d = dayPlan(dkey()), now = new Date(), nm = now.getHours() * 60 + now.getMinutes();
+  const es = dayEntries(d).filter(x => !x.off);
+  const cur = es.filter(x => !x.pt && x.s <= nm && x.e > nm).pop(), nxt = es.find(x => x.s > nm);
+  if (!cur && !nxt) return "";
+  return `<button class="now-plan" data-go="cal" title="Kalender öffnen">${ic("cal")}${cur ? `<span><small>Gerade</small><b class="num">${toHM(cur.s)}–${toHM(cur.e)}</b> <b>${esc(cur.title)}</b></span>` : ""}${nxt ? `<span><small>Danach</small><b class="num">${toHM(nxt.s)}</b> <b>${esc(nxt.title)}</b></span>` : ""}</button>`;
+}
+function habitChipsHTML(){
+  const tk = dkey(), hs = byOrd(live("habit")); if (!hs.length) return "";
+  const hd = hs.filter(h => hdone(h, tk)).length;
+  return `<section class="card"><div class="card-h"><h2>Gewohnheiten heute</h2><span class="grow"></span><span class="pill num">${hd}/${hs.length}</span></div>
+    <div class="hchips">${hs.map(h => hmode(h) === "check"
+      ? `<button class="hchip ${hdone(h, tk) ? "on" : ""}" data-act="hday" data-id="${h.id}" data-day="${tk}" aria-pressed="${hdone(h, tk)}">${ic("check")}<span>${esc(h.title)}</span></button>`
+      : `<div class="hchip hchip-x ${hdone(h, tk) ? "on" : ""}"><button class="t" data-open="${h.id}">${esc(h.title)}</button>${habitCtl(h, tk)}</div>`).join("")}</div></section>`;
+}
+function todayTasksHTML(tk){
   const open = live("task").filter(t => !t.done);
   const late = open.filter(t => t.due && t.due < tk).sort(taskByDate), due = open.filter(t => t.due === tk).sort(taskByDate);
   const doneToday = live("task").filter(t => t.done && t.doneAt && dkey(new Date(t.doneAt)) === tk);
-  const hs = byOrd(live("habit")); const hd = hs.filter(h => hdone(h, tk)).length;
-  const steps = nextSteps();
-  const rv = reviewDue();
-  return header("Heute", `${dateLine()} · <span class="chip num">${hd}/${hs.length} Gewohnheiten</span><span class="chip num ${late.length ? "late" : ""}">${late.length + due.length} Aufgaben</span>`) + banner() +
-  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") + mainProjHTML() + pillarsCardHTML() + oneThingHTML() + dayPlanCardHTML() + `
-  <div class="two">
-    <section class="card"><div class="card-h"><h2>Gewohnheiten</h2><span class="grow"></span><span class="pill num">${hd}/${hs.length}</span></div>
-      ${hs.length ? hs.map(h => habitRow(h, tk)).join("") : `<div class="empty">Noch keine Gewohnheiten. Lege sie unter <button class="pill" data-go="habit">Gewohnheiten</button> an.</div>`}</section>
-    <section class="card"><div class="card-h"><h2>Aufgaben</h2><span class="grow"></span><button class="pill" data-go="task">Alle</button></div>
+  return `<section class="card"><div class="card-h"><h2>Aufgaben für heute</h2><span class="grow"></span><button class="pill" data-go="task">Alle</button></div>
       ${late.length ? `<div class="sub-h" style="color:var(--late)">Überfällig</div>${late.map(t => taskRow(t, tk)).join("")}` : ""}
-      <div class="sub-h">Heute fällig</div>${due.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px;margin-bottom:6px">Nichts fällig. Plane unten etwas für heute ein.</div>`}
+      <div class="sub-h">Heute fällig</div>${due.map(t => taskRow(t, tk)).join("") || `<div class="muted" style="font-size:13px;margin-bottom:6px">Nichts fällig.</div>`}
       <div class="add" style="margin-top:12px"><input id="today-add" data-keep placeholder="Aufgabe für heute …" aria-label="Aufgabe für heute"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="today-add" aria-label="Hinzufügen">${ic("plus")}</button></div>
-      ${doneToday.length ? `<div class="sub-h">Heute erledigt · ${doneToday.length}</div>${doneToday.map(t => taskRow(t, tk)).join("")}` : ""}</section>
-  </div>
-  <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
-    ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte. Sobald du eins anlegst, siehst du hier immer seinen nächsten Schritt.</div>`}</section>`;
+      ${doneToday.length ? `<div class="sub-h">Heute erledigt · ${doneToday.length}</div>${doneToday.map(t => taskRow(t, tk)).join("")}` : ""}</section>`;
+}
+function todayHTML(){
+  const tk = dkey(), steps = nextSteps(), rv = reviewDue();
+  const more = S.todayMore ? `<div class="stack">${pillarsCardHTML()}${mainProjHTML()}${todayTasksHTML(tk)}
+    <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
+    ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte.</div>`}</section></div>` : "";
+  return header("Heute", dateLine()) + banner() +
+  (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") +
+  nowHTML() + nowPlanHTML() + habitChipsHTML() +
+  `<button class="more-tg ${S.todayMore ? "open" : ""}" data-act="today-more" aria-expanded="${S.todayMore}">${S.todayMore ? "Weniger anzeigen" : "Mehr anzeigen: Säulen, Hauptprojekt, Aufgaben, Projekte"}${ic("down")}</button>` + more;
 }
 
 /* --- Mein Hauptprojekt: ein angeheftetes Projekt mit Fahrplan-Notizen, Gewohnheiten und den nächsten Schritten --- */
@@ -3330,6 +3440,8 @@ document.addEventListener("click", e => {
   const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
   switch (act) {
     case "menu": $("#side").classList.toggle("open"); break;
+    case "grp": closePop(); if (S.open) closeOverlay(); goGroup(id); break;
+    case "today-more": S.todayMore = !S.todayMore; try { localStorage.setItem("pc-more", S.todayMore ? "1" : ""); } catch(e){} renderMain(); break;
     case "d-edit": if (S.dEdit) { const ed = $("#d-ed"); if (ed && document.activeElement === ed) ed.blur(); } S.dEdit = !S.dEdit; dApplyLock(); if (!S.dEdit) toast("Gespeichert. Der Eintrag ist wieder geschützt."); break;
     case "new": openNew(); break;
     case "newkind": S.newKind = a.dataset.kind; document.querySelectorAll("#new-kinds .pill").forEach(p => p.classList.toggle("on", p.dataset.kind === S.newKind)); $("#new-title").focus(); break;
