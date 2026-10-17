@@ -98,6 +98,10 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .now-t{display:block;text-align:left;font-size:clamp(22px,3.2vw,30px);font-weight:800;line-height:1.2;letter-spacing:-.01em;margin:6px 0 12px;color:var(--text)}
 .now-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
 .now-meta .late{color:var(--late);border-color:var(--late)}
+.now-help{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-6px 0 18px}
+.now-help-l{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.now-help .pill{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.now-help .pill svg{width:14px;height:14px;flex:none}
 .now-act{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .now-act .btn{height:44px;padding:0 20px;font-size:14px}
 .now-act .btn svg{width:17px;height:17px}
@@ -859,7 +863,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-16.4";
+const APP_VERSION = "2026-10-17.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1649,6 +1653,16 @@ function nowCands(){
   const scope = topAreas().length ? topScope() : null;
   return live("task").filter(t => !t.done && (!scope || scope.has(t.id))).sort((a, b) => rank(a) - rank(b) || taskByDate(a, b) || (a.created || 0) - (b.created || 0));
 }
+function nowHelps(t){
+  const ck = new Set((S.settings.kinds || []).map(c => c.id)), pos = new Map((t.rel || []).map((id, i) => [id, i]));
+  return related(t.id).filter(r => !r.archived && (r.kind === "resource" || ck.has(r.kind)))
+    .sort((a, b) => (a.kind === "resource" ? 0 : 1) - (b.kind === "resource" ? 0 : 1) || (pos.get(a.id) ?? 99) - (pos.get(b.id) ?? 99));
+}
+function nowHelpHTML(t){
+  const hs = nowHelps(t); if (!hs.length) return "";
+  const short = r => { const x = (r.title || "Ohne Titel").replace(/^Mino Lee:\s*/, "").replace(/\s*\([^)]*\)\s*$/, "").replace(/\s*\|.*$/, "").trim(); return x.length > 46 ? x.slice(0, 44).trim() + " …" : x; };
+  return `<div class="now-help"><span class="now-help-l">Dazu</span>${hs.slice(0, 3).map(r => `<button class="pill" data-open="${r.id}" title="${esc(r.title || "")}">${ic(r.kind === "resource" ? "resource" : "folder")}${esc(short(r))}</button>`).join("")}${hs.length > 3 ? `<button class="pill" data-open="${t.id}" title="Alle Verknüpfungen im Schritt">+${hs.length - 3} weitere</button>` : ""}</div>`;
+}
 function nowHTML(){
   if (S.otPick) return oneThingHTML();
   const tk = dkey(), o = S.settings.oneThing || {}, pk0 = o.d === tk && S.items.get(o.id), pk = pk0 && !pk0.archived ? pk0 : null;
@@ -1662,6 +1676,7 @@ function nowHTML(){
   return `<section class="card ot-card now-card">${ok}<div class="ot-lbl">${pk && !pk.done ? "Meine eine Sache heute" : "Jetzt dran"}</div>
     <button class="now-t" data-open="${t.id}">${esc(t.title || "Ohne Titel")}</button>
     <div class="now-meta">${p ? `<button class="pill" data-open="${p.id}">${esc(p.title || "Projekt")}</button>` : ""}${pr && pr.total ? `<span class="pill num">Schritt ${Math.min(pr.done + 1, pr.total)} von ${pr.total}</span>` : ""}${due}</div>
+    ${nowHelpHTML(t)}
     <div class="now-act"><button class="btn" data-act="toggle" data-id="${t.id}">${ic("check")}Erledigt</button><button class="btn ghost" data-act="ot-pick">Etwas anderes</button></div>
     <p class="hint">Fang mit fünf Minuten an. Danach läuft es oft von selbst.</p></section>`;
 }
