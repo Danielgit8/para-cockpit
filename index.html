@@ -867,7 +867,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-19.1";
+const APP_VERSION = "2026-10-19.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2846,8 +2846,7 @@ function brandHTML(){
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
   const out = header("Brand & Business", "Content, Personal Brand und Geld verdienen an einem Ort") + banner() +
     `<a class="card bw-link" href="../brand-weg/"><span class="bw-ic">${ic("star")}</span><span><b>Mein Brand-Weg öffnen</b><small>Der Plan nach Mino Lee: was jetzt dran ist, Video-Werkstatt, dein Profil und alles Wissen</small></span><span class="bw-go">›</span></a>` +
-    `<div class="tr-seg">${seg("over", "Überblick")}${seg("prof", `Mein Profil <span class="num">${brDone()}</span>`)}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
-  if (tab === "prof") return out + brProfileHTML();
+    `<div class="tr-seg">${seg("over", "Überblick")}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
   if (tab === "know") return out + brKnowHTML();
   if (tab === "vid") return out + brVideosHTML(vids);
   if (tab === "con") return out + brContactsHTML(cons);
@@ -2862,7 +2861,7 @@ function brOverHTML(vids, cons){
   const dueC = cons.filter(c => c.next && c.next <= tk && c.status !== "ruht").length;
   const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
   const pts = k => st.filter(s => s[k] != null).map(s => ({d:s.d, v:s[k], s:""}));
-  return mainProjHTML() + brWayHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
+  return mainProjHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
       <button class="pill br-pill" data-bact="goals">${S.brGoals ? "Fertig" : "Ziele bearbeiten"}</button></div>
     <div class="br-goals" id="br-goalbars">${brGoalBarsHTML()}</div>
     ${S.brGoals ? `<div class="br-gform">
@@ -2890,7 +2889,7 @@ function brOverHTML(vids, cons){
       <details class="trc-tbl"><summary>Alle Einträge</summary><table><tr><th>Datum</th><th>Follower</th><th>Aufrufe</th><th></th></tr>
         ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</section>
   <section class="card"><div class="card-h"><h2>Leitfaden</h2><span class="grow"></span><button class="pill" data-bact="tab" data-v="know">Alles Wissen</button></div>
-    <div class="br-chs">${brChapters().map(c => brChapterBtn(c)).join("") || `<p class="hint">Noch kein Leitfaden.</p>`}</div>
+    <div class="br-chs">${brChapters().map(c => brChapterBtn(c)).join("") || `<p class="hint">Der Leitfaden steht jetzt in <a href="../brand-weg/#/wissen">Brand-Weg unter „Wissen“</a>.</p>`}</div>
     <h3 class="br-h3" style="margin-top:18px">Werkzeuge und Pläne</h3><div class="br-links">${brToolPills()}</div></section>`;
 }
 function brVideosHTML(vids){
@@ -3071,7 +3070,7 @@ function brChapterBtn(c, withText){
 function brToolPills(){
   const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
   const fp = live("note").find(n => /fahrplan/i.test(n.title || ""));
-  return [`<button class="pill" data-bact="tab" data-v="prof">${ic("pen")}Mein Brand-Profil</button>`,
+  return [`<a class="pill" href="../brand-weg/#/ich">${ic("pen")}Mein Brand-Profil (Brand-Weg)</a>`,
     ...brLf().filter(i => /^Werkzeug/i.test(i.title || "")).map(i => `<button class="pill" data-open="${i.id}">${ic("tip")}${esc((i.title || "").replace(/^Werkzeug\s*·\s*/i, ""))}</button>`),
     fp ? `<button class="pill" data-open="${fp.id}">${ic("note")}Fahrplan</button>` : "",
     a ? `<button class="pill" data-open="${a.id}">${ic("area")}${esc(a.title)}</button>` : "",
@@ -3110,9 +3109,9 @@ function brKnowHTML(){
   const a = brArea(), fp = live("note").find(n => /fahrplan/i.test(n.title || "")), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
   const tools = brLf().filter(i => /^Werkzeug/i.test(i.title || ""));
   return `<section class="card"><div class="card-h"><h2>Leitfaden</h2></div><p class="hint">Vom Content Creator zur Personal Brand, in fester Reihenfolge. Tipp ein Kapitel an, um es zu lesen.</p>
-      <div class="br-chs">${brChapters().map(c => brChapterBtn(c, true)).join("") || `<p class="hint">Noch kein Leitfaden.</p>`}</div></section>
+      <div class="br-chs">${brChapters().map(c => brChapterBtn(c, true)).join("") || `<p class="hint">Der Leitfaden steht jetzt in <a href="../brand-weg/#/wissen">Brand-Weg unter „Wissen“</a>.</p>`}</div></section>
     <section class="card"><div class="card-h"><h2>Werkzeuge und Pläne</h2></div><div class="br-chs">
-      <button class="br-ch" data-bact="tab" data-v="prof"><b>${ic("pen")}</b><span>Mein Brand-Profil<small>Deine Antworten zu Weg, Zielgruppe, Themen und Auftritt · ${esc(brDone())}</small></span>${ic("right")}</button>
+      <a class="br-ch" href="../brand-weg/#/ich" style="text-decoration:none;color:inherit"><b>${ic("pen")}</b><span>Mein Brand-Profil<small>Steht jetzt in Brand-Weg unter „Ich“</small></span>${ic("right")}</a>
       ${tools.map(i => `<button class="br-ch" data-open="${i.id}"><b>${ic("tip")}</b><span>${esc((i.title || "").replace(/^Werkzeug\s*·\s*/i, ""))}<small>${esc(brExcerpt(i.body, 100))}</small></span>${ic("right")}</button>`).join("")}
       ${fp ? `<button class="br-ch" data-open="${fp.id}"><b>${ic("note")}</b><span>${esc(fp.title)}<small>Dein Plan mit Terminen</small></span>${ic("right")}</button>` : ""}
       ${projs.map(p => `<button class="br-ch" data-open="${p.id}"><b>${ic("project")}</b><span>${esc(p.title)}<small>Projekt</small></span>${ic("right")}</button>`).join("")}
