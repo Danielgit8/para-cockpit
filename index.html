@@ -691,6 +691,10 @@ body.bd-on{overflow:hidden}
 
 /* Brand & Business: eigene Akzentfarbe, damit die Seite für das Hauptziel heraussticht */
 :root{--brand:#B4530F;--brand-2:#E08A1E;--brand-soft:rgba(180,83,15,.10)}
+.bw-link{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;margin-bottom:14px;border:1.5px solid var(--brand)}
+.bw-link b{display:block;font-size:16px}.bw-link small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.bw-ic{width:40px;height:40px;border-radius:12px;background:var(--brand);color:#fff;display:grid;place-items:center;flex:none}
+.bw-go{margin-left:auto;font-size:24px;color:var(--brand)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--brand:#F2A23A;--brand-2:#F7C66B;--brand-soft:rgba(242,162,58,.14)}}
 :root[data-theme="dark"]{--brand:#F2A23A;--brand-2:#F7C66B;--brand-soft:rgba(242,162,58,.14)}
 .nav.nav-brand{color:var(--brand);background:var(--brand-soft)}
@@ -863,7 +867,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-17.1";
+const APP_VERSION = "2026-10-19.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1168,7 +1172,7 @@ const snapshot = () => ({items:Object.fromEntries(S.items), settings:S.settings,
 async function loadLocal(){
   try {
     const j = await idb.get(stateKey()) || {};
-    S.items = new Map(Object.entries(j.items || {}));
+    S.items = new Map(Object.entries(j.items || {}).filter(([k]) => !k.startsWith("__")));
     S.settings = {...clone(DEFAULT_SETTINGS), ...(j.settings || {})};
     S.dirty = new Set(j.dirty || []); S.tombs = new Set(j.tombs || []);
     S.settingsDirty = !!j.settingsDirty; S.cursor = j.cursor || null; S.lastSync = j.lastSync || null;
@@ -1241,6 +1245,7 @@ async function sync(){
           if (!S.settingsDirty && JSON.stringify(S.settings) !== JSON.stringify(next)) { S.settings = next; changed = true; }
           continue;
         }
+        if (r.id.startsWith("__")) { if (S.items.delete(r.id)) changed = true; continue; } // Zeilen anderer Apps (z. B. Brand-Weg)
         if (S.dirty.has(r.id)) { const loc = S.items.get(r.id); if (S.tombs.has(r.id) || (loc && (loc.updated || 0) >= r.updated_at)) continue; S.dirty.delete(r.id); }
         if (r.deleted) { if (S.items.delete(r.id)) changed = true; continue; }
         const loc = S.items.get(r.id);
@@ -2840,6 +2845,7 @@ function brandHTML(){
   const vids = live("video"), cons = live("contact"), tab = S.brTab;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
   const out = header("Brand & Business", "Content, Personal Brand und Geld verdienen an einem Ort") + banner() +
+    `<a class="card bw-link" href="../brand-weg/"><span class="bw-ic">${ic("star")}</span><span><b>Mein Brand-Weg öffnen</b><small>Der Plan nach Mino Lee: was jetzt dran ist, Video-Werkstatt, dein Profil und alles Wissen</small></span><span class="bw-go">›</span></a>` +
     `<div class="tr-seg">${seg("over", "Überblick")}${seg("prof", `Mein Profil <span class="num">${brDone()}</span>`)}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
   if (tab === "prof") return out + brProfileHTML();
   if (tab === "know") return out + brKnowHTML();
