@@ -867,7 +867,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-19.2";
+const APP_VERSION = "2026-10-19.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1741,7 +1741,7 @@ function mainProjHTML(){
     ${docs.length || ba ? `<div class="pills mp-docs">${docs.map(d => `<button class="pill" data-open="${d.id}">${ic("note")}${esc(d.title || "Notiz")}</button>`).join("")}${ba ? `<button class="pill" data-go="brand">${ic("star")}Brand & Business</button>` : ""}</div>` : ""}
     ${hRows ? `<div class="mp-hs">${hRows}</div>` : ""}
     <div class="sub-h">Als Nächstes</div>
-    ${open.slice(0, 3).map(t => taskRow(t, tk)).join("") || `<div class="add"><input id="mp-add" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="mp-add" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}
+    ${open.slice(0, 3).map(t => taskRow(t, tk)).join("") || ((p.links || []).find(l => /brand-weg/.test(l.url || "")) ? `<a class="bw-link card" href="../brand-weg/" style="margin:6px 0 0;box-shadow:none"><span class="bw-ic">${ic("star")}</span><span><b>In Brand-Weg ansehen</b><small>Dort steht immer der nächste Schritt</small></span><span class="bw-go">›</span></a>` : "") || `<div class="add"><input id="mp-add" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="mp-add" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}
     ${open.length > 3 ? `<div class="pills" style="margin-top:10px"><button class="pill" data-open="${p.id}">Alle ${open.length} offenen Schritte</button></div>` : ""}</section>`;
 }
 
