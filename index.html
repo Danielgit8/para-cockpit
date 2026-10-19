@@ -272,6 +272,10 @@ code{font-family:var(--f-num);font-size:12px;background:var(--soft);padding:1px 
 .pick-res{display:flex;flex-direction:column;max-height:240px;overflow:auto}
 .res{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;text-align:left;width:100%}
 .res:hover{background:var(--soft)}
+.sr-row{align-items:flex-start;padding:10px}
+.sr-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sr-sn{color:var(--muted);font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.sr-row mark{background:color-mix(in srgb, var(--ink, #c9772b) 28%, transparent);color:inherit;border-radius:3px;padding:0 1px}
 .res .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 .res small{color:var(--muted);font-size:11px}
 .lrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);min-width:0}
@@ -861,28 +865,26 @@ body.bd-on{overflow:hidden}
 <div id="toast-wrap"></div>
 
 <script src="supabase.js"></script>
+<script src="core.js"></script>
 <script>
 (function(){
 "use strict";
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-19.3";
+const APP_VERSION = "2026-10-19.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-const pad = n => String(n).padStart(2, "0");
-const dkey = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
-const parseKey = k => { const [y, m, d] = String(k).split("-").map(Number); return new Date(y, m - 1, d); };
+const PC = window.PCcore; // core.js: Abgleich, Sicherung, Suche, Wiederholungen
+const {pad, dkey, addDays, parseKey, isoDay} = PC;
 const fmtDay = k => k ? parseKey(k).toLocaleDateString("de-DE", {day:"numeric", month:"short"}) : "";
 const fmtTs = t => t ? new Date(t).toLocaleDateString("de-DE", {day:"numeric", month:"short", year:"numeric"}) : "";
 const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1).replace(".", ",") + " MB" : Math.max(1, Math.round(b/1024)) + " KB";
 const today0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
 function isoWeek(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / 864e5 + 1) / 7); }
 const clone = o => JSON.parse(JSON.stringify(o));
-const isoDay = (d = new Date()) => (d.getDay() + 6) % 7 + 1;
 function weekId(d = new Date()){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); return `${t.getUTCFullYear()}-W${pad(isoWeek(d))}`; }
 const fmtNum = v => String(Math.round(v * 10) / 10).replace(".", ",");
 const fmtLong = k => parseKey(k).toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short"});
@@ -941,7 +943,7 @@ const PSTATUS = {aktiv:"Aktiv", geplant:"Geplant", pausiert:"Pausiert", erledigt
 const S = {
   items: new Map(), settings: clone(DEFAULT_SETTINGS),
   view: "dashboard", filter: {}, open: null, picker: false, confirmDel: null,
-  mode: "boot", user: null, authMode: "login", dirty: new Set(), tombs: new Set(), settingsDirty: false, cursor: null, syncing: false, online: navigator.onLine, urls: {}, newKind: "task",
+  mode: "boot", user: null, authMode: "login", dirty: new Set(), tombs: new Set(), delAt: {}, settingsDirty: false, cursor: null, syncing: false, online: navigator.onLine, urls: {}, newKind: "task",
 };
 function kinds(){ const k = {...BASE}; for (const c of S.settings.kinds || []) k[c.id] = {label:c.label, plural:c.label, icon:"folder", custom:true}; return k; }
 const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
@@ -1140,20 +1142,7 @@ function edClick(e){
 }
 // Wiederkehrende Aufgaben
 const REPEAT = {"":"Nie", daily:"Täglich", weekdays:"Werktags (Mo–Fr)", weekly:"Wöchentlich", monthly:"Monatlich", days:"An bestimmten Tagen"};
-function stepDate(d, t){
-  const r = t.repeat;
-  if (r === "daily") return addDays(d, 1);
-  if (r === "weekly") return addDays(d, 7);
-  if (r === "monthly") { const x = new Date(d.getFullYear(), d.getMonth() + 1, 1); const last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate(); x.setDate(Math.min(t.repeatDom || d.getDate(), last)); return x; }
-  const days = r === "weekdays" ? [1,2,3,4,5] : (t.repeatDays || []);
-  if (!days.length) return addDays(d, 7);
-  let x = addDays(d, 1); for (let i = 0; i < 7 && !days.includes(isoDay(x)); i++) x = addDays(x, 1); return x;
-}
-function nextDue(t){
-  let d = t.due ? parseKey(t.due) : today0(); const tt = {...t, repeatDom: t.repeatDom || d.getDate()}; const tk = dkey();
-  for (let g = 0; g < 2000; g++) { d = stepDate(d, tt); if (dkey(d) > tk) break; }
-  return dkey(d);
-}
+const {stepDate, nextDue} = PC;
 function repeatLabel(t){ if (t.repeat === "days") return (t.repeatDays || []).slice().sort().map(n => WD[n-1]).join(", ") || "Bestimmte Tage"; return REPEAT[t.repeat] || ""; }
 
 /* ================= store: erst auf dem Gerät speichern, dann mit Supabase abgleichen ================= */
@@ -1167,15 +1156,15 @@ const sb = (CONFIG.url && CONFIG.key && window.supabase) ? window.supabase.creat
 const LAST = "para-cockpit.lastUser";
 let saveT = null, syncT = null;
 const stateKey = () => "state:" + (S.user ? S.user.id : "local");
-const snapshot = () => ({items:Object.fromEntries(S.items), settings:S.settings, dirty:[...S.dirty], tombs:[...S.tombs], settingsDirty:S.settingsDirty, cursor:S.cursor, lastSync:S.lastSync});
+const snapshot = () => ({items:Object.fromEntries(S.items), settings:S.settings, dirty:[...S.dirty], tombs:[...S.tombs], delAt:S.delAt, settingsDirty:S.settingsDirty, cursor:S.cursor, lastSync:S.lastSync});
 
 async function loadLocal(){
   try {
     const j = await idb.get(stateKey()) || {};
     S.items = new Map(Object.entries(j.items || {}).filter(([k]) => !k.startsWith("__")));
     S.settings = {...clone(DEFAULT_SETTINGS), ...(j.settings || {})};
-    S.dirty = new Set(j.dirty || []); S.tombs = new Set(j.tombs || []);
-    S.settingsDirty = !!j.settingsDirty; S.cursor = j.cursor || null; S.lastSync = j.lastSync || null;
+    S.dirty = new Set(j.dirty || []); S.tombs = new Set(j.tombs || []); S.delAt = j.delAt || {};
+    S.settingsDirty = !!j.settingsDirty; S.cursor = PC.normCursor(j.cursor); S.lastSync = j.lastSync || null;
   } catch(e) { toast("Speicher auf dem Gerät nicht verfügbar. Ist der private Modus an?"); }
 }
 function saveLocal(){
@@ -1184,11 +1173,11 @@ function saveLocal(){
 }
 function scheduleSync(ms = 1200){ clearTimeout(syncT); syncT = setTimeout(sync, ms); }
 function persist(it, delay = 0){
-  it.updated = Date.now(); S.items.set(it.id, it); S.dirty.add(it.id); S.tombs.delete(it.id);
+  it.updated = Date.now(); S.items.set(it.id, it); S.dirty.add(it.id); S.tombs.delete(it.id); delete S.delAt[it.id];
   if (S.bd && S.bd.id === it.id) S.bd.ver = it.updated;
   saveLocal(); scheduleSync(Math.max(1200, delay + 800)); renderStatus();
 }
-function removeItem(id){ S.items.delete(id); S.tombs.add(id); S.dirty.add(id); saveLocal(); scheduleSync(); renderStatus(); }
+function removeItem(id){ S.items.delete(id); S.tombs.add(id); S.delAt[id] = Date.now(); S.dirty.add(id); saveLocal(); scheduleSync(); renderStatus(); }
 // Erledigte Aufgaben wandern nach X Tagen ins Archiv (settings.autoArch, Standard 7, 0 = nie)
 function autoArchive(){
   const d = S.settings.autoArch ?? 7; if (!d) return 0;
@@ -1210,35 +1199,48 @@ function create(kind, title, extra = {}){
   persist(it); return it;
 }
 
+// Abgleich in drei Schritten:
+// 1) Eigene Änderungen hochladen. Der Server nimmt eine Fassung nur an, wenn sie nicht älter ist als seine (Trigger in supabase-setup.sql).
+// 2) Abgelehnte Fassungen klären: neuere Fassung vom Server holen, unsere als Konfliktkopie behalten (Gewohnheiten: Häkchen zusammenführen).
+// 3) Neues vom Server holen, seitenweise mit Cursor aus (synced_at, id).
 async function sync(){
   clearTimeout(syncT);
   if (!sb || !S.user || S.syncing || S.mode !== "app") return;
   if (!navigator.onLine) { S.online = false; renderStatus(); return; }
   S.syncing = true; renderStatus();
   const before = banner(); const me = S.user.id;
+  let changed = false;
   try {
     const rows = [];
     for (const id of [...S.dirty]) {
-      if (S.tombs.has(id)) rows.push({user_id:me, id, data:{}, updated_at:Date.now(), deleted:true});
+      if (S.tombs.has(id)) rows.push({user_id:me, id, data:{}, updated_at:S.delAt[id] || Date.now(), deleted:true});
       else if (S.items.has(id)) { const it = S.items.get(id); rows.push({user_id:me, id, data:clone(it), updated_at:it.updated || Date.now(), deleted:false}); }
       else S.dirty.delete(id);
     }
     if (S.settingsDirty) rows.push({user_id:me, id:"__settings", data:clone(S.settings), updated_at:S.settings.updated || Date.now(), deleted:false});
+    const rejected = [];
     for (let i = 0; i < rows.length; i += 200) {
-      const {error} = await sb.from("items").upsert(rows.slice(i, i + 200), {onConflict:"user_id,id"});
+      const part = rows.slice(i, i + 200);
+      const {data, error} = await sb.from("items").upsert(part, {onConflict:"user_id,id"}).select("id");
       if (error) throw error;
+      if (!data) continue;
+      const ok = new Set(data.map(r => r.id)); for (const r of part) if (!ok.has(r.id)) rejected.push(r);
     }
+    const rej = new Set(rejected.map(r => r.id));
     for (const r of rows) {
+      if (rej.has(r.id)) continue;
       if (r.id === "__settings") { if ((S.settings.updated || 0) === r.updated_at) S.settingsDirty = false; continue; }
       const cur = S.items.get(r.id);
-      if (r.deleted ? (!cur && S.tombs.has(r.id)) : (cur && cur.updated === r.updated_at)) { S.dirty.delete(r.id); S.tombs.delete(r.id); }
+      if (r.deleted ? (!cur && S.tombs.has(r.id)) : (cur && cur.updated === r.updated_at)) { S.dirty.delete(r.id); S.tombs.delete(r.id); delete S.delAt[r.id]; }
     }
-    let since = S.cursor ? new Date(Date.parse(S.cursor) - 5000).toISOString() : null, changed = false;
-    for (let page = 0; page < 50; page++) {
-      let q = sb.from("items").select("id,data,updated_at,deleted,synced_at").order("synced_at", {ascending:true}).limit(1000);
-      if (since) q = q.gt("synced_at", since);
+    if (rejected.length && await settleRejected(rejected)) changed = true;
+    const res = await PC.pullAll(async ({since, after, limit}) => {
+      let q = sb.from("items").select("id,data,updated_at,deleted,synced_at").order("synced_at", {ascending:true}).order("id", {ascending:true}).limit(limit);
+      if (after) q = q.or(PC.afterFilter(after)); else if (since) q = q.gt("synced_at", since);
       const {data, error} = await q;
       if (error) throw error;
+      return data || [];
+    }, S.cursor, data => {
       for (const r of data) {
         if (r.id === "__settings") {
           const next = {...clone(DEFAULT_SETTINGS), ...r.data};
@@ -1251,14 +1253,14 @@ async function sync(){
         const loc = S.items.get(r.id);
         if (!loc || loc.updated !== r.data.updated) { S.items.set(r.id, {...r.data, id:r.id}); changed = true; }
       }
-      if (data.length) { S.cursor = data[data.length - 1].synced_at; since = S.cursor; }
-      if (data.length < 1000) break;
-    }
+    });
+    S.cursor = res.cursor;
     S.lastSync = Date.now(); S.syncError = null; S.online = true; S.needLogin = false;
     if (autoArchive()) changed = true;
     saveLocal();
     if (changed) { applySettings(); renderMain(); renderSide(); refreshDetail(); bdRemote(); }
     if (S.pendingOpen && S.items.has(S.pendingOpen)) { const id = S.pendingOpen; S.pendingOpen = null; openDetailFresh(id); }
+    if (!res.done) scheduleSync(1500); // sehr viele Änderungen: Rest gleich holen
   } catch(e) {
     const msg = (e && (e.message || e.error_description)) || String(e || "");
     if ((e && (e.status === 401 || e.code === "PGRST301")) || /JWT|not authenticated|refresh token/i.test(msg)) S.needLogin = true;
@@ -1269,6 +1271,32 @@ async function sync(){
     if (banner() !== before) renderMain();
     if ((S.dirty.size || S.settingsDirty) && !S.needLogin && !S.syncError) scheduleSync(8000);
   }
+}
+// Der Server hatte eine neuere Fassung. Die gilt; unsere geht nicht verloren (Konfliktkopie bzw. zusammengeführte Häkchen).
+async function settleRejected(rows){
+  const sent = new Map(rows.map(r => [r.id, r])), names = []; let changed = false;
+  for (let i = 0; i < rows.length; i += 100) {
+    const {data, error} = await sb.from("items").select("id,data,updated_at,deleted").in("id", rows.slice(i, i + 100).map(r => r.id));
+    if (error) throw error;
+    for (const srv of data || []) {
+      const r = sent.get(srv.id);
+      if (srv.id === "__settings") {
+        if ((S.settings.updated || 0) === r.updated_at) { S.settings = {...clone(DEFAULT_SETTINGS), ...srv.data}; S.settingsDirty = false; changed = true; }
+        continue;
+      }
+      const cur = S.items.get(srv.id);
+      // Während des Hochladens weiter bearbeitet: nächste Runde entscheidet neu
+      if (r.deleted ? (cur || !S.tombs.has(srv.id)) : (!cur || cur.updated !== r.updated_at)) continue;
+      const res = PC.resolveRejected(r.deleted ? null : cur, srv, {hidden:HIDDEN_K, newId:uid()});
+      S.dirty.delete(srv.id); S.tombs.delete(srv.id); delete S.delAt[srv.id];
+      if (res.take) S.items.set(srv.id, res.take); else S.items.delete(srv.id);
+      if (res.push) S.dirty.add(srv.id);
+      if (res.copy) { S.items.set(res.copy.id, res.copy); S.dirty.add(res.copy.id); names.push(cur.title || "Ohne Titel"); }
+      changed = true;
+    }
+  }
+  if (names.length) toast(names.length === 1 ? `„${names[0]}“ wurde auf einem anderen Gerät geändert. Deine Fassung liegt als Konfliktkopie daneben.` : `${names.length} Einträge wurden auf einem anderen Gerät geändert. Deine Fassungen liegen als Konfliktkopien daneben.`);
+  return changed;
 }
 function pendingCount(){ return S.dirty.size + (S.settingsDirty ? 1 : 0); }
 function statusInfo(){
@@ -1510,6 +1538,7 @@ function viewHTML(){
   if (v === "resource") return resourcesHTML();
   if (v === "archive") return archiveHTML();
   if (v === "settings") return settingsHTML();
+  if (v === "search") return searchHTML();
   return notesHTML(v);
 }
 function dateLine(){ const d = new Date(); return `${d.toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})} · <span class="num">KW ${isoWeek(d)}</span>`; }
@@ -2202,7 +2231,8 @@ function settingsHTML(){
         <button class="btn" data-act="sync">Jetzt abgleichen</button>
         <button class="btn ghost" data-act="update">${ic("restore")}Nach Update suchen</button>
         <button class="btn ghost" data-act="export">${ic("download")}Sicherung herunterladen</button>
-        <label class="btn ghost" for="import-file">${ic("upload")}Sicherung einspielen</label><input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button class="btn ghost" data-act="export-zip" title="Mit allen hochgeladenen Dateien, als ZIP">${ic("download")}Sicherung mit Dateien</button>
+        <label class="btn ghost" for="import-file">${ic("upload")}Sicherung einspielen</label><input type="file" id="import-file" accept="application/json,.json,application/zip,.zip" hidden>
         ${exCount ? `<button class="btn ghost" data-act="del-examples">Beispiele entfernen (${exCount})</button>` : ""}
         <button class="btn ghost" data-act="logout">Abmelden</button>
       </div>
@@ -2212,16 +2242,41 @@ function settingsHTML(){
 }
 
 /* ================= search ================= */
+// Versteckte Arten haben eigene Ansichten (Training, Brand & Business) und öffnen dort
+const SR_K = {workout:{label:"Training", icon:"dumbbell"}, video:{label:"Video", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}};
+const srKind = k => SR_K[k] || kindOf({kind:k});
 function searchRender(q){
   const box = $("#search-res"); if (!box) return;
-  q = q.trim().toLowerCase();
-  if (!q) { box.innerHTML = ""; return; }
-  const tq = q.startsWith("#") ? q.slice(1) : null;
-  const hits = all().filter(i => !HIDDEN_K.includes(i.kind)).filter(i => tq != null ? tagsOf(i).some(t => t.toLowerCase().startsWith(tq))
-    : (i.title || "").toLowerCase().includes(q) || (i.body || "").toLowerCase().includes(q) || tagsOf(i).some(t => t.toLowerCase().includes(q)) || (i.links || []).some(l => (l.label + " " + l.url).toLowerCase().includes(q)) || (i.shots || []).some(s => (s.cap || "").toLowerCase().includes(q))).slice(0, 12);
-  box.innerHTML = `<div class="search-res">${hits.map(i => `<button class="res" data-open="${i.id}">${ic(kindOf(i).icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(kindOf(i).label)}${i.archived ? " · Archiv" : ""}</small></button>`).join("") || `<div class="res muted">Nichts gefunden.</div>`}</div>`;
+  if (!q.trim()) { box.innerHTML = ""; return; }
+  const hits = PC.searchItems(all(), q, {tagsOf});
+  const row = h => { const i = h.item, k = srKind(i.kind); return `<button class="res" data-act="sr-open" data-id="${i.id}">${ic(k.icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(k.label)}${i.archived ? " · Archiv" : ""}</small></button>`; };
+  box.innerHTML = `<div class="search-res">${hits.slice(0, 8).map(row).join("") || `<div class="res muted">Nichts gefunden.</div>`}${hits.length ? `<button class="res" data-act="search-all"><span class="t" style="font-weight:500">${hits.length > 8 ? `Alle ${hits.length} Treffer anzeigen` : "Als Liste mit Filtern anzeigen"}</span><small>Enter</small></button>` : ""}</div>`;
 }
-
+function openSearch(q){ S.sq = q; S.filter.search = "all"; const n = $("#q"); if (n) n.value = ""; searchRender(""); closePop(); if (S.open) closeOverlay(); go("search"); }
+function srOpen(id){
+  const it = S.items.get(id); if (!it) return;
+  const n = $("#q"); if (n && n.value) { n.value = ""; searchRender(""); }
+  closePop();
+  if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
+  const tab = {video:"vid", contact:"con", income:"inc"}[it.kind];
+  if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
+  S.dBack = []; openDetailFresh(id);
+}
+function searchHTML(){
+  const q = S.sq || "", f = S.filter.search || "all";
+  const hits = PC.searchItems(all(), q, {tagsOf});
+  const counts = {}; for (const h of hits) counts[h.item.kind] = (counts[h.item.kind] || 0) + 1;
+  const list = f === "all" ? hits : hits.filter(h => h.item.kind === f);
+  const words = q.trim().replace(/^#/, "").split(/\s+/).filter(w => w.length > 1).map(w => esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const mark = t => words.length ? esc(t).replace(new RegExp(`(${words.join("|")})`, "gi"), "<mark>$1</mark>") : esc(t);
+  const pill = (v, l, n) => `<button class="pill ${f === v ? "on" : ""}" data-filter="search" data-val="${v}">${esc(l)} <span class="num">${n}</span></button>`;
+  const rows = list.slice(0, 200).map(h => { const i = h.item, k = srKind(i.kind), w0 = q.trim().replace(/^#/, "").split(/\s+/)[0].toLowerCase(), src = [i.body, i.note, i.hook, i.idea].find(t => typeof t === "string" && t.toLowerCase().includes(w0)) || i.body || "", sn = PC.snippet(src, q);
+    return `<button class="res sr-row" data-act="sr-open" data-id="${i.id}">${ic(k.icon)}<span class="sr-txt"><span class="t">${mark(i.title || "Ohne Titel")}</span>${sn ? `<span class="sr-sn">${mark(sn)}</span>` : ""}</span><small>${esc(k.label)}${i.archived ? " · Archiv" : ""}${tagsOf(i).length ? " · " + esc(tagsOf(i).slice(0, 3).map(t => "#" + t).join(" ")) : ""}</small></button>`; }).join("");
+  return header("Suche", "Alle Bereiche, die besten Treffer zuerst.") + `
+    <section class="card"><input id="sq" class="field" data-keep type="search" value="${esc(q)}" placeholder="Suchen oder #stichwort …" aria-label="Suche" autocomplete="off">
+      ${hits.length ? `<div class="pills" style="margin-top:12px">${pill("all", "Alle", hits.length)}${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k, n]) => pill(k, srKind(k).label, n)).join("")}</div>` : ""}</section>
+    <section class="card">${q.trim() ? rows || `<p class="hint">Nichts gefunden. Mehrere Wörter müssen alle vorkommen, egal wo.</p>` : `<p class="hint">Gib oben einen Suchbegriff ein. Gesucht wird in Titeln, Texten, Stichwörtern, Links, Dateinamen, Training, Videos und Kontakten.</p>`}${list.length > 200 ? `<p class="hint">Die ersten 200 von ${list.length} Treffern. Grenze die Suche weiter ein.</p>` : ""}</section>`;
+}
 /* ================= detail drawer ================= */
 function openDetail(id){
   const it = S.items.get(id); if (!it) return;
@@ -2400,6 +2455,7 @@ function renderShotPop(){
 function renderPop(){
   if (S.pop && S.pop.shots) { renderShotPop(); return; }
   if (S.pop && S.pop.cal) { renderCalPop(); return; }
+  if (S.pop && S.pop.imp) { renderImpPop(); return; }
   const p = S.pop; const h = p && S.items.get(p.id); if (!h) { closePop(); return; }
   $("#pop").innerHTML = `<div class="scrim" data-act="pop-close"></div><div class="modal" role="dialog" aria-label="Tag eintragen">
     <h2>${esc(h.title)}</h2><p class="hint" style="margin:0">${parseKey(p.day).toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})}${hmode(h) === "number" && h.goal ? ` · Ziel ${fmtNum(+h.goal)} ${esc(h.unit || "")}` : ""}</p>
@@ -2574,19 +2630,86 @@ async function downloadFile(i){
   if (error || !data) { toast("Download nicht möglich."); return; }
   saveBlob(data, f.name);
 }
-function exportData(){
-  const data = JSON.stringify({app:"para-cockpit", version:2, exported:new Date().toISOString(), settings:S.settings, items:all()}, null, 2);
-  saveBlob(new Blob([data], {type:"application/json"}), `para-cockpit-${dkey()}.json`);
+// Sicherung: JSON nur mit Einträgen und Einstellungen, ZIP zusätzlich mit allen hochgeladenen Dateien (unter "dateien/<pfad>")
+const backupJSON = () => JSON.stringify({app:"para-cockpit", version:2, exported:new Date().toISOString(), user:S.user ? S.user.id : "", settings:S.settings, items:all()}, null, 2);
+function exportData(){ saveBlob(new Blob([backupJSON()], {type:"application/json"}), `para-cockpit-${dkey()}.json`); }
+async function exportZip(){
+  if (!sb || !S.user) return;
+  if (!navigator.onLine) { toast("Für die Sicherung mit Dateien brauchst du Internet."); return; }
+  const paths = [...new Set(all().flatMap(i => [...(i.files || []), ...(i.shots || [])]).map(f => f.path).filter(Boolean))];
+  const files = [{name:"backup.json", data:new TextEncoder().encode(backupJSON())}]; let miss = 0;
+  if (paths.length) toast(`Lade ${paths.length} Dateien für die Sicherung …`);
+  for (const path of paths) {
+    const {data, error} = await sb.storage.from("files").download(path);
+    if (error || !data) { miss++; continue; }
+    files.push({name:"dateien/" + path, data:new Uint8Array(await data.arrayBuffer())});
+  }
+  saveBlob(new Blob(PC.zipParts(files), {type:"application/zip"}), `para-cockpit-${dkey()}-komplett.zip`);
+  toast(miss ? `Sicherung fertig. ${miss} Datei(en) fehlten im Speicher.` : `Sicherung mit ${files.length - 1} Dateien fertig.`);
 }
+// Einspielen: Datei prüfen, Vorschau zeigen, dann zusammenführen oder ersetzen
 async function importData(file){
   try {
-    const j = JSON.parse(await file.text());
-    if (!j || !Array.isArray(j.items)) throw 0;
-    if (j.settings) { S.settings = {...clone(DEFAULT_SETTINGS), ...j.settings}; saveSettings(0); }
-    let n = 0;
-    for (const it of j.items) if (it && it.id && it.kind) { const copy = {...it, files:(it.files || []).filter(f => f.path)}; persist(copy); n++; }
-    renderMain(); renderSide(); toast(`${n} Einträge eingespielt`);
-  } catch(e) { toast("Diese Datei ist keine gültige Sicherung."); }
+    let j, zip = null;
+    if (/\.zip$/i.test(file.name) || file.type === "application/zip") {
+      zip = await PC.unzip(new Uint8Array(await file.arrayBuffer()));
+      const bj = zip.get("backup.json"); if (!bj) throw new Error("In der ZIP-Datei fehlt backup.json.");
+      j = JSON.parse(new TextDecoder().decode(bj));
+    } else j = JSON.parse(await file.text());
+    const b = PC.parseBackup(j);
+    if (!b.items.length && !b.settings) throw new Error(b.invalid.length ? "Kein Eintrag in der Datei ist gültig." : "Die Sicherung ist leer.");
+    S.pop = {imp:{b, zip, name:file.name, keepNewer:true, sure:false}}; renderPop();
+  } catch(e) { toast(e && e.message && !(e instanceof SyntaxError) ? e.message : "Diese Datei ist keine gültige Sicherung."); }
+}
+function renderImpPop(){
+  const m = S.pop.imp, b = m.b;
+  const mp = PC.planImport(b, S.items, {keepNewer:m.keepNewer}), rp = b.full ? PC.planImport(b, S.items, {replace:true}) : null;
+  const refs = i => [...(i.files || []), ...(i.shots || [])].filter(f => f.path);
+  const nf = b.items.reduce((n, i) => n + refs(i).length, 0);
+  const inZip = m.zip ? b.items.reduce((n, i) => n + refs(i).filter(f => m.zip.has("dateien/" + f.path)).length, 0) : 0;
+  const li = (n, one, many) => n ? `<li><b class="num">${n}</b> ${n === 1 ? one : many}</li>` : "";
+  const names = list => list.length <= 4 ? ": " + list.map(i => `„${esc(i.title || "Ohne Titel")}“`).join(", ") : "";
+  const bad = b.invalid.slice(0, 3).map(x => (x.title ? `„${x.title}“: ` : `Nr. ${x.i + 1}: `) + x.why).join("; ") + (b.invalid.length > 3 ? " …" : "");
+  $("#pop").innerHTML = `<div class="scrim" data-act="pop-close"></div><div class="modal" role="dialog" aria-label="Sicherung einspielen">
+    <h2>Sicherung einspielen</h2>
+    <p class="hint" style="margin:0">${esc(m.name)} · ${b.items.length} Einträge${b.settings ? " · mit Einstellungen" : ""}${nf ? ` · ${m.zip ? `${inZip} von ${nf} Dateien enthalten` : `${nf} Dateiverweise, die Dateien selbst sind nicht enthalten`}` : ""}</p>
+    <ul class="hint" style="margin:0;padding-left:18px;line-height:1.7">
+      ${li(mp.add.length, "neu", "neu")}${li(mp.over.length, "wird mit der Fassung aus der Sicherung überschrieben" + names(mp.over), "werden mit der Fassung aus der Sicherung überschrieben" + names(mp.over))}${li(mp.keep.length, "bleibt, weil die Fassung auf dem Gerät neuer ist" + names(mp.keep), "bleiben, weil die Fassung auf dem Gerät neuer ist" + names(mp.keep))}${li(mp.same.length, "ist schon genau so vorhanden", "sind schon genau so vorhanden")}
+      ${b.invalid.length ? `<li><b class="num">${b.invalid.length}</b> ${b.invalid.length === 1 ? "ungültig, wird" : "ungültig, werden"} übersprungen (${esc(bad)})</li>` : ""}
+    </ul>
+    <label class="hint" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="imp-keep" ${m.keepNewer ? "checked" : ""}> Neuere Fassungen auf dem Gerät behalten</label>
+    ${rp ? `<p class="hint" style="margin:0"><b style="color:var(--text)">Ersetzen</b> stellt genau den Stand der Sicherung her${rp.remove.length ? ` und <b style="color:var(--text)">löscht ${rp.remove.length} Einträge</b> auf allen Geräten, die es in der Sicherung nicht gibt` : ""}.</p>` : ""}
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><button class="btn ghost" data-act="pop-close">Abbrechen</button>
+      ${rp ? `<button class="btn ghost" data-act="imp-replace">${m.sure ? `Wirklich ersetzen${rp.remove.length ? ` und ${rp.remove.length} löschen` : ""}?` : "Ersetzen"}</button>` : ""}
+      <button class="btn" data-act="imp-merge">Zusammenführen</button></div></div>`;
+}
+async function applyImport(replace){
+  const m = S.pop && S.pop.imp; if (!m) return;
+  const b = m.b, plan = PC.planImport(b, S.items, replace ? {replace:true} : {keepNewer:m.keepNewer});
+  closePop();
+  if (b.settings) { S.settings = replace ? {...clone(DEFAULT_SETTINGS), ...b.settings} : PC.mergeSettings(S.settings, b.settings); saveSettings(0); }
+  // Dateien aus der ZIP wieder hochladen. Schon vorhandene bleiben. Fremdes Konto: Pfade auf das eigene umschreiben.
+  const todo = [...plan.add, ...plan.over].map(it => clone(it)); let up = 0, upFail = 0;
+  const online = !!(m.zip && sb && S.user && navigator.onLine);
+  if (m.zip && !online) toast("Offline: Die Einträge kommen jetzt, die Dateien beim nächsten Einspielen mit Internet.");
+  for (const it of todo) {
+    for (const field of ["files", "shots"]) {
+      if (!Array.isArray(it[field])) continue;
+      it[field] = it[field].filter(f => f.path);
+      if (!online) continue;
+      for (const f of it[field]) {
+        const data = m.zip.get("dateien/" + f.path); if (!data) continue;
+        const path = PC.repath(f.path, S.user.id), type = f.type || "application/octet-stream";
+        const {error} = await sb.storage.from("files").upload(path, new Blob([data], {type}), {contentType:type, upsert:false});
+        if (error && !/exist|duplicate/i.test(error.message || "") && String(error.statusCode) !== "409") { upFail++; continue; }
+        f.path = path; if (!error) up++;
+      }
+    }
+    persist(it);
+  }
+  for (const it of plan.remove) removeItem(it.id);
+  renderMain(); renderSide();
+  toast(`${todo.length} Einträge eingespielt${plan.remove.length ? `, ${plan.remove.length} gelöscht` : ""}${up ? `, ${up} Dateien hochgeladen` : ""}${upFail ? `, ${upFail} Dateien fehlgeschlagen` : ""}.`);
 }
 function closeOverlay(){ S.open = null; S.dBack = []; $("#overlay").innerHTML = ""; closePop(); }
 
@@ -3553,6 +3676,10 @@ document.addEventListener("click", e => {
     case "hpick": { const h = S.items.get(id); if (h) setHabit(id, a.dataset.day, hval(h, a.dataset.day) === a.dataset.val ? null : a.dataset.val); break; }
     case "hclear": setHabit(id, a.dataset.day, null); break;
     case "pop-close": closePop(); break;
+    case "sr-open": srOpen(id); break;
+    case "search-all": { const n = $("#q"); openSearch(n ? n.value : ""); } break;
+    case "imp-merge": applyImport(false); break;
+    case "imp-replace": if (S.pop && S.pop.imp) { if (S.pop.imp.sure) applyImport(true); else { S.pop.imp.sure = true; renderPop(); } } break;
     case "hmon": S.hMonth = Math.min(0, (S.hMonth || 0) + +a.dataset.d); refreshDetail(); break;
     case "ed-tool": edTool(a.dataset.k); break;
     case "untag": if (it) { it.tags = tagsOf(it).filter(t => t !== a.dataset.val); persist(it); refreshDetail(); renderMain(); } break;
@@ -3715,6 +3842,7 @@ document.addEventListener("click", e => {
       if (e.name.trim() && a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen zum Entfernen"); break; }
       d.ex = d.ex.filter(x => x !== e); saveSettings(0); renderMain(); break; }
     case "export": exportData(); break;
+    case "export-zip": exportZip(); break;
     case "update": if (!navigator.onLine) { toast("Dafür brauchst du Internet."); break; } toast("Lade die neueste Version …"); applyUpdate(true); break;
     case "sync": S.syncError = null; S.online = navigator.onLine; sync(); break;
     case "logout": logout(); break;
@@ -3726,6 +3854,7 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   const t = e.target; const it = S.open && S.items.get(S.open);
   if (t.id === "q") { searchRender(t.value); return; }
+  if (t.id === "sq") { S.sq = t.value; renderMain(); return; }
   if (t.id === "d-pick-q") { pickerRender(); return; }
   if (t.id === "lb-cap") { const x = S.pop && S.items.get(S.pop.id); const s = x && (x.shots || [])[+t.dataset.shot]; if (s) { s.cap = t.value; persist(x, 800); const sh = $("#dy-shots"); if (sh && S.open === x.id) sh.innerHTML = shotsHTML(x); } return; }
   if (t.dataset.pb && t.dataset.f === "title") { const b = planBlock(t.dataset.pb, t.dataset.id); if (b) { b.title = t.value; saveSettings(700); } return; }
@@ -3771,6 +3900,7 @@ document.addEventListener("change", e => {
   if (t.id === "d-shots") { const fs = [...t.files].filter(f => (f.type || "").startsWith("image/")); if (fs.length) uploadFiles(fs, "shots"); else toast("Bitte Bilddateien wählen."); t.value = ""; return; }
   if (t.id === "d-file") { uploadFiles([...t.files]); t.value = ""; return; }
   if (t.id === "import-file") { if (t.files[0]) importData(t.files[0]); t.value = ""; return; }
+  if (t.id === "imp-keep" && S.pop && S.pop.imp) { S.pop.imp.keepNewer = t.checked; S.pop.imp.sure = false; renderPop(); return; }
   if (t.dataset.hnum) { const v = parseFloat(t.value.replace(",", ".")); setHabit(t.dataset.hnum, t.dataset.day, isNaN(v) ? null : v); return; }
   if (t.id === "rv-day") { S.settings.reviewDay = +t.value; saveSettings(); renderSide(); return; }
   if (t.id === "rv-time") { S.settings.reviewTime = t.value; saveSettings(); return; }
@@ -3837,6 +3967,7 @@ document.addEventListener("keydown", e => {
   if (S.pop && S.pop.shots && (e.key === "ArrowLeft" || e.key === "ArrowRight") && e.target.id !== "lb-cap") { S.pop.k += e.key === "ArrowLeft" ? -1 : 1; renderPop(); return; }
   if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
   const t = e.target;
+  if (e.key === "Enter" && t.id === "q" && t.value.trim() && !e.isComposing) { e.preventDefault(); openSearch(t.value); return; }
   if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
   if (e.key !== "Enter" || e.isComposing) return;
   if (t.dataset.hnum) { e.preventDefault(); t.blur(); return; }

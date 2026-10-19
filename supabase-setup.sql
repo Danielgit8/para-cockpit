@@ -1,4 +1,5 @@
--- PARA Cockpit: einmal komplett im Supabase SQL Editor ausführen ("Run").
+-- PARA Cockpit: komplett im Supabase SQL Editor ausführen ("Run").
+-- Kann jederzeit erneut ausgeführt werden (z. B. nach einem Update), vorhandene Daten bleiben erhalten.
 
 -- 1) Tabelle für alle Einträge (jede Zeile gehört genau einem Konto)
 create table if not exists public.items (
@@ -11,12 +12,20 @@ create table if not exists public.items (
   primary key (user_id, id)
 );
 create index if not exists items_user_synced on public.items (user_id, synced_at);
+create index if not exists items_user_synced_id on public.items (user_id, synced_at, id);
 
--- Server-Zeitstempel für den Abgleich zwischen Geräten
+-- Server-Zeitstempel für den Abgleich zwischen Geräten.
+-- Schutz vor Überschreiben: eine Fassung, die älter ist als die gespeicherte (updated_at), wird nicht übernommen.
+-- Das gilt auch für Löschmarken: eine alte Offline-Bearbeitung holt einen gelöschten Eintrag nicht zurück.
+-- Die App erkennt die Ablehnung und legt ihre Fassung als Konfliktkopie an.
+-- clock_timestamp() statt now(): jede Zeile bekommt einen eigenen Zeitstempel, auch innerhalb eines Uploads.
 create or replace function public.items_touch() returns trigger
 language plpgsql set search_path = '' as $$
 begin
-  new.synced_at := now();
+  if tg_op = 'UPDATE' and new.updated_at < old.updated_at then
+    return null;
+  end if;
+  new.synced_at := clock_timestamp();
   return new;
 end;
 $$;

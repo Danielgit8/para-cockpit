@@ -1,7 +1,7 @@
 // Offline-Cache. Wichtig: Installieren und Aktivieren warten nie auf das Netz,
 // sonst kann ein hängender Download ein Update dauerhaft blockieren.
-const CACHE = "para-cockpit-v38";
-const SHELL = ["./index.html", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
+const CACHE = "para-cockpit-v39";
+const SHELL = ["./index.html", "./core.js", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -32,6 +32,15 @@ self.addEventListener("fetch", e => {
       net.then(res => res && res.ok ? res : fallback()).catch(fallback),
       new Promise(r => setTimeout(r, 3000)).then(fallback).then(hit => hit || net)
     ]).then(res => res || fetch(req)));
+    return;
+  }
+  // core.js gehört zur Seite: wie index.html zuerst frisch holen, damit beide immer zusammenpassen
+  if (sameOrigin && url.pathname.endsWith("/core.js")) {
+    const net = withTimeout(fetch(req, {cache: "no-store"}), 3000).then(async res => {
+      if (res && res.ok) { const c = await caches.open(CACHE); await c.put("./core.js", res.clone()); return res; }
+      throw new Error("bad");
+    });
+    e.respondWith(net.catch(() => caches.match("./core.js", {ignoreSearch: true}).then(hit => hit || fetch(req))));
     return;
   }
   const fresh = withTimeout(fetch(req), 20000).then(async res => {

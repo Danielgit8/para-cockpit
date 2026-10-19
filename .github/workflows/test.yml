@@ -1,0 +1,18 @@
+name: Tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Skript in index.html auf Syntaxfehler prüfen
+        run: |
+          node -e 'const s=require("fs").readFileSync("index.html","utf8");for(const m of s.matchAll(/<script>([\s\S]*?)<\/script>/g))new Function(m[1]);'
+          node --check core.js
+          node --check sw.js

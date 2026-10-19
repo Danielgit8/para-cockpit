@@ -1,0 +1,8 @@
+{
+  "name": "para-cockpit",
+  "private": true,
+  "description": "PARA Cockpit: Tests für die Kernlogik (core.js). Keine Pakete nötig.",
+  "scripts": {
+    "test": "node --test tests/core.test.js"
+  }
+}
