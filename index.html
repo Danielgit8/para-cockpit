@@ -872,7 +872,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-19.4";
+const APP_VERSION = "2026-10-19.5";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2672,7 +2672,7 @@ function renderImpPop(){
   const bad = b.invalid.slice(0, 3).map(x => (x.title ? `„${x.title}“: ` : `Nr. ${x.i + 1}: `) + x.why).join("; ") + (b.invalid.length > 3 ? " …" : "");
   $("#pop").innerHTML = `<div class="scrim" data-act="pop-close"></div><div class="modal" role="dialog" aria-label="Sicherung einspielen">
     <h2>Sicherung einspielen</h2>
-    <p class="hint" style="margin:0">${esc(m.name)} · ${b.items.length} Einträge${b.settings ? " · mit Einstellungen" : ""}${nf ? ` · ${m.zip ? `${inZip} von ${nf} Dateien enthalten` : `${nf} Dateiverweise, die Dateien selbst sind nicht enthalten`}` : ""}</p>
+    <p class="hint" style="margin:0">${esc(m.name)} · ${b.items.length} ${b.items.length === 1 ? "Eintrag" : "Einträge"}${b.settings ? " · mit Einstellungen" : ""}${nf ? ` · ${m.zip ? `${inZip} von ${nf} Dateien enthalten` : `${nf} Dateiverweise, die Dateien selbst sind nicht enthalten`}` : ""}</p>
     <ul class="hint" style="margin:0;padding-left:18px;line-height:1.7">
       ${li(mp.add.length, "neu", "neu")}${li(mp.over.length, "wird mit der Fassung aus der Sicherung überschrieben" + names(mp.over), "werden mit der Fassung aus der Sicherung überschrieben" + names(mp.over))}${li(mp.keep.length, "bleibt, weil die Fassung auf dem Gerät neuer ist" + names(mp.keep), "bleiben, weil die Fassung auf dem Gerät neuer ist" + names(mp.keep))}${li(mp.same.length, "ist schon genau so vorhanden", "sind schon genau so vorhanden")}
       ${b.invalid.length ? `<li><b class="num">${b.invalid.length}</b> ${b.invalid.length === 1 ? "ungültig, wird" : "ungültig, werden"} übersprungen (${esc(bad)})</li>` : ""}
