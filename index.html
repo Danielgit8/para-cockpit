@@ -1679,7 +1679,7 @@ function stepRows(list, tk){
   return list.map(({p, t}) => `<div class="step"><button class="t" data-open="${p.id}" title="${esc(p.title)}">${esc(p.title || "Ohne Titel")}</button>
     ${t ? taskRow(t, tk) : `<div class="add"><input id="ns-${p.id}" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt für ${esc(p.title)}"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="ns-${p.id}" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}</div>`).join("");
 }
-// Heute: oben nur EINE Sache, darunter Gewohnheiten als Haken. Alles andere liegt unter „Mehr anzeigen“.
+// Heute: ganz oben die Aufgaben für heute, dann die eine Sache, darunter Gewohnheiten als Haken. Alles andere liegt unter „Mehr anzeigen“.
 S.todayMore = (() => { try { return !!localStorage.getItem("pc-more"); } catch(e) { return false; } })();
 function nowCands(){
   const tk = dkey(), mp = mainProj(), inMp = new Set(mp ? related(mp.id).map(r => r.id) : []);
@@ -1744,13 +1744,13 @@ function todayTasksHTML(tk){
 function todayHTML(){
   const tk = dkey(), steps = nextSteps(), rv = reviewDue();
   const front = topAreas().length;
-  const more = S.todayMore ? `<div class="stack">${front ? "" : pillarsCardHTML()}${mainProjHTML()}${todayTasksHTML(tk)}
+  const more = S.todayMore ? `<div class="stack">${front ? "" : pillarsCardHTML()}${mainProjHTML()}
     <section class="card"><div class="card-h"><h2>Nächster Schritt pro Projekt</h2><span class="grow"></span><button class="pill" data-go="project">Projekte</button></div>
     ${steps.length ? stepRows(steps, tk) : `<div class="empty">Keine aktiven Projekte.</div>`}</section></div>` : "";
   return header("Heute", dateLine()) + banner() +
   (rv ? `<div class="banner" style="border-style:solid">${ic("review")}<span style="color:var(--text)"><b>Zeit für deinen Wochenrückblick.</b> Fünf kurze Schritte, dann startest du sortiert in die neue Woche.</span><button class="btn" style="margin-left:auto" data-go="review">Starten</button></div>` : "") +
-  nowHTML() + nowPlanHTML() + (front ? pillarsCardHTML() : "") + habitChipsHTML() +
-  `<button class="more-tg ${S.todayMore ? "open" : ""}" data-act="today-more" aria-expanded="${S.todayMore}">${S.todayMore ? "Weniger anzeigen" : front ? "Mehr anzeigen: Hauptprojekt, Aufgaben, Projekte" : "Mehr anzeigen: Säulen, Hauptprojekt, Aufgaben, Projekte"}${ic("down")}</button>` + more;
+  todayTasksHTML(tk) + nowHTML() + nowPlanHTML() + (front ? pillarsCardHTML() : "") + habitChipsHTML() +
+  `<button class="more-tg ${S.todayMore ? "open" : ""}" data-act="today-more" aria-expanded="${S.todayMore}">${S.todayMore ? "Weniger anzeigen" : front ? "Mehr anzeigen: Hauptprojekt, Projekte" : "Mehr anzeigen: Säulen, Hauptprojekt, Projekte"}${ic("down")}</button>` + more;
 }
 
 /* --- Mein Hauptprojekt: ein angeheftetes Projekt mit Fahrplan-Notizen, Gewohnheiten und den nächsten Schritten --- */
