@@ -1,6 +1,6 @@
 // Offline-Cache. Wichtig: Installieren und Aktivieren warten nie auf das Netz,
 // sonst kann ein hängender Download ein Update dauerhaft blockieren.
-const CACHE = "para-cockpit-v43";
+const CACHE = "para-cockpit-v44";
 const SHELL = ["./index.html", "./core.js", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 

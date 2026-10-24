@@ -768,7 +768,7 @@ body.bd-on{overflow:hidden}
 .fd-seg{margin:0 0 10px}
 .fd-seg + .fd-tbl{margin-top:16px}
 .fd-tbl{display:flex;flex-direction:column;gap:6px}
-.fd-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) 76px 84px minmax(0,1fr) minmax(0,1.8fr);gap:12px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;line-height:1.45;cursor:pointer;text-align:left}
+.fd-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) 84px minmax(0,1fr) minmax(0,1.8fr);gap:12px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;line-height:1.45;cursor:pointer;text-align:left}
 .fd-row:hover{background:var(--soft)}
 .fd-row:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .fd-row.open{border-color:var(--ink);background:var(--soft)}
@@ -779,9 +779,6 @@ body.bd-on{overflow:hidden}
 .fd-head .num{text-align:right}
 .fd-name{font-weight:600}
 .fd-why{color:var(--muted)}
-.fd-eat{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--soft)}
-.fd-eat.yes{background:var(--ink);color:var(--on-ink)}
-.fd-eat.no{border:1px solid var(--line-2);background:transparent;color:var(--muted)}
 .fd-ed{margin:0 0 10px;padding:14px;border:1px solid var(--ink);border-radius:var(--r-sm)}
 .fd-lbl{display:flex;flex-direction:column;gap:6px;min-width:0}
 .fd-lbl>span:first-child{font-size:12px;font-weight:600;color:var(--muted)}
@@ -938,7 +935,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-24.1";
+const APP_VERSION = "2026-10-24.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2978,7 +2975,7 @@ function trDayHTML(d, k, n){
 }
 /* ================= Ernährung: Lebensmittel und Rezepte ================= */
 // Lebensmittel (kind "food") und Rezepte (kind "recipe") sind versteckte Einträge (in HIDDEN_K) und werden einzeln abgeglichen.
-// food: what (Art oder Beschreibung), eat (true | false | "" = noch offen), grams (Text wie eingegeben), days ([1..7], 1 = Montag), why.
+// food: what (Art oder Beschreibung), grams (Text wie eingegeben), days ([1..7], 1 = Montag), why.
 // recipe: ing [{id, name, grams}], steps [{id, text}].
 // Beide haben links, files (PDFs und andere Dateien) und shots (Bilder) wie normale Einträge.
 // Bearbeitet wird direkt auf der Seite (data-fv, data-ri, data-rs, Klicks über data-fact), nicht im Detailfenster.
@@ -2990,7 +2987,6 @@ function fdDays(x){
   return d.map(n => FD_DAYS[n - 1]).join(", ");
 }
 const fdGrams = g => { const t = String(g ?? "").trim(); return !t ? "" : /^\d+([.,]\d+)?$/.test(t) ? t + " g" : t; };
-const fdEatHTML = e => e === true ? `<span class="fd-eat yes">Ja</span>` : e === false ? `<span class="fd-eat no">Nein</span>` : "";
 const fdByTitle = (x, y) => (x.title || "").localeCompare(y.title || "", "de", {sensitivity:"base", numeric:true});
 function fdAttCount(x){ const n = (x.links || []).length + (x.files || []).length + (x.shots || []).length; return n ? `<span class="fd-att" title="Links, Dateien und Bilder">${ic("link")}${n}</span>` : ""; }
 // Links, PDFs und Bilder eines Lebensmittels oder Rezepts. ro = nur ansehen (Rezept im Lesemodus).
@@ -3021,22 +3017,19 @@ function foodHTML(){
     `<div class="tr-seg">${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}</div>` + (S.fdTab === "rec" ? rcHTML() : fdListHTML());
 }
 function fdListHTML(){
-  if (!S.fdF) { try { S.fdF = localStorage.getItem("fdF") || "all"; } catch(e) { S.fdF = "all"; } }
-  const f = S.fdF, day = S.fdDay || 0;
+  const day = S.fdDay || 0;
   const all = live("food").sort(fdByTitle);
-  const list = all.filter(x => x.id === S.fdOpen || ((f === "all" || (f === "yes" ? x.eat === true : x.eat === false)) && (!day || fdDayList(x).includes(day))));
-  const seg = (v, l) => `<button class="pill ${f === v ? "on" : ""}" data-fact="filter" data-v="${v}">${l}</button>`;
+  const list = all.filter(x => x.id === S.fdOpen || !day || fdDayList(x).includes(day));
   const dseg = (n, l) => `<button class="pill ${day === n ? "on" : ""}" data-fact="fday" data-d="${n}">${l}</button>`;
   const cell = (x, k, l, v, cls = "") => `<span class="fd-c ${cls}" data-l="${l}" data-fc="${x.id}|${k}">${v}</span>`;
   const row = x => `<div class="fd-row ${S.fdOpen === x.id ? "open" : ""}" role="button" tabindex="0" data-fact="edit" data-id="${x.id}" aria-expanded="${S.fdOpen === x.id}">
-      <span class="fd-c fd-name"><span data-fc="${x.id}|title">${esc(x.title || "Ohne Namen")}</span>${fdAttCount(x)}</span>${cell(x, "what", "Was", esc(x.what || ""), "fd-what")}${cell(x, "eat", "Esse ich", fdEatHTML(x.eat))}${cell(x, "grams", "Gramm", esc(fdGrams(x.grams)), "num")}${cell(x, "days", "Tage", esc(fdDays(x)))}${cell(x, "why", "Warum", esc(x.why || ""), "fd-why")}</div>
+      <span class="fd-c fd-name"><span data-fc="${x.id}|title">${esc(x.title || "Ohne Namen")}</span>${fdAttCount(x)}</span>${cell(x, "what", "Was", esc(x.what || ""), "fd-what")}${cell(x, "grams", "Gramm", esc(fdGrams(x.grams)), "num")}${cell(x, "days", "Tage", esc(fdDays(x)))}${cell(x, "why", "Warum", esc(x.why || ""), "fd-why")}</div>
     ${S.fdOpen === x.id ? fdForm(x) : ""}`;
   return `<section class="card"><div class="add"><input id="fd-new" data-keep placeholder="Neues Lebensmittel, Enter zum Speichern" aria-label="Neues Lebensmittel"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-fact="add" aria-label="Lebensmittel speichern">${ic("plus")}</button></div>
     <p class="hint" style="margin:10px 0 0">Tipp auf ein Lebensmittel, um Art, Menge, Tage, den Grund sowie Links, PDFs und Bilder einzutragen oder zu ändern.</p></section>
   <section class="card"><div class="card-h"><h2>Meine Lebensmittel</h2></div>
-    ${all.length ? `<div class="tr-seg fd-seg">${seg("all", "Alle")}${seg("yes", "Esse ich")}${seg("no", "Esse ich nicht")}</div>
-    <div class="tr-seg fd-seg">${dseg(0, "Alle Tage")}${FD_DAYS.map((l, i) => dseg(i + 1, l)).join("")}</div>
-    <div class="fd-tbl"><div class="fd-row fd-head" aria-hidden="true"><span>Name</span><span>Was</span><span>Esse ich</span><span class="num">Gramm</span><span>Tage</span><span>Warum</span></div>
+    ${all.length ? `<div class="tr-seg fd-seg">${dseg(0, "Alle Tage")}${FD_DAYS.map((l, i) => dseg(i + 1, l)).join("")}</div>
+    <div class="fd-tbl"><div class="fd-row fd-head" aria-hidden="true"><span>Name</span><span>Was</span><span class="num">Gramm</span><span>Tage</span><span>Warum</span></div>
       ${list.map(row).join("") || `<div class="empty">Kein Lebensmittel passt zu diesem Filter.</div>`}</div>`
     : `<div class="empty">Noch keine Lebensmittel. Schreib oben den Namen von etwas, das du gerne isst, und drück Enter.</div>`}</section>`;
 }
@@ -3045,7 +3038,6 @@ function fdForm(x){
   const d = fdDayList(x);
   const inp = (k, l, extra = "") => `<label>${l}<input class="field" id="fd-${x.id}-${k}" data-fv="${k}" data-id="${x.id}" value="${esc(x[k] ?? "")}" ${extra}></label>`;
   return `<div class="fd-ed br-ed">${inp("title", "Name")}${inp("what", "Was ist das?", 'placeholder="Art oder kurze Beschreibung"')}
-    <div class="fd-lbl"><span>Esse ich das?</span><div class="fd-btns"><button class="pill ${x.eat === true ? "on" : ""}" data-fact="eat" data-id="${x.id}" data-v="1">Ja</button><button class="pill ${x.eat === false ? "on" : ""}" data-fact="eat" data-id="${x.id}" data-v="0">Nein</button></div></div>
     ${inp("grams", "Wie viel Gramm?", 'inputmode="decimal" placeholder="Menge in Gramm"')}
     <div class="fd-lbl br-wide"><span>An welchen Tagen?</span><div class="fd-btns">${FD_DAYS.map((l, i) => `<button class="pill fd-day ${d.includes(i + 1) ? "on" : ""}" data-fact="day" data-id="${x.id}" data-d="${i + 1}" aria-pressed="${d.includes(i + 1)}">${l}</button>`).join("")}<button class="pill" data-fact="alldays" data-id="${x.id}">${d.length === 7 ? "Keinen Tag" : "Jeden Tag"}</button></div></div>
     <label class="br-wide">Weshalb esse ich das?<textarea class="field" rows="3" id="fd-${x.id}-why" data-fv="why" data-id="${x.id}" placeholder="Dein Grund">${esc(x.why || "")}</textarea></label>
@@ -3099,7 +3091,7 @@ function fdAdd(kind){
   if (!v) { if (inp) inp.focus(); return; }
   inp.value = "";
   if (kind === "recipe") { const it = create("recipe", v, {ing:[], steps:[]}); S.rcOpen = it.id; S.rcEdit = true; renderMain(); const b = document.querySelector(`[data-fact="ing-add"][data-id="${it.id}"]`); if (b) b.focus(); return; }
-  const it = create("food", v, {what:"", eat:"", grams:"", days:[], why:""});
+  const it = create("food", v, {what:"", grams:"", days:[], why:""});
   S.fdOpen = it.id; renderMain(); const n = $(`#fd-${it.id}-what`); if (n) n.focus();
 }
 function fdRemove(it){
@@ -3117,12 +3109,10 @@ document.addEventListener("click", e => {
     case "tab": S.fdTab = a.dataset.v; try { localStorage.setItem("fdTab", S.fdTab); } catch(er) {} renderMain(); window.scrollTo({top:0}); return;
     case "add": fdAdd("food"); return;
     case "rc-add": fdAdd("recipe"); return;
-    case "filter": S.fdF = a.dataset.v; try { localStorage.setItem("fdF", S.fdF); } catch(er) {} break;
     case "fday": S.fdDay = +a.dataset.d; break;
     case "edit": S.fdOpen = S.fdOpen === id ? null : id; break;
     case "rc-open": S.rcOpen = S.rcOpen === id ? null : id; S.rcEdit = false; break;
     case "rc-edit": S.rcEdit = !S.rcEdit; break;
-    case "eat": if (it) { const v = a.dataset.v === "1"; it.eat = it.eat === v ? "" : v; persist(it); } break;
     case "day": if (it) { const n = +a.dataset.d, d = fdDayList(it); it.days = d.includes(n) ? d.filter(x => x !== n) : [...d, n].sort((p, q) => p - q); persist(it); } break;
     case "alldays": if (it) { it.days = fdDayList(it).length === 7 ? [] : [1, 2, 3, 4, 5, 6, 7]; persist(it); } break;
     case "del": if (it && ask(id)) { fdRemove(it); if (S.fdOpen === id) S.fdOpen = null; if (S.rcOpen === id) S.rcOpen = null; } break;
