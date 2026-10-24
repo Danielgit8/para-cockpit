@@ -719,6 +719,7 @@ body.bd-on{overflow:hidden}
 .br-last{margin:16px 0 0}
 .br-gform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14)}
 .br-gform label,.br-form label,.br-ed label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.br-ed label .field,.br-form label .field{font-size:14px;font-weight:500;color:var(--text)}
 .br-gform label{color:rgba(255,246,234,.75)}
 .br-gform .field{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#FFF6EA}
 .br-wide{grid-column:1/-1}
@@ -764,6 +765,71 @@ body.bd-on{overflow:hidden}
 .br-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2)}
 .br-dot.on{background:var(--brand);border-color:var(--brand)}
 .br-links{display:flex;flex-wrap:wrap;gap:8px}
+.fd-seg{margin:0 0 10px}
+.fd-seg + .fd-tbl{margin-top:16px}
+.fd-tbl{display:flex;flex-direction:column;gap:6px}
+.fd-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) 76px 84px minmax(0,1fr) minmax(0,1.8fr);gap:12px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;line-height:1.45;cursor:pointer;text-align:left}
+.fd-row:hover{background:var(--soft)}
+.fd-row:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fd-row.open{border-color:var(--ink);background:var(--soft)}
+.fd-head{border:0;padding:0 12px 2px;font-size:11.5px;font-weight:600;color:var(--muted);cursor:default}
+.fd-head:hover{background:none}
+.fd-c{min-width:0;overflow-wrap:anywhere;white-space:pre-line}
+.fd-c.num{text-align:right;white-space:nowrap}
+.fd-head .num{text-align:right}
+.fd-name{font-weight:600}
+.fd-why{color:var(--muted)}
+.fd-eat{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--soft)}
+.fd-eat.yes{background:var(--ink);color:var(--on-ink)}
+.fd-eat.no{border:1px solid var(--line-2);background:transparent;color:var(--muted)}
+.fd-ed{margin:0 0 10px;padding:14px;border:1px solid var(--ink);border-radius:var(--r-sm)}
+.fd-lbl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fd-lbl>span:first-child{font-size:12px;font-weight:600;color:var(--muted)}
+.fd-att{display:inline-flex;align-items:center;gap:3px;margin-left:8px;font-size:11px;font-weight:500;color:var(--muted);vertical-align:middle}
+.fd-att .i{width:12px;height:12px}
+.fd-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.fd-img{aspect-ratio:4/3;border-radius:var(--r-sm);overflow:hidden;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);padding:0}
+.fd-img img{width:100%;height:100%;object-fit:cover;display:block}
+.fd-link{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fd-link .field{flex:1 1 150px;height:36px}
+.fd-link .field:first-child{flex:2 1 200px}
+.fd-upl,.rc-addb{align-self:flex-start;cursor:pointer;height:34px}
+.rc-row{grid-template-columns:minmax(0,1fr) minmax(0,2fr) 100px}
+.rc-cnt{text-align:right}
+.rc-ir{display:grid;grid-template-columns:minmax(0,1fr) 110px 32px;gap:8px;align-items:center}
+.rc-ir .field{height:36px}
+.rc-sr{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:start}
+.rc-n{font-weight:700;padding-top:10px;text-align:right}
+.rc-sb{display:flex;gap:2px}
+.rc-sb .ibtn:disabled{opacity:.25;cursor:default}
+.rc-view h3{font-size:13px;margin:0 0 8px}
+.rc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:24px;margin-bottom:16px}
+.rc-ing{list-style:none;margin:0;padding:0}
+.rc-ing li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.rc-ing .rc-tot{border-bottom:0;color:var(--muted)}
+.rc-steps{margin:0;padding-left:22px;font-size:13.5px;line-height:1.55}
+.rc-steps li{margin-bottom:8px;white-space:pre-line;padding-left:4px}
+.rc-view .fd-lbl{margin-bottom:12px}
+.fd-btns{display:flex;flex-wrap:wrap;gap:6px}
+.fd-btns .pill{height:34px;padding:0 14px;font-size:13px}
+.fd-btns .fd-day{min-width:44px;justify-content:center}
+@media (max-width:560px){
+  .fd-head{display:none}
+  .fd-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;padding:12px}
+  .fd-row .fd-name{grid-column:1/-1;font-size:14px}
+  .fd-row .fd-c[data-l]::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--muted)}
+  .fd-row .fd-c:empty{display:none}
+  .fd-row .fd-c.num{text-align:left}
+  .fd-row .fd-what,.fd-row .fd-why{grid-column:1/-1}
+  .fd-btns .fd-day{min-width:0;flex:1 0 40px;padding:0 6px}
+  .rc-row{grid-template-columns:minmax(0,1fr) auto}
+  .rc-row .fd-name{grid-column:1}
+  .rc-row .rc-sum{grid-column:1/-1;order:3}
+  .rc-cols{grid-template-columns:minmax(0,1fr)}
+  .rc-ir{grid-template-columns:minmax(0,1fr) 84px 32px}
+  .rc-sr{grid-template-columns:18px minmax(0,1fr)}
+  .rc-sb{grid-column:2;justify-content:flex-end}
+}
 .br-links .pill{height:34px}
 @media (max-width:900px){.br-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) 32px;gap:8px;margin:0;padding:12px 0;border-bottom:1px solid var(--line)}.br-sk>input:first-child{grid-column:1/-1;font-weight:600}.br-sk .br-sk-n{grid-column:1/-1;order:5}.br-hero h2{font-size:18px}}
@@ -872,7 +938,7 @@ body.bd-on{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-19.5";
+const APP_VERSION = "2026-10-24.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -911,7 +977,7 @@ const P = {
   sun:"M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4L7 17M17 7l1.4-1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
   review:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16M9 15l2 2 4-4", tag:"M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
   bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4", repeat:"M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1",
-  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
+  grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", pulse:"M3 12h4l3-7 4 14 3-7h4", food:"M12 8c-2.2-1.8-7-1.6-7 3.3C5 15.6 8 20 10.4 20c.8 0 1-.4 1.6-.4s.8.4 1.6.4C16 20 19 15.6 19 11.3 19 6.4 14.2 6.2 12 8zM12 8c0-2 .8-3.6 2.6-4.6", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
   up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11",
   board:"M3 4h18v12H3zM12 16v4M8 20h8M7 8h6M7 11h4", layout:"M4 4h16v16H4zM4 10h16M10 10v10", sticky:"M5 4h14v10l-6 6H5zM13 20v-6h6",
   play:"M7 5l12 7-12 7z", chart:"M4 4v16h16M7 15l4-4 3 3 6-7", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3", star:"M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z"
@@ -950,7 +1016,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income", "brandtpl"];
+const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income", "brandtpl", "food", "recipe"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -1434,6 +1500,7 @@ function navItems(){
   for (const id of ["task","habit","project"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   out.push({v:"basis", label:"Basis", icon:"pulse"});
   out.push({v:"training", label:"Training", icon:"dumbbell"});
+  out.push({v:"food", label:"Ernährung", icon:"food"});
   out.push({v:"review", label:"Wochenrückblick", icon:"review"});
   for (const id of ["area","resource","note"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   out.push({v:"board", label:"Boards", icon:"board"});
@@ -1450,7 +1517,7 @@ function navGroups(){
     {id:"today", label:"Heute", icon:"sun", views:[v("today", "Heute", "sun")]},
     {id:"plan", label:"Planen", icon:"cal", views:[v("cal", "Kalender", "cal"), v("task", k.task.plural, k.task.icon), v("project", k.project.plural, k.project.icon), v("habit", k.habit.plural, k.habit.icon), v("review", "Wochenrückblick", "review")]},
     {id:"brand", label:"Brand & Business", short:"Brand", icon:"star", views:[v("brand", "Brand & Business", "star")]},
-    {id:"body", label:"Körper", icon:"dumbbell", views:[v("training", "Training", "dumbbell"), v("basis", "Basis", "pulse")]},
+    {id:"body", label:"Körper", icon:"dumbbell", views:[v("training", "Training", "dumbbell"), v("basis", "Basis", "pulse"), v("food", "Ernährung", "food")]},
     {id:"know", label:"Wissen", icon:k.resource.icon, views:[...(S.settings.kinds || []).map(c => v(c.id, c.label, "folder")), v("resource", k.resource.plural, k.resource.icon), v("note", k.note.plural, k.note.icon), v("area", k.area.plural, k.area.icon), v("board", "Boards", "board")]},
   ];
   for (const g of gs) g.views = g.views.filter(x => !hide.has(x.v) || S.view === x.v);
@@ -1528,6 +1595,7 @@ function viewHTML(){
   if (v === "review") return reviewHTML();
   if (v === "basis") return basisHTML();
   if (v === "training") return trainingHTML();
+  if (v === "food") return foodHTML();
   if (v === "brand") return brandHTML();
   if (v === "board") return boardsHTML();
   if (v === "tags") return tagsHTML();
@@ -2243,7 +2311,7 @@ function settingsHTML(){
 
 /* ================= search ================= */
 // Versteckte Arten haben eigene Ansichten (Training, Brand & Business) und öffnen dort
-const SR_K = {workout:{label:"Training", icon:"dumbbell"}, video:{label:"Video", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}};
+const SR_K = {workout:{label:"Training", icon:"dumbbell"}, video:{label:"Video", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
 const srKind = k => SR_K[k] || kindOf({kind:k});
 function searchRender(q){
   const box = $("#search-res"); if (!box) return;
@@ -2258,6 +2326,8 @@ function srOpen(id){
   const n = $("#q"); if (n && n.value) { n.value = ""; searchRender(""); }
   closePop();
   if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
+  if (it.kind === "food" || it.kind === "recipe") { if (S.open) closeOverlay(); const r = it.kind === "recipe"; S.fdTab = r ? "rec" : "food"; if (r) { S.rcOpen = id; S.rcEdit = false; } else S.fdOpen = id;
+    try { localStorage.setItem("fdTab", S.fdTab); } catch(e){} go("food"); return; }
   const tab = {video:"vid", contact:"con", income:"inc"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
   S.dBack = []; openDetailFresh(id);
@@ -2604,8 +2674,8 @@ function queueUrl(path){
     renderMain(); refreshDetail(); if (S.pop && S.pop.shots) renderPop();
   }, 60);
 }
-async function uploadFiles(files, field = "files"){
-  const it = S.items.get(S.open); if (!it || !sb || !S.user) return;
+async function uploadFiles(files, field = "files", id = S.open){
+  const it = S.items.get(id); if (!it || !sb || !S.user) return;
   if (!navigator.onLine) { toast("Zum Hochladen brauchst du Internet."); return; }
   S.uploading = field === "shots" ? "shots" : true; refreshDetail();
   for (const f of files) {
@@ -2906,6 +2976,197 @@ function trDayHTML(d, k, n){
     ${d.ex.map((e, i) => trRow(d, e, i)).join("")}
     <div class="tr-foot"><button class="pill" data-act="tr-ex-add" data-day="${d.id}">${ic("plus")}Übung hinzufügen</button></div></section>`;
 }
+/* ================= Ernährung: Lebensmittel und Rezepte ================= */
+// Lebensmittel (kind "food") und Rezepte (kind "recipe") sind versteckte Einträge (in HIDDEN_K) und werden einzeln abgeglichen.
+// food: what (Art oder Beschreibung), eat (true | false | "" = noch offen), grams (Text wie eingegeben), days ([1..7], 1 = Montag), why.
+// recipe: ing [{id, name, grams}], steps [{id, text}].
+// Beide haben links, files (PDFs und andere Dateien) und shots (Bilder) wie normale Einträge.
+// Bearbeitet wird direkt auf der Seite (data-fv, data-ri, data-rs, Klicks über data-fact), nicht im Detailfenster.
+const FD_DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const fdDayList = x => [...new Set((x.days || []).map(Number))].filter(n => n >= 1 && n <= 7).sort((a, b) => a - b);
+function fdDays(x){
+  const d = fdDayList(x), k = d.join("");
+  if (!d.length) return ""; if (d.length === 7) return "Jeden Tag"; if (k === "12345") return "Mo bis Fr"; if (k === "67") return "Wochenende";
+  return d.map(n => FD_DAYS[n - 1]).join(", ");
+}
+const fdGrams = g => { const t = String(g ?? "").trim(); return !t ? "" : /^\d+([.,]\d+)?$/.test(t) ? t + " g" : t; };
+const fdEatHTML = e => e === true ? `<span class="fd-eat yes">Ja</span>` : e === false ? `<span class="fd-eat no">Nein</span>` : "";
+const fdByTitle = (x, y) => (x.title || "").localeCompare(y.title || "", "de", {sensitivity:"base", numeric:true});
+function fdAttCount(x){ const n = (x.links || []).length + (x.files || []).length + (x.shots || []).length; return n ? `<span class="fd-att" title="Links, Dateien und Bilder">${ic("link")}${n}</span>` : ""; }
+// Links, PDFs und Bilder eines Lebensmittels oder Rezepts. ro = nur ansehen (Rezept im Lesemodus).
+function fdAttHTML(x, ro = false){
+  const shots = shotsOf(x), files = x.files || [], links = x.links || [];
+  if (ro && !shots.length && !files.length && !links.length) return "";
+  const del = (act, i, l) => ro ? "" : `<button class="ibtn" data-fact="${act}" data-id="${x.id}" data-i="${i}" title="${S.fdDel === `${act}:${x.id}:${i}` ? "Nochmal tippen zum Löschen" : l}" aria-label="${l}" style="${S.fdDel === `${act}:${x.id}:${i}` ? "color:var(--late)" : ""}">${ic("trash")}</button>`;
+  return `<div class="fd-lbl br-wide"><span>Links, PDFs und Bilder</span>
+    ${links.map((l, i) => `<div class="lrow">${ic("link")}<div class="t"><a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer">${esc(l.label || hostOf(l.url))}</a><small>${esc(l.url)}</small></div>${del("link-del", i, "Link entfernen")}</div>`).join("")}
+    ${files.map((f, i) => { const url = fileUrl(f);
+      return `<div class="lrow">${ic("file")}<div class="t">${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(f.name)}</a>` : `<b>${esc(f.name)}</b>`}<small class="num">${esc((f.type || "").split("/")[1] || "Datei")} · ${fmtSize(f.size || 0)}${navigator.onLine ? "" : " · braucht Internet"}</small></div>${del("file-del", i, "Datei löschen")}</div>`; }).join("")}
+    ${shots.length ? `<div class="fd-imgs">${shots.map(({s}, k) => { const url = fileUrl(s);
+      return `<button class="fd-img" data-fact="shot" data-id="${x.id}" data-k="${k}" aria-label="Bild groß anzeigen">${url ? `<img src="${esc(url)}" alt="${esc(s.cap || "")}" loading="lazy">` : `<span>${navigator.onLine ? "Lädt …" : "Braucht Internet"}</span>`}</button>`; }).join("")}</div>` : ""}
+    ${S.fdUp === x.id ? `<div class="lrow muted">Lade hoch …</div>` : ""}
+    ${ro ? "" : `<div class="fd-link"><input class="field" id="fd-${x.id}-lurl" data-keep placeholder="https://…" inputmode="url" aria-label="Link-Adresse"><input class="field" id="fd-${x.id}-llab" data-keep placeholder="Bezeichnung (optional)" aria-label="Link-Bezeichnung"><button class="pill" data-fact="link-add" data-id="${x.id}">${ic("plus")}Link</button></div>
+    ${sb && S.user ? `<label class="pill fd-upl">${ic("upload")}PDF oder Bild hochladen<input type="file" data-fup="${x.id}" multiple hidden></label>` : `<small class="muted">Hochladen geht, sobald du angemeldet und online bist.</small>`}`}</div>`;
+}
+async function fdUpload(id, files){
+  const img = f => (f.type || "").startsWith("image/");
+  S.fdUp = id; renderMain();
+  try { if (files.some(img)) await uploadFiles(files.filter(img), "shots", id); if (files.some(f => !img(f))) await uploadFiles(files.filter(f => !img(f)), "files", id); }
+  finally { S.fdUp = null; renderMain(); }
+}
+function foodHTML(){
+  if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab") || "food"; } catch(e) { S.fdTab = "food"; } }
+  const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-fact="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
+  return header("Ernährung", "Deine Lebensmittel und Rezepte auf einen Blick") + banner() +
+    `<div class="tr-seg">${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}</div>` + (S.fdTab === "rec" ? rcHTML() : fdListHTML());
+}
+function fdListHTML(){
+  if (!S.fdF) { try { S.fdF = localStorage.getItem("fdF") || "all"; } catch(e) { S.fdF = "all"; } }
+  const f = S.fdF, day = S.fdDay || 0;
+  const all = live("food").sort(fdByTitle);
+  const list = all.filter(x => x.id === S.fdOpen || ((f === "all" || (f === "yes" ? x.eat === true : x.eat === false)) && (!day || fdDayList(x).includes(day))));
+  const seg = (v, l) => `<button class="pill ${f === v ? "on" : ""}" data-fact="filter" data-v="${v}">${l}</button>`;
+  const dseg = (n, l) => `<button class="pill ${day === n ? "on" : ""}" data-fact="fday" data-d="${n}">${l}</button>`;
+  const cell = (x, k, l, v, cls = "") => `<span class="fd-c ${cls}" data-l="${l}" data-fc="${x.id}|${k}">${v}</span>`;
+  const row = x => `<div class="fd-row ${S.fdOpen === x.id ? "open" : ""}" role="button" tabindex="0" data-fact="edit" data-id="${x.id}" aria-expanded="${S.fdOpen === x.id}">
+      <span class="fd-c fd-name"><span data-fc="${x.id}|title">${esc(x.title || "Ohne Namen")}</span>${fdAttCount(x)}</span>${cell(x, "what", "Was", esc(x.what || ""), "fd-what")}${cell(x, "eat", "Esse ich", fdEatHTML(x.eat))}${cell(x, "grams", "Gramm", esc(fdGrams(x.grams)), "num")}${cell(x, "days", "Tage", esc(fdDays(x)))}${cell(x, "why", "Warum", esc(x.why || ""), "fd-why")}</div>
+    ${S.fdOpen === x.id ? fdForm(x) : ""}`;
+  return `<section class="card"><div class="add"><input id="fd-new" data-keep placeholder="Neues Lebensmittel, Enter zum Speichern" aria-label="Neues Lebensmittel"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-fact="add" aria-label="Lebensmittel speichern">${ic("plus")}</button></div>
+    <p class="hint" style="margin:10px 0 0">Tipp auf ein Lebensmittel, um Art, Menge, Tage, den Grund sowie Links, PDFs und Bilder einzutragen oder zu ändern.</p></section>
+  <section class="card"><div class="card-h"><h2>Meine Lebensmittel</h2></div>
+    ${all.length ? `<div class="tr-seg fd-seg">${seg("all", "Alle")}${seg("yes", "Esse ich")}${seg("no", "Esse ich nicht")}</div>
+    <div class="tr-seg fd-seg">${dseg(0, "Alle Tage")}${FD_DAYS.map((l, i) => dseg(i + 1, l)).join("")}</div>
+    <div class="fd-tbl"><div class="fd-row fd-head" aria-hidden="true"><span>Name</span><span>Was</span><span>Esse ich</span><span class="num">Gramm</span><span>Tage</span><span>Warum</span></div>
+      ${list.map(row).join("") || `<div class="empty">Kein Lebensmittel passt zu diesem Filter.</div>`}</div>`
+    : `<div class="empty">Noch keine Lebensmittel. Schreib oben den Namen von etwas, das du gerne isst, und drück Enter.</div>`}</section>`;
+}
+function fdDelBtn(id){ return `<button class="pill" data-fact="del" data-id="${id}" style="${S.fdDel === id ? "color:var(--late)" : ""}">${ic("trash")}${S.fdDel === id ? "Wirklich löschen?" : "Löschen"}</button>`; }
+function fdForm(x){
+  const d = fdDayList(x);
+  const inp = (k, l, extra = "") => `<label>${l}<input class="field" id="fd-${x.id}-${k}" data-fv="${k}" data-id="${x.id}" value="${esc(x[k] ?? "")}" ${extra}></label>`;
+  return `<div class="fd-ed br-ed">${inp("title", "Name")}${inp("what", "Was ist das?", 'placeholder="Art oder kurze Beschreibung"')}
+    <div class="fd-lbl"><span>Esse ich das?</span><div class="fd-btns"><button class="pill ${x.eat === true ? "on" : ""}" data-fact="eat" data-id="${x.id}" data-v="1">Ja</button><button class="pill ${x.eat === false ? "on" : ""}" data-fact="eat" data-id="${x.id}" data-v="0">Nein</button></div></div>
+    ${inp("grams", "Wie viel Gramm?", 'inputmode="decimal" placeholder="Menge in Gramm"')}
+    <div class="fd-lbl br-wide"><span>An welchen Tagen?</span><div class="fd-btns">${FD_DAYS.map((l, i) => `<button class="pill fd-day ${d.includes(i + 1) ? "on" : ""}" data-fact="day" data-id="${x.id}" data-d="${i + 1}" aria-pressed="${d.includes(i + 1)}">${l}</button>`).join("")}<button class="pill" data-fact="alldays" data-id="${x.id}">${d.length === 7 ? "Keinen Tag" : "Jeden Tag"}</button></div></div>
+    <label class="br-wide">Weshalb esse ich das?<textarea class="field" rows="3" id="fd-${x.id}-why" data-fv="why" data-id="${x.id}" placeholder="Dein Grund">${esc(x.why || "")}</textarea></label>
+    ${fdAttHTML(x)}
+    <div class="br-ed-f"><span class="grow"></span>${fdDelBtn(x.id)}<button class="pill on" data-fact="edit" data-id="${x.id}">Fertig</button></div></div>`;
+}
+// ---- Rezepte ----
+const rcIng = x => (x.ing || []).filter(i => String(i.name || "").trim() || String(i.grams ?? "").trim());
+const rcSteps = x => (x.steps || []).filter(s => String(s.text || "").trim());
+function rcHTML(){
+  const all = live("recipe").sort(fdByTitle);
+  const row = x => { const ing = rcIng(x), n = rcSteps(x).length, open = S.rcOpen === x.id;
+    return `<div class="fd-row rc-row ${open ? "open" : ""}" role="button" tabindex="0" data-fact="rc-open" data-id="${x.id}" aria-expanded="${open}">
+      <span class="fd-c fd-name"><span data-fc="${x.id}|title">${esc(x.title || "Ohne Namen")}</span>${fdAttCount(x)}</span>
+      <span class="fd-c rc-sum">${ing.length ? esc(ing.map(i => [i.name, fdGrams(i.grams)].filter(Boolean).join(" ")).join(", ")) : `<span class="muted">Noch keine Zutaten</span>`}</span>
+      <span class="fd-c rc-cnt muted">${n ? `${n} ${n === 1 ? "Schritt" : "Schritte"}` : ""}</span></div>
+    ${open ? (S.rcEdit ? rcForm(x) : rcView(x)) : ""}`; };
+  return `<section class="card"><div class="add"><input id="rc-new" data-keep placeholder="Neues Rezept, Enter zum Speichern" aria-label="Neues Rezept"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-fact="rc-add" aria-label="Rezept speichern">${ic("plus")}</button></div>
+    <p class="hint" style="margin:10px 0 0">Tipp auf ein Rezept, um Zutaten und Zubereitung zu sehen. Mit „Bearbeiten“ trägst du Zutaten mit Gramm, Schritte sowie Links, PDFs und Bilder ein.</p></section>
+  <section class="card"><div class="card-h"><h2>Meine Rezepte</h2></div>
+    ${all.length ? `<div class="fd-tbl"><div class="fd-row rc-row fd-head" aria-hidden="true"><span>Name</span><span>Zutaten</span><span>Zubereitung</span></div>${all.map(row).join("")}</div>`
+    : `<div class="empty">Noch keine Rezepte. Schreib oben den Namen eines Rezepts und drück Enter.</div>`}</section>`;
+}
+function rcView(x){
+  const ing = rcIng(x), steps = rcSteps(x);
+  const gs = ing.map(i => String(i.grams ?? "").trim()).filter(g => /^\d+([.,]\d+)?$/.test(g)).map(g => +g.replace(",", "."));
+  const sum = gs.length > 1 ? gs.reduce((a, b) => a + b, 0) : 0;
+  return `<div class="fd-ed rc-view"><div class="rc-cols">
+      <div><h3>Zutaten</h3>${ing.length ? `<ul class="rc-ing">${ing.map(i => `<li><span>${esc(i.name || "")}</span><b class="num">${esc(fdGrams(i.grams))}</b></li>`).join("")}${sum ? `<li class="rc-tot"><span>Zusammen</span><b class="num">${esc(bsFmt(sum))} g</b></li>` : ""}</ul>` : `<p class="hint" style="margin:0">Noch keine Zutaten eingetragen.</p>`}</div>
+      <div><h3>Zubereitung</h3>${steps.length ? `<ol class="rc-steps">${steps.map(s => `<li>${esc(s.text)}</li>`).join("")}</ol>` : `<p class="hint" style="margin:0">Noch keine Schritte eingetragen.</p>`}</div></div>
+    ${fdAttHTML(x, true)}
+    <div class="br-ed-f"><span class="grow"></span><button class="pill" data-fact="rc-edit" data-id="${x.id}">${ic("pen")}Bearbeiten</button><button class="pill on" data-fact="rc-open" data-id="${x.id}">Schließen</button></div></div>`;
+}
+function rcForm(x){
+  const ing = x.ing || [], steps = x.steps || [];
+  return `<div class="fd-ed br-ed"><label class="br-wide">Name<input class="field" id="rc-${x.id}-title" data-fv="title" data-id="${x.id}" value="${esc(x.title || "")}"></label>
+    <div class="fd-lbl br-wide"><span>Zutaten</span>
+      ${ing.map(i => `<div class="rc-ir"><input class="field" id="rc-${i.id}-n" data-ri="${x.id}|${i.id}|name" value="${esc(i.name || "")}" placeholder="Zutat" aria-label="Zutat">
+        <input class="field num" id="rc-${i.id}-g" data-ri="${x.id}|${i.id}|grams" value="${esc(i.grams ?? "")}" inputmode="decimal" placeholder="Gramm" aria-label="Gramm">
+        <button class="ibtn" data-fact="ing-del" data-id="${x.id}" data-i="${i.id}" title="Zutat entfernen" aria-label="Zutat entfernen">${ic("trash")}</button></div>`).join("")}
+      <button class="pill rc-addb" data-fact="ing-add" data-id="${x.id}">${ic("plus")}Zutat</button></div>
+    <div class="fd-lbl br-wide"><span>Zubereitung</span>
+      ${steps.map((s, n) => `<div class="rc-sr"><span class="rc-n num">${n + 1}</span><textarea class="field" rows="2" id="rc-${s.id}-t" data-rs="${x.id}|${s.id}" placeholder="Was machst du in diesem Schritt?" aria-label="Schritt ${n + 1}">${esc(s.text || "")}</textarea>
+        <div class="rc-sb"><button class="ibtn" data-fact="step-mv" data-id="${x.id}" data-i="${s.id}" data-d="-1" ${n === 0 ? "disabled" : ""} title="Nach oben" aria-label="Schritt nach oben">${ic("up")}</button><button class="ibtn" data-fact="step-mv" data-id="${x.id}" data-i="${s.id}" data-d="1" ${n === steps.length - 1 ? "disabled" : ""} title="Nach unten" aria-label="Schritt nach unten">${ic("down")}</button><button class="ibtn" data-fact="step-del" data-id="${x.id}" data-i="${s.id}" title="Schritt entfernen" aria-label="Schritt entfernen">${ic("trash")}</button></div></div>`).join("")}
+      <button class="pill rc-addb" data-fact="step-add" data-id="${x.id}">${ic("plus")}Schritt</button></div>
+    ${fdAttHTML(x)}
+    <div class="br-ed-f"><span class="grow"></span>${fdDelBtn(x.id)}<button class="pill on" data-fact="rc-edit" data-id="${x.id}">Fertig</button></div></div>`;
+}
+function fdAdd(kind){
+  const inp = $(kind === "recipe" ? "#rc-new" : "#fd-new"), v = inp ? inp.value.trim() : "";
+  if (!v) { if (inp) inp.focus(); return; }
+  inp.value = "";
+  if (kind === "recipe") { const it = create("recipe", v, {ing:[], steps:[]}); S.rcOpen = it.id; S.rcEdit = true; renderMain(); const b = document.querySelector(`[data-fact="ing-add"][data-id="${it.id}"]`); if (b) b.focus(); return; }
+  const it = create("food", v, {what:"", eat:"", grams:"", days:[], why:""});
+  S.fdOpen = it.id; renderMain(); const n = $(`#fd-${it.id}-what`); if (n) n.focus();
+}
+function fdRemove(it){
+  const paths = [...(it.files || []), ...(it.shots || [])].map(f => f.path).filter(Boolean);
+  if (paths.length && sb && navigator.onLine) sb.storage.from("files").remove(paths).catch(() => {});
+  removeItem(it.id); toast("Gelöscht.");
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-fact]"); if (!a) return;
+  const act = a.dataset.fact, id = a.dataset.id, it = id && S.items.get(id), sub = a.dataset.i;
+  const ask = key => { if (S.fdDel === key) { S.fdDel = null; return true; } S.fdDel = key; return false; };
+  if (!["del", "link-del", "file-del"].includes(act)) S.fdDel = null;
+  let focus = null;
+  switch (act) {
+    case "tab": S.fdTab = a.dataset.v; try { localStorage.setItem("fdTab", S.fdTab); } catch(er) {} renderMain(); window.scrollTo({top:0}); return;
+    case "add": fdAdd("food"); return;
+    case "rc-add": fdAdd("recipe"); return;
+    case "filter": S.fdF = a.dataset.v; try { localStorage.setItem("fdF", S.fdF); } catch(er) {} break;
+    case "fday": S.fdDay = +a.dataset.d; break;
+    case "edit": S.fdOpen = S.fdOpen === id ? null : id; break;
+    case "rc-open": S.rcOpen = S.rcOpen === id ? null : id; S.rcEdit = false; break;
+    case "rc-edit": S.rcEdit = !S.rcEdit; break;
+    case "eat": if (it) { const v = a.dataset.v === "1"; it.eat = it.eat === v ? "" : v; persist(it); } break;
+    case "day": if (it) { const n = +a.dataset.d, d = fdDayList(it); it.days = d.includes(n) ? d.filter(x => x !== n) : [...d, n].sort((p, q) => p - q); persist(it); } break;
+    case "alldays": if (it) { it.days = fdDayList(it).length === 7 ? [] : [1, 2, 3, 4, 5, 6, 7]; persist(it); } break;
+    case "del": if (it && ask(id)) { fdRemove(it); if (S.fdOpen === id) S.fdOpen = null; if (S.rcOpen === id) S.rcOpen = null; } break;
+    case "link-add": if (it) { const u = $(`#fd-${id}-lurl`), l = $(`#fd-${id}-llab`), url = u ? u.value.trim() : ""; if (!url) { if (u) u.focus(); return; }
+      it.links = [...(it.links || []), {url, label: l ? l.value.trim() : ""}]; persist(it); u.value = ""; if (l) l.value = ""; } break;
+    case "link-del": if (it && ask(`link-del:${id}:${sub}`)) { it.links = (it.links || []).filter((_, i) => i !== +sub); persist(it); } break;
+    case "file-del": if (it && ask(`file-del:${id}:${sub}`)) { const f = (it.files || [])[+sub]; it.files = (it.files || []).filter((_, i) => i !== +sub); persist(it);
+      if (f && f.path && sb) sb.storage.from("files").remove([f.path]).catch(() => {}); } break;
+    case "shot": S.pop = {shots:true, id, k:+a.dataset.k}; renderPop(); return;
+    case "ing-add": if (it) { const n = {id:uid(), name:"", grams:""}; it.ing = [...(it.ing || []), n]; persist(it); focus = `#rc-${n.id}-n`; } break;
+    case "ing-del": if (it) { it.ing = (it.ing || []).filter(i => i.id !== sub); persist(it); } break;
+    case "step-add": if (it) { const n = {id:uid(), text:""}; it.steps = [...(it.steps || []), n]; persist(it); focus = `#rc-${n.id}-t`; } break;
+    case "step-del": if (it) { it.steps = (it.steps || []).filter(s => s.id !== sub); persist(it); } break;
+    case "step-mv": if (it) { const L = [...(it.steps || [])], i = L.findIndex(s => s.id === sub), j = i + +a.dataset.d;
+      if (i >= 0 && j >= 0 && j < L.length) { [L[i], L[j]] = [L[j], L[i]]; it.steps = L; persist(it); } } break;
+    default: return;
+  }
+  renderMain(); if (focus) { const n = $(focus); if (n) n.focus(); }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.fv) { const it = S.items.get(t.dataset.id); if (!it) return;
+    it[t.dataset.fv] = t.value; persist(it, 800);
+    const c = document.querySelector(`[data-fc="${it.id}|${t.dataset.fv}"]`);
+    if (c) c.textContent = t.dataset.fv === "grams" ? fdGrams(t.value) : t.dataset.fv === "title" ? (t.value.trim() || "Ohne Namen") : t.value;
+    return; }
+  if (t.dataset.ri) { const [rid, iid, f] = t.dataset.ri.split("|"), it = S.items.get(rid), x = it && (it.ing || []).find(i => i.id === iid); if (x) { x[f] = t.value; persist(it, 800); } return; }
+  if (t.dataset.rs) { const [rid, sid] = t.dataset.rs.split("|"), it = S.items.get(rid), x = it && (it.steps || []).find(s => s.id === sid); if (x) { x.text = t.value; persist(it, 800); } return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || !t.dataset.fup) return;
+  const fs = [...t.files]; t.value = ""; if (fs.length) fdUpload(t.dataset.fup, fs);
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || e.isComposing) return;
+  const t = e.target;
+  if (t.id === "fd-new") { e.preventDefault(); fdAdd("food"); return; }
+  if (t.id === "rc-new") { e.preventDefault(); fdAdd("recipe"); return; }
+  if (/^fd-.+-(lurl|llab)$/.test(t.id)) { e.preventDefault(); const b = document.querySelector(`[data-fact="link-add"][data-id="${t.id.slice(3).replace(/-(lurl|llab)$/, "")}"]`); if (b) b.click(); return; }
+  if (t.dataset && t.dataset.ri) { e.preventDefault(); const [rid, iid, f] = t.dataset.ri.split("|");
+    if (f === "name") { const g = $(`#rc-${iid}-g`); if (g) g.focus(); } else { const b = document.querySelector(`[data-fact="ing-add"][data-id="${rid}"]`); if (b) b.click(); } return; }
+  if (t.matches && t.matches(".fd-row[data-fact]")) { e.preventDefault(); t.click(); }
+});
+
 /* ================= Brand & Business ================= */
 // Eigene Seite für das Hauptziel: Content, Personal Brand und Geld verdienen.
 // Ziele, Wochenzahlen und Fähigkeiten liegen in settings.brand. Videos, Kontakte und Einnahmen sind eigene,
