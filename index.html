@@ -1094,6 +1094,7 @@ body.nt-lock{overflow:hidden}
 .nt-fix{padding-top:2px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .br-ed label.nt-chk{flex-direction:row;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text)}
 .nt-chk input{width:18px;height:18px;flex:none;accent-color:var(--ink)}
+.nt-et b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
 .rc-nut .grow{flex:1}
 </style>
 <style id="user-css"></style>
@@ -1117,7 +1118,7 @@ body.nt-lock{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-25.4";
+const APP_VERSION = "2026-10-25.5";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3417,6 +3418,12 @@ function ntRecent(){
   }
   return out;
 }
+// Naturzustand zuerst (Wunsch des Nutzers 2026-10-25): Gibt es eine Sorte aus der Schweizer Datenbank roh bzw. trocken,
+// steht diese vorne, gekochte und zubereitete Varianten derselben Sorte sind eingeklappt. Gerichte ohne rohe Variante bleiben sichtbar.
+const NT_RAW = /(^|[\s,(])(roh|trocken|ungekocht|ungebacken|nature|natur)([\s,)]|$)/;
+const NT_COOK = /gekocht|gebraten|gedunstet|gedampft|geschmort|zubereitet|gebacken|frittiert|aufgewarmt|gerostet|im ofen|konserve|abgetropft|paniert|hausgemacht|gegart|eingelegt/;
+const ntState = x => x.src !== "ch" ? "" : NT_RAW.test(x.nk) ? "raw" : NT_COOK.test(x.nk) ? "cooked" : "";
+const ntGroup = x => x.nk.split(/,| \(/)[0].trim();
 function ntSearch(q){
   const qs = ntNorm(q).split(/[\s,]+/).filter(Boolean); if (!qs.length) return [];
   const res = [];
@@ -3426,9 +3433,10 @@ function ntSearch(q){
     for (const t of qs) { const i = x.k.indexOf(t); if (i < 0) { sc = -1; break; } const e = i + t.length, end = e === x.k.length || /[\s,(/-]/.test(x.k[e]);
       sc += i === 0 ? 3 : /[\s,(/-]/.test(x.k[i - 1]) ? 2 : end ? 2 : .5; }
     if (sc < 0) continue;
-    if (x.nk.startsWith(qs[0])) sc += 2; if (x.nk === qs.join(" ")) sc += 3; if (x.nk.split(/[\s,(]/)[0] === qs[0]) sc += 4;
-    sc += x.src === "own" || x.src === "rec" ? 4 : x.src === "ch" ? 1.5 : 0;
+    if (x.nk.startsWith(qs[0])) sc += 2; if (x.nk === qs.join(" ")) sc += 3; if (x.nk.split(/[\s,(]/)[0] === qs[0]) sc += 6;
+    sc += x.src === "own" || x.src === "rec" ? 5 : x.src === "ch" ? 4 : 0;
     sc -= Math.min(x.name.length, 80) / 40;
+    if (x.src === "ch") { const st = ntState(x); sc += st === "raw" ? 2.5 : st === "cooked" ? -1 : 0; if (x.syn && (" " + ntNorm(x.syn) + " ").includes(" " + qs[0] + " ") && !x.nk.startsWith(qs[0])) sc += 5; }
     res.push([sc, x]);
   }
   const M = ntFixes(); return res.sort((a, b) => b[0] - a[0]).slice(0, 60).map(r => ntFix(r[1], M));
@@ -3598,12 +3606,17 @@ function ntResHTML(){
   if (!q && N.tab === "quick") return ntQuickHTML();
   let L = q ? ntSearch(q) : N.tab === "mine" ? ntOwn() : ntRecent();
   if (q && N.online && N.online.q === q && N.online.res) { const have = new Set(L.map(x => x.code).filter(Boolean)); L = [...L, ...N.online.res.filter(x => !have.has(x.code))]; }
+  let cooked = [];
+  if (q) { const rawG = new Set(L.filter(x => ntState(x) === "raw").map(ntGroup));
+    cooked = L.filter(x => ntState(x) === "cooked" && rawG.has(ntGroup(x)));
+    if (cooked.length) { const c = new Set(cooked); L = [...L.filter(x => !c.has(x)), ...(N.showCooked ? cooked : [])]; } }
   N.list = L;
   const row = (x, i) => `<button class="nt-r" data-nt="sel" data-i="${i}">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc(ntSrcLine(x))}</small></span><span class="nt-ek num">${bsFmt(Math.round(x.n.kcal || 0))} <small>kcal / 100 g</small></span></button>`;
   let out = L.map(row).join("");
   if (!L.length) out = `<div class="empty">${q ? (NT.loading ? "Die Datenbank lädt …" : `Nichts gefunden für „${esc(q)}“. Versuch ein anderes Wort, scann den Barcode oder trag es schnell selbst ein.`)
     : N.tab === "mine" ? "Hier stehen deine eigenen Lebensmittel mit Nährwerten und Rezepte, bei denen die Zutaten Nährwerte haben. Beides pflegst du in den Reitern „Lebensmittel“ und „Rezepte“."
     : "Noch nichts eingetragen. Such oben nach einem Lebensmittel oder scann einen Barcode. Was du einträgst, steht danach hier zum schnellen Wiederfinden."}</div>`;
+  if (cooked.length) out += `<div class="nt-online"><button class="pill" data-nt="cooked">${N.showCooked ? "Gekochte und zubereitete Varianten ausblenden" : `Gekocht oder zubereitet anzeigen (${cooked.length})`}</button></div>`;
   if (q.length >= 3) { const o = N.online && N.online.q === q ? N.online : null;
     out += `<div class="nt-online">${o && o.busy ? `<span class="muted">Suche bei Open Food Facts …</span>` : o && o.err ? `<span class="muted">${esc(o.err)}</span>`
       : o ? `<span class="muted">${o.res.length ? `${o.res.length} Treffer von Open Food Facts sind oben mit dabei.` : "Open Food Facts hat dazu auch nichts gefunden."}</span>`
@@ -3866,6 +3879,7 @@ document.addEventListener("click", e => {
         case "mkown": ntMkOwn(a.dataset.code); return;
         case "fixedit": N.edit = true; ntSheet(); { const i = $("#nt-fx-kcal"); if (i) i.focus(); } return;
         case "fixsave": ntFixSave(); return;
+        case "cooked": N.showCooked = !N.showCooked; ntResRefresh(); return;
         case "fixreset": ntFixReset(); return;
       }
       return;
@@ -3875,7 +3889,7 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("input", e => {
   const t = e.target;
-  if (t.id === "nt-q" && S.nt) { S.nt.q = t.value; clearTimeout(NT.qt); NT.qt = setTimeout(ntResRefresh, 120); return; }
+  if (t.id === "nt-q" && S.nt) { S.nt.q = t.value; S.nt.showCooked = false; clearTimeout(NT.qt); NT.qt = setTimeout(ntResRefresh, 120); return; }
   if (t.id === "nt-qty" && S.nt) { S.nt.qty = bsNum(t.value); const b = $("#nt-selnut"); if (b) b.innerHTML = ntSelNut(); return; }
   if (t.dataset.ntv) { const [d, en] = ntFindEntry(t.dataset.id); if (!en) return; const v = bsNum(t.value); if (typeof v !== "number" || v < 0) return;
     if (t.dataset.ntv === "g") { en.g = v; en.unit = null; en.qty = null; } else en.n = {...en.n, kcal:v};
