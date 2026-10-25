@@ -13,6 +13,8 @@ Live: https://danielgit8.github.io/para-cockpit/
 | `sw.js` | Service Worker für den Offline-Betrieb |
 | `supabase.js` | Supabase-Bibliothek, lokal mitgeliefert (supabase-js **2.117.2**) |
 | `vendor/excalidraw/` | Whiteboard, gebaut aus `../board-build` (Excalidraw **0.18.1**, React 18.3.1, esbuild 0.25) |
+| `vendor/barcode/` | Barcode-Leser für Browser ohne eingebaute Erkennung (barcode-detector **3.2.3**, zxing-wasm **3.1.6**) |
+| `data/` | Offline-Lebensmitteldatenbank: Schweizer Nährwertdatenbank und Produkte von Open Food Facts |
 | `supabase-setup.sql` | Tabelle, Trigger, Zugriffsregeln und Dateispeicher |
 | `tests/core.test.js` | Tests, laufen bei jedem Push über GitHub Actions |
 
@@ -92,3 +94,15 @@ Whiteboard (im Ordner `board-build` neben dem Repo):
 npm install @excalidraw/excalidraw@<version>
 npm run build -- ../para-cockpit-app/vendor/excalidraw
 ```
+
+Lebensmitteldatenbank (Ordner `food-db` neben dem Repo):
+
+```bash
+python build_food_db.py <Schweizer_Nahrwertdatenbank.xlsx> <off_de.json> ../para-cockpit-app/data
+```
+
+Quellen der Nährwerte in `data/`:
+- Schweizer Nährwertdatenbank V 7.1, Bundesamt für Lebensmittelsicherheit und Veterinärwesen (BLV), [naehrwertdaten.ch](https://naehrwertdaten.ch). Nutzung mit Quellenvermerk erlaubt.
+- [Open Food Facts](https://openfoodfacts.org), Daten unter der Open Database License (ODbL), Produktbilder unter CC BY-SA.
+
+Barcode-Leser: [barcode-detector](https://github.com/Sec-ant/barcode-detector) 3.2.3 und [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) 3.1.6 (MIT) in `vendor/barcode`, nur genutzt, wenn der Browser keine eingebaute BarcodeDetector-API hat.
