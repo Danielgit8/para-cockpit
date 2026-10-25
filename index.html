@@ -1104,6 +1104,12 @@ body.nt-lock{overflow:hidden}
 .nt-star.on svg{fill:currentColor}
 .ibtn.nt-star{width:34px;height:34px}
 .nt-favi{color:#E0A100;margin-right:5px}
+.nt-dgl{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:12px;font-size:12.5px}
+.nt-dgc{color:var(--on-dark);font-weight:600}
+.nt-dg{margin:0 0 20px}
+.nt-dgf{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.nt-bar{position:relative}
+.nt-dgm{position:absolute;left:12%;right:12%;border-top:2.5px solid var(--muted);pointer-events:none}
 .rc-nut .grow{flex:1}
 </style>
 <style id="user-css"></style>
@@ -1127,7 +1133,7 @@ body.nt-lock{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-25.6";
+const APP_VERSION = "2026-10-25.7";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3463,10 +3469,21 @@ function ntSum(entries){
 function ntFindEntry(id){ for (const d of live("fdlog")) { const e = (d.entries || []).find(x => x.id === id); if (e) return [d, e]; } return [null, null]; }
 function ntKcalMetric(){ const b = basis(); let m = b.metrics.find(x => /kcal/i.test(x.unit || "")); if (!m) { m = {id:"kcal", name:"Kalorien essen", value:"", unit:"kcal pro Tag"}; b.metrics.push(m); } return m; }
 function ntTargets(){ const b = basis(); if (!Array.isArray(b.targets)) b.targets = clone(DEF_TARGETS); return b.targets; }
-function ntGoals(){
+// Ohne Datum: das langfristige Ziel aus „Ziele & Verbrauch“. Mit Datum kommt eine Anpassung nur für diesen Tag dazu (fdlog.goal),
+// die weder das langfristige Ziel noch den Verlauf der Änderungen berührt. Leere Makros wachsen im Verhältnis der Kalorien mit.
+function ntGoals(date){
   const kcal = ntNum(ntKcalMetric().value) || 0, T = ntTargets(), g = {kcal, auto:{}}, val = id => ntNum((T.find(x => x.id === id) || {}).value);
   for (const [id, , per, share] of NT_MACROS) { const v = val(id); g[id] = v != null ? v : kcal ? Math.round(kcal * share / per) : 0; if (v == null) g.auto[id] = true; }
   const w = val("w"); g.w = w != null ? w : 2000; if (w == null) g.auto.w = true;
+  const d = date && ntDayOf(date), o = d && d.goal;
+  if (o && Object.keys(o).some(k => k !== "note" && ntNum(o[k]) != null)) {
+    g.base = {kcal:g.kcal, c:g.c, p:g.p, f:g.f, w:g.w};
+    if (ntNum(o.kcal) != null) g.kcal = o.kcal;
+    const r = g.base.kcal && g.kcal ? g.kcal / g.base.kcal : 1;
+    for (const [id] of NT_MACROS) g[id] = ntNum(o[id]) != null ? o[id] : Math.round(g.base[id] * r);
+    if (ntNum(o.w) != null) g.w = o.w;
+    g.day = o;
+  }
   return g;
 }
 function ntMealNow(){ const h = new Date().getHours() + new Date().getMinutes() / 60; return h < 10.5 ? "b" : h < 14.5 ? "l" : h < 17.5 ? "s" : h < 22 ? "d" : "s"; }
@@ -3487,11 +3504,11 @@ function ntNutHTML(n, k = 1){
 
 // ---- Tagebuch ----
 function ntWeekHTML(date){
-  const d0 = parseKey(date), mon = addDays(d0, 1 - isoDay(d0)), today = dkey(), goal = ntGoals().kcal;
+  const d0 = parseKey(date), mon = addDays(d0, 1 - isoDay(d0)), today = dkey();
   const days = [...Array(7)].map((_, i) => dkey(addDays(mon, i)));
   const name = date === today ? "Heute" : date === dkey(addDays(new Date(), -1)) ? "Gestern" : date === dkey(addDays(new Date(), 1)) ? "Morgen" : "";
   return `<div class="nt-week"><button class="ibtn" data-nt="wk" data-d="-7" aria-label="Vorige Woche">${ic("left")}</button>
-    ${days.map((k, i) => { const dy = ntDayOf(k), kc = dy ? ntSum(dy.entries).kcal : 0, p = goal ? Math.min(1, kc / goal) : kc ? 1 : 0;
+    ${days.map((k, i) => { const dy = ntDayOf(k), kc = dy ? ntSum(dy.entries).kcal : 0, goal = ntGoals(k).kcal, p = goal ? Math.min(1, kc / goal) : kc ? 1 : 0;
       return `<button class="nt-wd ${k === date ? "on" : ""} ${k === today ? "today" : ""}" data-nt="date" data-d="${k}" aria-label="${esc(fmtLong(k))}${kc ? `, ${bsFmt(Math.round(kc))} kcal` : ""}" aria-pressed="${k === date}"><span>${WD[i]}</span><b class="num">${parseKey(k).getDate()}</b><i class="${goal && kc > goal * 1.05 ? "over" : ""}" style="--p:${p.toFixed(3)}"></i></button>`; }).join("")}
     <button class="ibtn" data-nt="wk" data-d="7" aria-label="Nächste Woche">${ic("right")}</button></div>
     <div class="nt-dl"><b>${name ? `${name}, ` : ""}${esc(parseKey(date).toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"}))}</b>${date !== today ? `<button class="pill" data-nt="date" data-d="${today}">Zu heute</button>` : ""}</div>`;
@@ -3506,10 +3523,12 @@ function ntHeroHTML(t, g, burn){
     return `<div class="nt-mac"><div><span>${label}</span><b class="num">${bsFmt(Math.round(v))}${goal ? ` / ${bsFmt(goal)}` : ""} g</b></div><i><s class="${goal && v > goal * 1.05 ? "over" : ""}" style="width:${(p * 100).toFixed(1)}%"></s></i></div>`; };
   return `<section class="card dark nt-hero" aria-label="Kalorien an diesem Tag"><div class="nt-hero-top">
       <div class="nt-side"><span>Gegessen</span><b class="num">${bsFmt(eat)}</b><small>kcal</small></div>
-      <div class="nt-ringw">${ntRing(eat, g.kcal)}<div class="nt-ringt">${g.kcal ? `<b class="num">${bsFmt(Math.abs(left))}</b><span>${left < 0 ? "kcal drüber" : "kcal übrig"}</span><small class="num">Ziel ${bsFmt(g.kcal)}</small>` : `<span>Noch kein Ziel</span><button class="pill nt-onlight" data-nt="tab" data-v="goals">Festlegen</button>`}</div></div>
+      <div class="nt-ringw">${ntRing(eat, g.kcal)}<div class="nt-ringt">${g.kcal ? `<b class="num">${bsFmt(Math.abs(left))}</b><span>${left < 0 ? "kcal drüber" : "kcal übrig"}</span><small class="num">${g.day ? "Tagesziel" : "Ziel"} ${bsFmt(g.kcal)}</small>` : `<span>Noch kein Ziel</span><button class="pill nt-onlight" data-nt="tab" data-v="goals">Festlegen</button>`}</div></div>
       <div class="nt-side"><span>Verbrauch</span><b class="num">${burn ? bsFmt(burn) : "–"}</b><small>${burn ? "kcal" : `<button class="nt-lnk" data-nt="tab" data-v="goals">eintragen</button>`}</small></div></div>
     <div class="nt-macs">${NT_MACROS.map(bar).join("")}</div>
     ${burn && eat ? `<p class="nt-bal">Bilanz: ${eat - burn < 0 ? "Defizit" : "Überschuss"} von <b class="num">${bsFmt(Math.abs(eat - burn))} kcal</b></p>` : ""}
+    ${g.kcal || g.day ? `<div class="nt-dgl">${g.day ? `<span class="nt-dgc">Nur für diesen Tag: ${bsFmt(g.kcal)} kcal, sonst ${bsFmt(g.base.kcal)}${g.day.note ? ` · ${esc(g.day.note)}` : ""}</span>` : ""}
+      <button class="nt-lnk" data-nt="dgedit">${g.day ? "Tagesziel ändern" : "Ziel nur für diesen Tag ändern"}</button></div>` : ""}
     <div class="nt-acts"><button class="btn nt-onlight" data-nt="add">${ic("plus")}Essen eintragen</button><button class="btn ghost nt-ghost" data-nt="scan0">${ic("scan")}Barcode scannen</button></div></section>`;
 }
 function ntWaterHTML(day, g){
@@ -3540,10 +3559,33 @@ function ntMealHTML(id, label, E){
     ${E.map(ntEntryHTML).join("")}</section>`;
 }
 function ntDiaryHTML(){
-  const date = S.ntDate || dkey(), day = ntDayOf(date), E = day ? day.entries || [] : [], g = ntGoals();
-  return ntWeekHTML(date) + `<div class="nt-top">${ntHeroHTML(ntSum(E), g, bsSum())}${ntWaterHTML(day, g)}</div>
+  const date = S.ntDate || dkey(), day = ntDayOf(date), E = day ? day.entries || [] : [], g = ntGoals(date);
+  return ntWeekHTML(date) + `<div class="nt-top">${ntHeroHTML(ntSum(E), g, bsSum())}${ntWaterHTML(day, g)}</div>${S.ntGoalEdit === date ? ntDayGoalHTML(date, g) : ""}
     <div class="nt-meals">${NT_MEALS.map(([id, label]) => ntMealHTML(id, label, E.filter(e => (e.meal || "s") === id))).join("")}</div>
     <p class="nt-src">Nährwerte aus der Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA). Beides liegt offline in der App.</p>`;
+}
+
+
+// ---- Ziel nur für einen Tag (z. B. nach viel Bewegung) ----
+function ntDayGoalHTML(date, g){
+  const b = g.base || g, o = g.day || {}, today = date === dkey();
+  const f = (k, l, u, ph) => `<label>${l} (${u})<input class="field num" id="nt-dg-${k}" inputmode="decimal" value="${ntNum(o[k]) != null ? esc(bsIn(o[k])) : ""}" placeholder="${esc(bsFmt(ph))}"></label>`;
+  return `<section class="card nt-dg"><div class="card-h"><h2>Ziel nur für ${today ? "heute" : esc(fmtLong(date))}</h2></div>
+    <p class="hint">Zum Beispiel, wenn du dich an einem Tag viel mehr bewegt hast. Das gilt nur für diesen Tag. Dein normales Ziel unter „Ziele & Verbrauch“ bleibt, wie es ist, und im Verlauf der Änderungen taucht das nicht auf. Lässt du Kohlenhydrate, Eiweiß oder Fett leer, wachsen sie im gleichen Verhältnis wie die Kalorien mit.</p>
+    <div class="br-ed nt-dgf">${f("kcal", "Kalorien", "kcal", b.kcal)}
+      <div class="fd-lbl"><span>Schnell dazu</span><div class="fd-btns">${[250, 500, 750].map(v => `<button class="pill" data-nt="dgplus" data-d="${v}">+${v}</button>`).join("")}<button class="pill" data-nt="dgplus" data-d="-250">−250</button></div></div>
+      ${NT_MACROS.map(([id, l]) => f(id, l, "g", b[id])).join("")}${f("w", "Wasser", "ml", b.w)}
+      <label class="br-wide">Warum? (optional)<input class="field" id="nt-dg-note" value="${esc(o.note || "")}" placeholder="z. B. 25 km Rad gefahren"></label>
+      <div class="br-ed-f"><span class="grow"></span>${g.day ? `<button class="pill" data-nt="dgreset">${ic("restore")}Normales Ziel</button>` : ""}<button class="pill" data-nt="dgedit">Abbrechen</button><button class="pill on" data-nt="dgsave">Für diesen Tag speichern</button></div></div></section>`;
+}
+function ntDayGoalSave(){
+  const date = S.ntDate || dkey(), o = {};
+  for (const k of ["kcal", "c", "p", "f", "w"]) { const i = $(`#nt-dg-${k}`), v = bsNum(i ? i.value : ""); if (typeof v === "number" && v >= 0) o[k] = v; }
+  const note = (($("#nt-dg-note") || {}).value || "").trim(); if (note) o.note = note;
+  const d = ntDayOf(date);
+  if (!Object.keys(o).some(k => k !== "note")) { if (d && d.goal) { delete d.goal; persist(d); } S.ntGoalEdit = null; toast("Für diesen Tag gilt dein normales Ziel."); return; }
+  const day = d || ntDay(date); day.goal = o; persist(day); S.ntGoalEdit = null;
+  toast(`Tagesziel gespeichert: ${bsFmt(ntGoals(date).kcal)} kcal, nur für diesen Tag.`);
 }
 
 // ---- Verlauf ----
@@ -3551,15 +3593,17 @@ function ntTrendHTML(){
   const n = S.ntRange || 7, g = ntGoals(), now = new Date();
   const vals = [...Array(n)].map((_, i) => { const k = dkey(addDays(now, i - n + 1)), d = ntDayOf(k); return {k, t: d && (d.entries || []).length ? ntSum(d.entries) : null}; });
   const on = vals.filter(v => v.t), avg = m => on.length ? on.reduce((s, v) => s + v.t[m], 0) / on.length : 0;
-  const max = Math.max(g.kcal || 0, ...on.map(v => v.t.kcal), 100) * 1.12;
+  const max = Math.max(g.kcal || 0, ...on.map(v => v.t.kcal), ...vals.map(v => ntGoals(v.k).kcal || 0), 100) * 1.12;
   let streak = 0; for (let i = ntDayOf(dkey()) && (ntDayOf(dkey()).entries || []).length ? 0 : 1; ; i++) { const d = ntDayOf(dkey(addDays(now, -i))); if (d && (d.entries || []).length) streak++; else break; }
   const lab = (v, i) => n === 7 ? WD[isoDay(parseKey(v.k)) - 1] : i % 7 === (n - 1) % 7 ? parseKey(v.k).getDate() + "." : "";
   const seg = (v, l) => `<button class="pill ${n === v ? "on" : ""}" data-nt="range" data-v="${v}">${l}</button>`;
   return `<section class="card"><div class="card-h"><h2>Kalorien pro Tag</h2><span class="grow"></span><div class="pills">${seg(7, "7 Tage")}${seg(30, "30 Tage")}</div></div>
     ${on.length ? `<div class="nt-plot" style="--n:${n}" role="img" aria-label="${esc(`Kalorien der letzten ${n} Tage, im Schnitt ${bsFmt(Math.round(avg("kcal")))} kcal`)}">
-        ${vals.map(v => `<div class="nt-bar" title="${esc(fmtLong(v.k))}: ${v.t ? bsFmt(Math.round(v.t.kcal)) + " kcal" : "nichts eingetragen"}"><s class="${g.kcal && v.t && v.t.kcal > g.kcal * 1.05 ? "over" : ""}" style="height:${v.t ? (v.t.kcal / max * 100).toFixed(1) : 0}%"></s></div>`).join("")}
+        ${vals.map(v => { const dg = ntGoals(v.k), gk = dg.kcal;
+          return `<div class="nt-bar" title="${esc(fmtLong(v.k))}: ${v.t ? bsFmt(Math.round(v.t.kcal)) + " kcal" : "nichts eingetragen"}${dg.day ? `, Tagesziel ${bsFmt(gk)} kcal` : ""}"><s class="${gk && v.t && v.t.kcal > gk * 1.05 ? "over" : ""}" style="height:${v.t ? (v.t.kcal / max * 100).toFixed(1) : 0}%"></s>${dg.day && gk ? `<i class="nt-dgm" style="bottom:${Math.min(100, gk / max * 100).toFixed(1)}%"></i>` : ""}</div>`; }).join("")}
         ${g.kcal ? `<i class="nt-goal" style="bottom:${(g.kcal / max * 100).toFixed(1)}%"><span class="num">Ziel ${bsFmt(g.kcal)}</span></i>` : ""}</div>
-      <div class="nt-xl" style="--n:${n}" aria-hidden="true">${vals.map((v, i) => `<span>${lab(v, i)}</span>`).join("")}</div>`
+      <div class="nt-xl" style="--n:${n}" aria-hidden="true">${vals.map((v, i) => `<span>${lab(v, i)}</span>`).join("")}</div>
+      ${vals.some(v => ntGoals(v.k).day) ? `<p class="hint" style="margin:10px 0 0">Der kurze Strich auf einem Balken ist ein Ziel, das du nur für diesen Tag geändert hast.</p>` : ""}`
     : `<div class="empty">In diesem Zeitraum ist noch nichts eingetragen. Sobald du im Tagebuch Essen einträgst, siehst du hier deine Tage.</div>`}</section>
   <section class="card" style="margin-top:20px"><div class="card-h"><h2>Im Schnitt</h2><span class="grow"></span><span class="chip">${on.length} von ${n} Tagen eingetragen</span></div>
     <div class="bs-kpis"><div><span>Kalorien</span><b class="num">${on.length ? bsFmt(Math.round(avg("kcal"))) : "–"}</b><small>${g.kcal ? `Ziel ${bsFmt(g.kcal)} kcal` : "kcal pro Tag"}</small></div>
@@ -3927,6 +3971,10 @@ document.addEventListener("click", e => {
     case "date": S.ntDate = a.dataset.d; S.ntEdit = null; break;
     case "wk": S.ntDate = dkey(addDays(parseKey(S.ntDate || dkey()), +a.dataset.d)); S.ntEdit = null; break;
     case "range": S.ntRange = +a.dataset.v; break;
+    case "dgedit": { const k = S.ntDate || dkey(); S.ntGoalEdit = S.ntGoalEdit === k ? null : k; renderMain(); const i = $("#nt-dg-kcal"); if (i) { i.focus(); i.scrollIntoView({block:"center"}); } return; }
+    case "dgplus": { const i = $("#nt-dg-kcal"); if (!i) return; const base = bsNum(i.value); const v = (typeof base === "number" ? base : bsNum(i.placeholder) || 0) + +a.dataset.d; i.value = bsIn(Math.max(0, v)); i.focus(); return; }
+    case "dgsave": ntDayGoalSave(); break;
+    case "dgreset": { const d = ntDayOf(S.ntDate || dkey()); if (d && d.goal) { delete d.goal; persist(d); toast("Für diesen Tag gilt wieder dein normales Ziel."); } S.ntGoalEdit = null; break; }
     case "add": ntOpen(a.dataset.meal); return;
     case "scan0": ntOpen(null, {scan:true}); return;
     case "edit": S.ntEdit = S.ntEdit === id ? null : id; break;
