@@ -1089,6 +1089,11 @@ body.nt-lock{overflow:hidden}
   .nt-quick{grid-template-columns:minmax(0,1fr)}
   .nt-plot{height:150px}
 }
+.nt-fixb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.nt-fixb .pill{height:32px}
+.nt-fix{padding-top:2px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.br-ed label.nt-chk{flex-direction:row;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text)}
+.nt-chk input{width:18px;height:18px;flex:none;accent-color:var(--ink)}
 .rc-nut .grow{flex:1}
 </style>
 <style id="user-css"></style>
@@ -1112,7 +1117,7 @@ body.nt-lock{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-25.3";
+const APP_VERSION = "2026-10-25.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1190,7 +1195,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income", "brandtpl", "food", "recipe", "fdlog"];
+const HIDDEN_K = ["day", "boardlib", "workout", "video", "contact", "income", "brandtpl", "food", "recipe", "fdlog", "fdfix"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -3192,7 +3197,7 @@ function foodHTML(){
   if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab2") || "diary"; } catch(e) { S.fdTab = "diary"; } }
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
-  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:fdListHTML, rec:rcHTML, goals:ntGoalsHTML}[S.fdTab] || ntDiaryHTML;
+  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML}[S.fdTab] || ntDiaryHTML;
   return header("Ernährung", "Kalorien zählen, Lebensmittel, Rezepte und deine Ziele an einem Ort") + banner() +
     `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
@@ -3368,7 +3373,7 @@ function ntLoad(){
     const L = [], nut = r => ({kcal:r[0], p:r[1], c:r[2], f:r[3], sug:r[4], fib:r[5], salt:r[6]});
     if (ch) for (const r of ch.items) L.push(ntMake({src:"ch", id:r[0], name:r[1], syn:r[2], cat:ch.cats[r[3]], n:nut(r.slice(4, 11)), emoji:r[11], portion:r[12] || null}));
     if (off) for (const r of off.items) L.push(ntMake({src:"off", id:r[0], code:r[0], name:r[1], brand:r[2], qty:r[3], serving:r[4], n:nut(r.slice(5, 12)), img: r[12] ? off.img + r[12] + ".200.jpg" : ""}));
-    NT.db = L; NT.byCode = new Map(L.filter(x => x.code).map(x => [x.code, x]));
+    NT.db = L; NT.byCode = new Map(L.filter(x => x.code).map(x => [x.code, x])); NT.byId = new Map(L.filter(x => x.src === "ch").map(x => [x.id, x]));
     return L;
   });
   return NT.loading;
@@ -3402,11 +3407,11 @@ function ntOwn(){
 }
 // Zuletzt gegessen: jedes Lebensmittel einmal, das neueste zuerst
 function ntRecent(){
-  const seen = new Set(), out = [];
+  const seen = new Set(), out = [], M = ntFixes();
   for (const d of live("fdlog").sort((a, b) => (b.date || "").localeCompare(a.date || ""))) {
     for (const e of (d.entries || []).slice().sort((a, b) => (b.t || 0) - (a.t || 0))) {
       if (e.src === "quick") continue; const k = e.src + ":" + (e.ref || e.name); if (seen.has(k)) continue; seen.add(k);
-      out.push(ntMake({src:e.src, id:e.ref, code:e.code || "", name:e.name, brand:e.brand || "", n:e.n, img:e.img || "", emoji:e.emoji || "", portion:e.unit || null, last:e.g, lastQty:e.qty, lastUnit:e.unit}));
+      out.push(ntFix(ntMake({src:e.src, id:e.ref, code:e.code || "", name:e.name, brand:e.brand || "", n:e.n, img:e.img || "", emoji:e.emoji || "", portion:e.unit || null, last:e.g, lastQty:e.qty, lastUnit:e.unit}), M));
       if (out.length >= 40) return out;
     }
   }
@@ -3417,14 +3422,16 @@ function ntSearch(q){
   const res = [];
   for (const x of [...ntOwn(), ...(NT.db || [])]) {
     let sc = 0;
-    for (const t of qs) { const i = x.k.indexOf(t); if (i < 0) { sc = -1; break; } sc += i === 0 ? 3 : /[\s,(/-]/.test(x.k[i - 1]) ? 2 : .5; }
+    // Wortanfang zählt, das Wortende auch: „tatar“ findet „Rindertatar“ (im Deutschen steht das Hauptwort hinten)
+    for (const t of qs) { const i = x.k.indexOf(t); if (i < 0) { sc = -1; break; } const e = i + t.length, end = e === x.k.length || /[\s,(/-]/.test(x.k[e]);
+      sc += i === 0 ? 3 : /[\s,(/-]/.test(x.k[i - 1]) ? 2 : end ? 2 : .5; }
     if (sc < 0) continue;
     if (x.nk.startsWith(qs[0])) sc += 2; if (x.nk === qs.join(" ")) sc += 3; if (x.nk.split(/[\s,(]/)[0] === qs[0]) sc += 4;
     sc += x.src === "own" || x.src === "rec" ? 4 : x.src === "ch" ? 1.5 : 0;
     sc -= Math.min(x.name.length, 80) / 40;
     res.push([sc, x]);
   }
-  return res.sort((a, b) => b[0] - a[0]).slice(0, 60).map(r => r[1]);
+  const M = ntFixes(); return res.sort((a, b) => b[0] - a[0]).slice(0, 60).map(r => ntFix(r[1], M));
 }
 
 // ---- Tage, Summen, Ziele ----
@@ -3499,6 +3506,7 @@ function ntEntryForm(e){
       : `<label>Menge in Gramm<input class="field num" id="nte-${e.id}" inputmode="decimal" data-ntv="g" data-id="${e.id}" value="${esc(bsIn(e.g))}"></label>`}
     <div class="fd-lbl br-wide"><span>Mahlzeit</span><div class="fd-btns">${NT_MEALS.map(([m, l]) => `<button class="pill ${e.meal === m ? "on" : ""}" data-nt="move" data-id="${e.id}" data-meal="${m}">${l}</button>`).join("")}</div></div>
     <div class="nt-nut br-wide" id="nte-${e.id}-nut">${ntNutHTML(e.n, ntFac(e))}</div>
+    ${e.src === "ch" || e.src === "off" ? `<div class="br-wide"><button class="pill" data-nt="fixe" data-id="${e.id}">${ic("pen")}Nährwerte korrigieren</button></div>` : ""}
     ${e.src && NT_SRC[e.src] ? `<p class="hint br-wide" style="margin:0">Werte aus ${esc(NT_SRC[e.src])}.</p>` : ""}
     <div class="br-ed-f"><span class="grow"></span><button class="pill" data-nt="again" data-id="${e.id}">${ic("copy")}${today ? "Nochmal" : "Heute auch"}</button><button class="pill" data-nt="del" data-id="${e.id}" style="${S.ntDel === e.id ? "color:var(--late)" : ""}">${ic("trash")}${S.ntDel === e.id ? "Wirklich löschen?" : "Löschen"}</button><button class="pill on" data-nt="edit" data-id="${e.id}">Fertig</button></div></div>`;
 }
@@ -3571,7 +3579,8 @@ function ntSheet(){
     <div class="nt-sh"><button class="ibtn" data-nt="${sub ? "back" : "close"}" aria-label="${sub ? "Zurück" : "Schließen"}">${ic(sub ? "left" : "close")}</button><h2>${esc(title)}</h2>
       ${pick ? "" : `<span class="muted nt-shd">${esc(N.date === dkey() ? "Heute" : fmtLong(N.date))}</span>`}${sub ? `<button class="ibtn" data-nt="close" aria-label="Schließen">${ic("close")}</button>` : ""}</div>
     <div class="nt-body">${N.scan ? ntScanHTML() : N.sel ? ntSelHTML() : ntFindHTML()}</div>
-    ${N.sel && !N.scan ? `<div class="nt-foot"><button class="btn" data-nt="${pick ? "pickdo" : "addit"}" id="nt-addbtn">${pick ? "Werte übernehmen" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
+    ${N.sel && !N.scan && N.edit ? `<div class="nt-foot"><button class="btn" data-nt="fixsave" id="nt-addbtn">Werte speichern</button></div>` : ""}
+    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${pick ? "pickdo" : "addit"}" id="nt-addbtn">${pick ? "Werte übernehmen" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
   if (N.scan && !N.camOff) ntScanStart();
 }
 function ntFindHTML(){
@@ -3609,8 +3618,8 @@ function ntQuickHTML(){
 }
 const ntUnits = x => { const u = [["g", 1]]; if (x.portion && x.portion[1] > 0) u.push(x.portion); if (x.serving > 0 && !u.some(y => y[1] === x.serving)) u.push(["1 Portion", x.serving]); return u; };
 function ntSelect(x){
-  const N = S.nt; if (!N || !x) return; const units = ntUnits(x);
-  N.sel = x; N.unit = 0; N.qty = 100;
+  const N = S.nt; if (!N || !x) return; x = ntFix(x); const units = ntUnits(x);
+  N.sel = x; N.edit = false; N.unit = 0; N.qty = 100;
   if (x.lastUnit && x.lastQty) { const i = units.findIndex(u => u[0] === x.lastUnit[0]); if (i > 0) { N.unit = i; N.qty = x.lastQty; } else N.qty = x.last; }
   else if (x.last) N.qty = x.last; else if (units.length > 1) { N.unit = 1; N.qty = 1; }
   ntSheet();
@@ -3622,11 +3631,14 @@ function ntSelNut(){
 }
 function ntSelHTML(){
   const N = S.nt, x = N.sel, units = ntUnits(x), pick = N.mode === "pick";
-  return `<div class="nt-selh">${ntImg(x, "nt-img lg")}<div><h3>${esc(x.name)}</h3><p class="muted">${esc(ntSrcLine(x))}${x.code ? ` · <span class="num">${esc(x.code)}</span>` : ""}</p></div></div>
+  const canFix = !!ntRef(x);
+  if (N.edit && canFix) return `<div class="nt-selh">${ntImg(x, "nt-img lg")}<div><h3>${esc(x.name)}</h3><p class="muted">${esc(ntSrcLine(x))}</p></div></div>${ntFixHTML()}`;
+  return `<div class="nt-selh">${ntImg(x, "nt-img lg")}<div><h3>${esc(x.name)}</h3><p class="muted">${esc(ntSrcLine(x))}${x.code ? ` · <span class="num">${esc(x.code)}</span>` : ""}</p>
+      ${canFix ? `<div class="nt-fixb">${x.fixed ? `<span class="chip">Von dir angepasst</span>` : ""}<button class="pill" data-nt="fixedit">${ic("pen")}${x.fixed ? "Werte ändern" : "Werte anpassen"}</button></div>` : ""}</div></div>
     ${pick ? "" : `<div class="nt-amt"><label>Menge<input class="field num" id="nt-qty" inputmode="decimal" enterkeyhint="done" value="${esc(bsIn(N.qty))}" aria-label="Menge"></label>
       <div class="fd-btns">${units.map((u, i) => `<button class="pill ${i === N.unit ? "on" : ""}" data-nt="unit" data-i="${i}">${esc(u[0])}${u[1] !== 1 ? ` <span class="num nt-ug">${bsFmt(u[1])} g</span>` : ""}</button>`).join("")}</div></div>`}
     <div id="nt-selnut">${ntSelNut()}</div>
-    <p class="hint" style="margin:12px 0 0">Werte aus ${esc(NT_SRC[x.src] || "Open Food Facts")}.</p>`;
+    <p class="hint" style="margin:12px 0 0">${x.fixed ? `Werte von dir angepasst. Das Original stammt aus ${esc(NT_SRC[x.src] || "Open Food Facts")}.` : `Werte aus ${esc(NT_SRC[x.src] || "Open Food Facts")}. Stimmt etwas nicht, tipp oben auf „Werte anpassen“.`}</p>`;
 }
 function ntAddSel(){
   const N = S.nt, x = N.sel, units = ntUnits(x), g = ntSelG();
@@ -3674,6 +3686,72 @@ async function ntOnline(){
     if (!r.ok) throw new Error(r.status); const d = await r.json();
     if (S.nt && S.nt.online && S.nt.online.q === q) { S.nt.online = {q, res:(d.products || []).map(ntOffItem).filter(Boolean)}; ntResRefresh(); }
   } catch(e) { if (S.nt && S.nt.online && S.nt.online.q === q) { S.nt.online = {q, err:"Open Food Facts antwortet gerade nicht. Versuch es später nochmal."}; ntResRefresh(); } }
+}
+
+
+// ---- Eigene Korrekturen an Lebensmitteln aus der Datenbank ----
+// Versteckter Eintrag kind "fdfix" (in HIDDEN_K) pro Lebensmittel: ref "ch:<id>" oder "off:<code>", name (leer = Name aus der Datenbank), n pro 100 g.
+// Die Datenbank-Dateien bleiben unverändert, ntFix legt die Korrektur beim Anzeigen darüber.
+const NT_NF = [["kcal", "Kalorien", "kcal"], ["c", "Kohlenhydrate", "g"], ["sug", "davon Zucker", "g"], ["p", "Eiweiß", "g"], ["f", "Fett", "g"], ["fib", "Ballaststoffe", "g"], ["salt", "Salz", "g"]];
+const ntRef = x => x && (x.src === "ch" || x.src === "off") && x.id ? `${x.src}:${x.id}` : "";
+function ntFixes(){ const m = new Map(); for (const f of live("fdfix")) if (f.ref) m.set(f.ref, f); return m; }
+function ntFix(x, M = ntFixes()){
+  const f = M.get(ntRef(x)); if (!f || !x) return x;
+  return {...x, name: f.name || x.name, n: {...f.n}, fixed: f.id};
+}
+// Lebensmittel so, wie es in der Datenbank steht (für „Original wiederherstellen“)
+function ntBase(x){
+  const db = x.src === "ch" ? NT.byId && NT.byId.get(x.id) : x.src === "off" ? NT.byCode.get(x.id) || ntFromCache(x.id) : null;
+  return db || ntMake({...x, fixed: undefined});
+}
+const ntFixCount = ref => live("fdlog").reduce((s, d) => s + (d.entries || []).filter(e => `${e.src}:${e.ref}` === ref).length, 0);
+function ntFixEntries(ref, name, n){
+  for (const d of live("fdlog")) { let ch = false;
+    for (const e of d.entries || []) if (`${e.src}:${e.ref}` === ref) { e.n = {...n}; if (name) e.name = name; ch = true; }
+    if (ch) persist(d); }
+}
+function ntFixHTML(){
+  const N = S.nt, x = N.sel, base = ntBase(x), ref = ntRef(x), cnt = ntFixCount(ref);
+  const f = ([k, l, u]) => `<label>${l} (${u})<input class="field num" id="nt-fx-${k}" inputmode="decimal" value="${esc(ntNum(x.n[k]) != null ? bsIn(x.n[k]) : "")}" placeholder="${ntNum(base.n[k]) != null ? esc(bsFmt(base.n[k])) : "–"}"></label>`;
+  const diff = ([k, l, u]) => ntNum(base.n[k]) != null && ntNum(x.n[k]) !== ntNum(base.n[k]) ? `${l} ${bsFmt(base.n[k])} ${u}` : "";
+  const orig = x.fixed ? NT_NF.map(diff).filter(Boolean).join(" · ") : "";
+  return `<div class="nt-fix br-ed"><p class="hint br-wide" style="margin:0">Trag die Werte pro 100 g ein, am besten von der Packung. Die App rechnet danach überall mit deinen Werten. Die Datenbank selbst bleibt, wie sie ist.</p>
+    <label class="br-wide">Name<input class="field" id="nt-fx-name" value="${esc(x.name)}" placeholder="${esc(base.name)}"></label>
+    ${NT_NF.map(f).join("")}
+    ${orig ? `<p class="hint br-wide" style="margin:0">Original: ${esc(orig)}${base.name !== x.name ? ` · Name „${esc(base.name)}“` : ""}</p>` : ""}
+    ${cnt ? `<label class="nt-chk br-wide"><input type="checkbox" id="nt-fx-old" checked>Auch ${cnt} ${cnt === 1 ? "Eintrag" : "Einträge"} im Tagebuch damit korrigieren</label>` : ""}
+    ${x.fixed ? `<div class="br-ed-f"><button class="pill" data-nt="fixreset">${ic("restore")}Originalwerte wiederherstellen</button></div>` : ""}</div>`;
+}
+function ntFixSave(){
+  const N = S.nt, x = N.sel, ref = ntRef(x); if (!ref) return;
+  const base = ntBase(x), n = {};
+  for (const [k] of NT_NF) { const i = $(`#nt-fx-${k}`), v = bsNum(i ? i.value : ""); if (typeof v === "number" && v >= 0) n[k] = v; }
+  if (typeof n.kcal !== "number") { const i = $("#nt-fx-kcal"); if (i) i.focus(); toast("Trag mindestens die Kalorien ein."); return; }
+  const nm = (($("#nt-fx-name") || {}).value || "").trim(), name = nm && nm !== base.name ? nm : "";
+  const old = $("#nt-fx-old"), fixOld = old && old.checked;
+  let f = live("fdfix").find(y => y.ref === ref);
+  if (!f) f = create("fdfix", name || base.name, {ref, name, n});
+  else { f.name = name; f.n = n; f.title = name || base.name; persist(f); }
+  if (fixOld) ntFixEntries(ref, name || base.name, n);
+  const keep = {last:x.last, lastQty:x.lastQty, lastUnit:x.lastUnit, portion:x.portion || base.portion};
+  N.sel = ntFix({...base, ...keep}); N.edit = false;
+  toast(fixOld ? "Gespeichert, auch im Tagebuch korrigiert." : "Gespeichert. Ab jetzt rechnet die App mit deinen Werten.");
+  ntSheet(); renderMain();
+}
+function ntFixReset(){
+  const N = S.nt, x = N.sel, ref = ntRef(x), f = live("fdfix").find(y => y.ref === ref); if (!f) return;
+  const base = ntBase(x), old = $("#nt-fx-old");
+  if (old && old.checked) ntFixEntries(ref, base.name, base.n);
+  removeItem(f.id);
+  N.sel = {...base, last:x.last, lastQty:x.lastQty, lastUnit:x.lastUnit}; N.edit = false;
+  toast("Originalwerte wiederhergestellt."); ntSheet(); renderMain();
+}
+function ntFixListHTML(){
+  const L = live("fdfix").sort((a, b) => (a.title || "").localeCompare(b.title || "", "de"));
+  if (!L.length) return "";
+  return `<section class="card" style="margin-top:20px"><div class="card-h"><h2>Angepasste Werte aus der Datenbank</h2><span class="grow"></span><span class="chip">${L.length}</span></div>
+    <p class="hint">Hier stehen Lebensmittel aus der Datenbank, deren Nährwerte du korrigiert hast. Tipp darauf, um sie zu ändern oder das Original zurückzuholen.</p>
+    ${L.map(f => `<button class="nt-r" data-nt="fixopen" data-id="${f.id}"><span class="nt-et"><b>${esc(f.title || "Ohne Namen")}</b><small>${esc(f.ref.startsWith("off:") ? "Produkt von Open Food Facts" : "Schweizer Nährwertdatenbank")}</small></span><span class="nt-ek num">${bsFmt(f.n && f.n.kcal)} <small>kcal / 100 g</small></span></button>`).join("")}</section>`;
 }
 
 // ---- Barcode-Scanner: eingebaute BarcodeDetector-API (Chrome auf Android), sonst ZXing als WebAssembly aus vendor/barcode ----
@@ -3765,12 +3843,16 @@ document.addEventListener("click", e => {
     case "pick": { const it = S.items.get(id); if (it) ntOpen(null, {mode:"pick", pick:{type:"food", id}, q: it.title || ""}); return; }
     case "scanfor": ntOpen(null, {mode:"pick", pick:{type:"food", id}, scan:true}); return;
     case "pick-ing": { const it = S.items.get(id), i = it && (it.ing || []).find(y => y.id === a.dataset.i); if (i) ntOpen(null, {mode:"pick", pick:{type:"ing", id, ing:i.id}, q: i.name || ""}); return; }
+    case "fixe": { const [, en] = ntFindEntry(id); if (!en) return; ntOpen(en.meal);
+      ntSelect(ntMake({src:en.src, id:en.ref, code:en.code || "", name:en.name, brand:en.brand || "", n:en.n, img:en.img || "", emoji:en.emoji || ""})); S.nt.edit = true; ntSheet(); return; }
+    case "fixopen": { const f = S.items.get(id); if (!f) return; ntLoad().then(() => { const b = ntBase({src:f.ref.split(":")[0], id:f.ref.slice(f.ref.indexOf(":") + 1), name:f.title, n:f.n});
+      ntOpen(null); ntSelect(b); }); return; }
     case "logown": case "logrec": { const x = ntOwn().find(o => o.id === id); if (x) { ntOpen(null); ntSelect(x); } return; }
     default: {
       if (!N) return;
       switch (act) {
         case "close": ntClose(); return;
-        case "back": if (N.scan) { ntScanStop(); N.scan = false; N.camOff = false; N.notFound = null; N.scanMsg = ""; } else N.sel = null; ntSheet(); return;
+        case "back": if (N.edit) { N.edit = false; ntSheet(); return; } if (N.scan) { ntScanStop(); N.scan = false; N.camOff = false; N.notFound = null; N.scanMsg = ""; } else N.sel = null; ntSheet(); return;
         case "smeal": N.meal = a.dataset.meal; ntSheet(); return;
         case "stab": N.tab = a.dataset.v; ntResRefresh(); document.querySelectorAll('[data-nt="stab"]').forEach(b => b.classList.toggle("on", b.dataset.v === N.tab)); return;
         case "sel": ntSelect((N.list || [])[+a.dataset.i]); return;
@@ -3782,6 +3864,9 @@ document.addEventListener("click", e => {
         case "code": { const v = String(($("#nt-code") || {}).value || "").replace(/\s/g, ""); if (/^\d{6,14}$/.test(v)) ntFound(v); else toast("Ein Barcode hat 8 bis 13 Ziffern."); return; }
         case "online": ntOnline(); return;
         case "mkown": ntMkOwn(a.dataset.code); return;
+        case "fixedit": N.edit = true; ntSheet(); { const i = $("#nt-fx-kcal"); if (i) i.focus(); } return;
+        case "fixsave": ntFixSave(); return;
+        case "fixreset": ntFixReset(); return;
       }
       return;
     }
