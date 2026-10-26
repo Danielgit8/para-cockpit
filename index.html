@@ -1111,6 +1111,18 @@ body.nt-lock{overflow:hidden}
 .nt-bar{position:relative}
 .nt-dgm{position:absolute;left:12%;right:12%;border-top:2.5px solid var(--muted);pointer-events:none}
 .rc-nut .grow{flex:1}
+.rc-ir{grid-template-columns:minmax(0,1fr) 90px auto 32px 32px}
+.rc-kc{height:36px;padding:0 10px;font-size:12.5px;white-space:nowrap;min-width:64px;justify-content:center}
+.rc-inp{display:flex;flex-direction:column;gap:10px;padding:12px;margin:-2px 0 4px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel, transparent)}
+.rc-inh{font-size:12px;font-weight:600;color:var(--muted)}
+.rc-ins{font-size:12.5px}
+.rc-ins b{color:var(--text)}
+.rc-inp .fd-btns .grow{flex:1}
+.rc-ing li .rc-ik{margin-left:auto;font-size:12.5px}
+@media (max-width:560px){
+  .rc-ir{grid-template-columns:minmax(0,1fr) auto 32px 32px}
+  .rc-ir > .field:first-child{grid-column:1/-1}
+}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1133,7 +1145,7 @@ body.nt-lock{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-25.7";
+const APP_VERSION = "2026-10-26.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3268,19 +3280,21 @@ function rcView(x){
   const gs = ing.map(i => String(i.grams ?? "").trim()).filter(g => /^\d+([.,]\d+)?$/.test(g)).map(g => +g.replace(",", "."));
   const sum = gs.length > 1 ? gs.reduce((a, b) => a + b, 0) : 0;
   return `<div class="fd-ed rc-view">${rcNutHTML(x)}<div class="rc-cols">
-      <div><h3>Zutaten</h3>${ing.length ? `<ul class="rc-ing">${ing.map(i => `<li><span>${esc(i.name || "")}</span><b class="num">${esc(fdGrams(i.grams))}</b></li>`).join("")}${sum ? `<li class="rc-tot"><span>Zusammen</span><b class="num">${esc(bsFmt(sum))} g</b></li>` : ""}</ul>` : `<p class="hint" style="margin:0">Noch keine Zutaten eingetragen.</p>`}</div>
+      <div><h3>Zutaten</h3>${ing.length ? `<ul class="rc-ing">${ing.map(i => `<li><span>${esc(i.name || "")}</span>${i.n && ntNum(i.n.kcal) != null && bsNum(i.grams) > 0 ? `<span class="muted num rc-ik">${esc(rcIngKcal(i))}</span>` : ""}<b class="num">${esc(fdGrams(i.grams))}</b></li>`).join("")}${sum ? `<li class="rc-tot"><span>Zusammen</span><b class="num">${esc(bsFmt(sum))} g</b></li>` : ""}</ul>` : `<p class="hint" style="margin:0">Noch keine Zutaten eingetragen.</p>`}</div>
       <div><h3>Zubereitung</h3>${steps.length ? `<ol class="rc-steps">${steps.map(s => `<li>${esc(s.text)}</li>`).join("")}</ol>` : `<p class="hint" style="margin:0">Noch keine Schritte eingetragen.</p>`}</div></div>
     ${fdAttHTML(x, true)}
     <div class="br-ed-f"><span class="grow"></span><button class="pill" data-fact="rc-edit" data-id="${x.id}">${ic("pen")}Bearbeiten</button><button class="pill on" data-fact="rc-open" data-id="${x.id}">Schließen</button></div></div>`;
 }
 function rcForm(x){
   const ing = x.ing || [], steps = x.steps || [];
-  return `<div class="fd-ed br-ed"><label class="br-wide">Name<input class="field" id="rc-${x.id}-title" data-fv="title" data-id="${x.id}" value="${esc(x.title || "")}"></label>
+  return `<div class="fd-ed br-ed"><div class="br-wide" id="rc-${x.id}-tot">${rcNutHTML(x, true)}</div><label class="br-wide">Name<input class="field" id="rc-${x.id}-title" data-fv="title" data-id="${x.id}" value="${esc(x.title || "")}"></label>
     <label>Portionen<input class="field num" id="rc-${x.id}-portions" data-fv="portions" data-id="${x.id}" value="${esc(x.portions ?? "")}" inputmode="decimal" placeholder="1"></label>
     <div class="fd-lbl br-wide"><span>Zutaten</span>
       ${ing.map(i => `<div class="rc-ir"><input class="field" id="rc-${i.id}-n" data-ri="${x.id}|${i.id}|name" value="${esc(i.name || "")}" placeholder="Zutat" aria-label="Zutat">
         <input class="field num" id="rc-${i.id}-g" data-ri="${x.id}|${i.id}|grams" value="${esc(i.grams ?? "")}" inputmode="decimal" placeholder="Gramm" aria-label="Gramm">
-        ${rcIngBtn(x, i)}<button class="ibtn" data-fact="ing-del" data-id="${x.id}" data-i="${i.id}" title="Zutat entfernen" aria-label="Zutat entfernen">${ic("trash")}</button></div>`).join("")}
+        <button class="pill rc-kc ${S.rcIng === i.id ? "on" : ""}" id="rc-${i.id}-k" data-fact="ing-nut" data-id="${x.id}" data-i="${i.id}" aria-expanded="${S.rcIng === i.id}" title="Kalorien und Makros eintragen">${rcIngKcal(i)}</button>
+        ${rcIngBtn(x, i)}<button class="ibtn" data-fact="ing-del" data-id="${x.id}" data-i="${i.id}" title="Zutat entfernen" aria-label="Zutat entfernen">${ic("trash")}</button></div>
+        ${S.rcIng === i.id ? rcIngNutHTML(x, i) : ""}`).join("")}
       <button class="pill rc-addb" data-fact="ing-add" data-id="${x.id}">${ic("plus")}Zutat</button></div>
     <div class="fd-lbl br-wide"><span>Zubereitung</span>
       ${steps.map((s, n) => `<div class="rc-sr"><span class="rc-n num">${n + 1}</span><textarea class="field" rows="2" id="rc-${s.id}-t" data-rs="${x.id}|${s.id}" placeholder="Was machst du in diesem Schritt?" aria-label="Schritt ${n + 1}">${esc(s.text || "")}</textarea>
@@ -3327,6 +3341,8 @@ document.addEventListener("click", e => {
     case "shot": S.pop = {shots:true, id, k:+a.dataset.k}; renderPop(); return;
     case "ing-add": if (it) { const n = {id:uid(), name:"", grams:""}; it.ing = [...(it.ing || []), n]; persist(it); focus = `#rc-${n.id}-n`; } break;
     case "ing-del": if (it) { it.ing = (it.ing || []).filter(i => i.id !== sub); persist(it); } break;
+    case "ing-nut": S.rcIng = S.rcIng === sub ? null : sub; if (S.rcIng) focus = `#rc-${sub}-nkcal`; break;
+    case "ing-nclr": if (it) { const i = (it.ing || []).find(y => y.id === sub); if (i) { delete i.n; delete i.nsrc; persist(it); } } break;
     case "step-add": if (it) { const n = {id:uid(), text:""}; it.steps = [...(it.steps || []), n]; persist(it); focus = `#rc-${n.id}-t`; } break;
     case "step-del": if (it) { it.steps = (it.steps || []).filter(s => s.id !== sub); persist(it); } break;
     case "step-mv": if (it) { const L = [...(it.steps || [])], i = L.findIndex(s => s.id === sub), j = i + +a.dataset.d;
@@ -3341,8 +3357,14 @@ document.addEventListener("input", e => {
     it[t.dataset.fv] = t.value; persist(it, 800);
     const c = document.querySelector(`[data-fc="${it.id}|${t.dataset.fv}"]`);
     if (c) c.textContent = t.dataset.fv === "grams" ? fdGrams(t.value) : t.dataset.fv === "title" ? (t.value.trim() || "Ohne Namen") : t.value;
+    if (it.kind === "recipe" && t.dataset.fv === "portions") rcRefresh(it);
     return; }
-  if (t.dataset.ri) { const [rid, iid, f] = t.dataset.ri.split("|"), it = S.items.get(rid), x = it && (it.ing || []).find(i => i.id === iid); if (x) { x[f] = t.value; persist(it, 800); } return; }
+  if (t.dataset.ri) { const [rid, iid, f] = t.dataset.ri.split("|"), it = S.items.get(rid), x = it && (it.ing || []).find(i => i.id === iid); if (x) { x[f] = t.value; persist(it, 800); if (f === "grams") rcRefresh(it, x); } return; }
+  if (t.dataset.rn) { const [rid, iid, k] = t.dataset.rn.split("|"), it = S.items.get(rid), x = it && (it.ing || []).find(i => i.id === iid); if (!x) return;
+    const v = bsNum(t.value); x.n = {...(x.n || {})};
+    if (typeof v === "number" && v >= 0) x.n[k] = v; else if (v === "") delete x.n[k]; else return;
+    if (!Object.keys(x.n).length) { delete x.n; delete x.nsrc; } else x.nsrc = "Selbst eingetragen";
+    persist(it, 800); rcRefresh(it, x); return; }
   if (t.dataset.rs) { const [rid, sid] = t.dataset.rs.split("|"), it = S.items.get(rid), x = it && (it.steps || []).find(s => s.id === sid); if (x) { x.text = t.value; persist(it, 800); } return; }
 });
 document.addEventListener("change", e => {
@@ -3409,9 +3431,11 @@ function rcNut(r){
   const ing = (r.ing || []).filter(i => i.n && ntNum(i.n.kcal) != null && typeof bsNum(i.grams) === "number" && bsNum(i.grams) > 0);
   if (!ing.length) return null;
   const tot = {kcal:0, p:0, c:0, f:0, sug:0, fib:0, salt:0}; let g = 0;
-  for (const i of ing) { const k = bsNum(i.grams) / 100; g += bsNum(i.grams); for (const m in tot) if (ntNum(i.n[m]) != null) tot[m] += i.n[m] * k; }
+  const seen = new Set();
+  for (const i of ing) { const k = bsNum(i.grams) / 100; g += bsNum(i.grams); for (const m in tot) if (ntNum(i.n[m]) != null) { tot[m] += i.n[m] * k; seen.add(m); } }
   const por = Math.max(1, bsNum(r.portions) || 1), per100 = {};
-  for (const m in tot) per100[m] = ntR(tot[m] / g * 100, 1);
+  // Werte, die bei keiner Zutat eingetragen sind, bleiben leer statt 0 g
+  for (const m in tot) if (seen.has(m)) per100[m] = ntR(tot[m] / g * 100, 1);
   return {tot, per100, g, portions:por, portionG:ntR(g / por), missing:rcIng(r).length - ing.length};
 }
 function ntOwn(){
@@ -4061,9 +4085,36 @@ function rcIngBtn(x, i){
   const has = i.n && ntNum(i.n.kcal) != null;
   return `<button class="ibtn ${has ? "on" : ""}" data-nt="pick-ing" data-id="${x.id}" data-i="${i.id}" title="${has ? esc(`${i.nsrc || "Nährwerte übernommen"}: ${bsFmt(i.n.kcal)} kcal pro 100 g. Tippen zum Ändern.`) : "Nährwerte aus der Datenbank holen"}" aria-label="${has ? "Nährwerte ändern" : "Nährwerte suchen"}">${ic(has ? "check" : "search")}</button>`;
 }
-function rcNutHTML(x){
+// Kalorien einer Zutat für ihre Menge (oder pro 100 g, solange die Menge fehlt)
+function rcIngKcal(i){
+  if (!i.n || ntNum(i.n.kcal) == null) return "kcal";
+  const g = bsNum(i.grams);
+  return typeof g === "number" && g > 0 ? `${bsFmt(Math.round(i.n.kcal * g / 100))} kcal` : `${bsFmt(i.n.kcal)}/100 g`;
+}
+function rcIngSum(i){
+  const g = bsNum(i.grams), n = i.n || {};
+  if (ntNum(n.kcal) == null) return "Trag die Werte von der Packung ein (pro 100 g) oder such die Zutat in der Datenbank.";
+  if (!(typeof g === "number" && g > 0)) return "Trag oben noch die Gramm ein, dann rechnet die App die Menge aus.";
+  const k = v => ntNum(v) != null ? bsFmt(ntR(v * g / 100, 1)) : "–";
+  return `Für ${bsFmt(g)} g: <b class="num">${bsFmt(Math.round(n.kcal * g / 100))} kcal</b> · K ${k(n.c)} g · E ${k(n.p)} g · F ${k(n.f)} g`;
+}
+function rcIngNutHTML(x, i){
+  const n = i.n || {}, f = (k, l) => `<label>${l}<input class="field num" id="rc-${i.id}-n${k}" inputmode="decimal" data-rn="${x.id}|${i.id}|${k}" value="${esc(bsIn(n[k] ?? ""))}" placeholder="–"></label>`;
+  return `<div class="rc-inp"><span class="rc-inh">Nährwerte pro 100 g${i.nsrc ? ` · <span class="muted">${esc(i.nsrc)}</span>` : ""}</span>
+    <div class="fd-nut">${f("kcal", "Kalorien")}${f("c", "Kohlenhydrate")}${f("p", "Eiweiß")}${f("f", "Fett")}</div>
+    <div class="rc-ins muted" id="rc-${i.id}-sum">${rcIngSum(i)}</div>
+    <div class="fd-btns"><button class="pill" data-nt="pick-ing" data-id="${x.id}" data-i="${i.id}">${ic("search")}Aus Datenbank übernehmen</button>${i.n ? `<button class="pill" data-fact="ing-nclr" data-id="${x.id}" data-i="${i.id}">${ic("trash")}Werte löschen</button>` : ""}<span class="grow"></span><button class="pill on" data-fact="ing-nut" data-id="${x.id}" data-i="${i.id}">Fertig</button></div></div>`;
+}
+// Beim Tippen nur Zahlen neu schreiben, damit das Feld den Fokus behält
+function rcRefresh(it, i){
+  if (i) { const k = $(`#rc-${i.id}-k`); if (k) k.textContent = rcIngKcal(i); const s = $(`#rc-${i.id}-sum`); if (s) s.innerHTML = rcIngSum(i);
+    const b = document.querySelector(`[data-nt="pick-ing"][data-i="${i.id}"].ibtn`); if (b) b.outerHTML = rcIngBtn(it, i); }
+  const t = $(`#rc-${it.id}-tot`); if (t) t.innerHTML = rcNutHTML(it, true);
+}
+function rcNutHTML(x, form){
   const r = rcNut(x);
-  if (!r) return rcIng(x).length ? `<p class="hint">Tipp beim Bearbeiten neben einer Zutat auf die Lupe und wähl das Lebensmittel aus. Dann rechnet die App die Kalorien des Rezepts aus.</p>` : "";
+  if (!r) return form ? `<p class="hint" style="margin:0">Tipp neben einer Zutat auf „kcal“ und trag Kalorien und Makros pro 100 g ein, oder hol sie mit der Lupe aus der Datenbank. Dann rechnet die App das Rezept aus und du kannst es ins Tagebuch eintragen.</p>`
+    : rcIng(x).length ? `<p class="hint">Tipp auf „Bearbeiten“ und dann neben einer Zutat auf „kcal“, um Kalorien und Makros einzutragen. Dann rechnet die App das Rezept aus.</p>` : "";
   const k = m => bsFmt(Math.round(r.tot[m] / r.portions));
   return `<div class="rc-nut"><span><b class="num">${k("kcal")}</b> kcal pro Portion</span><span class="muted num">K ${k("c")} g · E ${k("p")} g · F ${k("f")} g</span>
     <span class="muted">${r.portions > 1 ? `${bsFmt(r.portions)} Portionen à ${bsFmt(r.portionG)} g` : `ganzes Rezept, ${bsFmt(r.g)} g`}${r.missing ? `, ${r.missing} ${r.missing === 1 ? "Zutat" : "Zutaten"} ohne Nährwerte` : ""}</span>
