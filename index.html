@@ -1263,6 +1263,26 @@ body.nt-lock{overflow:hidden}
 .ns-confetti{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
 .ns-confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:nsfall 1.5s cubic-bezier(.2,.6,.4,1) forwards}
 @keyframes nsfall{to{top:105%;transform:translateX(40px) rotate(540deg);opacity:.2}}
+.ns-plan{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:6px 4px 0}
+.ns-plan-t{margin:4px 0 0;font-family:var(--f-head);font-size:21px;font-weight:600}
+.ns-score{font-size:26px;font-weight:800;white-space:nowrap}
+.ns .ns-score,.ns .ns-when,.ns .ns-foot .num,.ns .ns-big .num,.ns .ns-stats .num{font-family:var(--f-ui);letter-spacing:-.01em}
+.ns-score small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+.ns-when{font-size:12.5px;color:var(--dark-muted)}
+.ns-frc .ns-when{color:var(--muted)}
+a.ns-now-t{text-decoration:none}
+.ns-ok{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-weight:700;color:#CFE7D6}
+.ns-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--dark-line);font-size:13px;color:var(--dark-muted)}
+.ns-frc .ns-foot{border-top-color:var(--line);color:var(--muted)}
+.ns-foot .ns-wk{margin-top:0}
+.ns-now .ns-wk span{background:rgba(255,255,255,.08);color:var(--dark-muted)}
+.ns-now .ns-wk span.on{background:#CFE7D6;color:#21402F}
+.ns-fr-t{margin:8px 0 10px;font-family:var(--f-head);font-weight:600;font-size:21px;line-height:1.2}
+.ns-start-l{background:var(--amber);color:#fff;border-color:var(--amber);font-weight:800}
+.ns-done .ns-fr-t{color:var(--good)}
+.ns-now a.btn{text-decoration:none}
+.ns-frc a.btn{text-decoration:none}
+@media (max-width:560px){.ns-acts .btn{flex:1 1 auto;justify-content:center}.ns-foot{flex-direction:column;align-items:flex-start}}
 @media (max-width:560px){
   .ns-two{grid-template-columns:1fr}
   .ns-bs{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1296,7 +1316,7 @@ body.nt-lock{overflow:hidden}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-29.1";
+const APP_VERSION = "2026-10-29.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2220,8 +2240,6 @@ const nsMoveHabit = () => nsFindHabit(/gym|fitness|kraft|training|sport/i);
 const nsRosary = () => all().find(i => !i.archived && i.kind === "resource" && /rosenkranz/i.test(i.title || "")) || null;
 const nsBeliefs = () => NS().beliefs || [];
 const nsSleep = () => ({off:"21:45", bed:"22:15", wake:"07:00", ...(NS().sleep || {})});
-const nsSkill = () => ({name:"Content machen und posten", min:60, ...(NS().skill || {})});
-const nsFr = () => ({words:0, goal:1000, perDay:10, ...(NS().fr || {})});
 const nsHrs = n => n >= 9 ? "9+" : n <= 4 ? "4 oder weniger" : String(n);
 const NS_KIND = ["Gestern war schwer? Normal. Kein Neustart nötig, einfach weiter.", "Fortschritt ist nie gerade. Ein schlechter Tag macht nichts kaputt.", "Du musst heute nicht alles schaffen. Eine Sache reicht.", "Sei nicht so hart zu dir. Das bringt dich nicht weiter, Dranbleiben schon."];
 const nsKind = () => NS_KIND[new Date().getDate() % NS_KIND.length];
@@ -2229,7 +2247,7 @@ const nsKind = () => NS_KIND[new Date().getDate() % NS_KIND.length];
 function nsMigrate(){
   const n = NS(); if (n.v) return;
   n.v = 1; n.started = dkey();
-  S.settings.theme = "light";
+  if (S.settings.theme === "dark") S.settings.theme = "light";
   S.settings.start = "today";
   setTimeout(() => saveSettings(), 0);
 }
@@ -2241,69 +2259,115 @@ function nsHero(img, kick, title, sub){
   return `<section class="ns-hero" style="background-image:url(${img})"><div class="ns-hero-in"><span class="ns-kick">${kick}</span><h1 class="ns-h1">${title}</h1>${sub ? `<p class="ns-sub">${sub}</p>` : ""}</div></section>`;
 }
 
+/* Zwei Projekte mit festen Blöcken (Wunsch 2026-10-29): Personal Brand und Französisch. Keine Basis-Karte, kein 2-Minuten-Start, kein Wörterzähler.
+   Brand-Weg und Français A1 laufen auf derselben Adresse, deshalb liest Heute ihren Stand direkt aus dem Browser-Speicher. */
+const nsBlocks = () => { const b = NS().blocks || {}; return {content:{min:60, at:"16:00", week:5, ...(b.content || {})}, fr:{min:30, at:"18:00", week:6, ...(b.fr || {})}}; };
+const NSBW = {};
+function nsLoadBW(){
+  NSBW.loading = true;
+  fetch("../brand-weg/data.js").then(r => r.ok ? r.text() : Promise.reject()).then(t => {
+    const d = JSON.parse(t.slice(t.indexOf("=") + 1).trim().replace(/;$/, ""));
+    NSBW.steps = d.steps.map(s => ({id:s.id, title:s.title}));
+    try { localStorage.setItem("ns-bwsteps", JSON.stringify(NSBW.steps)); } catch(e){}
+    if (S.view === "today") renderMain();
+  }).catch(() => {});
+}
+function nsBW(){
+  let st = null; try { st = JSON.parse(localStorage.getItem("brandweg-state-v1") || "null"); } catch(e){}
+  if (!NSBW.steps) { try { NSBW.steps = JSON.parse(localStorage.getItem("ns-bwsteps") || "null"); } catch(e){} }
+  if (!NSBW.loading) nsLoadBW();
+  if (!st || !NSBW.steps) return null;
+  const done = st.done || {}, steps = NSBW.steps, mon = dkey(weekDays()[0]);
+  const posted = [...(st.videos || []).filter(v => v.posted).map(v => v.posted), ...(st.posts || [])].map(x => String(x).slice(0, 10));
+  return {cur: steps.find(s => !done[s.id]) || null, n: steps.filter(s => done[s.id]).length, total: steps.length, posted: posted.length, week: posted.filter(x => x >= mon).length};
+}
+function nsFR(){
+  let s = null; try { s = JSON.parse(localStorage.getItem("fra1.state") || "null"); } catch(e){}
+  if (!s) return null;
+  return {day: k => Math.round((s["_d:" + k] || {}).min || 0), cards: Object.keys(s).filter(k => !k.startsWith("_")).length};
+}
+function nsBlockDone(key, k){
+  const x = nsDay(k) || {};
+  if (key === "content") return !!x.cDone;
+  const fr = nsFR(); return !!x.fDone || !!(fr && fr.day(k) >= nsBlocks().fr.min);
+}
+
 /* --- Heute --- */
 function todayHTML(){
   nsMigrate();
-  const tk = dkey(), d = nsDay(tk) || {}, n = NS(), sl = nsSleep();
-  const h = new Date().getHours();
-  const vis = (n.vision || "").trim().split("\n")[0];
+  const tk = dkey(), d = nsDay(tk) || {}, n = NS(), sl = nsSleep(), B = nsBlocks();
+  const h = new Date().getHours(), vis = (n.vision || "").trim().split("\n")[0];
+  const wk = weekDays().map(x => dkey(x));
+  const cW = wk.filter(k => nsBlockDone("content", k)).length, fW = wk.filter(k => nsBlockDone("fr", k)).length;
   const sleepChip = d.sleep ? `<span class="ns-chip ${d.sleep < 6 ? "warn" : ""}">${ic("bed")}${nsHrs(d.sleep)} Std. geschlafen</span>` : "";
   return `<div class="ns">` + banner() +
     nsHero("img/morgen.jpg", `${new Date().toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})}`, h < 11 ? "Guten Morgen" : h < 18 ? "Hey, weiter geht's" : "Guten Abend",
       vis ? `Mein zukünftiges Ich: ${esc(vis)}` : `Noch kein Bild von deinem zukünftigen Ich. <button class="ns-link" data-go="weg">In „Mein Weg“ festlegen</button>`) +
     `<div class="ns-chips">${sleepChip}<span class="ns-chip">${ic("moon")}Handy weg um ${esc(sl.off)}</span></div>` +
     (d.morning ? "" : nsMorningHTML(d)) +
-    nsNowHTML(d) +
-    nsBasisHTML(d) +
-    `<div class="ns-two">${nsSkillCardHTML(d)}${nsFrCardHTML(d)}</div>` +
-    nsProofCardHTML() +
-    (h >= 19 && !d.evening ? `<button class="ns-card ns-eve-cta" data-go="abend">${ic("moon")}<span><b>Zeit für deinen Abend</b><small>60 Sekunden: was geklappt hat, Gebet, Handy weg</small></span><span class="ns-go">›</span></button>` : "") +
+    `<div class="ns-plan"><div><span class="ns-lbl">Dein Plan heute</span><p class="ns-plan-t">Zwei Projekte, zwei feste Blöcke</p></div><span class="ns-score num">${cW + fW}<small>/${B.content.week + B.fr.week} diese Woche</small></span></div>` +
+    nsContentHTML(d) + nsFrHTML(d) +
+    (h >= 19 && !d.evening ? `<button class="ns-card ns-eve-cta" data-go="abend">${ic("moon")}<span><b>Zeit für deinen Abend</b><small>Was geklappt hat, Rosenkranz, Handy weg</small></span><span class="ns-go">›</span></button>` : "") +
     `<p class="ns-kind">${nsKind()}</p>
     <button class="ns-more" data-go="liste">${ic("task")}Alle Aufgaben und Gewohnheiten</button></div>`;
 }
 function nsMorningHTML(d){
-  const ph = nsPrayHabit(), prayed = ph ? hdone(ph, dkey()) : !!d.prayAm;
-  return `<section class="ns-card ns-morning"><div class="ns-lbl">Morgen-Check · 30 Sekunden</div>
+  return `<section class="ns-card ns-morning"><div class="ns-lbl">Morgen-Check</div>
     <p class="ns-q">Wie lange hast du geschlafen?</p>
     <div class="ns-seg">${[4,5,6,7,8,9].map(x => `<button class="${d.sleep === x ? "on" : ""}" data-ns="sleep" data-v="${x}">${x === 4 ? "≤4" : x === 9 ? "9+" : x}</button>`).join("")}</div>
     <button class="ns-row ${d.prayAm ? "on" : ""}" data-ns="prayam">${ic("cross")}<span>Morgengebet</span><i class="ns-tick">${d.prayAm ? ic("check") : ""}</i></button>
     <button class="btn ns-go-btn" data-ns="morning">Fertig, los geht's</button></section>`;
 }
-function nsNowHTML(d){
-  const {pk, t} = nsThing(), low = d.sleep && d.sleep < 6, T = S.nsT;
-  if (S.otPick) return oneThingHTML();
-  if (pk && pk.done && !t) return `<section class="ns-card ns-now"><div class="ns-lbl">Jetzt dran</div><p class="ns-now-t">Deine eine Sache ist erledigt.</p><p class="ns-now-h">Alles Weitere heute ist Bonus. Du hast heute bewiesen, dass du es kannst.</p></section>`;
-  if (!t) return `<section class="ns-card ns-now"><div class="ns-lbl">Jetzt dran</div><p class="ns-now-t">Was ist heute deine eine Sache?</p>
-    <div class="ns-add"><input id="ns-first" data-keep placeholder="Zum Beispiel: Tag-1-Skript laut lesen" aria-label="Eine Sache für heute"><button class="btn" data-ns="first">Übernehmen</button></div></section>`;
-  const running = T && T.id === t.id;
-  const timer = running ? `<div class="ns-timer"><span id="ns-tm" class="num">${nsLeft()}</span>${T.end ? `<div class="ns-after"><span>Stark, du hast angefangen. Weiter?</span><div class="ns-row2"><button class="btn" data-ns="tm" data-m="10">10 Min.</button><button class="btn" data-ns="tm" data-m="25">25 Min.</button><button class="btn ghost" data-ns="tmstop">Pause machen</button></div></div>` : `<button class="btn ghost" data-ns="tmstop">Stopp</button>`}</div>` : "";
-  return `<section class="ns-card ns-now"><div class="ns-lbl">Jetzt dran · nur das eine</div>
-    <button class="ns-now-t" data-open="${t.id}">${esc(t.title || "Ohne Titel")}</button>
-    <p class="ns-now-h">${low ? `Du hast nur ${nsHrs(d.sleep)} Std. geschlafen. Heute zählt die kleinste Version. 2 Minuten reichen, und heute Abend früh ins Bett.` : "Kleinster Start: 2 Minuten. Danach darfst du aufhören."}</p>
-    ${timer}
-    ${S.nsSmall ? `<div class="ns-add"><input id="ns-small" data-keep placeholder="Was ist der kleinste erste Schritt?" aria-label="Kleinerer Schritt"><button class="btn" data-ns="small" data-id="${t.id}">Nur das</button></div>` : ""}
-    <div class="ns-acts">${running ? "" : `<button class="btn ns-start" data-ns="tm" data-m="2" data-id="${t.id}">${ic("play")}2 Min. starten</button>`}
-      <button class="btn ghost" data-ns="done" data-id="${t.id}">${ic("check")}Erledigt</button>
-      <button class="btn ghost" data-ns="toomuch">Zu viel</button>
-      <button class="btn ghost" data-act="ot-pick">Andere</button></div></section>`;
+function nsWeekDots(key){
+  const tk = dkey();
+  return `<div class="ns-wk">${weekDays().map(x => { const k = dkey(x); return `<span class="${nsBlockDone(key, k) ? "on" : ""} ${k === tk ? "now" : ""} ${k > tk ? "fut" : ""}">${x.toLocaleDateString("de-DE", {weekday:"short"}).slice(0, 2)}</span>`; }).join("")}</div>`;
+}
+function nsContentHTML(d){
+  const B = nsBlocks().content, tk = dkey(), done = nsBlockDone("content", tk), bw = nsBW(), T = S.nsT && S.nsT.key === "content" ? S.nsT : null;
+  const {t} = nsThing();
+  const step = bw && bw.cur ? bw.cur : null;
+  const next = step ? step.title : t ? t.title : "Brand-Weg öffnen und den nächsten Schritt ansehen";
+  const link = step ? `../brand-weg/#/weg/${step.id}` : "../brand-weg/";
+  const wn = weekDays().filter(x => nsBlockDone("content", dkey(x))).length;
+  const timer = T ? `<div class="ns-timer"><span id="ns-tm" class="num">${nsLeft()}</span><div class="ns-row2"><button class="btn ns-start" data-ns="blkfin">${ic("check")}Block fertig</button><button class="btn ghost" data-ns="blkstop">Abbrechen</button></div></div>` : "";
+  return `<section class="ns-card ns-now ${done ? "ns-done" : ""}"><div class="ns-lbl-row"><span class="ns-lbl">Projekt 1 · Personal Brand</span><span class="ns-when num">${esc(B.at)} · ${B.min} Min.</span></div>
+    <a class="ns-now-t" href="${link}">${esc(next)}</a>
+    <p class="ns-now-h">${step ? `Nächster Schritt in Brand-Weg · Schritt ${bw.n + 1} von ${bw.total}` : "Dein nächster Schritt"}${bw ? ` · ${bw.posted} ${bw.posted === 1 ? "Video" : "Videos"} online` : ""}</p>
+    ${done ? `<p class="ns-ok">${ic("check")}Content-Block für heute geschafft.</p>` : timer}
+    <div class="ns-acts">${done || T ? "" : `<button class="btn ns-start" data-ns="blk">${ic("play")}Block starten · ${B.min} Min.</button>`}
+      <a class="btn ghost" href="${link}">${ic("video")}Brand-Weg</a>
+      <button class="btn ghost" data-ns="bdone" data-k="content">${done ? "Doch nicht geschafft" : `${ic("check")}Geschafft`}</button></div>
+    <div class="ns-foot"><span>Diese Woche <b class="num">${wn}</b> von ${B.week}</span>${nsWeekDots("content")}</div></section>`;
+}
+function nsFrHTML(d){
+  const B = nsBlocks().fr, tk = dkey(), fr = nsFR(), done = nsBlockDone("fr", tk), m = fr ? fr.day(tk) : 0;
+  const wn = weekDays().filter(x => nsBlockDone("fr", dkey(x))).length;
+  return `<section class="ns-card ns-frc ${done ? "ns-done" : ""}"><div class="ns-lbl-row"><span class="ns-lbl">Projekt 2 · Französisch</span><span class="ns-when num">${esc(B.at)} · ${B.min} Min.</span></div>
+    <p class="ns-fr-t">${done ? "Französisch für heute geschafft" : fr ? `Heute ${m} von ${B.min} Minuten gelernt` : "Tagesplan in Français A1"}</p>
+    <div class="ns-bar fr"><i style="width:${Math.min(100, m / (B.min || 30) * 100).toFixed(1)}%"></i></div>
+    <p class="ns-hint">${fr ? `${fr.cards} Sätze und Wörter in deiner Sammlung. Die Minuten zählt Français A1 selbst mit.` : "Die Minuten zählt Français A1 selbst mit, sobald du dort lernst."}</p>
+    <div class="ns-acts"><a class="btn ns-start-l" href="../francais-a1/">${ic("book")}Jetzt lernen</a>
+      <button class="btn ghost" data-ns="bdone" data-k="fr">${(nsDay(tk) || {}).fDone ? "Doch nicht geschafft" : `${ic("check")}Geschafft`}</button></div>
+    <div class="ns-foot"><span>Diese Woche <b class="num">${wn}</b> von ${B.week}</span>${nsWeekDots("fr")}</div></section>`;
 }
 function nsLeft(){
   const T = S.nsT; if (!T) return "";
-  if (T.end) return "Geschafft";
   const r = Math.max(0, Math.round((T.start + T.dur * 1000 - Date.now()) / 1000));
   return `${Math.floor(r / 60)}:${pad(r % 60)}`;
 }
 function nsTick(){
-  const T = S.nsT; if (!T || T.end) return;
+  const T = S.nsT; if (!T) return;
   const el = document.getElementById("ns-tm"); if (el) el.textContent = nsLeft();
-  if (Date.now() >= T.start + T.dur * 1000) {
-    T.end = true; nsAddFocus(T.dur / 60);
-    try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch(e){}
-    nsCheer("Geschafft. Du hast angefangen, das ist der schwerste Teil."); renderMain();
-  }
+  if (Date.now() >= T.start + T.dur * 1000) nsFinish(true);
 }
 setInterval(nsTick, 1000);
-function nsAddFocus(min){ const d = nsDay() || {}; nsSet(dkey(), {focus: Math.round(((d.focus || 0) + min) * 10) / 10}); }
+function nsFinish(full){
+  const T = S.nsT; if (!T) return; S.nsT = null;
+  const d = nsDay() || {}, min = Math.round((Date.now() - T.start) / 60000);
+  nsSet(dkey(), {focus: (d.focus || 0) + Math.min(min, T.dur / 60), ...(full ? {cDone: true} : {})});
+  if (full) { try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch(e){} nsCheer("Content-Block geschafft. Durchgezogen."); }
+  renderMain();
+}
 function nsCheer(msg){
   toast(msg);
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -2312,38 +2376,6 @@ function nsCheer(msg){
   w.innerHTML = Array.from({length:28}, (_, i) => `<i style="left:${Math.random() * 100}%;background:${cols[i % cols.length]};animation-delay:${Math.random() * .25}s;transform:rotate(${Math.random() * 360}deg)"></i>`).join("");
   document.body.appendChild(w); setTimeout(() => w.remove(), 1700);
 }
-function nsBasisHTML(d){
-  const tk = dkey(), ph = nsPrayHabit(), mh = nsMoveHabit();
-  const prayed = ph ? hdone(ph, tk) : !!d.pray, moved = mh ? hdone(mh, tk) : !!d.move;
-  const chip = (key, on, icn, label) => `<button class="ns-b ${on ? "on" : ""}" data-ns="basis" data-k="${key}" aria-pressed="${on}">${ic(icn)}<span>${label}</span></button>`;
-  const r = nsRosary();
-  return `<section class="ns-card"><div class="ns-lbl-row"><span class="ns-lbl">Basis · dein Fundament</span>${r ? `<button class="ns-link" data-open="${r.id}">Rosenkranz-Anleitung</button>` : ""}</div>
-    <div class="ns-bs">${chip("pray", prayed, "cross", ph ? esc(ph.title) : "Rosenkranz / Gebet")}${chip("move", moved, "walk", mh ? esc(mh.title) : "Bewegung")}${chip("out", !!d.out, "sun", "Draußen, Tageslicht")}${chip("water", !!d.water, "drop", "Genug Wasser")}</div>
-    <p class="ns-hint">Ohne Schlaf, Bewegung und frische Luft fühlt sich alles schwer an. Das ist kein Charakterfehler (Dominik).</p></section>`;
-}
-function nsSkillCardHTML(d){
-  const sk = nsSkill(), m = Math.round(d.focus || 0), pct = Math.min(100, m / (sk.min || 60) * 100);
-  return `<section class="ns-card ns-skill"><div class="ns-lbl">Priorität 1 · Content</div>
-    <p class="ns-big"><span class="num">${m}</span><small> / ${sk.min} Min. heute</small></p>
-    <div class="ns-bar"><i style="width:${pct.toFixed(1)}%"></i></div>
-    <p class="ns-hint">${esc(sk.name)}. Daraus wird deine Community, deine Freunde online und später dein Geld.</p>
-    <div class="ns-row2"><button class="btn" data-ns="tm" data-m="25" data-id="${(nsThing().t || {}).id || ""}">${ic("play")}25 Min. Fokus</button><a class="btn ghost" href="../brand-weg/">${ic("video")}Brand-Weg</a></div></section>`;
-}
-function nsFrCardHTML(d){
-  const f = nsFr(), pct = Math.min(100, f.words / (f.goal || 1000) * 100), today = d.fr || 0;
-  return `<section class="ns-card ns-fr"><div class="ns-lbl">Parallel · Französisch</div>
-    <p class="ns-big"><span class="num">${f.words}</span><small> / ${f.goal} Wörter</small></p>
-    <div class="ns-bar fr"><i style="width:${pct.toFixed(1)}%"></i></div>
-    <p class="ns-hint">${today ? `Heute schon ${today} neue Wörter.` : `Heute ${f.perDay} neue Wörter reichen.`} Mit den ersten 1.000 verstehst du den Großteil im Alltag.</p>
-    <div class="ns-row2"><button class="btn" data-ns="fr" data-n="5">+5</button><button class="btn" data-ns="fr" data-n="10">+10</button><button class="btn ghost" data-ns="fr" data-n="-1" aria-label="Ein Wort weniger">−1</button></div></section>`;
-}
-function nsProofCardHTML(){
-  const b = nsBeliefs()[0], wk = weekDays(), tk = dkey();
-  if (!b) return `<section class="ns-card ns-proof"><div class="ns-lbl">Alter Satz, neuer Beweis</div><p class="ns-hint" style="margin-top:0">Welcher Satz über dich hält dich zurück, zum Beispiel „Ich bin faul“? Schreib ihn um und sammle jeden Tag einen kleinen Beweis.</p><button class="btn ghost" data-go="weg">Ersten Satz festlegen</button></section>`;
-  return `<section class="ns-card ns-proof"><div class="ns-lbl">Beweis für mein neues Ich</div>
-    ${b.old ? `<p class="ns-old">„${esc(b.old)}“</p>` : ""}<p class="ns-new">„${esc(b.neu || "…")}“</p>
-    <div class="ns-wk">${wk.map(x => { const k = dkey(x), dd = nsDay(k); return `<span class="${dd && dd.proof ? "on" : ""} ${k === tk ? "now" : ""} ${k > tk ? "fut" : ""}">${x.toLocaleDateString("de-DE", {weekday:"short"}).slice(0, 2)}</span>`; }).join("")}</div></section>`;
-}
 
 /* --- Abend --- */
 function abendHTML(){
@@ -2351,7 +2383,7 @@ function abendHTML(){
   const tk = dkey(), d = nsDay(tk) || {}, sl = nsSleep(), b = nsBeliefs()[0], r = nsRosary(), ph = nsPrayHabit();
   const prayed = ph ? hdone(ph, tk) : !!d.pray;
   const tom = S.settings.oneThing && S.settings.oneThing.d === nsTomorrow() ? S.items.get(S.settings.oneThing.id) : null;
-  const wins = d.wins || [];
+  const wins = [...(nsBlockDone("content", tk) ? ["Content-Block"] : []), ...(nsBlockDone("fr", tk) ? ["Französisch-Block"] : []), ...(d.wins || [])];
   const steps = [!!(d.win || "").trim(), !!(d.proof || "").trim(), prayed, !!tom, !!d.night];
   const nDone = steps.filter(Boolean).length;
   if (d.night) return `<div class="ns">` + nsHero("img/abend.jpg", "Gute Nacht", "Handy weg. Schlaf gut.", `Morgen ist ein neuer Tag. Ziel: aufstehen um ${esc(sl.wake)}.`) +
@@ -2376,7 +2408,7 @@ function abendHTML(){
 /* --- Mein Weg --- */
 function wegHTML(){
   nsMigrate();
-  const n = NS(), sl = nsSleep(), sk = nsSkill(), f = nsFr(), tk = dkey();
+  const n = NS(), sl = nsSleep(), B = nsBlocks(), tk = dkey();
   const days = Array.from({length:14}, (_, i) => dkey(addDays(today0(), i - 13)));
   const bars = days.map(k => { const d = nsDay(k), h = d && d.sleep || 0; return `<span title="${k}: ${h ? nsHrs(h) + " Std." : "nicht eingetragen"}"><i class="${h && h < 6 ? "low" : ""}" style="height:${h ? Math.min(100, h / 10 * 100) : 3}%"></i></span>`; }).join("");
   const wk = weekDays().map(x => nsDay(dkey(x)) || {});
@@ -2395,14 +2427,14 @@ function wegHTML(){
     <div class="ns-sleep">${bars}</div><p class="ns-hint" style="margin-top:4px">Schlaf der letzten 14 Tage. Die Linie oben wären 10 Stunden, rot ist unter 6.</p>
     <div class="ns-grid3"><label>Handy weg${fld("ns-off", "ns.sleep.off", sl.off, "21:45", 0, "time")}</label><label>Ins Bett${fld("ns-bed", "ns.sleep.bed", sl.bed, "22:15", 0, "time")}</label><label>Aufstehen${fld("ns-wake", "ns.sleep.wake", sl.wake, "07:00", 0, "time")}</label></div>
     ${r ? `<button class="ns-row" data-open="${r.id}">${ic("cross")}<span>Rosenkranz richtig beten</span><i class="ns-tick">›</i></button>` : ""}</div></section>` +
-  `<section class="ns-card ns-sec"><div class="ns-num">3</div><div class="ns-sec-in"><h2>Eine Fähigkeit, jeden Tag</h2>
-    <p class="ns-hint">Jeden Tag eine fokussierte Stunde an einer Sache, mit der man online Geld verdienen kann. Lange dranbleiben, nicht ständig wechseln. Am Anfang heißt es lernen, nicht verdienen.</p>
+  `<section class="ns-card ns-sec"><div class="ns-num">3</div><div class="ns-sec-in"><h2>Deine zwei Projekte, feste Blöcke</h2>
+    <p class="ns-hint">Dominik hat sich jeden Tag eine feste Zeit für eine Sache genommen und das über Monate durchgezogen. Feste Uhrzeit und feste Länge heißt: Du musst nicht jeden Tag neu entscheiden, ob du anfängst.</p>
     <div class="ns-chain"><span>${ic("video")}Content</span><b>›</b><span>${ic("heart")}Community und Freunde</span><b>›</b><span>${ic("star")}Eigene Produkte, Geld</span></div>
-    <div class="ns-grid2"><label>Meine Fähigkeit${fld("ns-sk", "ns.skill.name", sk.name, "Content machen und posten")}</label><label>Minuten pro Tag${fld("ns-skm", "ns.skill.min", sk.min, "60", 0, "number")}</label></div>
-    <p class="ns-hint">Diese Woche: <b class="num">${wFocus}</b> Minuten Fokus. Es zählt aber nur, was draußen ist.</p>
-    <h3>Parallel: Französisch</h3>
-    <div class="ns-grid3"><label>Wörter gelernt${fld("ns-frw", "ns.fr.words", f.words, "0", 0, "number")}</label><label>Ziel${fld("ns-frg", "ns.fr.goal", f.goal, "1000", 0, "number")}</label><label>Pro Tag${fld("ns-frd", "ns.fr.perDay", f.perDay, "10", 0, "number")}</label></div>
-    <p class="ns-hint">Bei ${f.perDay || 10} Wörtern am Tag bist du in etwa ${Math.max(0, Math.ceil(((f.goal || 1000) - f.words) / (f.perDay || 10)))} Tagen bei ${f.goal}.</p></div></section>` +
+    <h3>Projekt 1 · Personal Brand</h3>
+    <div class="ns-grid3"><label>Uhrzeit${fld("ns-cat", "ns.blocks.content.at", B.content.at, "16:00", 0, "time")}</label><label>Minuten${fld("ns-cmin", "ns.blocks.content.min", B.content.min, "60", 0, "number")}</label><label>Tage pro Woche${fld("ns-cwk", "ns.blocks.content.week", B.content.week, "5", 0, "number")}</label></div>
+    <h3>Projekt 2 · Französisch</h3>
+    <div class="ns-grid3"><label>Uhrzeit${fld("ns-fat", "ns.blocks.fr.at", B.fr.at, "18:00", 0, "time")}</label><label>Minuten${fld("ns-fmin", "ns.blocks.fr.min", B.fr.min, "30", 0, "number")}</label><label>Tage pro Woche${fld("ns-fwk", "ns.blocks.fr.week", B.fr.week, "6", 0, "number")}</label></div>
+    <div class="ns-stats"><span><b class="num">${weekDays().filter(x => nsBlockDone("content", dkey(x))).length}</b>/${B.content.week} Content diese Woche</span><span><b class="num">${weekDays().filter(x => nsBlockDone("fr", dkey(x))).length}</b>/${B.fr.week} Französisch</span><span><b class="num">${wFocus}</b> Min. Fokus</span></div></div></section>` +
   `<section class="ns-card ns-sec"><div class="ns-num">4</div><div class="ns-sec-in"><h2>Alte Sätze, neue Beweise</h2>
     <p class="ns-hint">Was du über dich denkst, wird deine Wirklichkeit. Schreib den alten Satz um und beweis dir den neuen mit kleinen Taten, so wie Dominik, der „der Unsportliche“ war, bis er einfach ins Gym ging.</p>
     ${nsBeliefs().map((b, i) => `<div class="ns-bel"><div class="ns-grid2"><label>Alter Satz${fld("ns-bo" + i, `b.${i}.old`, b.old, "Ich bin faul.")}</label><label>Neuer Satz${fld("ns-bn" + i, `b.${i}.neu`, b.neu, "Ich bin jemand, der jeden Tag einen kleinen Schritt macht.")}</label></div><button class="ns-link" data-ns="beldel" data-i="${i}">Entfernen</button></div>`).join("")}
@@ -2433,30 +2465,10 @@ document.addEventListener("click", e => {
       if (hb && hmode(hb) === "check") toggleDay(hb.id, tk);
       else { const d = nsDay(tk) || {}; nsSet(tk, {[k]: !d[k]}); renderMain(); }
       break; }
-    case "tm": {
-      const id = b.dataset.id || (S.nsT && S.nsT.id) || ((nsThing().t || {}).id) || "";
-      if (S.nsT && !S.nsT.end) nsAddFocus((Date.now() - S.nsT.start) / 60000);
-      S.nsT = {id, start: Date.now(), dur: (+b.dataset.m || 2) * 60}; renderMain(); break; }
-    case "tmstop": { const T = S.nsT; if (T && !T.end) nsAddFocus((Date.now() - T.start) / 60000); S.nsT = null; renderMain(); break; }
-    case "done": {
-      const t = S.items.get(b.dataset.id); if (!t) break;
-      if (S.nsT && !S.nsT.end) nsAddFocus((Date.now() - S.nsT.start) / 60000);
-      S.nsT = null; S.nsSmall = false;
-      const d = nsDay(tk) || {}; nsSet(tk, {wins: [...(d.wins || []), t.title || "Aufgabe"]});
-      toggleTask(t.id); nsCheer("Erledigt. Das ist ein echter Beweis."); renderMain(); break; }
-    case "toomuch": S.nsSmall = !S.nsSmall; renderMain(); setTimeout(() => { const i = $("#ns-small"); if (i) i.focus(); }, 30); break;
-    case "small": {
-      const inp = $("#ns-small"), v = inp && inp.value.trim(); if (!v) { toast("Schreib einen ganz kleinen Schritt, zum Beispiel: Datei öffnen."); break; }
-      const p = S.items.get(b.dataset.id), t = create("task", v, {due: tk, rel: p ? [p.id] : []});
-      S.settings.oneThing = {d: tk, id: t.id}; saveSettings(); S.nsSmall = false; inp.value = ""; renderMain(); break; }
-    case "first": {
-      const inp = $("#ns-first"), v = inp && inp.value.trim(); if (!v) { toast("Tipp zuerst ein, was du heute machen willst."); break; }
-      const t = create("task", v, {due: tk}); S.settings.oneThing = {d: tk, id: t.id}; saveSettings(); inp.value = ""; renderMain(); break; }
-    case "fr": {
-      const f = nsFr(), x = +b.dataset.n; n.fr = {...f, words: Math.max(0, f.words + x)}; saveSettings();
-      const d = nsDay(tk) || {}; nsSet(tk, {fr: Math.max(0, (d.fr || 0) + x)});
-      if (x > 0 && (d.fr || 0) + x >= f.perDay && (d.fr || 0) < f.perDay) nsCheer("Tagesziel Französisch geschafft. Très bien.");
-      renderMain(); break; }
+    case "blk": S.nsT = {key: "content", start: Date.now(), dur: (nsBlocks().content.min || 60) * 60}; renderMain(); break;
+    case "blkfin": nsFinish(true); break;
+    case "blkstop": nsFinish(false); break;
+    case "bdone": { const k = b.dataset.k === "fr" ? "fDone" : "cDone", d = nsDay(tk) || {}; nsSet(tk, {[k]: !d[k]}); if (!d[k]) nsCheer(b.dataset.k === "fr" ? "Französisch geschafft. Très bien." : "Content-Block geschafft."); renderMain(); break; }
     case "tom": {
       const inp = $("#ns-tom"), v = inp && inp.value.trim(); if (!v) { toast("Schreib kurz, was morgen dran ist."); break; }
       const t = create("task", v, {due: nsTomorrow()}); S.settings.oneThing = {d: nsTomorrow(), id: t.id}; saveSettings(); inp.value = ""; nsEveCheck(); renderMain(); break; }
@@ -2471,7 +2483,8 @@ function nsEveCheck(){ const d = nsDay() || {}; if (!d.evening && (d.win || "").
 let nsInT = null;
 function nsField(el){
   const path = el.dataset.nsf, n = NS(), num = el.type === "number", val = num ? (el.value === "" ? "" : +el.value) : el.value;
-  const [root, a, b] = path.split(".");
+  const [root, a, b, c] = path.split(".");
+  if (root === "ns" && c) { n[a] = {...(n[a] || {}), [b]: {...((n[a] || {})[b] || {}), [c]: val}}; saveSettings(); return; }
   if (root === "d") { nsSet(dkey(), {[a]: val}); nsEveCheck(); return; }
   if (root === "b") { const bs = nsBeliefs().map(x => ({...x})); if (!bs[+a]) return; bs[+a][b] = val; n.beliefs = bs; saveSettings(); return; }
   if (b) n[a] = {...(n[a] || {}), [b]: val}; else n[a] = val;
