@@ -1316,7 +1316,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-29.2";
+const APP_VERSION = "2026-10-29.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2260,7 +2260,7 @@ function nsHero(img, kick, title, sub){
 }
 
 /* Zwei Projekte mit festen Blöcken (Wunsch 2026-10-29): Personal Brand und Französisch. Keine Basis-Karte, kein 2-Minuten-Start, kein Wörterzähler.
-   Brand-Weg und Français A1 laufen auf derselben Adresse, deshalb liest Heute ihren Stand direkt aus dem Browser-Speicher. */
+   Brand-Weg läuft auf derselben Adresse, deshalb liest Heute den Stand direkt aus dem Browser-Speicher. Französisch lernt er seit 2026-10-29 mit Babbel, das lässt sich nicht auslesen. */
 const nsBlocks = () => { const b = NS().blocks || {}; return {content:{min:60, at:"16:00", week:5, ...(b.content || {})}, fr:{min:30, at:"18:00", week:6, ...(b.fr || {})}}; };
 const NSBW = {};
 function nsLoadBW(){
@@ -2281,15 +2281,9 @@ function nsBW(){
   const posted = [...(st.videos || []).filter(v => v.posted).map(v => v.posted), ...(st.posts || [])].map(x => String(x).slice(0, 10));
   return {cur: steps.find(s => !done[s.id]) || null, n: steps.filter(s => done[s.id]).length, total: steps.length, posted: posted.length, week: posted.filter(x => x >= mon).length};
 }
-function nsFR(){
-  let s = null; try { s = JSON.parse(localStorage.getItem("fra1.state") || "null"); } catch(e){}
-  if (!s) return null;
-  return {day: k => Math.round((s["_d:" + k] || {}).min || 0), cards: Object.keys(s).filter(k => !k.startsWith("_")).length};
-}
 function nsBlockDone(key, k){
   const x = nsDay(k) || {};
-  if (key === "content") return !!x.cDone;
-  const fr = nsFR(); return !!x.fDone || !!(fr && fr.day(k) >= nsBlocks().fr.min);
+  return key === "content" ? !!x.cDone : !!x.fDone;
 }
 
 /* --- Heute --- */
@@ -2339,15 +2333,18 @@ function nsContentHTML(d){
       <button class="btn ghost" data-ns="bdone" data-k="content">${done ? "Doch nicht geschafft" : `${ic("check")}Geschafft`}</button></div>
     <div class="ns-foot"><span>Diese Woche <b class="num">${wn}</b> von ${B.week}</span>${nsWeekDots("content")}</div></section>`;
 }
+const NS_BABBEL = "https://my.babbel.com/";
 function nsFrHTML(d){
-  const B = nsBlocks().fr, tk = dkey(), fr = nsFR(), done = nsBlockDone("fr", tk), m = fr ? fr.day(tk) : 0;
+  const B = nsBlocks().fr, tk = dkey(), done = nsBlockDone("fr", tk), T = S.nsT && S.nsT.key === "fr" ? S.nsT : null;
   const wn = weekDays().filter(x => nsBlockDone("fr", dkey(x))).length;
+  const timer = T ? `<div class="ns-timer"><span id="ns-tm" class="num">${nsLeft()}</span><div class="ns-row2"><button class="btn ns-start-l" data-ns="blkfin">${ic("check")}Block fertig</button><button class="btn ghost" data-ns="blkstop">Abbrechen</button></div></div>` : "";
   return `<section class="ns-card ns-frc ${done ? "ns-done" : ""}"><div class="ns-lbl-row"><span class="ns-lbl">Projekt 2 · Französisch</span><span class="ns-when num">${esc(B.at)} · ${B.min} Min.</span></div>
-    <p class="ns-fr-t">${done ? "Französisch für heute geschafft" : fr ? `Heute ${m} von ${B.min} Minuten gelernt` : "Tagesplan in Français A1"}</p>
-    <div class="ns-bar fr"><i style="width:${Math.min(100, m / (B.min || 30) * 100).toFixed(1)}%"></i></div>
-    <p class="ns-hint">${fr ? `${fr.cards} Sätze und Wörter in deiner Sammlung. Die Minuten zählt Français A1 selbst mit.` : "Die Minuten zählt Français A1 selbst mit, sobald du dort lernst."}</p>
-    <div class="ns-acts"><a class="btn ns-start-l" href="../francais-a1/">${ic("book")}Jetzt lernen</a>
-      <button class="btn ghost" data-ns="bdone" data-k="fr">${(nsDay(tk) || {}).fDone ? "Doch nicht geschafft" : `${ic("check")}Geschafft`}</button></div>
+    <p class="ns-fr-t">${done ? "Französisch für heute geschafft" : `Dein Babbel-Block, ${B.min} Minuten`}</p>
+    <p class="ns-hint">${T ? "Die Zeit läuft weiter, auch wenn du in Babbel bist. Komm danach zurück und tipp auf „Block fertig“." : "Block starten öffnet Babbel und stellt gleichzeitig die Uhr."}</p>
+    ${done ? "" : timer}
+    <div class="ns-acts">${done || T ? "" : `<button class="btn ns-start-l" data-ns="blkfr">${ic("play")}Block starten · ${B.min} Min.</button>`}
+      <a class="btn ghost" href="${NS_BABBEL}" target="_blank" rel="noopener">${ic("book")}Babbel öffnen</a>
+      <button class="btn ghost" data-ns="bdone" data-k="fr">${done ? "Doch nicht geschafft" : `${ic("check")}Geschafft`}</button></div>
     <div class="ns-foot"><span>Diese Woche <b class="num">${wn}</b> von ${B.week}</span>${nsWeekDots("fr")}</div></section>`;
 }
 function nsLeft(){
@@ -2361,11 +2358,15 @@ function nsTick(){
   if (Date.now() >= T.start + T.dur * 1000) nsFinish(true);
 }
 setInterval(nsTick, 1000);
+// Die Uhr überlebt das Wechseln in Babbel oder Brand-Weg (Android lädt die App dabei oft neu)
+function nsSaveT(){ try { if (S.nsT) localStorage.setItem("ns-timer", JSON.stringify(S.nsT)); else localStorage.removeItem("ns-timer"); } catch(e){} }
+try { S.nsT = JSON.parse(localStorage.getItem("ns-timer") || "null"); } catch(e){}
+function nsStart(key){ S.nsT = {key, start: Date.now(), dur: (nsBlocks()[key].min || (key === "fr" ? 30 : 60)) * 60}; nsSaveT(); renderMain(); }
 function nsFinish(full){
-  const T = S.nsT; if (!T) return; S.nsT = null;
-  const d = nsDay() || {}, min = Math.round((Date.now() - T.start) / 60000);
-  nsSet(dkey(), {focus: (d.focus || 0) + Math.min(min, T.dur / 60), ...(full ? {cDone: true} : {})});
-  if (full) { try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch(e){} nsCheer("Content-Block geschafft. Durchgezogen."); }
+  const T = S.nsT; if (!T) return; S.nsT = null; nsSaveT();
+  const fr = T.key === "fr", d = nsDay() || {}, min = Math.round((Date.now() - T.start) / 60000);
+  nsSet(dkey(), {...(fr ? {} : {focus: (d.focus || 0) + Math.min(min, T.dur / 60)}), ...(full ? {[fr ? "fDone" : "cDone"]: true} : {})});
+  if (full) { try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch(e){} nsCheer(fr ? "Französisch geschafft. Très bien." : "Content-Block geschafft. Durchgezogen."); }
   renderMain();
 }
 function nsCheer(msg){
@@ -2432,7 +2433,7 @@ function wegHTML(){
     <div class="ns-chain"><span>${ic("video")}Content</span><b>›</b><span>${ic("heart")}Community und Freunde</span><b>›</b><span>${ic("star")}Eigene Produkte, Geld</span></div>
     <h3>Projekt 1 · Personal Brand</h3>
     <div class="ns-grid3"><label>Uhrzeit${fld("ns-cat", "ns.blocks.content.at", B.content.at, "16:00", 0, "time")}</label><label>Minuten${fld("ns-cmin", "ns.blocks.content.min", B.content.min, "60", 0, "number")}</label><label>Tage pro Woche${fld("ns-cwk", "ns.blocks.content.week", B.content.week, "5", 0, "number")}</label></div>
-    <h3>Projekt 2 · Französisch</h3>
+    <h3>Projekt 2 · Französisch mit Babbel</h3>
     <div class="ns-grid3"><label>Uhrzeit${fld("ns-fat", "ns.blocks.fr.at", B.fr.at, "18:00", 0, "time")}</label><label>Minuten${fld("ns-fmin", "ns.blocks.fr.min", B.fr.min, "30", 0, "number")}</label><label>Tage pro Woche${fld("ns-fwk", "ns.blocks.fr.week", B.fr.week, "6", 0, "number")}</label></div>
     <div class="ns-stats"><span><b class="num">${weekDays().filter(x => nsBlockDone("content", dkey(x))).length}</b>/${B.content.week} Content diese Woche</span><span><b class="num">${weekDays().filter(x => nsBlockDone("fr", dkey(x))).length}</b>/${B.fr.week} Französisch</span><span><b class="num">${wFocus}</b> Min. Fokus</span></div></div></section>` +
   `<section class="ns-card ns-sec"><div class="ns-num">4</div><div class="ns-sec-in"><h2>Alte Sätze, neue Beweise</h2>
@@ -2465,7 +2466,8 @@ document.addEventListener("click", e => {
       if (hb && hmode(hb) === "check") toggleDay(hb.id, tk);
       else { const d = nsDay(tk) || {}; nsSet(tk, {[k]: !d[k]}); renderMain(); }
       break; }
-    case "blk": S.nsT = {key: "content", start: Date.now(), dur: (nsBlocks().content.min || 60) * 60}; renderMain(); break;
+    case "blk": nsStart("content"); break;
+    case "blkfr": nsStart("fr"); window.open(NS_BABBEL, "_blank", "noopener"); break;
     case "blkfin": nsFinish(true); break;
     case "blkstop": nsFinish(false); break;
     case "bdone": { const k = b.dataset.k === "fr" ? "fDone" : "cDone", d = nsDay(tk) || {}; nsSet(tk, {[k]: !d[k]}); if (!d[k]) nsCheer(b.dataset.k === "fr" ? "Französisch geschafft. Très bien." : "Content-Block geschafft."); renderMain(); break; }
