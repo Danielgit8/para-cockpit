@@ -1294,6 +1294,36 @@ a.ns-now-t{text-decoration:none}
   .ns-pray img{width:72px;height:72px}
 }
 
+/* Heute noch erledigen + Journal (2026-10-30) */
+.nq-list{margin-top:10px;display:flex;flex-direction:column}
+.nq-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.nq-row:first-child{border-top:0}
+.nq-row .t{flex:1;min-width:0;text-align:left;background:none;border:0;padding:0;font:inherit;font-size:15px;color:var(--text);cursor:pointer;overflow-wrap:anywhere}
+.nq-row.done .t{color:var(--muted);text-decoration:line-through}
+.nq-row .chip{flex-shrink:0}
+.nq .ns-add .btn{flex-shrink:0}
+.jr-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.jr-nav b{font-size:15px}
+.jr-nav .ibtn:disabled{opacity:.3}
+.jr-cap textarea{width:100%;font:inherit;font-size:15px;line-height:1.5;resize:vertical}
+.jr-rec{background:#C65D4A;color:#fff;border-color:#C65D4A;animation:jrPulse 1.4s ease-in-out infinite}
+@keyframes jrPulse{50%{opacity:.75}}
+@media (prefers-reduced-motion: reduce){.jr-rec{animation:none}}
+.jr-sum .jr-md{font-size:15px;line-height:1.6;margin-top:8px}
+.jr-sum .jr-md p{margin:0 0 8px}
+.jr-sum .jr-md h3{font-size:15px;margin:12px 0 4px}
+.jr-sum ul{margin:6px 0 0;padding-left:20px;line-height:1.55}
+.jr-bit{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.jr-bit:first-of-type{border-top:0}
+.jr-t{font-size:12px;color:var(--muted);padding-top:3px;flex-shrink:0;width:38px}
+.jr-x{flex:1;min-width:0;font-size:15px;line-height:1.55;overflow-wrap:anywhere}
+.jr-x a{color:var(--amber);text-underline-offset:3px}
+.jr-yt{display:block;margin-top:8px;max-width:280px}
+.jr-yt img{width:100%;border-radius:12px;display:block}
+.jr-del{flex-shrink:0}
+.jr-shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:12px}
+.jr-shot{aspect-ratio:1;border:0;padding:0;border-radius:12px;overflow:hidden;background:var(--line);cursor:pointer;font:inherit;font-size:12px;color:var(--muted)}
+.jr-shot img{width:100%;height:100%;object-fit:cover;display:block}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1316,7 +1346,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-29.4";
+const APP_VERSION = "2026-10-30.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1403,7 +1433,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "day", "boardlib", "workout", "video", "contact", "income", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -1901,6 +1931,7 @@ function navGroups(){
   const v = (id, label, icon) => ({v:id, label, icon});
   const gs = [
     {id:"today", label:"Heute", icon:"sun", views:[v("today", "Heute", "sun")]},
+    {id:"journal", label:"Journal", icon:"pen", views:[v("journal", "Journal", "pen")]},
     {id:"weg", label:"Mein Weg", icon:"compass", views:[v("weg", "Mein Weg", "compass")]},
     {id:"abend", label:"Abend", icon:"moon", views:[v("abend", "Abend", "moon")]},
     {id:"tools", label:"Werkzeuge", icon:"tools", views:[v("tools", "Werkzeuge", "tools"), ...toolViews(k).flatMap(g => g.views)]},
@@ -1990,6 +2021,7 @@ function viewHTML(){
   if (v === "liste") return listeHTML();
   if (v === "weg") return wegHTML();
   if (v === "abend") return abendHTML();
+  if (v === "journal") return journalHTML();
   if (v === "tools") return toolsHTML();
   if (v === "cal") return calHTML();
   if (v === "review") return reviewHTML();
@@ -2302,7 +2334,7 @@ function todayHTML(){
     `<div class="ns-chips">${sleepChip}<span class="ns-chip">${ic("moon")}Handy weg um ${esc(sl.off)}</span></div>` +
     (d.morning ? "" : nsMorningHTML(d)) +
     `<div class="ns-plan"><div><span class="ns-lbl">Dein Plan heute</span><p class="ns-plan-t">Zwei Projekte, zwei feste Blöcke</p></div><span class="ns-score num">${cW + fW}<small>/${B.content.week + B.fr.week} diese Woche</small></span></div>` +
-    nsContentHTML(d) + nsFrHTML(d) +
+    nsContentHTML(d) + nsFrHTML(d) + nqHTML(tk) +
     (h >= 19 && !d.evening ? `<button class="ns-card ns-eve-cta" data-go="abend">${ic("moon")}<span><b>Zeit für deinen Abend</b><small>Was geklappt hat, Rosenkranz, Handy weg</small></span><span class="ns-go">›</span></button>` : "") +
     `<p class="ns-kind">${nsKind()}</p>
     <button class="ns-more" data-go="liste">${ic("task")}Alle Aufgaben und Gewohnheiten</button></div>`;
@@ -2497,6 +2529,127 @@ function nsField(el){
 }
 document.addEventListener("input", e => { const el = e.target.closest("[data-nsf]"); if (!el) return; clearTimeout(nsInT); nsInT = setTimeout(() => nsField(el), 500); });
 document.addEventListener("change", e => { const el = e.target.closest("[data-nsf]"); if (!el) return; clearTimeout(nsInT); nsField(el); });
+
+/* --- Heute noch erledigen (Wunsch 2026-10-30): spontane Kleinigkeiten wie Einkaufen, Abo kündigen, Kartoffeln kochen.
+   Normale Aufgaben mit quick:true und due. Was nicht erledigt ist, steht am nächsten Tag automatisch wieder da. --- */
+const nqList = (tk = dkey()) => live("task").filter(t => t.quick && ((!t.done && (!t.due || t.due <= tk)) || (t.done && t.doneAt && dkey(new Date(t.doneAt)) === tk)))
+  .sort((a, b) => (a.done - b.done) || (a.created || 0) - (b.created || 0));
+function nqHTML(tk){
+  const l = nqList(tk), open = l.filter(t => !t.done).length;
+  const row = t => `<div class="nq-row ${t.done ? "done" : ""}"><button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button><button class="t" data-open="${t.id}">${esc(t.title || "Ohne Titel")}</button>${!t.done && t.due && t.due < tk ? `<span class="chip">seit ${t.due.slice(8, 10)}.${t.due.slice(5, 7)}.</span>` : ""}${t.done ? "" : `<button class="ibtn" data-nq="tom" data-id="${t.id}" title="Auf morgen schieben" aria-label="Auf morgen schieben">${ic("right")}</button>`}</div>`;
+  return `<section class="ns-card nq"><div class="ns-lbl-row"><span class="ns-lbl">Heute noch erledigen</span>${l.length ? `<span class="ns-when num">${open ? `${open} offen` : "Alles erledigt"}</span>` : ""}</div>
+    ${l.length ? `<div class="nq-list">${l.map(row).join("")}</div>` : `<p class="ns-hint" style="margin-top:6px">Einkaufen, Abo kündigen, Kartoffeln kochen: Alles, was dir einfällt, kommt hier rein. Was du heute nicht schaffst, steht morgen wieder da.</p>`}
+    <div class="ns-add"><input id="nq-add" data-keep placeholder="Was steht heute noch an?" aria-label="Neue Kleinigkeit für heute" enterkeyhint="done"><button class="btn" data-nq="add" aria-label="Hinzufügen">${ic("plus")}</button></div></section>`;
+}
+function nqAdd(){
+  const i = $("#nq-add"), v = i && i.value.trim(); if (!v) { if (i) i.focus(); return; }
+  create("task", v, {due: dkey(), quick: true}); i.value = ""; renderMain(); renderSide();
+  const n = $("#nq-add"); if (n) n.focus();
+}
+
+/* --- Journal (Wunsch 2026-10-30): Gedanken, Links, Videos und Bilder sammeln, auch per Sprache.
+   Pro Tag ein versteckter Eintrag kind "jday" mit bits[{id, t, text}] und shots. Abends ordnet Claude den Tag ein:
+   sum (Zusammenfassung), ins[] (Erkenntnisse über ihn), done (Zeitpunkt). Was dauerhaft gilt, kommt in die Notiz „Über mich“. --- */
+const jrDay = k => all().find(i => i.kind === "jday" && i.date === k) || null;
+const jrGet = k => jrDay(k) || create("jday", "", {date: k, bits: [], shots: []});
+const jrK = () => { const tk = dkey(); return S.jrK && S.jrK < tk ? S.jrK : tk; };
+const jrAbout = () => live("note").find(n => /^über mich/i.test(n.title || "")) || null;
+const jrYT = s => [...new Set([...String(s || "").matchAll(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/))([\w-]{11})/g)].map(m => m[1]))];
+function jrText(s){
+  return String(s || "").split(/(https?:\/\/\S+)/g).map((p, i) => {
+    if (i % 2 === 0) return esc(p).replace(/\n/g, "<br>");
+    const m = p.match(/^(.*?)([.,;:!?)\]]*)$/), u = m[1];
+    let lab = u; try { const x = new URL(u); lab = x.hostname.replace(/^www\./, "") + (x.pathname.length > 1 ? x.pathname.slice(0, 24) + (x.pathname.length > 24 ? "…" : "") : ""); } catch(e){}
+    return `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(lab)}</a>${esc(m[2])}`;
+  }).join("");
+}
+const jrInl = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+function jrMd(s){
+  let out = "", ul = false;
+  for (const ln of String(s || "").split("\n")) {
+    const li = ln.match(/^\s*[-*]\s+(.*)/);
+    if (li) { if (!ul) { out += "<ul>"; ul = true; } out += `<li>${jrInl(li[1])}</li>`; continue; }
+    if (ul) { out += "</ul>"; ul = false; }
+    const h = ln.match(/^#+\s+(.*)/);
+    if (h) out += `<h3>${jrInl(h[1])}</h3>`; else if (ln.trim()) out += `<p>${jrInl(ln)}</p>`;
+  }
+  return out + (ul ? "</ul>" : "");
+}
+function journalHTML(){
+  const tk = dkey(), k = jrK(), d = jrDay(k) || {}, ab = jrAbout(), isT = k === tk;
+  const bits = (d.bits || []).slice().sort((a, b) => b.t - a.t), shots = d.id ? shotsOf(d) : [];
+  const dl = new Date(k + "T12:00").toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"});
+  const sr = !!(window.SpeechRecognition || window.webkitSpeechRecognition), rec = !!S.jrRec;
+  const past = all().filter(i => i.kind === "jday" && i.date !== k && ((i.bits || []).length || (i.shots || []).length)).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
+  const time = ms => new Date(ms).toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit"});
+  return `<div class="ns jr">` + banner() + nsHero("img/weg.jpg", "Journal", "Raus aus dem Kopf", "Gedanken, Links, Videos, Bilder. Abends ordnet Claude alles ein und lernt dich dabei besser kennen.") +
+    `<section class="ns-card jr-cap"><div class="jr-nav"><button class="ibtn" data-jr="prev" aria-label="Tag davor">${ic("left")}</button><b>${isT ? "Heute" : esc(dl)}</b><button class="ibtn" data-jr="next" aria-label="Tag danach" ${isT ? "disabled" : ""}>${ic("right")}</button></div>
+    <textarea id="jr-in" class="field" data-keep rows="4" placeholder="Was geht dir grad durch den Kopf? Ein Gedanke, ein Link, ein Video, eine Meinung …" aria-label="Neuer Journal-Eintrag"></textarea>
+    <div class="ns-row2">${sr ? `<button class="btn ${rec ? "jr-rec" : "ghost"}" data-jr="mic">${ic("pulse")}${rec ? "Aufnahme stoppen" : "Sprechen"}</button>` : ""}
+      <label class="btn ghost">${ic("img")}Bild<input type="file" accept="image/*" multiple id="jr-file" hidden></label>
+      <button class="btn" data-jr="save">${ic("check")}Speichern</button></div>
+    ${rec ? `<p class="ns-hint">Ich hör zu. Sprich ganz normal, der Text landet oben im Feld. Danach auf „Speichern“.</p>` : sr ? "" : `<p class="ns-hint">Zum Diktieren tipp auf das Mikrofon deiner Tastatur.</p>`}
+    ${S.jrUp ? `<p class="ns-hint">Bild wird hochgeladen …</p>` : ""}</section>` +
+    (d.sum || (d.ins || []).length ? `<section class="ns-card jr-sum"><div class="ns-lbl">Von Claude eingeordnet</div><div class="jr-md">${jrMd(d.sum)}</div>
+      ${(d.ins || []).length ? `<div class="ns-lbl" style="margin-top:14px">Was ich dabei über dich gelernt hab</div><ul class="jr-ins">${d.ins.map(x => `<li>${jrInl(x)}</li>`).join("")}</ul>` : ""}</section>` : "") +
+    (bits.length || shots.length ? `<section class="ns-card"><div class="ns-lbl-row"><span class="ns-lbl">${isT ? "Heute gesammelt" : "Gesammelt"}</span><span class="ns-when num">${bits.length + shots.length}</span></div>
+      ${bits.map(b => `<div class="jr-bit"><span class="jr-t num">${time(b.t)}</span><div class="jr-x">${jrText(b.text)}${jrYT(b.text).map(id => `<a class="jr-yt" href="https://youtu.be/${id}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="Vorschau des Videos" loading="lazy"></a>`).join("")}</div>
+        ${S.jrDel === b.id ? `<button class="btn danger jr-del" data-jr="delyes" data-id="${b.id}">Löschen?</button>` : `<button class="ibtn jr-del" data-jr="del" data-id="${b.id}" title="Löschen" aria-label="Eintrag löschen">${ic("trash")}</button>`}</div>`).join("")}
+      ${shots.length ? `<div class="jr-shots">${shots.map(({s}, i) => { const u = fileUrl(s); return `<button class="jr-shot" data-jr="shot" data-k="${i}" aria-label="Bild groß anzeigen">${u ? `<img src="${esc(u)}" alt="${esc(s.cap || "")}" loading="lazy">` : `<span>${navigator.onLine ? "Lädt …" : "Braucht Internet"}</span>`}</button>`; }).join("")}</div>` : ""}</section>` : "") +
+    `<section class="ns-card">${ab ? `<button class="ns-row" data-open="${ab.id}">${ic("heart")}<span>Über mich: was Claude bisher über dich weiß</span><i class="ns-tick">›</i></button>` : `<p class="ns-hint" style="margin:0">Am Abend fasst Claude deinen Tag zusammen, ordnet Links und Videos ein und schreibt in die Notiz „Über mich“, was er über deine Interessen, Themen und Meinungen lernt.</p>`}
+      ${past.length ? `<div class="ns-lbl" style="margin-top:16px">Frühere Tage</div><div class="pills" style="margin-top:8px">${past.map(x => `<button class="pill num" data-jr="day" data-k="${x.date}">${x.date.slice(8, 10)}.${x.date.slice(5, 7)}. · ${(x.bits || []).length + (x.shots || []).length}${x.sum ? " ✓" : ""}</button>`).join("")}</div>` : ""}</section></div>`;
+}
+function jrStopMic(){ const st = S.jrRec; if (!st) return; st.on = false; S.jrRec = null; try { st.r.stop(); } catch(e){} }
+// Spracheingabe: kurze Erkennungen hintereinander statt continuous, weil Android im Dauerbetrieb Sätze doppelt liefert
+function jrMic(){
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition; if (!R) return;
+  if (S.jrRec) { jrStopMic(); renderMain(); return; }
+  const st = S.jrRec = {on: true};
+  const run = () => {
+    const r = new R(); st.r = r; r.lang = "de-DE"; r.interimResults = true; r.continuous = false;
+    const inp = $("#jr-in"); st.base = inp ? inp.value.trim() : "";
+    r.onresult = e => { const t = Array.from(e.results).map(x => x[0].transcript).join(" ").trim(), n = $("#jr-in"); if (n) n.value = st.base && t ? st.base + " " + t : st.base || t; };
+    r.onerror = e => { if (/not-allowed|service-not-allowed|audio-capture/.test(e.error)) { st.on = false; toast("Bitte erlaub das Mikrofon für diese Seite."); } };
+    r.onend = () => { if (st.on && S.jrRec === st && S.view === "journal") run(); else if (S.jrRec === st) { S.jrRec = null; renderMain(); } };
+    try { r.start(); } catch(e) { st.on = false; S.jrRec = null; }
+  };
+  run(); renderMain();
+}
+function jrSave(){
+  jrStopMic();
+  const inp = $("#jr-in"), v = inp && inp.value.trim(); if (!v) { toast("Schreib oder sprich erst etwas."); renderMain(); return; }
+  const d = jrGet(jrK()); d.bits = [...(d.bits || []), {id: uid(), t: Date.now(), text: v}]; persist(d);
+  inp.value = ""; renderMain(); toast("Gespeichert");
+}
+document.addEventListener("click", e => {
+  const q = e.target.closest("[data-nq]");
+  if (q) {
+    if (q.dataset.nq === "add") nqAdd();
+    if (q.dataset.nq === "tom") { const t = S.items.get(q.dataset.id); if (t) { t.due = nsTomorrow(); persist(t); renderMain(); toast("Steht morgen wieder da."); } }
+    return;
+  }
+  const b = e.target.closest("[data-jr]"); if (!b) return;
+  const a = b.dataset.jr, k = jrK();
+  if (a === "save") jrSave();
+  else if (a === "mic") jrMic();
+  else if (a === "prev" || a === "next") { jrStopMic(); const nk = dkey(addDays(new Date(k + "T12:00"), a === "prev" ? -1 : 1)); S.jrK = nk >= dkey() ? null : nk; renderMain(); }
+  else if (a === "day") { jrStopMic(); S.jrK = b.dataset.k; renderMain(); window.scrollTo({top: 0}); }
+  else if (a === "del") { S.jrDel = b.dataset.id; renderMain(); }
+  else if (a === "delyes") { const d = jrDay(k); if (d) { d.bits = (d.bits || []).filter(x => x.id !== b.dataset.id); persist(d); } S.jrDel = null; renderMain(); }
+  else if (a === "shot") { const d = jrDay(k); if (d) { S.pop = {shots: true, id: d.id, k: +b.dataset.k}; renderPop(); } }
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || e.isComposing) return;
+  if (e.target.id === "nq-add") { e.preventDefault(); nqAdd(); }
+  else if (e.target.id === "jr-in" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); jrSave(); }
+});
+document.addEventListener("change", async e => {
+  if (e.target.id !== "jr-file") return;
+  const fs = [...e.target.files]; e.target.value = ""; if (!fs.length) return;
+  if (!sb || !S.user) { toast("Bilder hochladen geht nur angemeldet und mit Internet."); return; }
+  const d = jrGet(jrK()); S.jrUp = true; renderMain();
+  try { await uploadFiles(fs, "shots", d.id); } finally { S.jrUp = false; renderMain(); }
+});
 
 /* --- Mein Hauptprojekt: ein angeheftetes Projekt mit Fahrplan-Notizen, Gewohnheiten und den nächsten Schritten --- */
 const mainProj = () => { const p = S.items.get(S.settings.mainProject || ""); return p && !p.archived ? p : null; };
