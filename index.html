@@ -2237,7 +2237,9 @@ const nsTomorrow = () => dkey(addDays(today0(), 1));
 const nsFindHabit = re => live("habit").find(h => re.test(h.title || ""));
 const nsPrayHabit = () => nsFindHabit(/rosenkranz|gebet|beten/i);
 const nsMoveHabit = () => nsFindHabit(/gym|fitness|kraft|training|sport/i);
-const nsRosary = () => all().find(i => !i.archived && i.kind === "resource" && /rosenkranz/i.test(i.title || "")) || null;
+// Seine eigene Notiz „Rosenkranz richtig beten“ zuerst, die Webseiten-Ressource nur als Ersatz
+const nsRosary = () => { const r = all().filter(i => !i.archived && /rosenkranz/i.test(i.title || ""));
+  return r.find(i => i.kind === "note") || r.find(i => i.kind === "resource") || null; };
 const nsBeliefs = () => NS().beliefs || [];
 const nsSleep = () => ({off:"21:45", bed:"22:15", wake:"07:00", ...(NS().sleep || {})});
 const nsHrs = n => n >= 9 ? "9+" : n <= 4 ? "4 oder weniger" : String(n);
