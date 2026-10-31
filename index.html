@@ -1226,6 +1226,14 @@ body.nt-lock{overflow:hidden}
 .ns-pray{display:flex;gap:14px;align-items:flex-start}
 .ns-pray>div{flex:1}
 .ns-pray img{width:96px;height:96px;object-fit:cover;border-radius:18px;flex:none}
+.ns-prayer{margin-top:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel-solid)}
+.ns-prayer summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none;font-weight:600}
+.ns-prayer summary::-webkit-details-marker{display:none}
+.ns-prayer summary span{flex:1}
+.ns-prayer summary svg:last-child{transition:transform .2s}
+.ns-prayer[open] summary svg:last-child{transform:rotate(180deg)}
+.ns-prayer .mded{min-height:0;border:0;border-top:1px solid var(--line);border-radius:0;background:none;padding:12px 14px}
+.ns-prayer .ns-link{margin:0 14px 12px}
 .ns-wins{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .ns-wins span{display:inline-flex;align-items:center;gap:4px;background:var(--green-soft);color:var(--good);border-radius:999px;padding:4px 10px;font-size:12.5px}
 .ns-wins .i{width:13px;height:13px}
@@ -1346,7 +1354,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-30.1";
+const APP_VERSION = "2026-10-31.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2273,7 +2281,18 @@ const nsMoveHabit = () => nsFindHabit(/gym|fitness|kraft|training|sport/i);
 const nsRosary = () => { const r = all().filter(i => !i.archived && /rosenkranz/i.test(i.title || ""));
   return r.find(i => i.kind === "note") || r.find(i => i.kind === "resource") || null; };
 const nsBeliefs = () => NS().beliefs || [];
-const nsSleep = () => ({off:"21:45", bed:"22:15", wake:"07:00", ...(NS().sleep || {})});
+// Seit 2026-10-31: ins Bett um 20:30, aufstehen um 4:30, davor 10 Seiten lesen
+const nsSleep = () => ({off:"20:00", bed:"20:30", wake:"04:30", ...(NS().sleep || {})});
+const nsBook = () => (NS().book || "").trim();
+const nsBookTxt = () => nsBook() ? `„${esc(nsBook())}“` : "deinem Buch";
+// Gebete aus seinen eigenen Notizen „Morgengebet“ und „Abendgebet“, zum Aufklappen in den Routinen (Wunsch 2026-10-31)
+const nsPrayer = re => all().find(i => i.kind === "note" && !i.archived && re.test((i.title || "").trim())) || null;
+function nsPrayerHTML(re, label, k){
+  const p = nsPrayer(re); if (!p || !(p.body || "").trim()) return "";
+  return `<details class="ns-prayer" data-k="${k}"${(S.nsOpen || {})[k] ? " open" : ""}><summary>${ic("book")}<span>${esc(label)} lesen</span>${ic("down")}</summary>
+    <div class="mded">${mdBlocks(p.body, p)}</div><button class="ns-link" data-open="${p.id}">In der Notiz bearbeiten</button></details>`;
+}
+document.addEventListener("toggle", e => { const t = e.target; if (t.classList && t.classList.contains("ns-prayer")) (S.nsOpen || (S.nsOpen = {}))[t.dataset.k] = t.open; }, true);
 const nsHrs = n => n >= 9 ? "9+" : n <= 4 ? "4 oder weniger" : String(n);
 const NS_KIND = ["Gestern war schwer? Normal. Kein Neustart nötig, einfach weiter.", "Fortschritt ist nie gerade. Ein schlechter Tag macht nichts kaputt.", "Du musst heute nicht alles schaffen. Eine Sache reicht.", "Sei nicht so hart zu dir. Das bringt dich nicht weiter, Dranbleiben schon."];
 const nsKind = () => NS_KIND[new Date().getDate() % NS_KIND.length];
@@ -2335,15 +2354,18 @@ function todayHTML(){
     (d.morning ? "" : nsMorningHTML(d)) +
     `<div class="ns-plan"><div><span class="ns-lbl">Dein Plan heute</span><p class="ns-plan-t">Zwei Projekte, zwei feste Blöcke</p></div><span class="ns-score num">${cW + fW}<small>/${B.content.week + B.fr.week} diese Woche</small></span></div>` +
     nsContentHTML(d) + nsFrHTML(d) + nqHTML(tk) +
-    (h >= 19 && !d.evening ? `<button class="ns-card ns-eve-cta" data-go="abend">${ic("moon")}<span><b>Zeit für deinen Abend</b><small>Was geklappt hat, Rosenkranz, Handy weg</small></span><span class="ns-go">›</span></button>` : "") +
+    (h >= 18 && !d.evening ? `<button class="ns-card ns-eve-cta" data-go="abend">${ic("moon")}<span><b>Zeit für deinen Abend</b><small>Was geklappt hat, Abendgebet, Handy weg, lesen</small></span><span class="ns-go">›</span></button>` : "") +
     `<p class="ns-kind">${nsKind()}</p>
     <button class="ns-more" data-go="liste">${ic("task")}Alle Aufgaben und Gewohnheiten</button></div>`;
 }
 function nsMorningHTML(d){
+  const yd = nsDay(dkey(addDays(today0(), -1))) || {};
   return `<section class="ns-card ns-morning"><div class="ns-lbl">Morgen-Check</div>
     <p class="ns-q">Wie lange hast du geschlafen?</p>
     <div class="ns-seg">${[4,5,6,7,8,9].map(x => `<button class="${d.sleep === x ? "on" : ""}" data-ns="sleep" data-v="${x}">${x === 4 ? "≤4" : x === 9 ? "9+" : x}</button>`).join("")}</div>
     <button class="ns-row ${d.prayAm ? "on" : ""}" data-ns="prayam">${ic("cross")}<span>Morgengebet</span><i class="ns-tick">${d.prayAm ? ic("check") : ""}</i></button>
+    ${nsPrayerHTML(/^morgengebet/i, "Morgengebet", "am")}
+    <button class="ns-row ${yd.read ? "on" : ""}" data-ns="ready">${ic("book")}<span>Gestern Abend 10 Seiten gelesen</span><i class="ns-tick">${yd.read ? ic("check") : ""}</i></button>
     <button class="btn ns-go-btn" data-ns="morning">Fertig, los geht's</button></section>`;
 }
 function nsWeekDots(key){
@@ -2423,7 +2445,7 @@ function abendHTML(){
   const steps = [!!(d.win || "").trim(), !!(d.proof || "").trim(), prayed, !!tom, !!d.night];
   const nDone = steps.filter(Boolean).length;
   if (d.night) return `<div class="ns">` + nsHero("img/abend.jpg", "Gute Nacht", "Handy weg. Schlaf gut.", `Morgen ist ein neuer Tag. Ziel: aufstehen um ${esc(sl.wake)}.`) +
-    `<section class="ns-card"><p class="ns-hint" style="margin:0">Leg das Handy jetzt außer Reichweite, am besten in ein anderes Zimmer. Wecker stellen, Licht aus.</p>
+    `<section class="ns-card"><p class="ns-hint" style="margin:0">Wecker stellen und das Handy außer Reichweite legen, am besten in ein anderes Zimmer. Dann 10 Seiten in ${nsBookTxt()} lesen und um ${esc(sl.bed)} Licht aus. Abhaken kannst du das Lesen morgen früh im Morgen-Check.</p>
     <div class="ns-row2" style="margin-top:12px"><button class="btn ghost" data-ns="unnight">Doch noch was eintragen</button></div></section></div>`;
   return `<div class="ns">` + banner() + nsHero("img/abend.jpg", "Abend · 60 Sekunden", "Den Tag gut abschließen", `${nDone} von 5 erledigt`) +
     `<section class="ns-card ns-steps">
@@ -2432,11 +2454,12 @@ function abendHTML(){
       <textarea id="ns-win" class="field" data-keep data-nsf="d.win" rows="2" placeholder="Ich hab heute …">${esc(d.win || "")}</textarea></div></div>
     <div class="ns-step ${steps[1] ? "ok" : ""}"><span class="ns-n">2</span><div><label for="ns-proof">${b ? `Beweis für „${esc(b.neu || "mein neues Ich")}“` : "Ein Beweis, dass du mehr kannst, als du denkst"}</label>
       <textarea id="ns-proof" class="field" data-keep data-nsf="d.proof" rows="2" placeholder="Heute hab ich gezeigt, dass …">${esc(d.proof || "")}</textarea></div></div>
-    <div class="ns-step ${steps[2] ? "ok" : ""}"><span class="ns-n">3</span><div class="ns-pray"><div><b>Rosenkranz und Abendgebet</b><p class="ns-hint">Ruhig werden und den Tag abgeben.</p>
-      <div class="ns-row2"><button class="btn ${prayed ? "" : "ghost"}" data-ns="basis" data-k="pray">${ic("check")}${prayed ? "Gebetet" : "Gebetet abhaken"}</button>${r ? `<button class="btn ghost" data-open="${r.id}">${ic("book")}Anleitung</button>` : ""}</div></div><img src="img/gebet.jpg" alt="Rosenkranz" loading="lazy"></div></div>
+    <div class="ns-step ${steps[2] ? "ok" : ""}"><span class="ns-n">3</span><div><div class="ns-pray"><div><b>Rosenkranz und Abendgebet</b><p class="ns-hint">Ruhig werden und den Tag abgeben.</p>
+      <div class="ns-row2"><button class="btn ${prayed ? "" : "ghost"}" data-ns="basis" data-k="pray">${ic("check")}${prayed ? "Gebetet" : "Gebetet abhaken"}</button>${r ? `<button class="btn ghost" data-open="${r.id}">${ic("book")}Anleitung</button>` : ""}</div>
+      </div><img src="img/gebet.jpg" alt="Rosenkranz" loading="lazy"></div>${nsPrayerHTML(/^abendgebet/i, "Abendgebet", "pm")}</div></div>
     <div class="ns-step ${steps[3] ? "ok" : ""}"><span class="ns-n">4</span><div><label for="ns-tom">Was ist morgen deine eine Sache?</label>
       ${tom ? `<p class="ns-tom">${ic("star")}${esc(tom.title)} <button class="ns-link" data-ns="tomclear">ändern</button></p>` : `<div class="ns-add"><input id="ns-tom" data-keep placeholder="Zum Beispiel: Tag 1 drehen" aria-label="Eine Sache für morgen"><button class="btn" data-ns="tom">Festlegen</button></div>`}</div></div>
-    <div class="ns-step ${steps[4] ? "ok" : ""}"><span class="ns-n">5</span><div><b>Handy weg um ${esc(sl.off)}</b><p class="ns-hint">Ins Bett um ${esc(sl.bed)}, aufstehen um ${esc(sl.wake)}. Mit 15 brauchst du 8 bis 10 Stunden Schlaf.</p>
+    <div class="ns-step ${steps[4] ? "ok" : ""}"><span class="ns-n">5</span><div><b>Handy weg um ${esc(sl.off)}</b><p class="ns-hint">Danach 10 Seiten in ${nsBookTxt()} lesen, so weißt du jeden Abend, was nach dem Handy kommt. Ins Bett um ${esc(sl.bed)}, aufstehen um ${esc(sl.wake)}.</p>
       <button class="btn ns-night" data-ns="night">${ic("moon")}Handy weg, gute Nacht</button></div></div>
     </section><p class="ns-kind">${nsKind()}</p></div>`;
 }
@@ -2461,7 +2484,8 @@ function wegHTML(){
   `<section class="ns-card ns-sec"><div class="ns-num">2</div><div class="ns-sec-in"><h2>Basis zuerst</h2>
     <p class="ns-hint">Schlaf, Bewegung, Tageslicht, Wasser, gutes Essen. Dominik sagt: Erst als er das in den Griff bekam, merkte er, wie gut man sich fühlen kann. Bei dir gehört das Gebet mit dazu.</p>
     <div class="ns-sleep">${bars}</div><p class="ns-hint" style="margin-top:4px">Schlaf der letzten 14 Tage. Die Linie oben wären 10 Stunden, rot ist unter 6.</p>
-    <div class="ns-grid3"><label>Handy weg${fld("ns-off", "ns.sleep.off", sl.off, "21:45", 0, "time")}</label><label>Ins Bett${fld("ns-bed", "ns.sleep.bed", sl.bed, "22:15", 0, "time")}</label><label>Aufstehen${fld("ns-wake", "ns.sleep.wake", sl.wake, "07:00", 0, "time")}</label></div>
+    <div class="ns-grid3"><label>Handy weg${fld("ns-off", "ns.sleep.off", sl.off, "20:00", 0, "time")}</label><label>Ins Bett${fld("ns-bed", "ns.sleep.bed", sl.bed, "20:30", 0, "time")}</label><label>Aufstehen${fld("ns-wake", "ns.sleep.wake", sl.wake, "04:30", 0, "time")}</label></div>
+    <label for="ns-book">Buch für abends (10 Seiten vor dem Schlafen)</label>${fld("ns-book", "ns.book", n.book, "Titel des Buchs")}
     ${r ? `<button class="ns-row" data-open="${r.id}">${ic("cross")}<span>Rosenkranz richtig beten</span><i class="ns-tick">›</i></button>` : ""}</div></section>` +
   `<section class="ns-card ns-sec"><div class="ns-num">3</div><div class="ns-sec-in"><h2>Deine zwei Projekte, feste Blöcke</h2>
     <p class="ns-hint">Dominik hat sich jeden Tag eine feste Zeit für eine Sache genommen und das über Monate durchgezogen. Feste Uhrzeit und feste Länge heißt: Du musst nicht jeden Tag neu entscheiden, ob du anfängst.</p>
@@ -2495,6 +2519,7 @@ document.addEventListener("click", e => {
   switch (a) {
     case "sleep": nsSet(tk, {sleep: +b.dataset.v}); renderMain(); break;
     case "prayam": { const d = nsDay(tk) || {}; nsSet(tk, {prayAm: !d.prayAm}); renderMain(); break; }
+    case "ready": { const yk = dkey(addDays(today0(), -1)), y = nsDay(yk) || {}; nsSet(yk, {read: !y.read}); renderMain(); break; }
     case "morning": { nsSet(tk, {morning: true}); nsCheer("Guter Start. Jetzt nur noch die eine Sache."); renderMain(); break; }
     case "basis": {
       const k = b.dataset.k, hb = k === "pray" ? nsPrayHabit() : k === "move" ? nsMoveHabit() : null;
