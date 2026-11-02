@@ -1309,6 +1309,8 @@ a.ns-now-t{text-decoration:none}
 .nq-row .t{flex:1;min-width:0;text-align:left;background:none;border:0;padding:0;font:inherit;font-size:15px;color:var(--text);cursor:pointer;overflow-wrap:anywhere}
 .nq-row.done .t{color:var(--muted);text-decoration:line-through}
 .nq-row .chip{flex-shrink:0}
+.nq-one{display:inline-flex;vertical-align:-2px;margin-right:6px;color:var(--brand,var(--accent))}
+.nq-one svg{width:15px;height:15px}
 .nq .ns-add .btn{flex-shrink:0}
 .jr-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
 .jr-nav b{font-size:15px}
@@ -1354,7 +1356,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-10-31.1";
+const APP_VERSION = "2026-11-02.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2556,12 +2558,18 @@ document.addEventListener("input", e => { const el = e.target.closest("[data-nsf
 document.addEventListener("change", e => { const el = e.target.closest("[data-nsf]"); if (!el) return; clearTimeout(nsInT); nsField(el); });
 
 /* --- Heute noch erledigen (Wunsch 2026-10-30): spontane Kleinigkeiten wie Einkaufen, Abo kündigen, Kartoffeln kochen.
-   Normale Aufgaben mit quick:true und due. Was nicht erledigt ist, steht am nächsten Tag automatisch wieder da. --- */
-const nqList = (tk = dkey()) => live("task").filter(t => t.quick && ((!t.done && (!t.due || t.due <= tk)) || (t.done && t.doneAt && dkey(new Date(t.doneAt)) === tk)))
-  .sort((a, b) => (a.done - b.done) || (a.created || 0) - (b.created || 0));
+   Normale Aufgaben mit quick:true und due. Was nicht erledigt ist, steht am nächsten Tag automatisch wieder da.
+   Seit 2026-11-02 (sein Wunsch) auch alle anderen Aufgaben, die heute fällig oder überfällig sind, und die eine Sache
+   vom Abend-Check. Reihenfolge: eine Sache, dann Priorität hoch, dann nach Datum. --- */
+const nqOne = tk => { const o = S.settings.oneThing || {}; return o.d === tk ? o.id : null; };
+const nqList = (tk = dkey()) => {
+  const one = nqOne(tk);
+  return live("task").filter(t => (t.quick || t.id === one || (t.due && t.due <= tk)) && ((!t.done && (!t.due || t.due <= tk)) || (t.done && t.doneAt && dkey(new Date(t.doneAt)) === tk)))
+    .sort((a, b) => (a.done - b.done) || ((b.id === one) - (a.id === one)) || ((b.prio === "hoch") - (a.prio === "hoch")) || (a.due || tk).localeCompare(b.due || tk) || (a.created || 0) - (b.created || 0));
+};
 function nqHTML(tk){
-  const l = nqList(tk), open = l.filter(t => !t.done).length;
-  const row = t => `<div class="nq-row ${t.done ? "done" : ""}"><button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button><button class="t" data-open="${t.id}">${esc(t.title || "Ohne Titel")}</button>${!t.done && t.due && t.due < tk ? `<span class="chip">seit ${t.due.slice(8, 10)}.${t.due.slice(5, 7)}.</span>` : ""}${t.done ? "" : `<button class="ibtn" data-nq="tom" data-id="${t.id}" title="Auf morgen schieben" aria-label="Auf morgen schieben">${ic("right")}</button>`}</div>`;
+  const l = nqList(tk), open = l.filter(t => !t.done).length, one = nqOne(tk);
+  const row = t => `<div class="nq-row ${t.done ? "done" : ""}"><button class="check ${t.done ? "on" : ""}" data-act="toggle" data-id="${t.id}" aria-label="Erledigt">${ic("check")}</button><button class="t" data-open="${t.id}">${t.id === one ? `<span class="nq-one" title="Deine eine Sache">${ic("star")}</span>` : ""}${t.prio === "hoch" ? "<b>!</b> " : ""}${esc(t.title || "Ohne Titel")}</button>${!t.done && t.due && t.due < tk ? `<span class="chip">seit ${t.due.slice(8, 10)}.${t.due.slice(5, 7)}.</span>` : ""}${t.done ? "" : `<button class="ibtn" data-nq="tom" data-id="${t.id}" title="Auf morgen schieben" aria-label="Auf morgen schieben">${ic("right")}</button>`}</div>`;
   return `<section class="ns-card nq"><div class="ns-lbl-row"><span class="ns-lbl">Heute noch erledigen</span>${l.length ? `<span class="ns-when num">${open ? `${open} offen` : "Alles erledigt"}</span>` : ""}</div>
     ${l.length ? `<div class="nq-list">${l.map(row).join("")}</div>` : `<p class="ns-hint" style="margin-top:6px">Einkaufen, Abo kündigen, Kartoffeln kochen: Alles, was dir einfällt, kommt hier rein. Was du heute nicht schaffst, steht morgen wieder da.</p>`}
     <div class="ns-add"><input id="nq-add" data-keep placeholder="Was steht heute noch an?" aria-label="Neue Kleinigkeit für heute" enterkeyhint="done"><button class="btn" data-nq="add" aria-label="Hinzufügen">${ic("plus")}</button></div></section>`;
