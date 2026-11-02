@@ -1657,7 +1657,7 @@ async function loadLocal(){
     S.items = new Map(Object.entries(j.items || {}).filter(([k]) => !k.startsWith("__")));
     S.settings = {...clone(DEFAULT_SETTINGS), ...(j.settings || {})};
     S.dirty = new Set(j.dirty || []); S.tombs = new Set(j.tombs || []); S.delAt = j.delAt || {};
-    S.settingsDirty = !!j.settingsDirty; S.cursor = PC.normCursor(j.cursor); S.lastSync = j.lastSync || null;
+    S.settingsDirty = !!j.settingsDirty; setBase(); S.cursor = PC.normCursor(j.cursor); S.lastSync = j.lastSync || null;
   } catch(e) { toast("Speicher auf dem Gerät nicht verfügbar. Ist der private Modus an?"); }
 }
 function saveLocal(){
@@ -1678,8 +1678,17 @@ function autoArchive(){
   for (const t of [...S.items.values()]) if (t.kind === "task" && t.done && !t.archived && (t.doneAt || t.updated || 0) < lim) { t.archived = true; persist(t); n++; }
   return n;
 }
+// Einstellungen: geänderte Bereiche bekommen einen Zeitstempel (_t), beim Abgleich gilt pro Bereich die jüngere Änderung
+const setBase = () => { S.setBase = PC.settingsBase(S.settings); };
+function setFromServer(data){ S.settings = {...clone(DEFAULT_SETTINGS), ...data}; setBase(); }
+// Unsere Änderungen mit der Server-Fassung zusammenführen. Danach muss unsere Fassung neuer sein, sonst lehnt der Server sie ab.
+function setMerge(srv){
+  S.settings = {...clone(DEFAULT_SETTINGS), ...PC.syncSettings(S.settings, srv.data || {})};
+  S.settings.updated = Math.max(Date.now(), (srv.updated_at || 0) + 1); setBase();
+}
 function saveSettings(delay = 400){
-  S.settings.updated = Date.now(); S.settingsDirty = true; saveLocal(); scheduleSync(delay + 800); applySettings(); renderStatus();
+  const now = Date.now(); PC.stampSettings(S.settings, S.setBase || {}, now); setBase();
+  S.settings.updated = now; S.settingsDirty = true; saveLocal(); scheduleSync(delay + 800); applySettings(); renderStatus();
 }
 function create(kind, title, extra = {}){
   const now = Date.now();
@@ -1710,7 +1719,13 @@ async function sync(){
       else if (S.items.has(id)) { const it = S.items.get(id); rows.push({user_id:me, id, data:clone(it), updated_at:it.updated || Date.now(), deleted:false}); }
       else S.dirty.delete(id);
     }
-    if (S.settingsDirty) rows.push({user_id:me, id:"__settings", data:clone(S.settings), updated_at:S.settings.updated || Date.now(), deleted:false});
+    if (S.settingsDirty) {
+      // Erst den Stand vom Server holen und zusammenführen, damit ein Gerät mit altem Stand nichts überschreibt
+      const {data:srv, error} = await sb.from("items").select("data,updated_at").eq("id", "__settings").maybeSingle();
+      if (error) throw error;
+      if (srv) { setMerge(srv); changed = true; }
+      rows.push({user_id:me, id:"__settings", data:clone(S.settings), updated_at:S.settings.updated, deleted:false});
+    }
     const rejected = [];
     for (let i = 0; i < rows.length; i += 200) {
       const part = rows.slice(i, i + 200);
@@ -1737,7 +1752,7 @@ async function sync(){
       for (const r of data) {
         if (r.id === "__settings") {
           const next = {...clone(DEFAULT_SETTINGS), ...r.data};
-          if (!S.settingsDirty && JSON.stringify(S.settings) !== JSON.stringify(next)) { S.settings = next; changed = true; }
+          if (!S.settingsDirty && JSON.stringify(S.settings) !== JSON.stringify(next)) { setFromServer(r.data); changed = true; }
           continue;
         }
         if (r.id.startsWith("__")) { if (S.items.delete(r.id)) changed = true; continue; } // Zeilen anderer Apps (z. B. Brand-Weg)
@@ -1774,7 +1789,8 @@ async function settleRejected(rows){
     for (const srv of data || []) {
       const r = sent.get(srv.id);
       if (srv.id === "__settings") {
-        if ((S.settings.updated || 0) === r.updated_at) { S.settings = {...clone(DEFAULT_SETTINGS), ...srv.data}; S.settingsDirty = false; changed = true; }
+        // Server war neuer: zusammenführen und in der nächsten Runde erneut hochladen
+        if ((S.settings.updated || 0) === r.updated_at) { setMerge(srv); changed = true; }
         continue;
       }
       const cur = S.items.get(srv.id);

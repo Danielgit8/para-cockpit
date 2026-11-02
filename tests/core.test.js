@@ -160,6 +160,35 @@ test("Einstellungen zusammenführen ergänzt nur fehlende Themen", () => {
   assert.deepEqual(out.topics.map(t => t.name), ["A", "B"]);
 });
 
+test("Gerät mit altem Stand überschreibt beim Abgleich keine Trainingspläne", () => {
+  // Server: Pläne am 20.10. angelegt. Altes Gerät kennt sie nicht und ändert nur das Design.
+  const srv = {theme:"dark", training:{plans:[{id:"p1"}]}, _t:{training:20}, updated:20};
+  const old = {theme:"dark", training:{plans:[]}, updated:5};
+  const base = C.settingsBase(old);
+  old.theme = "light"; C.stampSettings(old, base, 30); old.updated = 30;
+  assert.deepEqual(old._t, {theme:30});
+  const out = C.syncSettings(old, srv);
+  assert.equal(out.theme, "light");
+  assert.deepEqual(out.training.plans.map(p => p.id), ["p1"]);
+  assert.deepEqual(out._t, {theme:30, training:20});
+  assert.equal(out.updated, 30);
+});
+
+test("Eigene neuere Änderung an einem Bereich bleibt beim Abgleich", () => {
+  const loc = {training:{plans:[{id:"neu"}]}, _t:{training:40}};
+  const srv = {training:{plans:[{id:"alt"}]}, ns:{v:1}, _t:{training:20}};
+  const out = C.syncSettings(loc, srv);
+  assert.deepEqual(out.training.plans.map(p => p.id), ["neu"]);
+  assert.deepEqual(out.ns, {v:1});
+});
+
+test("Gelöschter Bereich zählt als Änderung", () => {
+  const s = {a:1, b:2}, base = C.settingsBase(s);
+  delete s.b; C.stampSettings(s, base, 9);
+  assert.deepEqual(s._t, {b:9});
+  assert.equal("b" in C.syncSettings(s, {a:1, b:2}), false);
+});
+
 test("Dateipfade werden aufs eigene Konto umgeschrieben", () => {
   assert.equal(C.repath("alt-uuid/item1/x-a.pdf", "neu"), "neu/item1/x-a.pdf");
 });

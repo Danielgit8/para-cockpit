@@ -123,6 +123,30 @@ function mergeSettings(cur, inc){
   }
   return out;
 }
+/* ---------- Einstellungen zwischen Geräten abgleichen ---------- */
+// Alle Einstellungen liegen in einer Zeile. Damit ein Gerät mit altem Stand nicht alles überschreibt
+// (so gingen am 30.10. die Trainingspläne verloren), steht in _t pro Bereich, wann er zuletzt geändert wurde.
+const SET_META = new Set(["updated", "_t"]);
+// Stand der Bereiche als JSON, um später Änderungen zu erkennen
+function settingsBase(s){ const b = {}; for (const k of Object.keys(s)) if (!SET_META.has(k)) b[k] = JSON.stringify(s[k]); return b; }
+// Bereiche, die sich seit base geändert haben, bekommen den Zeitstempel now
+function stampSettings(s, base, now){
+  const t = {...(s._t || {})};
+  for (const k of new Set([...Object.keys(s), ...Object.keys(base)])) if (!SET_META.has(k) && JSON.stringify(s[k]) !== base[k]) t[k] = now;
+  s._t = t; return s;
+}
+// Pro Bereich gilt die jüngere Änderung, bei Gleichstand die vom Server
+function syncSettings(loc, srv){
+  const lt = loc._t || {}, st = srv._t || {}, out = {}, t = {};
+  for (const k of new Set([...Object.keys(loc), ...Object.keys(srv)])) {
+    if (SET_META.has(k)) continue;
+    const v = (lt[k] || 0) > (st[k] || 0) ? loc[k] : srv[k];
+    if (v !== undefined) out[k] = v;
+    const tk = Math.max(lt[k] || 0, st[k] || 0); if (tk) t[k] = tk;
+  }
+  out._t = t; out.updated = Math.max(loc.updated || 0, srv.updated || 0);
+  return out;
+}
 // Dateipfade gehören zum Konto (erster Ordner = Nutzer-ID). Beim Einspielen in ein anderes Konto umschreiben.
 const repath = (path, userId) => { const i = path.indexOf("/"); return i < 0 ? `${userId}/${path}` : `${userId}${path.slice(i)}`; };
 
@@ -220,6 +244,6 @@ function snippet(text, query, len = 140){
 }
 
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
-  checkItem, parseBackup, planImport, mergeSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K};
+  checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);
