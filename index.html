@@ -1277,6 +1277,12 @@ body.nt-lock{overflow:hidden}
 .ns .ns-score,.ns .ns-when,.ns .ns-foot .num,.ns .ns-big .num,.ns .ns-stats .num{font-family:var(--f-ui);letter-spacing:-.01em}
 .ns-score small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
 .ns-when{font-size:12.5px;color:var(--dark-muted)}
+.ns-cm{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.ns-cm button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--dark-line);background:transparent;color:inherit;border-radius:999px;padding:7px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.ns-cm button .i{width:14px;height:14px;opacity:.35}
+.ns-cm button.on{background:var(--amber-soft);border-color:transparent;color:var(--text)}
+.ns-cm button.on .i{opacity:1}
+.ns-cm-h{font-size:12.5px;color:var(--dark-muted);line-height:1.5;margin:8px 0 0}
 .ns-frc .ns-when{color:var(--muted)}
 a.ns-now-t{text-decoration:none}
 .ns-ok{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-weight:700;color:#CFE7D6}
@@ -2332,7 +2338,9 @@ function nsHero(img, kick, title, sub){
 
 /* Zwei Projekte mit festen Blöcken (Wunsch 2026-10-29): Personal Brand und Französisch. Keine Basis-Karte, kein 2-Minuten-Start, kein Wörterzähler.
    Brand-Weg läuft auf derselben Adresse, deshalb liest Heute den Stand direkt aus dem Browser-Speicher. Französisch lernt er seit 2026-10-29 mit Babbel, das lässt sich nicht auslesen. */
-const nsBlocks = () => { const b = NS().blocks || {}; return {content:{min:60, at:"16:00", week:5, ...(b.content || {})}, fr:{min:30, at:"18:00", week:6, ...(b.fr || {})}}; };
+const nsBlocks = () => { const b = NS().blocks || {}; return {content:{min:60, at:"16:00", week:5, ...(b.content || {})}, fr:{min:30, at:"18:00", week:6, ...(b.fr || {})},
+  // Neben dem Video-Block (Wunsch 2026-11-03): zweimal am Tag Kommentare und Nachrichten statt ständig nachzuschauen, Lernen mit Obergrenze
+  comm:{min:15, at1:"12:00", at2:"19:00", ...(b.comm || {})}, learn:{min:30, ...(b.learn || {})}}; };
 const NSBW = {};
 function nsLoadBW(){
   NSBW.loading = true;
@@ -2405,7 +2413,13 @@ function nsContentHTML(d){
     <div class="ns-acts">${done || T ? "" : `<button class="btn ns-start" data-ns="blk">${ic("play")}Block starten · ${B.min} Min.</button>`}
       <a class="btn ghost" href="${link}">${ic("video")}Brand-Weg</a>
       <button class="btn ghost" data-ns="bdone" data-k="content">${done ? "Doch nicht geschafft" : `${ic("check")}Geschafft`}</button></div>
+    ${nsCommHTML(tk)}
     <div class="ns-foot"><span>Diese Woche <b class="num">${wn}</b> von ${B.week}</span>${nsWeekDots("content")}</div></section>`;
+}
+function nsCommHTML(tk){
+  const {comm:C, learn:L} = nsBlocks(), d = nsDay(tk) || {};
+  const btn = (i, at) => `<button class="${d["cm" + i] ? "on" : ""}" data-ns="comm" data-i="${i}">${ic("check")}<span class="num">${esc(at)}</span> Community · ${C.min} Min.</button>`;
+  return `<div class="ns-cm">${btn(1, C.at1)}${btn(2, C.at2)}</div><p class="ns-cm-h">Kommentare und Nachrichten nur in diesen zwei Runden. Lernen höchstens ${L.min} Min. am Tag, nur was du im nächsten Video einsetzt.</p>`;
 }
 // Am Android-Handy die Babbel-App über ihren Paketnamen öffnen (my.babbel.com öffnet nur die Website). Kennt Chrome den Link nicht, kommt die Play-Store-Seite mit „Öffnen“.
 const NS_BABBEL = /Android/i.test(navigator.userAgent) ? "intent://#Intent;scheme=babbel;package=com.babbel.mobile.android.en;end" : "https://my.babbel.com/";
@@ -2510,6 +2524,8 @@ function wegHTML(){
     <div class="ns-chain"><span>${ic("video")}Content</span><b>›</b><span>${ic("heart")}Community und Freunde</span><b>›</b><span>${ic("star")}Eigene Produkte, Geld</span></div>
     <h3>Projekt 1 · Personal Brand</h3>
     <div class="ns-grid3"><label>Uhrzeit${fld("ns-cat", "ns.blocks.content.at", B.content.at, "16:00", 0, "time")}</label><label>Minuten${fld("ns-cmin", "ns.blocks.content.min", B.content.min, "60", 0, "number")}</label><label>Tage pro Woche${fld("ns-cwk", "ns.blocks.content.week", B.content.week, "5", 0, "number")}</label></div>
+    <div class="ns-grid3"><label>Community mittags${fld("ns-cm1", "ns.blocks.comm.at1", B.comm.at1, "12:00", 0, "time")}</label><label>Community abends${fld("ns-cm2", "ns.blocks.comm.at2", B.comm.at2, "19:00", 0, "time")}</label><label>Minuten je Runde${fld("ns-cmm", "ns.blocks.comm.min", B.comm.min, "15", 0, "number")}</label></div>
+    <div class="ns-grid3"><label>Lernen höchstens (Min.)${fld("ns-lmin", "ns.blocks.learn.min", B.learn.min, "30", 0, "number")}</label></div>
     <h3>Projekt 2 · Französisch mit Babbel</h3>
     <div class="ns-grid3"><label>Uhrzeit${fld("ns-fat", "ns.blocks.fr.at", B.fr.at, "18:00", 0, "time")}</label><label>Minuten${fld("ns-fmin", "ns.blocks.fr.min", B.fr.min, "30", 0, "number")}</label><label>Tage pro Woche${fld("ns-fwk", "ns.blocks.fr.week", B.fr.week, "6", 0, "number")}</label></div>
     <div class="ns-stats"><span><b class="num">${weekDays().filter(x => nsBlockDone("content", dkey(x))).length}</b>/${B.content.week} Content diese Woche</span><span><b class="num">${weekDays().filter(x => nsBlockDone("fr", dkey(x))).length}</b>/${B.fr.week} Französisch</span><span><b class="num">${wFocus}</b> Min. Fokus</span></div></div></section>` +
@@ -2548,6 +2564,7 @@ document.addEventListener("click", e => {
     case "blkfr": nsStart("fr"); if (NS_BABBEL.startsWith("intent:")) setTimeout(() => { location.href = NS_BABBEL; }, 60); else window.open(NS_BABBEL, "_blank", "noopener"); break;
     case "blkfin": nsFinish(true); break;
     case "blkstop": nsFinish(false); break;
+    case "comm": { const k = "cm" + b.dataset.i, d = nsDay(tk) || {}; nsSet(tk, {[k]: !d[k]}); renderMain(); break; }
     case "bdone": { const k = b.dataset.k === "fr" ? "fDone" : "cDone", d = nsDay(tk) || {}; nsSet(tk, {[k]: !d[k]}); if (!d[k]) nsCheer(b.dataset.k === "fr" ? "Französisch geschafft. Très bien." : "Content-Block geschafft."); renderMain(); break; }
     case "tom": {
       const inp = $("#ns-tom"), v = inp && inp.value.trim(); if (!v) { toast("Schreib kurz, was morgen dran ist."); break; }
