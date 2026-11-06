@@ -753,6 +753,13 @@ body.bd-on{overflow:hidden}
 .br-ed{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
 .br-ed textarea.field{height:auto;padding:10px 12px;resize:vertical;line-height:1.5}
 .br-ed-f{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.br-co{border-top:1px solid var(--line)}.br-co:first-of-type{border-top:0}.br-co.off{opacity:.55}
+.br-co-h{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:12px 2px;cursor:pointer}
+.br-co-h:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:8px}
+.br-co-ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--soft,rgba(127,127,127,.12))}
+.br-co-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.br-co-t small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.br-co-a{flex:none;font-weight:700;text-align:right}.br-co-a small{font-weight:500;color:var(--muted);font-size:12px}
+.br-co .br-ed{padding:4px 0 14px}
 .br-row{display:grid;grid-template-columns:minmax(0,1fr) auto 180px 150px;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:8px}
 .br-row.due{border-color:var(--brand);background:var(--brand-soft)}
 .br-row.open{border-color:var(--brand)}
@@ -1362,7 +1369,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-06.1";
+const APP_VERSION = "2026-11-06.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1449,7 +1456,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -1977,7 +1984,7 @@ function toolViews(k = kinds()){
   const v = (id, label, icon) => ({v:id, label, icon});
   return [
     {label:"Planen", views:[v("liste", "Tagesliste", "task"), v("cal", "Kalender", "cal"), v("task", k.task.plural, k.task.icon), v("project", k.project.plural, k.project.icon), v("habit", k.habit.plural, k.habit.icon), v("review", "Wochenrückblick", "review")]},
-    {label:"Brand & Business", views:[v("brand", "Brand & Business", "star")]},
+    {label:"Brand & Business", views:[v("brand", "Brand & Business", "star"), v("kosten", "Kosten", "repeat")]},
     {label:"Körper", views:[v("training", "Training", "dumbbell"), v("food", "Ernährung", "food")]},
     {label:"Wissen", views:[...(S.settings.kinds || []).map(c => v(c.id, c.label, "folder")), v("resource", k.resource.plural, k.resource.icon), v("note", k.note.plural, k.note.icon), v("area", k.area.plural, k.area.icon), v("board", "Boards", "board")]},
     {label:"Mehr", views:[v("tags", "Stichwörter", "tag"), v("archive", "Archiv", "archive"), v("settings", "Anpassen", "settings"), v("dashboard", "Übersicht", "home")]},
@@ -2063,6 +2070,7 @@ function viewHTML(){
   if (v === "training") return trainingHTML();
   if (v === "food") return foodHTML();
   if (v === "brand") return brandHTML();
+  if (v === "kosten") { S.view = "brand"; S.brTab = "cost"; try { localStorage.setItem("brTab", "cost"); } catch(e){} return brandHTML(); }
   if (v === "board") return boardsHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
@@ -2378,7 +2386,7 @@ function todayHTML(){
   return `<div class="ns">` + banner() +
     nsHero("img/morgen.jpg", `${new Date().toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})}`, h < 11 ? "Guten Morgen" : h < 18 ? "Hey, weiter geht's" : "Guten Abend",
       vis ? `Mein zukünftiges Ich: ${esc(vis)}` : `Noch kein Bild von deinem zukünftigen Ich. <button class="ns-link" data-go="weg">In „Mein Weg“ festlegen</button>`) +
-    `<div class="ns-chips">${sleepChip}<span class="ns-chip">${ic("moon")}Handy weg um ${esc(sl.off)}</span></div>` +
+    `<div class="ns-chips">${sleepChip}${coTodayChip()}<span class="ns-chip">${ic("moon")}Handy weg um ${esc(sl.off)}</span></div>` +
     (d.morning ? "" : nsMorningHTML(d)) +
     `<div class="ns-plan"><div><span class="ns-lbl">Dein Plan heute</span><p class="ns-plan-t">Zwei Projekte, zwei feste Blöcke</p></div><span class="ns-score num">${cW + fW}<small>/${B.content.week + B.fr.week} diese Woche</small></span></div>` +
     nsContentHTML(d) + nsFrHTML(d) + nqHTML(tk) +
@@ -3209,7 +3217,7 @@ function settingsHTML(){
 
 /* ================= search ================= */
 // Versteckte Arten haben eigene Ansichten (Training, Brand & Business) und öffnen dort
-const SR_K = {workout:{label:"Training", icon:"dumbbell"}, video:{label:"Video", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
+const SR_K = {workout:{label:"Training", icon:"dumbbell"}, video:{label:"Video", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, cost:{label:"Kosten", icon:"repeat"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
 const srKind = k => SR_K[k] || kindOf({kind:k});
 function searchRender(q){
   const box = $("#search-res"); if (!box) return;
@@ -3226,7 +3234,7 @@ function srOpen(id){
   if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
   if (it.kind === "food" || it.kind === "recipe") { if (S.open) closeOverlay(); const r = it.kind === "recipe"; S.fdTab = r ? "rec" : "food"; if (r) { S.rcOpen = id; S.rcEdit = false; } else S.fdOpen = id;
     try { localStorage.setItem("fdTab2", S.fdTab); } catch(e){} go("food"); return; }
-  const tab = {video:"vid", contact:"con", income:"inc"}[it.kind];
+  const tab = {video:"vid", contact:"con", income:"inc", cost:"cost"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
   S.dBack = []; openDetailFresh(id);
 }
@@ -4875,11 +4883,12 @@ function brandHTML(){
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
   const out = header("Brand & Business", "Content, Personal Brand und Geld verdienen an einem Ort") + banner() +
     `<a class="card bw-link" href="../brand-weg/"><span class="bw-ic">${ic("star")}</span><span><b>Mein Brand-Weg öffnen</b><small>Der Plan nach Mino Lee: was jetzt dran ist, Video-Werkstatt, dein Profil und alles Wissen</small></span><span class="bw-go">›</span></a>` +
-    `<div class="tr-seg">${seg("over", "Überblick")}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("skill", "Fähigkeiten")}</div>`;
+    `<div class="tr-seg">${seg("over", "Überblick")}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("cost", "Kosten")}${seg("skill", "Fähigkeiten")}</div>`;
   if (tab === "know") return out + brKnowHTML();
   if (tab === "vid") return out + brVideosHTML(vids);
   if (tab === "con") return out + brContactsHTML(cons);
   if (tab === "inc") return out + brIncomeHTML();
+  if (tab === "cost") return out + brCostHTML();
   if (tab === "skill") return out + brSkillsHTML();
   return out + brOverHTML(vids, cons);
 }
@@ -4995,6 +5004,83 @@ function brIncomeHTML(){
       ${list.map(i => `<tr><td class="num" style="text-align:left">${esc(fmtLong(i.date || tk))}</td><td>${esc(i.title)}</td><td>${esc(brLabel(BR_ITYPE, i.type))}</td><td class="num">${esc(brMoney(+i.amount))}</td><td><button class="ibtn" data-bact="del" data-id="${i.id}" title="${S.brDel === i.id ? "Nochmal tippen zum Löschen" : "Löschen"}" aria-label="Einnahme löschen" style="${S.brDel === i.id ? "color:var(--late)" : ""}">${ic("trash")}</button></td></tr>`).join("")}</table></div>`
     : `<div class="empty">Noch keine Einnahmen. Die erste ist die schwerste, laut Mino Lee geht es mit UGC am schnellsten (Leitfaden, Kapitel 10).</div>`}</section>`;
 }
+/* --- Kosten: Abos und Einmalkäufe (sein Wunsch 06.11.2026) ---
+   Versteckte Einträge kind "cost": amount (regulär), cycle monat|jahr|einmal, next (eine Abbuchung oder Kaufdatum, Anker für die Wiederholung),
+   nextAmount (nur für die Abbuchung genau am Datum "next", z. B. Probepreis), off (gekündigt), body (Wofür). */
+const BR_CYCLE = [["monat","Monatlich"],["jahr","Jährlich"],["einmal","Einmalig"]];
+function coAddM(k, n){ const [y, m, d] = k.split("-").map(Number), t = new Date(y, m - 1 + n, 1), last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate(); return dkey(new Date(t.getFullYear(), t.getMonth(), Math.min(d, last))); }
+// Alle Abbuchungen eines Eintrags zwischen zwei Tagen (inklusive)
+function coDates(it, from, to){
+  if (!it.next || (it.off && it.cycle !== "einmal")) return [];
+  if (it.cycle === "einmal") return it.next >= from && it.next <= to ? [it.next] : [];
+  const step = it.cycle === "jahr" ? 12 : 1, out = [];
+  for (let i = 0; i < 1200; i++) { const k = coAddM(it.next, i * step); if (k > to) break; if (k >= from) out.push(k); }
+  return out;
+}
+const coNum = v => v == null || v === "" || isNaN(+v) ? null : +v;
+const coAmt = (it, k) => k === it.next && coNum(it.nextAmount) != null ? coNum(it.nextAmount) : coNum(it.amount);
+const coNext = it => coDates(it, dkey(), coAddM(dkey(), 13))[0] || "";
+function coUpcoming(days){
+  const tk = dkey(), to = dkey(addDays(today0(), days));
+  return live("cost").flatMap(it => coDates(it, tk, to).map(k => ({it, k, a:coAmt(it, k)}))).sort((x, y) => x.k.localeCompare(y.k));
+}
+function coMonth(mk){
+  const from = mk + "-01", to = dkey(addDays(parseKey(coAddM(from, 1)), -1));
+  return live("cost").flatMap(it => coDates(it, from, to).map(k => coAmt(it, k) || 0)).reduce((s, a) => s + a, 0);
+}
+const coFixed = () => live("cost").filter(i => !i.off && i.cycle !== "einmal").reduce((s, i) => s + (coNum(i.amount) || 0) / (i.cycle === "jahr" ? 12 : 1), 0);
+const coWhen = k => { const d = Math.round((parseKey(k) - today0()) / 864e5); return d === 0 ? "heute" : d === 1 ? "morgen" : d > 1 && d < 7 ? `in ${d} Tagen` : fmtLong(k); };
+// Hinweis auf „Heute“, wenn in den nächsten 3 Tagen etwas abgebucht wird
+function coTodayChip(){
+  const u = coUpcoming(3)[0]; if (!u) return "";
+  const w = coWhen(u.k);
+  return `<span class="ns-chip warn" data-go="kosten" style="cursor:pointer">${ic("bell")}${esc(w[0].toUpperCase() + w.slice(1))}: ${esc(u.it.title)}${u.a != null ? " " + esc(brMoney(u.a)) : ""}</span>`;
+}
+function brCostHTML(){
+  const tk = dkey(), mk = tk.slice(0, 7);
+  const list = live("cost").sort((x, y) => (!!x.off - !!y.off) || ((x.cycle === "einmal") - (y.cycle === "einmal")) || (coNext(x) || "9").localeCompare(coNext(y) || "9"));
+  const up = coUpcoming(62), fixed = coFixed(), mCost = coMonth(mk), inc = brSum(mk), nx = up[0];
+  const miss = list.filter(i => !i.off && (coNum(i.amount) == null || !i.next));
+  const row = it => {
+    const n = coNext(it), a = coAmt(it, n || it.next || ""), open = S.brOpen === it.id;
+    const sub = it.off ? "gekündigt" : it.cycle === "einmal" ? (it.next ? (it.next <= tk ? `gekauft am ${fmtLong(it.next)}` : `geplant für ${fmtLong(it.next)}`) : "Datum fehlt")
+      : n ? `nächste Abbuchung ${coWhen(n)}${coWhen(n) !== fmtLong(n) ? ` (${fmtLong(n)})` : ""}` : "Datum der Abbuchung fehlt";
+    const per = it.cycle === "monat" ? "<small> /Monat</small>" : it.cycle === "jahr" ? "<small> /Jahr</small>" : "";
+    return `<div class="br-co ${it.off ? "off" : ""}"><button class="br-co-h" data-bact="edit" data-id="${it.id}" aria-expanded="${open}">
+      <span class="br-co-ic">${ic(it.cycle === "einmal" ? "file" : "repeat")}</span>
+      <span class="br-co-t"><b>${esc(it.title || "Ohne Namen")}</b><small>${esc(brLabel(BR_CYCLE, it.cycle))} · ${esc(sub)}${String(it.body || "").trim() ? " · " + esc(it.body) : ""}</small></span>
+      <span class="br-co-a num">${a == null ? "Betrag fehlt" : esc(brMoney(a)) + per}</span></button>
+      ${open ? `<div class="br-ed">
+        <label>Name<input class="field" data-bv="title" data-id="${it.id}" value="${esc(it.title)}"></label>
+        <label>Art<select class="field" data-bv="cycle" data-id="${it.id}">${brOpts(BR_CYCLE, it.cycle)}</select></label>
+        <label>Betrag in €${it.cycle === "einmal" ? "" : " (regulär)"}<input class="field" inputmode="decimal" data-bv="amount" data-num="1" data-id="${it.id}" value="${esc(it.amount ?? "")}" placeholder="z. B. 6"></label>
+        <label>${it.cycle === "einmal" ? "Kaufdatum" : "Datum einer Abbuchung"}<input class="field" type="date" data-bv="next" data-id="${it.id}" value="${esc(it.next || "")}"></label>
+        ${it.cycle === "einmal" ? "" : `<label>Anderer Betrag an diesem Datum<input class="field" inputmode="decimal" data-bv="nextAmount" data-num="1" data-id="${it.id}" value="${esc(it.nextAmount ?? "")}" placeholder="leer = regulär"></label>`}
+        <label class="br-wide">Wofür<input class="field" data-bv="body" data-id="${it.id}" value="${esc(it.body || "")}" placeholder="z. B. Transkription für den Videoschnitt"></label>
+        <div class="br-ed-f">${it.cycle === "einmal" ? "" : `<button class="btn ghost" data-bact="co-off" data-id="${it.id}">${it.off ? "Wieder aktiv" : "Gekündigt"}</button>`}
+          <button class="ibtn" data-bact="del" data-id="${it.id}" title="${S.brDel === it.id ? "Nochmal tippen zum Löschen" : "Löschen"}" aria-label="Kosten löschen" style="${S.brDel === it.id ? "color:var(--late)" : ""}">${ic("trash")}</button>
+          <button class="btn" data-bact="edit" data-id="${it.id}">Fertig</button></div></div>` : ""}</div>`;
+  };
+  return `<section class="card"><div class="card-h"><h2>Was dich das alles kostet</h2></div>
+    <div class="bs-kpis"><div><span>Feste Kosten</span><b class="num">${esc(brMoney(fixed))}</b><small>pro Monat, alle Abos</small></div>
+      <div><span>Nächste Abbuchung</span><b class="num">${nx ? esc(nx.a != null ? brMoney(nx.a) : "?") : "–"}</b><small>${nx ? esc(`${nx.it.title}, ${coWhen(nx.k)}`) : "nichts geplant"}</small></div>
+      <div><span>${esc(brMonth(mk))}</span><b class="num">${esc(brMoney(mCost))}</b><small>Kosten diesen Monat</small></div>
+      <div><span>Plus/Minus</span><b class="num" style="${inc - mCost < 0 ? "color:var(--late)" : ""}">${esc(brMoney(inc - mCost))}</b><small>Einnahmen ${esc(brMoney(inc))} minus Kosten</small></div></div>
+    ${miss.length ? `<p class="hint" style="margin-top:10px">Bei ${miss.map(i => esc(i.title)).join(", ")} fehlt noch Betrag oder Datum. Antippen und eintragen, dann rechnet die Seite richtig.</p>` : ""}</section>
+  <section class="card"><div class="card-h"><h2>Abos und Käufe</h2></div>
+    ${list.length ? list.map(row).join("") : `<div class="empty">Noch nichts eingetragen.</div>`}</section>
+  <section class="card"><div class="card-h"><h2>Die nächsten zwei Monate</h2></div>
+    ${up.length ? `<div class="br-scroll"><table class="br-tbl"><tr><th>Datum</th><th>Was</th><th class="num">Betrag</th></tr>
+      ${up.map(u => `<tr><td class="num" style="text-align:left">${esc(fmtLong(u.k))}</td><td>${esc(u.it.title)}</td><td class="num">${u.a == null ? "?" : esc(brMoney(u.a))}</td></tr>`).join("")}</table></div>`
+    : `<div class="empty">In den nächsten zwei Monaten wird nichts abgebucht.</div>`}</section>
+  <section class="card"><div class="card-h"><h2>Neu eintragen</h2></div>
+    <div class="br-ed"><label>Name<input class="field" id="br-o-t" placeholder="z. B. Domain für Kunden-Website"></label>
+      <label>Art<select class="field" id="br-o-k">${brOpts(BR_CYCLE, "monat")}</select></label>
+      <label>Betrag in €<input class="field" id="br-o-a" inputmode="decimal" placeholder="z. B. 12"></label>
+      <label>Abbuchung oder Kaufdatum<input class="field" type="date" id="br-o-d" value="${tk}"></label>
+      <label class="br-wide">Wofür<input class="field" id="br-o-n" placeholder="optional"></label>
+      <div class="br-ed-f"><button class="btn" data-bact="o-add">Eintragen</button></div></div></section>`;
+}
 function brSkillsHTML(){
   const sk = brand().skills, edit = S.brSkEdit = S.brSkEdit ?? !sk.length;
   const dots = s => `<div class="br-dots" role="group" aria-label="Stufe">${[1, 2, 3, 4, 5].map(l => `<button class="br-dot ${l <= (s.level || 0) ? "on" : ""}" data-bact="sk-lvl" data-id="${s.id}" data-l="${l}" title="Stufe ${l}" aria-label="Stufe ${l}"></button>`).join("")}</div>`;
@@ -5041,6 +5127,10 @@ document.addEventListener("click", e => {
     case "i-add": { const t = ($("#br-i-t") || {}).value.trim(), amt = brNum(($("#br-i-a") || {}).value);
       if (!t || amt == null) { toast("Bitte Quelle und Betrag eintragen."); return; }
       create("income", t, {amount:amt, type:$("#br-i-k").value, date:$("#br-i-d").value || dkey()}); toast("Einnahme gespeichert."); break; }
+    case "o-add": { const t = ($("#br-o-t") || {}).value.trim(), amt = brNum(($("#br-o-a") || {}).value);
+      if (!t || amt == null) { toast("Bitte Name und Betrag eintragen."); return; }
+      create("cost", t, {amount:amt, cycle:$("#br-o-k").value, next:$("#br-o-d").value || dkey(), body:(($("#br-o-n") || {}).value || "").trim()}); toast("Gespeichert."); break; }
+    case "co-off": if (it) { it.off = !it.off; persist(it); } break;
     case "stat-save": brStatSave(); return;
     case "stat-del": b.stats = b.stats.filter(s => s.d !== a.dataset.d); saveSettings(0); break;
     case "sk-add": { const inp = $("#br-k-new"), v = inp ? inp.value.trim() : ""; if (!v) { if (inp) inp.focus(); return; }
@@ -5072,7 +5162,7 @@ document.addEventListener("change", e => {
 document.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.isComposing) return;
   const id = e.target.id;
-  const map = {"br-v-new":"v-add", "br-c-new":"c-add", "br-k-new":"sk-add", "br-s-f":"stat-save", "br-s-v":"stat-save", "br-i-a":"i-add", "br-i-t":"i-add"};
+  const map = {"br-v-new":"v-add", "br-c-new":"c-add", "br-k-new":"sk-add", "br-s-f":"stat-save", "br-s-v":"stat-save", "br-i-a":"i-add", "br-i-t":"i-add", "br-o-t":"o-add", "br-o-a":"o-add"};
   if (map[id]) { e.preventDefault(); const btn = document.querySelector(`[data-bact="${map[id]}"]`); if (btn) btn.click(); }
 });
 
