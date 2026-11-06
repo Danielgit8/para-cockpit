@@ -1369,7 +1369,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-06.3";
+const APP_VERSION = "2026-11-06.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1973,6 +1973,8 @@ function navGroups(){
     {id:"journal", label:"Journal", icon:"pen", views:[v("journal", "Journal", "pen")]},
     {id:"weg", label:"Mein Weg", icon:"compass", views:[v("weg", "Mein Weg", "compass")]},
     {id:"abend", label:"Abend", icon:"moon", views:[v("abend", "Abend", "moon")]},
+    // Brand & Business als eigener Bereich (sein Wunsch 06.11.2026), vorher unter Werkzeuge
+    {id:"brand", label:"Brand & Business", icon:"star", views:[v("brand", "Brand & Business", "star")]},
     // Boards (Excalidraw) wieder direkt in der Seitenleiste, sein Wunsch 06.11.2026
     {id:"boards", label:"Boards", icon:"board", views:[v("board", "Boards", "board")]},
     {id:"tools", label:"Werkzeuge", icon:"tools", views:[v("tools", "Werkzeuge", "tools"), ...toolViews(k).flatMap(g => g.views)]},
@@ -1984,7 +1986,6 @@ function toolViews(k = kinds()){
   const v = (id, label, icon) => ({v:id, label, icon});
   return [
     {label:"Planen", views:[v("liste", "Tagesliste", "task"), v("cal", "Kalender", "cal"), v("task", k.task.plural, k.task.icon), v("project", k.project.plural, k.project.icon), v("habit", k.habit.plural, k.habit.icon), v("review", "Wochenrückblick", "review")]},
-    {label:"Brand & Business", views:[v("brand", "Brand & Business", "star"), v("kosten", "Kosten", "repeat")]},
     {label:"Körper", views:[v("training", "Training", "dumbbell"), v("food", "Ernährung", "food")]},
     {label:"Wissen", views:[...(S.settings.kinds || []).map(c => v(c.id, c.label, "folder")), v("resource", k.resource.plural, k.resource.icon), v("note", k.note.plural, k.note.icon), v("area", k.area.plural, k.area.icon), v("board", "Boards", "board")]},
     {label:"Mehr", views:[v("tags", "Stichwörter", "tag"), v("archive", "Archiv", "archive"), v("settings", "Anpassen", "settings"), v("dashboard", "Übersicht", "home")]},
@@ -2016,7 +2017,7 @@ function renderSide(){
   const gs = navGroups(), cur = groupOf(S.view), hide = new Set(S.settings.navHide || []);
   const extra = [...(hide.has("tags") ? [] : [{v:"tags", label:"Stichwörter", icon:"tag"}]), {v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"}];
   $("#side").innerHTML = `
-    <div class="brand"><span class="brand-mark">N</span>Neustart</div>
+    <div class="brand"><span class="brand-mark">D</span>Daniel Cockpit</div>
     ${gs.map(g => `<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
       ${cur && cur.id === g.id && g.views.length > 1 && g.id !== "tools" ? `<div class="nav-subs">${g.views.map(x => `<button class="nav-sub ${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>` : ""}`).join("")}
     <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
