@@ -1369,7 +1369,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-06.4";
+const APP_VERSION = "2026-11-07.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1952,7 +1952,7 @@ function applySettings(){
 
 /* ================= navigation ================= */
 function navItems(){
-  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"brand", label:"Brand & Business", icon:"star"}, {v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}];
+  const k = kinds(); const out = [{v:"dashboard", label:"Übersicht", icon:"home"}, {v:"brand", label:"Brand", icon:"star"}, {v:"today", label:"Heute", icon:"sun"}, {v:"cal", label:"Kalender", icon:"cal"}];
   for (const id of ["task","habit","project"]) out.push({v:id, label:k[id].plural, icon:k[id].icon});
   out.push({v:"training", label:"Training", icon:"dumbbell"});
   out.push({v:"food", label:"Ernährung", icon:"food"});
@@ -1974,7 +1974,7 @@ function navGroups(){
     {id:"weg", label:"Mein Weg", icon:"compass", views:[v("weg", "Mein Weg", "compass")]},
     {id:"abend", label:"Abend", icon:"moon", views:[v("abend", "Abend", "moon")]},
     // Brand & Business als eigener Bereich (sein Wunsch 06.11.2026), vorher unter Werkzeuge
-    {id:"brand", label:"Brand & Business", icon:"star", views:[v("brand", "Brand & Business", "star")]},
+    {id:"brand", label:"Brand", icon:"star", views:[v("brand", "Brand", "star")]},
     // Boards (Excalidraw) wieder direkt in der Seitenleiste, sein Wunsch 06.11.2026
     {id:"boards", label:"Boards", icon:"board", views:[v("board", "Boards", "board")]},
     {id:"tools", label:"Werkzeuge", icon:"tools", views:[v("tools", "Werkzeuge", "tools"), ...toolViews(k).flatMap(g => g.views)]},
@@ -2742,7 +2742,7 @@ function mainProjHTML(){
   return `<section class="card mp-card"><div class="card-h"><span class="ot-lbl" style="margin:0">Mein Hauptprojekt</span><span class="grow"></span>${pr.total ? `<span class="pill num">${pr.done}/${pr.total} Schritte</span>` : ""}</div>
     <button class="mp-t" data-open="${p.id}">${esc(p.title || "Ohne Titel")}</button>
     ${pr.total ? `<div class="br-track br-track-l"><i style="width:${(pr.done / pr.total * 100).toFixed(1)}%"></i></div>` : ""}
-    ${docs.length || ba ? `<div class="pills mp-docs">${docs.map(d => `<button class="pill" data-open="${d.id}">${ic("note")}${esc(d.title || "Notiz")}</button>`).join("")}${ba ? `<button class="pill" data-go="brand">${ic("star")}Brand & Business</button>` : ""}</div>` : ""}
+    ${docs.length || ba ? `<div class="pills mp-docs">${docs.map(d => `<button class="pill" data-open="${d.id}">${ic("note")}${esc(d.title || "Notiz")}</button>`).join("")}${ba ? `<button class="pill" data-go="brand">${ic("star")}Brand</button>` : ""}</div>` : ""}
     ${hRows ? `<div class="mp-hs">${hRows}</div>` : ""}
     <div class="sub-h">Als Nächstes</div>
     ${open.slice(0, 3).map(t => taskRow(t, tk)).join("") || ((p.links || []).find(l => /brand-weg/.test(l.url || "")) ? `<a class="bw-link card" href="../brand-weg/" style="margin:6px 0 0;box-shadow:none"><span class="bw-ic">${ic("star")}</span><span><b>In Brand-Weg ansehen</b><small>Dort steht immer der nächste Schritt</small></span><span class="bw-go">›</span></a>` : "") || `<div class="add"><input id="mp-add" data-keep data-rel="${p.id}" placeholder="Nächsten Schritt festlegen …" aria-label="Nächster Schritt"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-act="addtask" data-src="mp-add" data-rel="${p.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>`}
@@ -4882,15 +4882,13 @@ function brandHTML(){
   if (!S.brTab) { try { S.brTab = localStorage.getItem("brTab") || "over"; } catch (e) { S.brTab = "over"; } }
   const vids = live("video"), cons = live("contact"), tab = S.brTab;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
-  const out = header("Brand & Business", "Content, Personal Brand und Geld verdienen an einem Ort") + banner() +
-    `<a class="card bw-link" href="../brand-weg/"><span class="bw-ic">${ic("star")}</span><span><b>Mein Brand-Weg öffnen</b><small>Der Plan nach Mino Lee: was jetzt dran ist, Video-Werkstatt, dein Profil und alles Wissen</small></span><span class="bw-go">›</span></a>` +
-    `<div class="tr-seg">${seg("over", "Überblick")}${seg("know", "Wissen")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("con", `Kontakte <span class="num">${cons.length}</span>`)}${seg("inc", "Einnahmen")}${seg("cost", "Kosten")}${seg("skill", "Fähigkeiten")}</div>`;
-  if (tab === "know") return out + brKnowHTML();
+  const out = header("Brand", "Krafttraining, Darm und Ernährung: mein Weg als Content") + banner() +
+    `<a class="card bw-link" href="../brand-weg/"><span class="bw-ic">${ic("star")}</span><span><b>Mein Brand-Weg öffnen</b><small>Grundlagen, Strategie, Videos und Zahlen</small></span><span class="bw-go">›</span></a>` +
+    `<div class="tr-seg">${seg("over", "Überblick")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("inc", "Einnahmen")}${seg("cost", "Kosten")}</div>`;
+  // Neustart 07.11.2026: Wissen, Kontakte und Fähigkeiten sind raus (Daten bleiben gespeichert)
   if (tab === "vid") return out + brVideosHTML(vids);
-  if (tab === "con") return out + brContactsHTML(cons);
   if (tab === "inc") return out + brIncomeHTML();
   if (tab === "cost") return out + brCostHTML();
-  if (tab === "skill") return out + brSkillsHTML();
   return out + brOverHTML(vids, cons);
 }
 function brOverHTML(vids, cons){
@@ -4900,7 +4898,7 @@ function brOverHTML(vids, cons){
   const dueC = cons.filter(c => c.next && c.next <= tk && c.status !== "ruht").length;
   const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
   const pts = k => st.filter(s => s[k] != null).map(s => ({d:s.d, v:s[k], s:""}));
-  return mainProjHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Content eine Personal Brand aufbauen, Fähigkeiten lernen, Kontakte knüpfen und davon leben.")}</h2></div>
+  return mainProjHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Krafttraining, Ernährung und meinem eigenen Weg anderen wirklich helfen und daraus eine Community aufbauen.")}</h2></div>
       <button class="pill br-pill" data-bact="goals">${S.brGoals ? "Fertig" : "Ziele bearbeiten"}</button></div>
     <div class="br-goals" id="br-goalbars">${brGoalBarsHTML()}</div>
     ${S.brGoals ? `<div class="br-gform">
@@ -4913,8 +4911,7 @@ function brOverHTML(vids, cons){
   <section class="card"><div class="card-h"><h2>Dranbleiben</h2></div>
     <div class="bs-kpis"><div><span>Serie „${esc(h ? h.title : "Video gepostet")}“</span><b class="num">${streak} ${streak === 1 ? "Tag" : "Tage"}</b><small>${h ? `diese Woche ${weekCount(h)} von ${h.target || 7}` : "Gewohnheit nicht gefunden"}</small></div>
       <div><span>Gepostet</span><b class="num">${posted}</b><small>Videos im ${esc(brMonth(mk))}</small></div>
-      <div><span>In Arbeit</span><b class="num">${inWork}</b><small>von der Idee bis geschnitten</small></div>
-      <div><span>Nachhaken</span><b class="num">${dueC}</b><small>${dueC === 1 ? "Kontakt ist" : "Kontakte sind"} dran</small></div></div>
+      <div><span>In Arbeit</span><b class="num">${inWork}</b><small>von der Idee bis geschnitten</small></div></div>
     <h3 class="br-sub">Nächste Schritte${a ? ` aus „${esc(a.title)}“` : ""}</h3>
     ${tasks.slice(0, 5).map(t => taskRow(t, tk)).join("") || `<div class="empty">Keine offenen Aufgaben im Bereich ${a ? `„${esc(a.title)}“` : "Personal Brand"}.</div>`}</section>
   <section class="card"><div class="card-h"><h2>Zahlen der Woche</h2></div>
@@ -4926,10 +4923,7 @@ function brOverHTML(vids, cons){
     ${st.length ? `<div class="br-charts"><div><h3>Follower</h3>${trChartHTML("Follower", {pts:pts("followers"), unit:"Follower", col:false, empty:"Noch keine Follower eingetragen.", one:"Ab dem zweiten Eintrag siehst du hier eine Linie."})}</div>
       <div><h3>Aufrufe pro Woche</h3>${trChartHTML("Aufrufe", {pts:pts("views"), unit:"Aufrufe", col:false, empty:"Noch keine Aufrufe eingetragen.", one:"Ab dem zweiten Eintrag siehst du hier eine Linie."})}</div></div>
       <details class="trc-tbl"><summary>Alle Einträge</summary><table><tr><th>Datum</th><th>Follower</th><th>Aufrufe</th><th></th></tr>
-        ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</section>
-  <section class="card"><div class="card-h"><h2>Leitfaden</h2><span class="grow"></span><button class="pill" data-bact="tab" data-v="know">Alles Wissen</button></div>
-    <div class="br-chs">${brChapters().map(c => brChapterBtn(c)).join("") || `<p class="hint">Der Leitfaden steht jetzt in <a href="../brand-weg/#/wissen">Brand-Weg unter „Wissen“</a>.</p>`}</div>
-    <h3 class="br-h3" style="margin-top:18px">Werkzeuge und Pläne</h3><div class="br-links">${brToolPills()}</div></section>`;
+        ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</section>`;
 }
 function brVideosHTML(vids){
   const open = S.brOpen && vids.find(v => v.id === S.brOpen);
