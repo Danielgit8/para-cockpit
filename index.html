@@ -1369,7 +1369,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-07.1";
+const APP_VERSION = "2026-11-07.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2352,24 +2352,19 @@ function nsHero(img, kick, title, sub){
 const nsBlocks = () => { const b = NS().blocks || {}; return {content:{min:60, at:"16:00", week:5, ...(b.content || {})}, fr:{min:30, at:"18:00", week:6, ...(b.fr || {})},
   // Neben dem Video-Block (Wunsch 2026-11-03): zweimal am Tag Kommentare und Nachrichten statt ständig nachzuschauen, Lernen mit Obergrenze
   comm:{min:15, at1:"12:00", at2:"19:00", ...(b.comm || {})}, learn:{min:30, ...(b.learn || {})}}; };
-const NSBW = {};
-function nsLoadBW(){
-  NSBW.loading = true;
-  fetch("../brand-weg/data.js").then(r => r.ok ? r.text() : Promise.reject()).then(t => {
-    const d = JSON.parse(t.slice(t.indexOf("=") + 1).trim().replace(/;$/, ""));
-    NSBW.steps = d.steps.map(s => ({id:s.id, title:s.title}));
-    try { localStorage.setItem("ns-bwsteps", JSON.stringify(NSBW.steps)); } catch(e){}
-    if (S.view === "today") renderMain();
-  }).catch(() => {});
-}
+// Seit dem Brand-Neustart (07.11.2026) hat Brand-Weg nur noch Grundlagen, Strategie und Videos (ST.neu).
+// Der nächste Schritt ergibt sich daraus: erst Grundlagen, dann Säulen, dann das nächste Video aus der Ideenliste.
 function nsBW(){
   let st = null; try { st = JSON.parse(localStorage.getItem("brandweg-state-v1") || "null"); } catch(e){}
-  if (!NSBW.steps) { try { NSBW.steps = JSON.parse(localStorage.getItem("ns-bwsteps") || "null"); } catch(e){} }
-  if (!NSBW.loading) nsLoadBW();
-  if (!st || !NSBW.steps) return null;
-  const done = st.done || {}, steps = NSBW.steps, mon = dkey(weekDays()[0]);
-  const posted = [...(st.videos || []).filter(v => v.posted).map(v => v.posted), ...(st.posts || [])].map(x => String(x).slice(0, 10));
-  return {cur: steps.find(s => !done[s.id]) || null, n: steps.filter(s => done[s.id]).length, total: steps.length, posted: posted.length, week: posted.filter(x => x >= mon).length};
+  const n = (st && st.neu) || {}, g = n.g || {}, vids = n.vids || [], mon = dkey(weekDays()[0]);
+  const has = k => !!String(g[k] || "").trim();
+  const posted = vids.filter(v => v.st === 2), idea = vids.find(v => v.st === 1) || vids.find(v => v.st === 0);
+  let cur;
+  if (!["ikigai", "nische", "zuschauer", "pos"].every(has)) cur = {title:"Grundlagen in Brand-Weg ausfüllen: Ikigai, Thema, Traumzuschauer", path:"#/grund"};
+  else if (!(n.pil || []).some(x => String(x || "").trim())) cur = {title:"Content-Säulen und Wochenablauf festlegen", path:"#/strategie"};
+  else if (idea) cur = {title:`${idea.st === 1 ? "Posten" : "Drehen"}: ${idea.t}`, path:"#/videos"};
+  else cur = {title:"Neue Video-Idee aufschreiben", path:"#/videos"};
+  return {cur, posted: posted.length, week: posted.filter(v => (v.date || "") >= mon).length};
 }
 function nsBlockDone(key, k){
   const x = nsDay(k) || {};
@@ -2414,12 +2409,12 @@ function nsContentHTML(d){
   const {t} = nsThing();
   const step = bw && bw.cur ? bw.cur : null;
   const next = step ? step.title : t ? t.title : "Brand-Weg öffnen und den nächsten Schritt ansehen";
-  const link = step ? `../brand-weg/#/weg/${step.id}` : "../brand-weg/";
+  const link = step ? `../brand-weg/${step.path}` : "../brand-weg/";
   const wn = weekDays().filter(x => nsBlockDone("content", dkey(x))).length;
   const timer = T ? `<div class="ns-timer"><span id="ns-tm" class="num">${nsLeft()}</span><div class="ns-row2"><button class="btn ns-start" data-ns="blkfin">${ic("check")}Block fertig</button><button class="btn ghost" data-ns="blkstop">Abbrechen</button></div></div>` : "";
   return `<section class="ns-card ns-now ${done ? "ns-done" : ""}"><div class="ns-lbl-row"><span class="ns-lbl">Projekt 1 · Personal Brand</span><span class="ns-when num">${esc(B.at)} · ${B.min} Min.</span></div>
     <a class="ns-now-t" href="${link}">${esc(next)}</a>
-    <p class="ns-now-h">${step ? `Nächster Schritt in Brand-Weg · Schritt ${bw.n + 1} von ${bw.total}` : "Dein nächster Schritt"}${bw ? ` · ${bw.posted} ${bw.posted === 1 ? "Video" : "Videos"} online` : ""}</p>
+    <p class="ns-now-h">${step ? "Nächster Schritt in Brand-Weg" : "Dein nächster Schritt"}${bw ? ` · ${bw.posted} ${bw.posted === 1 ? "Video" : "Videos"} online` : ""}</p>
     ${done ? `<p class="ns-ok">${ic("check")}Content-Block für heute geschafft.</p>` : timer}
     <div class="ns-acts">${done || T ? "" : `<button class="btn ns-start" data-ns="blk">${ic("play")}Block starten · ${B.min} Min.</button>`}
       <a class="btn ghost" href="${link}">${ic("video")}Brand-Weg</a>
