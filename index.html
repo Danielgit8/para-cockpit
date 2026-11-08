@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#E6E6E8" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#08080A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F3EBDD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1D1712" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cockpit">
@@ -15,7 +15,7 @@
 <title>PARA Cockpit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&display=swap">
 <style>
 /* Layout: floating white sidebar + glass cards on a soft grey studio backdrop; black pills carry state (after the Management Dashboard reference) */
 :root{
@@ -1347,6 +1347,173 @@ a.ns-now-t{text-decoration:none}
 .jr-shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:12px}
 .jr-shot{aspect-ratio:1;border:0;padding:0;border-radius:12px;overflow:hidden;background:var(--line);cursor:pointer;font:inherit;font-size:12px;color:var(--muted)}
 .jr-shot img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ===== Cuisine de papier (2026-11-08): Food-Heft statt App. Regeln in Meine Personal Brand/design/stil.md =====
+   Papier, Druckfarbe, Bordeaux als einziger lauter Ton. Nur Aussehen, keine Logik. */
+:root{
+  --papier:#F3EBDD; --papier-2:#EADFCB; --papier-3:#DFD1B8; --leinen:#FAF6EE;
+  --bordeaux:#9B2B2C; --bordeaux-tief:#741E20; --senf:#C08A2E; --olive:#4E5A2C; --ardoise:#3D5868; --butter:#F0D58C;
+  --bg:#F3EBDD; --bg-hi:#FAF6EE; --panel:rgba(250,246,238,.80); --panel-solid:#FAF6EE;
+  --line:rgba(43,33,25,.13); --line-2:rgba(43,33,25,.30);
+  --ink:#2B2119; --on-ink:#F6EFE3; --text:#2B2119; --muted:#7A6A5A; --soft:#EADFCB;
+  --dark:#6F1F21; --on-dark:#F6EDE0; --dark-muted:rgba(246,237,224,.72); --dark-line:rgba(246,237,224,.22);
+  --sheen:rgba(255,236,214,.10); --sheen2:rgba(0,0,0,.08);
+  --late:#9B2B2C; --good:#4E5A2C; --amber:#A8731C; --amber-soft:#F1E3C2; --green-soft:#E4E4C9;
+  --brand:#9B2B2C; --brand-2:#B8463F; --brand-soft:rgba(155,43,44,.09);
+  --shadow:0 1px 0 rgba(255,255,255,.55) inset, 0 10px 24px -18px rgba(60,35,15,.38);
+  --r-lg:6px; --r-md:4px; --r-sm:3px;
+  --f-ui:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-num:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-head:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --ease-out:cubic-bezier(.23,1,.32,1); --ease-papier:cubic-bezier(.22,.8,.24,1); --ease-inout:cubic-bezier(.77,0,.175,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --papier:#1D1712; --papier-2:#261E17; --papier-3:#31271E; --leinen:#2C231B;
+  --bordeaux:#C9484A; --bordeaux-tief:#A8383A; --senf:#D9A54A; --olive:#95A35E; --ardoise:#86A6B8;
+  --bg:#1D1712; --bg-hi:#2C231B; --panel:rgba(38,30,23,.86); --panel-solid:#261E17;
+  --line:rgba(239,229,211,.10); --line-2:rgba(239,229,211,.24);
+  --ink:#EFE5D3; --on-ink:#1D1712; --text:#EFE5D3; --muted:#A8977F; --soft:#31271E;
+  --dark:#5A1A1C; --on-dark:#F3E8D6; --dark-muted:rgba(243,232,214,.7); --dark-line:rgba(243,232,214,.18);
+  --sheen:rgba(255,220,190,.06); --sheen2:rgba(0,0,0,.2);
+  --late:#D0605A; --good:#A3B26A; --amber:#D9A54A; --amber-soft:#3E3020; --green-soft:#2E3320;
+  --brand:#C9484A; --brand-2:#D9675F; --brand-soft:rgba(201,72,74,.14);
+  --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 14px 30px -20px rgba(0,0,0,.8);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --papier:#1D1712; --papier-2:#261E17; --papier-3:#31271E; --leinen:#2C231B;
+  --bordeaux:#C9484A; --bordeaux-tief:#A8383A; --senf:#D9A54A; --olive:#95A35E; --ardoise:#86A6B8;
+  --bg:#1D1712; --bg-hi:#2C231B; --panel:rgba(38,30,23,.86); --panel-solid:#261E17;
+  --line:rgba(239,229,211,.10); --line-2:rgba(239,229,211,.24);
+  --ink:#EFE5D3; --on-ink:#1D1712; --text:#EFE5D3; --muted:#A8977F; --soft:#31271E;
+  --dark:#5A1A1C; --on-dark:#F3E8D6; --dark-muted:rgba(243,232,214,.7); --dark-line:rgba(243,232,214,.18);
+  --sheen:rgba(255,220,190,.06); --sheen2:rgba(0,0,0,.2);
+  --late:#D0605A; --good:#A3B26A; --amber:#D9A54A; --amber-soft:#3E3020; --green-soft:#2E3320;
+  --brand:#C9484A; --brand-2:#D9675F; --brand-soft:rgba(201,72,74,.14);
+  --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 14px 30px -20px rgba(0,0,0,.8);
+  color-scheme:dark}
+
+/* Papier und Schrift */
+body{font-family:var(--f-ui);font-weight:400;font-size:15px;font-size-adjust:.5;font-optical-sizing:auto;
+  background:radial-gradient(120% 70% at 50% 0%,var(--bg-hi) 0%,var(--bg) 55%,var(--soft) 140%) fixed}
+body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .17 0 0 0 0 .13 0 0 0 0 .1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body::after{opacity:.09;filter:invert(1)}}
+:root[data-theme="dark"] body::after{opacity:.09;filter:invert(1)}
+::selection{background:var(--butter);color:#2B2119}
+:focus-visible{outline-color:var(--bordeaux)}
+.num{font-variant-numeric:tabular-nums lining-nums;letter-spacing:0}
+.top h1,.ns-h1,.ns-q,.ns-fr-t,.ns-plan-t,.ns-new,.ns-sec h2,.ns-now-t,.ns-num,.now-t,.card-h h2,.brand,.brand-mark{font-size-adjust:none}
+
+/* Alles Pillenförmige wird Papier: kleine Ecken */
+.nav,.nav-sub,.nav-extra button,.gtab,.hchip,.search input,.pill,.chip,.btn,.add,.relchip,.hin input,.cal-colh b,.cal-ev.pt,.bs-delta,.rest-btns button,.nt-sin input,
+.ns-chip,.ns-wk span,.ns-more,.ns-wins span,.ns-chain span,.ns-cm button,.ns-seg button,.ns-row,.ns-add input,.ns-b,.ns-prayer,.ns-stats span,.ns-tool,.field,.toast,.tl-bar{border-radius:3px}
+.ns-bar,.prog,.ns-bar i,.prog i{border-radius:0}
+.ns-pray img,.jr-yt img,.jr-shot{border-radius:2px}
+
+/* Seitenleiste wie ein Inhaltsverzeichnis */
+.side{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border:0;border-right:1px solid var(--line-2);border-radius:0;box-shadow:none}
+.brand{font:italic 600 19px/1 var(--f-head);letter-spacing:-.01em;white-space:nowrap}
+.side{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.brand-mark{width:34px;height:34px;border-radius:50%;background:var(--senf);color:var(--leinen);font:italic 500 18px/1 var(--f-head);box-shadow:inset 0 0 0 2px var(--senf),inset 0 0 0 3px rgba(250,246,238,.75);transform:rotate(-8deg)}
+.nav-label{font-size:10.5px;font-weight:600;letter-spacing:.16em}
+.nav{font-weight:500;font-size:15.5px;transition:background-color .16s ease,color .16s ease}
+.nav.on{background:transparent;color:var(--bordeaux);font-style:italic;box-shadow:inset 2px 0 0 var(--bordeaux);border-radius:0}
+.nav.on .cnt{opacity:1}
+.nav.nav-brand{background:transparent;color:var(--bordeaux)}
+.nav.nav-brand.on{background:var(--brand-soft);color:var(--bordeaux)}
+.nav-sub.on{color:var(--bordeaux);background:transparent;font-style:italic}
+.gtab.on,.pill.on,.ns-seg button.on,.hchip.on{background:var(--ink);border-color:var(--ink)}
+@media (max-width:860px){
+  .side{background:var(--panel-solid);border:1px solid var(--line-2);border-radius:4px;box-shadow:0 20px 40px -20px rgba(60,35,15,.5)}
+  .bottom{left:0;right:0;bottom:0;border-radius:0;border:0;border-top:1px solid var(--ink);box-shadow:0 -3px 0 -2px var(--ink);background:rgba(243,235,221,.97);padding:2px 6px calc(2px + env(safe-area-inset-bottom,0px))}
+  .bottom button{border-radius:0;font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:9px 0 8px;transition:color .16s ease}
+  .bottom button.on,.bottom button.nav-brand.on{background:transparent;color:var(--bordeaux);box-shadow:inset 0 3px 0 -1px var(--bordeaux)}
+  .bottom button.nav-brand{color:var(--muted)}
+  .main{padding-bottom:96px}
+}
+@media (max-width:860px) and (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bottom{background:rgba(29,23,18,.97)}}
+@media (max-width:860px){:root[data-theme="dark"] .bottom{background:rgba(29,23,18,.97)}}
+
+/* Kopf jeder Seite: Bodoni und Doppellinie wie ein Heft-Titel */
+.top{padding-bottom:16px;background:linear-gradient(var(--ink),var(--ink)) left bottom/100% 1px no-repeat,linear-gradient(var(--ink),var(--ink)) left calc(100% - 4px)/100% 2.5px no-repeat}
+.top h1{font:700 clamp(36px,5.2vw,62px)/1 var(--f-head);letter-spacing:-.035em}
+.top .sub{font-style:italic;font-size:15px}
+
+/* Karten: Papierbogen mit Haarlinie */
+.card,.ns-card,.ns-tool{background:var(--panel);backdrop-filter:none;-webkit-backdrop-filter:none;border:1px solid var(--line);box-shadow:var(--shadow)}
+.card-h h2{font:600 20px/1.15 var(--f-head);letter-spacing:-.015em}
+.card.dark,.ns-now,.ns-night{background:radial-gradient(90% 70% at 88% 0%,var(--sheen) 0%,transparent 55%),var(--dark);box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 16px 34px -20px rgba(80,20,20,.6)}
+.ns-lbl,.now-help-l,.now-plan small{font-size:11px;font-weight:600;letter-spacing:.15em}
+.ns-hint,.ns-kind,.ns-credits{font-style:italic}
+.ns-q,.ns-fr-t,.ns-plan-t,.ns-sec h2{font-weight:600;letter-spacing:-.015em}
+.ns-q{font-size:23px}.ns-fr-t,.ns-plan-t{font-size:23px}
+.ns-new{font-style:italic}
+.ns-now-t{font-weight:600;letter-spacing:-.02em;font-size:clamp(25px,5vw,32px)}
+.ns-big,.ns-score{font-family:var(--f-head);font-weight:700;letter-spacing:-.02em;font-size-adjust:none}
+.ns .ns-score,.ns .ns-big .num{font-family:var(--f-head)}
+.ns-num{background:transparent;color:var(--bordeaux);box-shadow:inset 0 0 0 1px var(--bordeaux),inset 0 0 0 3px var(--panel-solid),inset 0 0 0 4px rgba(155,43,44,.45);font-style:italic}
+
+/* Titelbild: Abzug auf Papier, warm entwickelt */
+.ns-hero{border-radius:4px;outline:1px solid rgba(250,246,238,.6);outline-offset:-10px;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 14px 30px -20px rgba(60,35,15,.55)}
+.ns-hero::before{content:"";position:absolute;inset:0;z-index:0;background:rgba(150,90,40,.16);mix-blend-mode:multiply;pointer-events:none}
+.ns-hero::after{background:linear-gradient(180deg,rgba(30,18,10,0) 30%,rgba(30,18,10,.74) 100%)}
+.ns-hero-in{padding:26px 26px 24px}
+.ns-kick{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9}
+.ns-h1{font-weight:700;font-size:clamp(36px,8vw,56px);letter-spacing:-.03em;line-height:1}
+.ns-sub{font-style:italic;font-size:16px}
+.ns-hero .ns-link{color:var(--butter)}
+
+/* Eingaben wie auf einem Formular */
+.field,.ns-add input,.search input,.nt-sin input,.hin input{background:var(--leinen)}
+.field:focus,.ns-add input:focus{border-color:var(--bordeaux);box-shadow:inset 0 -1px 0 var(--bordeaux)}
+::placeholder{font-style:italic}
+.ns-now .ns-add input{background:rgba(255,255,255,.08)}
+
+/* Knöpfe: gedruckte Farbe, Druckgefühl */
+.btn{font-weight:600;font-size:14px;letter-spacing:.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.14);transition:transform 120ms var(--ease-out),background-color .16s ease,opacity .16s ease}
+.btn:active,.pill:active,.ns-row:active,.ns-seg button:active,.ns-b:active,.hchip:active,.ns-tool:active,.rbtn:active{transform:scale(.97)}
+.btn.danger{background:var(--bordeaux)}
+.ns-start-l{background:var(--bordeaux);border-color:var(--bordeaux);color:#FAF6EE}
+.ns-now .btn{border-color:var(--dark-line)}
+.ns-now .btn.ns-start{background:#F6EDE0;color:#6F1F21;border-color:#F6EDE0}
+.ns-timer #ns-tm{color:var(--butter);font-family:var(--f-head)}
+.ns-ok{color:#F1E3C2}
+.ns-now .ns-wk span.on{background:#F1E3C2;color:#5A1A1C}
+
+/* Häkchen wie im Heft: Kästchen statt Kreis, Olive für geschafft */
+.ns-tick,.check{border-radius:2px}
+.ns-row.on{background:var(--green-soft)}
+.ns-row.on .ns-tick,.ns-step.ok .ns-n{background:var(--olive);border-color:var(--olive);color:var(--leinen)}
+.ns-seg button{font-family:var(--f-head);font-weight:600;font-size:17px;font-size-adjust:none}
+
+/* Fortschritt: ein Federstrich */
+.ns-bar,.prog{height:3px;background:var(--line)}
+.ns-bar i,.prog i{background:var(--bordeaux);transform-origin:left}
+.ns-bar.fr i{background:var(--senf)}
+.ns-chip{background:var(--amber-soft)}
+.ns-chip.warn{background:rgba(155,43,44,.12);color:var(--bordeaux)}
+
+/* Konfetti passt nicht zum Heft: leise ausblenden */
+.ns-confetti{display:none}
+
+/* Brand & Business */
+.br-hero{background:radial-gradient(90% 70% at 88% 0%,rgba(255,236,214,.10) 0%,transparent 55%),#6F1F21;color:#F6EDE0}
+.bw-ic{background:var(--bordeaux);border-radius:50%}
+
+/* Auftritt beim Seitenwechsel: Druckfarbe zieht ins Papier */
+@keyframes cdpIn{from{opacity:0;transform:translateY(10px);filter:blur(3px)}}
+@keyframes cdpDev{from{filter:saturate(.35) blur(5px);transform:scale(1.03)}}
+@keyframes cdpDraw{from{transform:scaleX(0)}}
+.main.pg-in > *,.main.pg-in .ns > *{animation:cdpIn 520ms var(--ease-papier) both}
+.main.pg-in > :nth-child(2),.main.pg-in .ns > :nth-child(2){animation-delay:60ms}
+.main.pg-in > :nth-child(3),.main.pg-in .ns > :nth-child(3){animation-delay:120ms}
+.main.pg-in > :nth-child(4),.main.pg-in .ns > :nth-child(4){animation-delay:180ms}
+.main.pg-in > :nth-child(5),.main.pg-in .ns > :nth-child(5){animation-delay:240ms}
+.main.pg-in > :nth-child(6),.main.pg-in .ns > :nth-child(6){animation-delay:300ms}
+.main.pg-in > :nth-child(n+7),.main.pg-in .ns > :nth-child(n+7){animation-delay:340ms}
+.main.pg-in > .ns{animation:none}
+.main.pg-in .ns-hero{animation:cdpIn 520ms var(--ease-papier) both,cdpDev 900ms var(--ease-papier) both}
+.main.pg-in .ns-bar i,.main.pg-in .prog i{animation:cdpDraw 900ms var(--ease-papier) 260ms both}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1369,7 +1536,7 @@ a.ns-now-t{text-decoration:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-08.1";
+const APP_VERSION = "2026-11-08.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2043,6 +2210,8 @@ function renderMain(){
   let ss = null, se = null; try { ss = a.selectionStart; se = a.selectionEnd; } catch(e){}
   const keep = {}; main.querySelectorAll("[data-keep]").forEach(n => { if (n.id) keep[n.id] = n.value; });
   main.innerHTML = viewHTML();
+  // Seitenwechsel bekommt einen kurzen Auftritt (nur Aussehen, siehe CSS „Cuisine de papier“)
+  if (S.view !== renderMain.v || S.mode !== renderMain.m) { renderMain.v = S.view; renderMain.m = S.mode; main.classList.remove("pg-in"); void main.offsetWidth; main.classList.add("pg-in"); clearTimeout(renderMain.t); renderMain.t = setTimeout(() => main.classList.remove("pg-in"), 1300); }
   for (const [id, v] of Object.entries(keep)) { const n = document.getElementById(id); if (n) n.value = v; }
   if (fid) { const n = document.getElementById(fid); if (n) { n.focus({preventScroll:true}); try { if (ss != null) n.setSelectionRange(ss, se); } catch(e){} } }
   if (keep.q) searchRender(keep.q);
