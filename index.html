@@ -15,7 +15,7 @@
 <title>PARA Cockpit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Pinyon+Script&display=swap">
 <style>
 /* Layout: floating white sidebar + glass cards on a soft grey studio backdrop; black pills carry state (after the Management Dashboard reference) */
 :root{
@@ -1501,7 +1501,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .bw-ic{background:var(--bordeaux);border-radius:50%}
 
 /* Auftritt beim Seitenwechsel: Druckfarbe zieht ins Papier */
-@keyframes cdpIn{from{opacity:0;transform:translateY(10px);filter:blur(3px)}}
+@keyframes cdpIn{from{opacity:0;transform:translateY(4px)}}
 @keyframes cdpDev{from{filter:saturate(.35) blur(5px);transform:scale(1.03)}}
 @keyframes cdpDraw{from{transform:scaleX(0)}}
 .main.pg-in > *,.main.pg-in .ns > *{animation:cdpIn 520ms var(--ease-papier) both}
@@ -1514,6 +1514,47 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .main.pg-in > .ns{animation:none}
 .main.pg-in .ns-hero{animation:cdpIn 520ms var(--ease-papier) both,cdpDev 900ms var(--ease-papier) both}
 .main.pg-in .ns-bar i,.main.pg-in .prog i{animation:cdpDraw 900ms var(--ease-papier) 260ms both}
+
+/* Titel steigen aus der Maske, Doppellinie zieht sich */
+@keyframes cdpMask{from{clip-path:inset(0 0 100% 0);transform:translateY(.35em)}to{clip-path:inset(-20% -6% -30% -6%)}}
+@keyframes cdpRule{from{background-size:0 1px,0 2.5px}}
+.main.pg-in .ns-h1,.main.pg-in .top h1{animation:cdpMask 900ms var(--ease-papier) 200ms both}
+.main.pg-in .ns-kick{animation:cdpIn 600ms var(--ease-papier) 120ms both}
+.main.pg-in .ns-sub{animation:cdpIn 600ms var(--ease-papier) 480ms both}
+.main.pg-in .top{animation:cdpIn 520ms var(--ease-papier) both,cdpRule 1000ms var(--ease-inout) 150ms both}
+
+/* Ouvertüre: Motion Graphic beim Öffnen (einmal pro Sitzung). Ähren zeichnen sich, Siegel wird gestempelt, Titel setzt sich, Blatt hebt sich. */
+#ov{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:radial-gradient(120% 80% at 50% 30%,#FAF6EE 0%,#F3EBDD 58%,#EADFCB 125%);color:#2B2119;clip-path:inset(0 0 0 0);cursor:pointer;-webkit-user-select:none;user-select:none}
+#ov.out{clip-path:inset(0 0 100% 0);transition:clip-path 720ms cubic-bezier(.77,0,.175,1)}
+#ov.out .ov-in{transform:translateY(-48px);opacity:0;transition:transform 720ms cubic-bezier(.77,0,.175,1),opacity 480ms ease}
+.ov-in{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px}
+.ov-crest{position:relative;width:230px;height:160px}
+.ov-seal,.ov-ring{position:absolute;left:50%;top:50%;width:116px;height:116px;margin:-58px 0 0 -58px}
+.ov-seal{animation:ovStamp 540ms cubic-bezier(.23,1,.32,1) 720ms both;filter:drop-shadow(0 2px 0 rgba(60,35,15,.16))}
+.ov-seal .s-bg{fill:#C08A2E}.ov-seal .s-ln{fill:none;stroke:#F3EBDD;stroke-width:.9;opacity:.85}.ov-seal text{fill:#F3EBDD}
+.ov-seal .ov-rot{transform-box:view-box;transform-origin:50px 50px;animation:ovSpin 2600ms cubic-bezier(.22,.8,.24,1) 720ms both}
+@keyframes ovStamp{0%{transform:scale(1.75) rotate(-36deg);opacity:0}50%{opacity:1}100%{transform:scale(1) rotate(-8deg);opacity:1}}
+@keyframes ovSpin{from{transform:rotate(-90deg)}}
+.ov-ring{border-radius:50%;box-shadow:0 0 0 1.5px #C08A2E;opacity:0;animation:ovRing 760ms cubic-bezier(.22,.8,.24,1) 980ms both}
+@keyframes ovRing{0%{transform:scale(.92);opacity:.8}100%{transform:scale(1.8);opacity:0}}
+.ov-epi{position:absolute;top:6px;width:44px;height:146px;color:#8C7C6B;overflow:visible}
+.ov-epi.l{left:16px;transform:rotate(-26deg)}.ov-epi.r{right:16px;transform:scaleX(-1) rotate(-26deg)}
+.ov-epi *{stroke-dasharray:1;stroke-dashoffset:1;animation:ovDraw 820ms cubic-bezier(.22,.8,.24,1) both;animation-delay:calc(60ms + var(--k) * 55ms)}
+@keyframes ovDraw{to{stroke-dashoffset:0}}
+.ov-kick{font:600 11px/1 "Newsreader",Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:#5C4E42;margin-top:14px;padding-left:.3em;animation:ovKick 1000ms cubic-bezier(.22,.8,.24,1) 250ms both}
+@keyframes ovKick{from{opacity:0;letter-spacing:.7em}}
+.ov-title{font:italic 600 clamp(50px,14vw,96px)/1.04 "Bodoni Moda","Didot",Georgia,serif;letter-spacing:-.02em;margin:8px 0 0;overflow:hidden;padding:0 .1em .14em;white-space:nowrap}
+.ov-title span{display:inline-block;animation:ovRise 780ms cubic-bezier(.22,.8,.24,1) both;animation-delay:calc(1000ms + var(--i) * 42ms)}
+@keyframes ovRise{from{transform:translateY(112%)}}
+.ov-rule{width:min(340px,72vw);height:5px;border-top:2.5px solid #2B2119;border-bottom:1px solid #2B2119;margin-top:2px;animation:ovRule 820ms cubic-bezier(.77,0,.175,1) 1250ms both}
+@keyframes ovRule{from{transform:scaleX(0)}}
+.ov-date{font:italic 400 17px/1.3 "Newsreader",Georgia,serif;color:#5C4E42;margin-top:12px;animation:ovFade 700ms ease 1500ms both}
+@keyframes ovFade{from{opacity:0;transform:translateY(6px)}}
+.ov-hand{font:400 clamp(30px,7vw,44px)/1.2 "Pinyon Script",cursive;color:#9B2B2C;margin-top:6px;padding:0 .3em;clip-path:inset(0 100% 0 0);animation:ovWrite 1100ms cubic-bezier(.45,.05,.35,1) 1650ms both}
+@keyframes ovWrite{to{clip-path:inset(-20% -10% -20% 0)}}
+.ov-skip{position:absolute;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom,0px));font:italic 400 13px/1 "Newsreader",Georgia,serif;color:#8C7C6B;text-align:center;animation:ovFade 600ms ease 1700ms both}
+@media (prefers-reduced-motion: reduce){#ov{display:none}}
+#ov .ov-date{animation-delay:1450ms}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1536,7 +1577,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-08.2";
+const APP_VERSION = "2026-11-08.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -6479,6 +6520,42 @@ window.addEventListener("offline", () => { S.online = false; renderStatus(); ref
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sync(); });
 setInterval(() => { if (document.visibilityState === "visible") sync(); }, 30000);
 boot();
+})();
+</script>
+<script>
+// Ouvertüre: kleine Motion Graphic beim Öffnen, einmal pro Sitzung. Tippen oder eine Taste überspringt sie.
+function ouverture(o){
+  try { if (sessionStorage.getItem(o.key)) return false; sessionStorage.setItem(o.key, "1"); } catch (e) { return false; }
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  let k = 0;
+  const pl = 'pathLength="1"';
+  const epi = side => `<svg class="ov-epi ${side}" viewBox="0 0 24 80" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" aria-hidden="true">
+    <path ${pl} style="--k:${k = 0}" d="M12 79C12 60 12 30 12 9"/><ellipse ${pl} style="--k:${++k}" cx="12" cy="6.5" rx="2.4" ry="5"/>
+    ${[15, 23, 31, 39, 47, 55].map(y => `<ellipse ${pl} style="--k:${++k}" cx="8.4" cy="${y}" rx="2.4" ry="5" transform="rotate(-30 8.4 ${y})"/><ellipse ${pl} style="--k:${k}" cx="15.6" cy="${y}" rx="2.4" ry="5" transform="rotate(30 15.6 ${y})"/>`).join("")}
+    <path ${pl} style="--k:2" d="M9.8 3 7.4-4M14.2 3l2.4-7"/></svg>`;
+  const seal = `<svg class="ov-seal" viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ovsc" d="M50 50m-37 0a37 37 0 1 1 74 0a37 37 0 1 1-74 0"/></defs>
+    <circle class="s-bg" cx="50" cy="50" r="49"/><circle class="s-ln" cx="50" cy="50" r="45.5"/><circle class="s-ln" cx="50" cy="50" r="29"/>
+    <g class="ov-rot"><text font-family="Newsreader,Georgia,serif" font-size="8.4" font-weight="600" letter-spacing="1.4"><textPath href="#ovsc" textLength="228" lengthAdjust="spacing">${o.ring}</textPath></text></g>
+    <text x="50" y="62" text-anchor="middle" font-family="Bodoni Moda,Didot,serif" font-size="34" font-style="italic" font-weight="500">${o.mono}</text></svg>`;
+  const el = document.createElement("div");
+  el.id = "ov"; el.setAttribute("aria-hidden", "true");
+  el.innerHTML = `<div class="ov-in"><div class="ov-crest">${epi("l")}${epi("r")}<span class="ov-ring"></span>${seal}</div>
+    <div class="ov-kick">${o.kick}</div><div class="ov-title">${[...o.title].map((c, i) => `<span style="--i:${i}">${c === " " ? "&nbsp;" : c}</span>`).join("")}</div>
+    <div class="ov-rule"></div><div class="ov-date">${o.date}</div>${o.hand ? `<div class="ov-hand">${o.hand}</div>` : ""}</div><div class="ov-skip">Tippen zum Überspringen</div>`;
+  document.body.appendChild(el);
+  let done = false;
+  const out = () => { if (done) return; done = true; removeEventListener("keydown", out); el.classList.add("out"); if (o.onOut) setTimeout(o.onOut, 120); setTimeout(() => el.remove(), 780); };
+  el.addEventListener("pointerdown", out);
+  addEventListener("keydown", out);
+  setTimeout(out, o.ms || (o.hand ? 3000 : 2350));
+  return true;
+}
+(() => {
+  const h = new Date().getHours();
+  ouverture({hand:"bonne journée", key:"pc-ov", mono:"P", ring:"PARA COCKPIT · MA VIE · AUJOURD’HUI ·", kick:"Para Cockpit · Aujourd’hui",
+    title: h < 11 ? "Guten Morgen" : h < 18 ? "Weiter geht’s" : "Guten Abend",
+    date: new Date().toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"}),
+    onOut: () => { const m = document.getElementById("main"); if (!m) return; m.classList.remove("pg-in"); void m.offsetWidth; m.classList.add("pg-in"); setTimeout(() => m.classList.remove("pg-in"), 1300); }});
 })();
 </script>
 </body>
