@@ -1225,12 +1225,12 @@ body.nt-lock{overflow:hidden}
 .ns-kind{text-align:center;color:var(--muted);font-size:13px;margin:4px 12px}
 .ns-more{align-self:center;display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line-2);border-radius:999px;padding:9px 16px;font:inherit;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:8px}
 .ns-steps{display:flex;flex-direction:column;gap:18px}
-.ns-step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+.ns-step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start}
 .ns-step label,.ns-step b{display:block;font-weight:700;margin-bottom:8px}
 .ns-step .field{width:100%}
 .ns-n{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-weight:800;color:var(--muted)}
 .ns-step.ok .ns-n{background:var(--good);color:#fff}
-.ns-pray{display:flex;gap:14px;align-items:flex-start}
+.ns-pray{display:flex;gap:14px;align-items:flex-start;min-width:0}
 .ns-pray>div{flex:1}
 .ns-pray img{width:96px;height:96px;object-fit:cover;border-radius:18px;flex:none}
 .ns-prayer{margin-top:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel-solid)}
@@ -1247,7 +1247,7 @@ body.nt-lock{overflow:hidden}
 .ns-tom{margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ns-tom .i{color:var(--amber)}
 .ns-night{background:var(--dark);color:var(--on-dark);margin-top:10px}
-.ns-sec{display:grid;grid-template-columns:44px 1fr;gap:14px}
+.ns-sec{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px}
 .ns-num{width:44px;height:44px;border-radius:50%;background:var(--dark);color:var(--on-dark);display:grid;place-items:center;font-family:var(--f-head);font-size:20px;font-weight:600}
 .ns-sec h2{font-family:var(--f-head);font-weight:600;font-size:22px;margin:6px 0 0}
 .ns-sec h3{font-size:14px;margin:18px 0 0}
@@ -1556,6 +1556,25 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .ov-skip{position:absolute;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom,0px));font:italic 400 13px/1 "Newsreader",Georgia,serif;color:#8C7C6B;text-align:center;animation:ovFade 600ms ease 1700ms both}
 @media (prefers-reduced-motion: reduce){#ov{display:none}}
 #ov .ov-date{animation-delay:1450ms}
+
+/* Handy (08.11.2026): nichts darf breiter als der Bildschirm werden, Leiste unten als ruhiger Papierstreifen */
+.ns,.ns-card,.ns-step > *,.ns-sec > *,.ns-pray > div{min-width:0}
+.ns-step label,.ns-step b,.ns-sec h2,.ns-q{overflow-wrap:break-word}
+@media (max-width:560px){
+  .ns-add{flex-direction:column;align-items:stretch}
+  .ns-add .btn{width:100%}
+  .ns-pray img{width:64px;height:64px}
+  body{font-size:14.5px}
+  .ns-h1{font-size:clamp(32px,9vw,48px)}
+  .ns-hero-in{padding:22px 22px 20px}
+}
+@media (max-width:860px){
+  .bottom{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;padding:0 4px calc(4px + env(safe-area-inset-bottom,0px))}
+  .bottom button{gap:4px;padding:10px 0 8px;font-size:11.5px;white-space:nowrap;overflow:hidden}
+  .bottom button span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .bottom button svg{width:19px;height:19px}
+  .bottom button.on{box-shadow:inset 0 2px 0 var(--bordeaux)}
+}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1578,7 +1597,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-08.7";
+const APP_VERSION = "2026-11-08.8";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2180,7 +2199,7 @@ function navGroups(){
   const gs = [
     {id:"today", label:"Heute", icon:"sun", views:[v("today", "Heute", "sun")]},
     {id:"journal", label:"Journal", icon:"pen", views:[v("journal", "Journal", "pen")]},
-    {id:"weg", label:"Mein Weg", icon:"compass", views:[v("weg", "Mein Weg", "compass")]},
+    {id:"weg", label:"Mein Weg", short:"Weg", icon:"compass", views:[v("weg", "Mein Weg", "compass")]},
     {id:"abend", label:"Abend", icon:"moon", views:[v("abend", "Abend", "moon")]},
     // Brand & Business als eigener Bereich (sein Wunsch 06.11.2026), vorher unter Werkzeuge
     {id:"brand", label:"Brand", icon:"star", views:[v("brand", "Brand", "star")]},
@@ -2231,7 +2250,10 @@ function renderSide(){
       ${cur && cur.id === g.id && g.views.length > 1 && g.id !== "tools" ? `<div class="nav-subs">${g.views.map(x => `<button class="nav-sub ${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>` : ""}`).join("")}
     <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
     <div class="side-foot" id="side-status"></div>`;
-  $("#bottom").innerHTML = gs.map(g => `<button class="${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}${esc(g.short || g.label)}</button>`).join("");
+  // Handy-Leiste: fünf feste Bereiche, der Rest steckt hinter „Mehr“ (öffnet die Seitenleiste)
+  const inMore = g => g.id === "boards" || g.id === "tools", moreOn = !cur || inMore(cur);
+  $("#bottom").innerHTML = gs.filter(g => !inMore(g)).map(g => `<button class="${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.short || g.label)}</span></button>`).join("")
+    + `<button class="${moreOn ? "on" : ""}" data-act="menu">${ic("menu")}<span>Mehr</span></button>`;
   renderStatus();
 }
 

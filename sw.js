@@ -1,17 +1,21 @@
 // Offline-Cache. Wichtig: Installieren und Aktivieren warten nie auf das Netz,
 // sonst kann ein hängender Download ein Update dauerhaft blockieren.
-const CACHE = "para-cockpit-v75";
+const CACHE = "para-cockpit-v76";
 const IMG = "para-cockpit-img"; // Produktbilder von Open Food Facts, bleiben über Updates hinweg erhalten
-const SHELL = ["./index.html", "./core.js", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./img/morgen.jpg", "./img/abend.jpg", "./img/bretagne.jpg", "./img/gebet.jpg", "./data/foods-ch.json", "./data/foods-off.json"];
+const SHELL = ["./index.html", "./core.js", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./img/morgen.jpg", "./img/abend.jpg", "./img/bretagne.jpg", "./img/gebet.jpg", "./img/weg.jpg", "./data/foods-ch.json", "./data/foods-off.json"];
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== IMG).map(k => caches.delete(k)))).then(() => self.clients.claim()));
-  // App-Dateien im Hintergrund vorladen (für offline), ohne die Aktivierung aufzuhalten
+  e.waitUntil(self.clients.claim());
+  // App-Dateien im Hintergrund vorladen (für offline), ohne die Aktivierung aufzuhalten.
+  // Alte Caches erst löschen, wenn die neue Seite sicher im Speicher liegt. Vorher wurde sofort gelöscht:
+  // Brach das Vorladen ab (Handy schließt die App, offline), ließ sich die App offline gar nicht mehr starten.
   caches.open(CACHE).then(c => Promise.all(SHELL.map(u =>
     withTimeout(fetch(u, {cache: "no-store"}), 15000).then(res => res.ok ? c.put(u, res) : null).catch(() => null)
-  ))).catch(() => {});
+  )).then(() => Promise.all([c.match("./index.html"), c.match("./core.js")])))
+    .then(([page, core]) => { if (page && core) return caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== IMG).map(k => caches.delete(k)))); })
+    .catch(() => {});
 });
 self.addEventListener("fetch", e => {
   const req = e.request;
