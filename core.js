@@ -64,7 +64,7 @@ async function pullAll(fetchPage, cursor, onRows, {pageSize = 1000, maxPages = 5
 function resolveRejected(local, server, {hidden = [], now = Date.now(), newId} = {}){
   const take = server.deleted ? null : {...server.data, id:server.id};
   if (!local || !take || sameContent(local, take)) return {take, push:false, copy:null};
-  if (local.kind === "habit" && take.kind === "habit") {
+  if (local.kind === take.kind && (local.kind === "habit" || local.kind === "gtask")) {
     // Häkchen beider Geräte behalten; bei gleichem Tag gilt der Server
     return {take:{...take, log:{...(local.log || {}), ...(take.log || {})}, updated:now}, push:true, copy:null};
   }

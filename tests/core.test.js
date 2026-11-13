@@ -101,6 +101,15 @@ test("Konflikt: Gewohnheiten führen Häkchen zusammen statt Kopie", () => {
   assert.deepEqual(r.take.log, {"2026-10-17":true, "2026-10-18":2, "2026-10-19":true});
 });
 
+test("Konflikt: feste Aufgaben (gtask) führen Häkchen zusammen, obwohl sie versteckt sind", () => {
+  const local = {id:"gt-morgengebet", kind:"gtask", title:"Morgengebet", goal:"basics", log:{"2026-11-13":true}, updated:1};
+  const server = {id:"gt-morgengebet", kind:"gtask", title:"Morgengebet", goal:"basics", log:{"2026-11-12":true}, updated:2};
+  const r = C.resolveRejected(local, srv(server), {hidden:["gtask"], now:50});
+  assert.equal(r.copy, null);
+  assert.equal(r.push, true);
+  assert.deepEqual(r.take.log, {"2026-11-12":true, "2026-11-13":true});
+});
+
 test("Konflikt: interne Arten (z. B. Training) übernehmen den Server ohne Kopie", () => {
   const r = C.resolveRejected({id:"w", kind:"workout", note:"a", updated:1}, srv({id:"w", kind:"workout", note:"b", updated:2}), {hidden:["workout"]});
   assert.equal(r.copy, null);
