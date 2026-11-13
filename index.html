@@ -1480,6 +1480,7 @@ dialog.cs-dlg::backdrop{background:rgba(10,10,12,.45);backdrop-filter:blur(2px)}
 .pl-mf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 2px 6px;border-top:1px solid var(--line);margin-top:4px}
 .pl-madd{margin:16px auto 20px;display:flex}
 .pl-note textarea.field{min-height:90px}
+.pl-pics{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:12.5px}
 @media (max-width:560px){
   .pl-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pl-mh{grid-template-areas:"t . p" "n n n"}
@@ -1768,7 +1769,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-13.4";
+const APP_VERSION = "2026-11-13.5";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -4791,9 +4792,35 @@ function plHTML(){
     <div class="pl-meals">${meals.map(plMealHTML).join("")}</div>
     <button class="ns-more pl-madd" data-pl="madd">${ic("plus")}Mahlzeit hinzufügen</button>
     <section class="card pl-note"><div class="card-h"><h2>Notizen zum Plan</h2></div>
-      <textarea class="field" id="pl-note" data-keep data-plp="note" rows="4" placeholder="Zum Beispiel, was ich vorkoche oder worauf ich achte">${esc(p.note || "")}</textarea></section>
+      <textarea class="field" id="pl-note" data-keep data-plp="note" rows="4" placeholder="Zum Beispiel, was ich vorkoche oder worauf ich achte">${esc(p.note || "")}</textarea>
+      ${plShotsHTML(p)}
+      <div class="pl-pics"><label class="btn ghost">${ic("img")}Bild hinzufügen<input type="file" accept="image/*" multiple id="pl-file" hidden></label>
+        <span class="muted">${S.plUp ? "Bild wird hochgeladen …" : "Am Laptop kann ich einen Screenshot kopieren und hier mit Strg + V einfügen."}</span></div></section>
     <p class="nt-src">Nährwerte aus der Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA).</p>`;
 }
+// Bilder zu den Plan-Notizen (Wunsch 13.11.2026): liegen wie überall als shots am Eintrag, die Großansicht mit Löschen kommt von renderPop.
+// Am Laptop geht auch Einfügen aus der Zwischenablage, solange der Reiter „Plan“ offen ist.
+function plShotsHTML(p){
+  const shots = shotsOf(p); if (!shots.length) return "";
+  return `<div class="jr-shots">${shots.map(({s}, i) => { const u = fileUrl(s); return `<button class="jr-shot" data-pl="shot" data-k="${i}" aria-label="Bild groß anzeigen">${u ? `<img src="${esc(u)}" alt="${esc(s.cap || s.name || "")}" loading="lazy">` : `<span>${navigator.onLine ? "Lädt …" : "Braucht Internet"}</span>`}</button>`; }).join("")}</div>`;
+}
+async function plUpload(fs){
+  const p = plCur(); if (!p || !fs.length) return;
+  if (!sb || !S.user) { toast("Bilder hochladen geht nur angemeldet und mit Internet."); return; }
+  S.plUp = true; renderMain();
+  try { await uploadFiles(fs, "shots", p.id); } finally { S.plUp = false; renderMain(); }
+}
+document.addEventListener("change", e => {
+  if (e.target.id !== "pl-file") return;
+  const fs = [...e.target.files]; e.target.value = ""; plUpload(fs);
+});
+document.addEventListener("paste", e => {
+  if (S.view !== "food" || S.fdTab !== "plan" || S.open || S.nt || S.csDlg || !plCur()) return;
+  const fs = [...((e.clipboardData || {}).files || [])].filter(f => /^image\//.test(f.type)); if (!fs.length) return;
+  e.preventDefault();
+  const d = new Date(), stamp = `${dkey(d)} ${pad(d.getHours())}.${pad(d.getMinutes())}`;
+  plUpload(fs.map((f, i) => new File([f], `Screenshot ${stamp}${i ? "-" + (i + 1) : ""}.${(f.type.split("/")[1] || "png").replace("jpeg", "jpg")}`, {type: f.type})));
+});
 let plT = null;
 const plLater = () => { clearTimeout(plT); plT = setTimeout(() => { if (S.view === "food" && S.fdTab === "plan" && !S.nt) renderMain(); }, 250); };
 document.addEventListener("click", e => {
@@ -4804,12 +4831,14 @@ document.addEventListener("click", e => {
     case "new": plNew(!!a.dataset.tpl); break;
     case "pick": plSet(id); break;
     case "copy": if (p) { const c = create("mplan", (p.title || "Plan") + " (Kopie)", {note: p.note || "", meals: clone(p.meals || []).map(m => ({...m, id: uid(), items: (m.items || []).map(x => ({...x, id: uid()}))}))}); plSet(c.id); toast("Plan kopiert"); } break;
-    case "pdel": if (!p) break; if (S.plDel !== p.id) { S.plDel = p.id; break; } removeItem(p.id); S.plId = ""; S.plDel = null; S.plOpen = null; toast("Plan gelöscht"); break;
+    case "pdel": if (!p) break; if (S.plDel !== p.id) { S.plDel = p.id; break; } { const paths = (p.shots || []).map(f => f.path).filter(Boolean); if (sb && paths.length) sb.storage.from("files").remove(paths).catch(() => {}); }
+      removeItem(p.id); S.plId = ""; S.plDel = null; S.plOpen = null; toast("Plan gelöscht"); break;
     case "madd": { if (!p) break; const ms = plMeals(p), last = ms[ms.length - 1], h = last && /^\d\d:/.test(last.time || "") ? Math.min(23, +last.time.slice(0, 2) + 3) : 12;
       const m = {id: uid(), time: `${pad(h)}:00`, name: "", items: []}; p.meals = [...(p.meals || []), m]; persist(p); renderMain(); const i = $("#plm-n-" + m.id); if (i) i.focus(); return; }
     case "mdel": { if (!p) break; if (S.plDel !== id) { S.plDel = id; break; } p.meals = (p.meals || []).filter(m => m.id !== id); persist(p); S.plDel = null; toast("Mahlzeit gelöscht"); break; }
     case "add": if (p) ntOpen(null, {mode: "plan", plan: {id: p.id, meal: id}}); return;
     case "eopen": S.plOpen = S.plOpen === id ? null : id; break;
+    case "shot": if (p) { S.pop = {shots: true, id: p.id, k: +a.dataset.k}; renderPop(); } return;
     case "edel": { if (!p) break; if (S.plDel !== id) { S.plDel = id; break; } const [m] = plFind(p, id); if (m) { m.items = m.items.filter(x => x.id !== id); persist(p); } S.plDel = null; S.plOpen = null; break; }
     case "log": { if (!p) break; const m = (p.meals || []).find(x => x.id === id); if (!m || !(m.items || []).length) break;
       const d = ntDay(dkey()), meal = plMealCode(m.time); d.entries = [...(d.entries || []), ...m.items.map(x => ({...clone(x), id: uid(), meal, t: Date.now()}))]; persist(d);
