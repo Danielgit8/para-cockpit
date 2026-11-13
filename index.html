@@ -1381,6 +1381,30 @@ a.ns-now-t{text-decoration:none}
 .ls-acts .ibtn.on svg{fill:currentColor;fill-opacity:.25}
 .ls-acts select{font:inherit;font-size:12px;max-width:140px;padding:5px 8px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel-solid);color:var(--text)}
 .ls-edit .g-task-top{margin-top:8px}
+/* --- Ernährungsplan (13.11.2026), nutzt die Bausteine des Tagebuchs --- */
+.pl-title{font-family:var(--f-head);font-weight:600;font-size:20px;height:46px}
+.pl-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+.pl-st{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pl-st span{font-size:12px;color:var(--muted);font-weight:600}
+.pl-st b{font-size:19px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-st b small{font-size:11.5px;font-weight:500;color:var(--muted)}
+.pl-st i{display:block;height:5px;border-radius:999px;background:var(--soft);overflow:hidden}
+.pl-st em{display:block;height:100%;border-radius:999px;background:var(--ink)}
+.pl-st.over em{background:var(--late)}
+.pl-acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.pl-meals{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.pl-mh{display:grid;grid-template-columns:120px minmax(0,1fr) 38px;gap:10px;align-items:center}
+.pl-mh .pl-name{font-weight:600}
+.pl-sum{font-size:12.5px;margin:10px 2px 8px}
+.pl-e{background:none;border:0;border-top:1px solid var(--line);font:inherit}
+.pl-mf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 2px 6px;border-top:1px solid var(--line);margin-top:4px}
+.pl-madd{margin:16px auto 20px;display:flex}
+.pl-note textarea.field{min-height:90px}
+@media (max-width:560px){
+  .pl-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pl-mh{grid-template-areas:"t . p" "n n n"}
+  .pl-mh .pl-time{grid-area:t}.pl-mh .pl-name{grid-area:n}.pl-mh .nt-plus{grid-area:p}
+}
 @media (max-width:560px){
   .hl-date{font-size:24px}
   .g-title{font-size:20px}
@@ -1665,7 +1689,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-13.1";
+const APP_VERSION = "2026-11-13.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1752,7 +1776,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -4201,9 +4225,9 @@ function foodHTML(){
   if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab2") || "diary"; } catch(e) { S.fdTab = "diary"; } }
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
-  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML}[S.fdTab] || ntDiaryHTML;
-  return header("Ernährung", "Kalorien zählen, Lebensmittel, Rezepte und meine Ziele an einem Ort") + banner() +
-    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
+  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML}[S.fdTab] || ntDiaryHTML;
+  return header("Ernährung", "Kalorien zählen, Ernährungsplan, Lebensmittel, Rezepte und meine Ziele an einem Ort") + banner() +
+    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
 function fdListHTML(){
   const day = S.fdDay || 0;
@@ -4621,6 +4645,108 @@ function ntTargetsHTML(){
 }
 const ntGoalsHTML = () => ntTargetsHTML() + bsCardsHTML();
 
+// ---- Ernährungsplan (Wunsch 13.11.2026): Reiter „Plan“ in der Ernährung ----
+// Ein Plan ist ein versteckter Eintrag kind "mplan" (title, note, meals[{id, time "07:00", name, items[]}]).
+// Die items sind gebaut wie Tagebuch-Einträge (g, qty, unit, n pro 100 g, src), deshalb rechnen ntSum, ntFac und ntAmt direkt damit.
+// Hinzufügen läuft über das Fenster #nt-ov mit S.nt.mode "plan": ntLog und ntQuickAdd schreiben dann in den Plan statt ins Tagebuch.
+const PL_TPL = [["07:00", "Frühstück"], ["12:00", "Mittagessen"], ["15:30", "Snack"], ["18:30", "Abendessen"]];
+const plPlans = () => live("mplan").sort((a, b) => (a.created || 0) - (b.created || 0));
+function plCur(){ const L = plPlans(); if (S.plId == null) { try { S.plId = localStorage.getItem("pl-cur") || ""; } catch(e) { S.plId = ""; } } return L.find(p => p.id === S.plId) || L[0] || null; }
+const plSet = id => { S.plId = id; S.plOpen = null; S.plDel = null; try { localStorage.setItem("pl-cur", id); } catch(e){} };
+const plMeals = p => (p.meals || []).slice().sort((a, b) => (a.time || "99").localeCompare(b.time || "99"));
+const plFind = (p, eid) => { for (const m of p.meals || []) { const e = (m.items || []).find(x => x.id === eid); if (e) return [m, e]; } return [null, null]; };
+const plMealCode = t => { const s = /^\d\d:\d\d$/.test(t || "") ? t : "12:00", h = +s.slice(0, 2) + +s.slice(3) / 60; return h < 10.5 ? "b" : h < 14.5 ? "l" : h < 17.5 ? "s" : "d"; };
+const plSheetMeal = () => { const P = (S.nt || {}).plan || {}, p = S.items.get(P.id), m = p && (p.meals || []).find(y => y.id === P.meal); return (m && m.name) || "die Mahlzeit"; };
+function plNew(tpl){
+  const n = plPlans().length;
+  const p = create("mplan", n ? `Ernährungsplan ${n + 1}` : "Mein Ernährungsplan", {note:"", meals: tpl ? PL_TPL.map(([time, name]) => ({id:uid(), time, name, items:[]})) : []});
+  plSet(p.id); return p;
+}
+function plAdd(x, g, qty, unit){
+  const P = S.nt.plan, p = S.items.get(P.id), m = p && (p.meals || []).find(y => y.id === P.meal); if (!m) return;
+  const quick = x.src === "quick";
+  m.items = [...(m.items || []), {id:uid(), name:x.name, brand:x.brand || "", src:x.src, ref: quick ? "" : x.id, code:x.code || "", img:x.img || "", emoji:x.emoji || "",
+    g: quick ? 0 : ntR(g, 1), qty: qty || null, unit: unit || null, n:{...x.n}}];
+  persist(p); if (x.src === "off" && !NT.byCode.has(x.code)) ntCacheSet(x);
+  renderMain();
+}
+function plStatHTML(t, g){
+  const st = (l, v, goal, u) => { const pct = goal ? Math.min(100, Math.round(v / goal * 100)) : 0;
+    return `<div class="pl-st ${goal && v > goal * 1.05 ? "over" : ""}"><span>${l}</span><b class="num">${bsFmt(Math.round(v))}<small> ${goal ? `/ ${bsFmt(Math.round(goal))} ` : ""}${u}</small></b><i><em style="width:${pct}%"></em></i></div>`; };
+  return `<div class="pl-stats">${st("Kalorien", t.kcal, g.kcal, "kcal")}${NT_MACROS.map(([id, l]) => st(l, t[id], g[id], "g")).join("")}</div>`;
+}
+function plEntryHTML(e){
+  const open = S.plOpen === e.id, q = e.src === "quick", kc = Math.round((e.n && e.n.kcal || 0) * ntFac(e)), arm = S.plDel === e.id;
+  return `<button class="nt-e pl-e ${open ? "open" : ""}" data-pl="eopen" data-id="${e.id}" aria-expanded="${open}">${ntImg(e)}<span class="nt-et"><b>${esc(e.name || "Ohne Namen")}</b><small>${esc([e.brand, ntAmt(e)].filter(Boolean).join(" · "))}</small></span><span class="nt-ek num">${bsFmt(kc)} <small>kcal</small></span></button>` +
+    (open ? `<div class="nt-ef br-ed"><label class="br-wide">Name<input class="field" id="ple-n-${e.id}" data-keep data-plv="name" data-id="${e.id}" value="${esc(e.name || "")}"></label>
+      ${q ? `<label>Kalorien<input class="field num" id="ple-k-${e.id}" data-keep inputmode="decimal" data-plv="kcal" data-id="${e.id}" value="${esc(bsIn(e.n.kcal))}"></label>`
+          : `<label>Menge in Gramm<input class="field num" id="ple-g-${e.id}" data-keep inputmode="decimal" data-plv="g" data-id="${e.id}" value="${esc(bsIn(e.g))}"></label>`}
+      <div class="nt-nut br-wide">${ntNutHTML(e.n, ntFac(e))}</div>
+      ${e.src && NT_SRC[e.src] ? `<p class="hint br-wide" style="margin:0">Werte aus ${esc(NT_SRC[e.src])}.</p>` : ""}
+      <div class="br-ed-f"><span class="grow"></span><button class="pill" data-pl="edel" data-id="${e.id}" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Löschen"}</button><button class="pill on" data-pl="eopen" data-id="${e.id}">Fertig</button></div></div>` : "");
+}
+function plMealHTML(m){
+  const t = ntSum(m.items), n = (m.items || []).length, arm = S.plDel === m.id;
+  return `<section class="card nt-meal pl-meal"><div class="pl-mh"><input class="field num pl-time" type="time" id="plm-t-${m.id}" data-keep data-plm="time" data-id="${m.id}" value="${esc(m.time || "")}" aria-label="Uhrzeit">
+      <input class="field pl-name" id="plm-n-${m.id}" data-keep data-plm="name" data-id="${m.id}" value="${esc(m.name || "")}" placeholder="Name der Mahlzeit" aria-label="Name der Mahlzeit">
+      <button class="rbtn ink nt-plus" data-pl="add" data-id="${m.id}" title="Lebensmittel hinzufügen" aria-label="${esc(m.name || "Mahlzeit")}: Lebensmittel hinzufügen">${ic("plus")}</button></div>
+    <p class="pl-sum muted num">${n ? `${bsFmt(Math.round(t.kcal))} kcal · K ${bsFmt(Math.round(t.c))} g · E ${bsFmt(Math.round(t.p))} g · F ${bsFmt(Math.round(t.f))} g` : "Noch nichts geplant. Über das Plus such ich Lebensmittel aus."}</p>
+    ${(m.items || []).map(plEntryHTML).join("")}
+    <div class="pl-mf">${n ? `<button class="pill" data-pl="log" data-id="${m.id}">${ic("check")}Ins Tagebuch von heute</button>` : ""}<span class="grow"></span><button class="pill" data-pl="mdel" data-id="${m.id}" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Mahlzeit löschen"}</button></div></section>`;
+}
+function plHTML(){
+  const L = plPlans(), p = plCur();
+  if (!p) return `<section class="card"><div class="card-h"><h2>Mein Ernährungsplan</h2></div>
+    <p class="hint">Ein Plan besteht aus Mahlzeiten mit Uhrzeit. Zu jeder Mahlzeit such ich Lebensmittel aus der Datenbank aus, die App rechnet Kalorien und Makros zusammen und vergleicht sie mit meinem Ziel. Alles lässt sich später ändern.</p>
+    <div class="fd-btns"><button class="btn" data-pl="new" data-tpl="1">${ic("plus")}Mit Vorlage starten</button><button class="btn ghost" data-pl="new">Leerer Plan</button></div>
+    <p class="hint" style="margin:14px 0 0">Die Vorlage legt ${PL_TPL.map(([t, n]) => `${n} um ${t}`).join(", ")} an, noch ohne Lebensmittel. Uhrzeiten und Namen kann ich danach frei ändern.</p></section>`;
+  const meals = plMeals(p), t = ntSum(meals.flatMap(m => m.items || [])), g = ntGoals(), arm = S.plDel === p.id;
+  return (L.length > 1 ? `<div class="tr-seg">${L.map(x => `<button class="pill ${x.id === p.id ? "on" : ""}" data-pl="pick" data-id="${x.id}">${esc(x.title || "Ohne Namen")}</button>`).join("")}</div>` : "") +
+    `<section class="card pl-head"><input class="field pl-title" id="pl-title" data-keep data-plp="title" value="${esc(p.title || "")}" placeholder="Name des Plans" aria-label="Name des Plans">
+      ${plStatHTML(t, g)}
+      <p class="hint" style="margin:12px 0 0">${g.kcal ? "Summe aller Mahlzeiten im Plan, daneben mein Tagesziel aus „Ziele & Verbrauch“." : "Summe aller Mahlzeiten im Plan. Ein Kalorienziel hab ich noch nicht eingetragen, das geht unter „Ziele & Verbrauch“."}</p>
+      <div class="pl-acts"><button class="pill" data-pl="copy">${ic("copy")}Plan kopieren</button><button class="pill" data-pl="new" data-tpl="1">${ic("plus")}Neuer Plan</button><span class="grow"></span><button class="pill" data-pl="pdel" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Plan löschen"}</button></div></section>
+    <div class="pl-meals">${meals.map(plMealHTML).join("")}</div>
+    <button class="ns-more pl-madd" data-pl="madd">${ic("plus")}Mahlzeit hinzufügen</button>
+    <section class="card pl-note"><div class="card-h"><h2>Notizen zum Plan</h2></div>
+      <textarea class="field" id="pl-note" data-keep data-plp="note" rows="4" placeholder="Zum Beispiel, was ich vorkoche oder worauf ich achte">${esc(p.note || "")}</textarea></section>
+    <p class="nt-src">Nährwerte aus der Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA).</p>`;
+}
+let plT = null;
+const plLater = () => { clearTimeout(plT); plT = setTimeout(() => { if (S.view === "food" && S.fdTab === "plan" && !S.nt) renderMain(); }, 250); };
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-pl]"); if (!a) return;
+  const act = a.dataset.pl, id = a.dataset.id, p = plCur();
+  if (act !== "edel" && act !== "mdel" && act !== "pdel") S.plDel = null;
+  switch (act) {
+    case "new": plNew(!!a.dataset.tpl); break;
+    case "pick": plSet(id); break;
+    case "copy": if (p) { const c = create("mplan", (p.title || "Plan") + " (Kopie)", {note: p.note || "", meals: clone(p.meals || []).map(m => ({...m, id: uid(), items: (m.items || []).map(x => ({...x, id: uid()}))}))}); plSet(c.id); toast("Plan kopiert"); } break;
+    case "pdel": if (!p) break; if (S.plDel !== p.id) { S.plDel = p.id; break; } removeItem(p.id); S.plId = ""; S.plDel = null; S.plOpen = null; toast("Plan gelöscht"); break;
+    case "madd": { if (!p) break; const ms = plMeals(p), last = ms[ms.length - 1], h = last && /^\d\d:/.test(last.time || "") ? Math.min(23, +last.time.slice(0, 2) + 3) : 12;
+      const m = {id: uid(), time: `${pad(h)}:00`, name: "", items: []}; p.meals = [...(p.meals || []), m]; persist(p); renderMain(); const i = $("#plm-n-" + m.id); if (i) i.focus(); return; }
+    case "mdel": { if (!p) break; if (S.plDel !== id) { S.plDel = id; break; } p.meals = (p.meals || []).filter(m => m.id !== id); persist(p); S.plDel = null; toast("Mahlzeit gelöscht"); break; }
+    case "add": if (p) ntOpen(null, {mode: "plan", plan: {id: p.id, meal: id}}); return;
+    case "eopen": S.plOpen = S.plOpen === id ? null : id; break;
+    case "edel": { if (!p) break; if (S.plDel !== id) { S.plDel = id; break; } const [m] = plFind(p, id); if (m) { m.items = m.items.filter(x => x.id !== id); persist(p); } S.plDel = null; S.plOpen = null; break; }
+    case "log": { if (!p) break; const m = (p.meals || []).find(x => x.id === id); if (!m || !(m.items || []).length) break;
+      const d = ntDay(dkey()), meal = plMealCode(m.time); d.entries = [...(d.entries || []), ...m.items.map(x => ({...clone(x), id: uid(), meal, t: Date.now()}))]; persist(d);
+      toast(`${m.name || "Mahlzeit"} steht im Tagebuch von heute`); break; }
+  }
+  renderMain();
+});
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || !(t.dataset.plp || t.dataset.plm || t.dataset.plv)) return;
+  const p = plCur(); if (!p) return;
+  if (t.dataset.plp) { p[t.dataset.plp] = t.value; persist(p); if (t.dataset.plp === "title") plLater(); return; }
+  if (t.dataset.plm) { const m = (p.meals || []).find(x => x.id === t.dataset.id); if (!m) return; m[t.dataset.plm] = t.value; persist(p); if (t.dataset.plm === "time") plLater(); return; }
+  const [, en] = plFind(p, t.dataset.id); if (!en) return; const k = t.dataset.plv;
+  if (k === "name") en.name = t.value.trim();
+  else { const v = bsNum(t.value); if (typeof v !== "number" || v < 0) { toast("Das ist keine Zahl."); return; }
+    if (k === "g") { en.g = ntR(v, 1); en.qty = null; en.unit = null; } else en.n = {...en.n, kcal: v}; }
+  persist(p); plLater();
+});
+
 // ---- Hinzufügen: Suche, Auswahl, Scanner (eigenes Fenster #nt-ov, außerhalb von #main) ----
 function ntOpen(meal, opts = {}){
   S.nt = {meal: meal || ntMealNow(), date: S.ntDate || dkey(), q:"", tab: live("fdfav").length ? "fav" : opts.mode === "pick" ? "mine" : "recent", sel:null, ...opts};
@@ -4635,20 +4761,20 @@ function ntSheet(){
   if (!S.nt) { if (ov) ov.remove(); document.body.classList.remove("nt-lock"); return; }
   if (!ov) { ov = document.createElement("div"); ov.id = "nt-ov"; document.body.appendChild(ov); }
   document.body.classList.add("nt-lock");
-  const N = S.nt, pick = N.mode === "pick", sub = N.sel || N.scan;
-  const title = pick ? "Nährwerte übernehmen" : `${ntMealName(N.meal)} hinzufügen`;
+  const N = S.nt, pick = N.mode === "pick", plan = N.mode === "plan", sub = N.sel || N.scan;
+  const title = pick ? "Nährwerte übernehmen" : plan ? `Für ${plSheetMeal()} planen` : `${ntMealName(N.meal)} hinzufügen`;
   ov.innerHTML = `<div class="scrim nt-scrim" data-nt="close"></div><div class="nt-sheet ${N.q.trim() ? "q" : ""}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
     <div class="nt-sh"><button class="ibtn" data-nt="${sub ? "back" : "close"}" aria-label="${sub ? "Zurück" : "Schließen"}">${ic(sub ? "left" : "close")}</button><h2>${esc(title)}</h2>
-      ${pick ? "" : `<span class="muted nt-shd">${esc(N.date === dkey() ? "Heute" : fmtLong(N.date))}</span>`}${sub ? `<button class="ibtn" data-nt="close" aria-label="Schließen">${ic("close")}</button>` : ""}</div>
+      ${pick || plan ? "" : `<span class="muted nt-shd">${esc(N.date === dkey() ? "Heute" : fmtLong(N.date))}</span>`}${sub ? `<button class="ibtn" data-nt="close" aria-label="Schließen">${ic("close")}</button>` : ""}</div>
     <div class="nt-body">${N.scan ? ntScanHTML() : N.sel ? ntSelHTML() : ntFindHTML()}</div>
     ${N.sel && !N.scan && N.edit ? `<div class="nt-foot"><button class="btn" data-nt="fixsave" id="nt-addbtn">Werte speichern</button></div>` : ""}
-    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${pick ? "pickdo" : "addit"}" id="nt-addbtn">${pick ? "Werte übernehmen" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
+    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${pick ? "pickdo" : "addit"}" id="nt-addbtn">${pick ? "Werte übernehmen" : plan ? "In den Plan" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
   if (N.scan && !N.camOff) ntScanStart();
 }
 function ntFindHTML(){
   const N = S.nt, pick = N.mode === "pick";
   const tab = (v, l) => `<button class="pill ${N.tab === v ? "on" : ""}" data-nt="stab" data-v="${v}">${l}</button>`;
-  return `${pick ? `<p class="hint">Das passende Lebensmittel suchen. Die Nährwerte pro 100 g werden übernommen.</p>` : `<div class="nt-mealsel">${NT_MEALS.map(([m, l]) => `<button class="pill ${N.meal === m ? "on" : ""}" data-nt="smeal" data-meal="${m}">${l}</button>`).join("")}</div>`}
+  return `${pick ? `<p class="hint">Das passende Lebensmittel suchen. Die Nährwerte pro 100 g werden übernommen.</p>` : N.mode === "plan" ? `<p class="hint">Was ich hier auswähle, kommt in den Plan und nicht ins Tagebuch.</p>` : `<div class="nt-mealsel">${NT_MEALS.map(([m, l]) => `<button class="pill ${N.meal === m ? "on" : ""}" data-nt="smeal" data-meal="${m}">${l}</button>`).join("")}</div>`}
     <div class="nt-sbar"><div class="nt-sin">${ic("search")}<input id="nt-q" type="search" enterkeyhint="search" value="${esc(N.q)}" placeholder="Lebensmittel oder Marke suchen" autocomplete="off" aria-label="Lebensmittel suchen"></div>
       <button class="rbtn ink" data-nt="scan" title="Barcode scannen" aria-label="Barcode scannen">${ic("scan")}</button></div>
     <div class="tr-seg nt-stabs">${tab("fav", "Favoriten")}${tab("recent", "Zuletzt")}${tab("mine", "Meine")}${pick ? "" : tab("quick", "Schnell eintragen")}</div>
@@ -4714,8 +4840,8 @@ function ntAddSel(){
   const N = S.nt, x = N.sel, units = ntUnits(x), g = ntSelG();
   if (!(g > 0)) { const i = $("#nt-qty"); if (i) i.focus(); return; }
   ntLog(x, N.date, N.meal, g, N.unit ? N.qty : null, N.unit ? units[N.unit] : null);
-  toast(`${x.name} bei ${ntMealName(N.meal)} eingetragen.`);
-  S.ntDate = N.date; N.sel = null; N.q = ""; N.online = null; N.tab = live("fdfav").length ? "fav" : "recent"; ntSheet(); renderMain();
+  toast(N.mode === "plan" ? `${x.name} steht im Plan.` : `${x.name} bei ${ntMealName(N.meal)} eingetragen.`);
+  if (N.mode !== "plan") S.ntDate = N.date; N.sel = null; N.q = ""; N.online = null; N.tab = live("fdfav").length ? "fav" : "recent"; ntSheet(); renderMain();
 }
 function ntPickDo(){
   const N = S.nt, x = N.sel, p = N.pick || {}, it = S.items.get(p.id); if (!it) { ntClose(); return; }
@@ -4726,8 +4852,10 @@ function ntPickDo(){
 function ntQuickAdd(){
   const v = id => bsNum(($(`#ntq-${id}`) || {}).value), k = v("k");
   if (typeof k !== "number" || k <= 0) { const i = $("#ntq-k"); if (i) i.focus(); toast("Die Kalorien fehlen noch."); return; }
-  const N = S.nt, d = ntDay(N.date), name = (($("#ntq-name") || {}).value || "").trim() || "Schnell eingetragen";
+  const N = S.nt, name = (($("#ntq-name") || {}).value || "").trim() || "Schnell eingetragen";
   const n = {kcal:k}; for (const m of ["c", "p", "f"]) { const x = v(m); if (typeof x === "number") n[m] = x; }
+  if (N.mode === "plan") { plAdd({src:"quick", name, n}, 0); toast(`${name} steht im Plan.`); ntClose(); renderMain(); return; }
+  const d = ntDay(N.date);
   d.entries = [...(d.entries || []), {id:uid(), meal:N.meal, name, src:"quick", ref:"", g:0, n, t:Date.now()}];
   persist(d); if (($("#ntq-fav") || {}).checked) ntFavToggle({src:"quick", id:"", name, n}); toast(`${name} bei ${ntMealName(N.meal)} eingetragen.`); S.ntDate = N.date; ntClose(); renderMain();
 }
@@ -4796,6 +4924,7 @@ function ntFavLog(x, meal, date){
   renderMain();
 }
 function ntLog(x, date, meal, g, qty, unit){
+  if (S.nt && S.nt.mode === "plan") { plAdd(x, g, qty, unit); return; }
   const d = ntDay(date), quick = x.src === "quick";
   d.entries = [...(d.entries || []), {id:uid(), meal, name:x.name, brand:x.brand || "", src:x.src, ref: quick ? "" : x.id, code:x.code || "", img:x.img || "", emoji:x.emoji || "",
     g: quick ? 0 : ntR(g, 1), qty: qty || null, unit: unit || null, n:{...x.n}, t:Date.now()}];
