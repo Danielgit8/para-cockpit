@@ -266,8 +266,27 @@ function csBalance(pieces, pillars){
   return {total, rows, none: list.filter(x => !ps.some(p => p.id === x.pillar)).length};
 }
 
+// Zielgruppen-Punkte (Schmerzpunkte, Wünsche) haben ids, damit Ideen daran hängen bleiben, wenn ich die Liste bearbeite.
+// Gleicher Text behält seine id, übrige Zeilen erben der Reihe nach die ids geänderter Zeilen, der Rest bekommt neue.
+function csKeepIds(lines, old, mkId){
+  const pool = (old || []).filter(o => o && o.id).slice();
+  const out = (lines || []).map(t => String(t || "").trim()).filter(Boolean).map(t => { const i = pool.findIndex(o => o.text === t); return i >= 0 ? {id: pool.splice(i, 1)[0].id, text: t} : {text: t}; });
+  return out.map(o => o.id ? o : {id: pool.length ? pool.shift().id : mkId(), text: o.text});
+}
+// Art einer Quelle aus dem Link raten
+function csSrcGuess(url){
+  const h = String(url || "").toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/?#]/)[0];
+  if (!h) return "creator";
+  if (/(^|\.)(instagram\.com|tiktok\.com|x\.com|twitter\.com|threads\.net|facebook\.com|linkedin\.com)$/.test(h)) return "creator";
+  if (/(^|\.)(youtube\.com|youtu\.be|vimeo\.com)$/.test(h)) return "video";
+  if (/(^|\.)(open\.spotify\.com|podcasts\.apple\.com|spotify\.com)$/.test(h) || /podcast/.test(h)) return "podcast";
+  if (/(^|\.)(pubmed\.ncbi\.nlm\.nih\.gov|ncbi\.nlm\.nih\.gov|doi\.org|sciencedirect\.com|nature\.com|springer\.com|link\.springer\.com|wiley\.com|onlinelibrary\.wiley\.com|frontiersin\.org|mdpi\.com|bmj\.com|thelancet\.com|jamanetwork\.com|nejm\.org|examine\.com|cochranelibrary\.com|scholar\.google\.com)$/.test(h)) return "study";
+  if (/(^|\.)reddit\.com$/.test(h) || /forum/.test(h)) return "forum";
+  return "web";
+}
+
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, CS_CHECKS, csChecksOk, csCanStatus, csGateOk, csBalance};
+  CS_STATUS, CS_CHECKS, csChecksOk, csCanStatus, csGateOk, csBalance, csKeepIds, csSrcGuess};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);

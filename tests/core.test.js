@@ -326,3 +326,21 @@ test("Content Studio: Säulen-Balance zeigt, was zu kurz kommt und was dominiert
   assert.deepEqual(C.csBalance([{pillar:"a"}], ps).rows.map(x => x.low || x.high), [false, false, false, false]);
 });
 
+
+test("csKeepIds: gleicher Text behält id, geänderte Zeile erbt id, neue Zeile bekommt neue id", () => {
+  let n = 0; const mk = () => "new" + (++n);
+  const old = [{id:"a", text:"Eins"}, {id:"b", text:"Zwei"}, {id:"c", text:"Drei"}];
+  assert.deepEqual(C.csKeepIds(["Drei", "Eins"], old, mk), [{id:"c", text:"Drei"}, {id:"a", text:"Eins"}]);
+  assert.deepEqual(C.csKeepIds(["Eins", "Zwei geändert"], old, mk), [{id:"a", text:"Eins"}, {id:"b", text:"Zwei geändert"}]);
+  assert.deepEqual(C.csKeepIds(["Eins", "Zwei", "Drei", "Vier", " ", ""], old, mk).map(x => x.id), ["a", "b", "c", "new1"]);
+  assert.deepEqual(C.csKeepIds([], old, mk), []);
+});
+test("csSrcGuess: Art aus dem Link", () => {
+  assert.equal(C.csSrcGuess("https://www.instagram.com/someone/"), "creator");
+  assert.equal(C.csSrcGuess("youtu.be/abc"), "video");
+  assert.equal(C.csSrcGuess("https://pubmed.ncbi.nlm.nih.gov/123/"), "study");
+  assert.equal(C.csSrcGuess("https://open.spotify.com/show/x"), "podcast");
+  assert.equal(C.csSrcGuess("https://www.reddit.com/r/nutrition"), "forum");
+  assert.equal(C.csSrcGuess("https://wikipeatia.org/wiki/Main_Page"), "web");
+  assert.equal(C.csSrcGuess(""), "creator");
+});

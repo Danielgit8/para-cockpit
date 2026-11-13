@@ -1396,6 +1396,32 @@ button.cs-pl{cursor:pointer}
 .cs-idea-u svg{width:14px;height:14px;flex:none}
 .cs-idea-a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
 .cs-idea-f{margin-top:4px}
+.cs-aud{margin-top:16px}
+.cs-aud-n{margin:0;font-size:13.5px;line-height:1.5}
+.cs-ancs{display:flex;flex-direction:column;gap:6px}
+.cs-ancs h3{margin-bottom:4px}
+.cs-anc{display:flex;align-items:center;gap:8px;border-radius:var(--r-sm);padding:4px 4px 4px 0;min-width:0}
+.cs-anc.on{background:var(--panel-solid);box-shadow:0 0 0 1px var(--ink)}
+.cs-anc-t{flex:1;min-width:0;text-align:left;font-size:13.5px;line-height:1.45;overflow-wrap:anywhere;padding:2px 6px}
+.cs-anc-n{flex:none;min-width:24px;text-align:center;font-size:12px;font-weight:600;border-radius:999px;padding:2px 7px;background:var(--panel-solid);border:1px solid var(--line)}
+.cs-anc-n.zero{color:var(--muted);font-weight:500}
+.cs-anc .ibtn{flex:none}
+.cs-anc-chip{display:inline-block;max-width:100%;font-size:11.5px;line-height:1.35;padding:3px 9px;border-radius:999px;border:1px solid var(--line);overflow-wrap:anywhere}
+.cs-anc-chip.pain{border-color:var(--late);color:var(--late)}
+.cs-anc-chip.want{border-color:var(--good);color:var(--good)}
+.cs-src-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--amber);max-width:100%;overflow-wrap:anywhere;text-align:left}
+.cs-src-chip svg{width:12px;height:12px;flex:none}
+.cs-fhint{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cs-star svg{width:17px;height:17px}
+.cs-star.on{color:var(--amber)}
+.cs-star.on svg{fill:currentColor}
+.cs-nolink{font-size:12.5px}
+.cs-src>.cs-idea-h:first-child{flex-wrap:nowrap}
+.cs-src>.cs-idea-h:first-child>*{flex:none}
+.cs-src>.cs-idea-h:first-child>.cs-pl{flex:0 1 auto;min-width:0;display:block}
+.cs-src>.cs-idea-h:first-child>.cs-pl::before{display:inline-block;margin-right:6px;vertical-align:1px}
+.cs-src>.cs-idea-h:first-child>.grow{flex:1 1 0;min-width:0}
+.cs-aud .cs-pos{font-size:16px;line-height:1.45}
 .cs-pc{background:var(--panel-solid);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .cs-pc-t{text-align:left;font-weight:600;font-size:13.5px;line-height:1.35;overflow-wrap:anywhere}
 .cs-pc-m{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:11.5px}
@@ -1769,7 +1795,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-13.5";
+const APP_VERSION = "2026-11-13.6";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1856,7 +1882,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -3599,7 +3625,7 @@ function settingsHTML(){
 
 /* ================= search ================= */
 // Versteckte Arten haben eigene Ansichten (Training, Brand & Business) und öffnen dort
-const SR_K = {workout:{label:"Training", icon:"dumbbell"}, cidea:{label:"Idee", icon:"star"}, cpiece:{label:"Content-Stück", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, cost:{label:"Kosten", icon:"repeat"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
+const SR_K = {workout:{label:"Training", icon:"dumbbell"}, cidea:{label:"Idee", icon:"star"}, cpiece:{label:"Content-Stück", icon:"star"}, csource:{label:"Quelle", icon:"link"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, cost:{label:"Kosten", icon:"repeat"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
 const srKind = k => SR_K[k] || kindOf({kind:k});
 function searchRender(q){
   const box = $("#search-res"); if (!box) return;
@@ -3616,9 +3642,9 @@ function srOpen(id){
   if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
   if (it.kind === "food" || it.kind === "recipe") { if (S.open) closeOverlay(); const r = it.kind === "recipe"; S.fdTab = r ? "rec" : "food"; if (r) { S.rcOpen = id; S.rcEdit = false; } else S.fdOpen = id;
     try { localStorage.setItem("fdTab2", S.fdTab); } catch(e){} go("food"); return; }
-  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", video:"studio", contact:"studio", income:"fin", cost:"fin"}[it.kind];
+  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", csource:"quellen", video:"studio", contact:"studio", income:"fin", cost:"fin"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; const u = csU();
-    if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { u.open = null; u.tab = "all"; u.idea = id; }
+    if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { u.open = null; u.tab = "all"; u.idea = id; } else if (it.kind === "csource") u.src = id;
     try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); if (it.kind === "cost") finToCost(); return; }
   S.dBack = []; openDetailFresh(id);
 }
@@ -5371,11 +5397,12 @@ function brandHTML(){
   // Überblick und Videos gibt es seit dem 13.11.2026 nicht mehr, alte Reiter landen im Content Studio.
   // Einnahmen und Kosten sind seit demselben Tag ein Reiter „Finanzen“ (sein Wunsch).
   if (S.brTab === "inc" || S.brTab === "cost") S.brTab = "fin";
-  if (!["studio", "fin"].includes(S.brTab)) S.brTab = "studio";
+  if (!["studio", "quellen", "fin"].includes(S.brTab)) S.brTab = "studio";
   const tab = S.brTab, open = csPieces().filter(p => p.status !== "live").length;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
-  const out = header("Content & Finanzen", "Ideen, Pipeline, Zahlen, Einnahmen und Kosten") + banner() +
-    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("fin", "Finanzen")}</div>`;
+  const out = header("Content & Finanzen", "Zielgruppe, Ideen, Quellen, Pipeline und Geld") + banner() +
+    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("quellen", "Quellen")}${seg("fin", "Finanzen")}</div>`;
+  if (tab === "quellen") return out + csSrcHTML();
   if (tab === "fin") return out + `<div class="ns-lbl fin-h">Einnahmen</div>` + brIncomeHTML() + `<div class="ns-lbl fin-h" id="fin-kosten">Kosten</div>` + brCostHTML();
   return out + csHTML();
 }
@@ -5385,7 +5412,10 @@ function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${i
 
 /* ================= Content Studio (13.11.2026, ersetzt Überblick und Videos) =================
    Kompass = ein Eintrag kind "ccompass", feste id "cs-compass": positioning, principles[], anti[], pillars[{id,name,description,color}], toneDos[], toneDonts[]
-   Idee    = kind "cidea": title, body (rohe Notizen), url, type (eigen|insp|beob|kontra), pillar (optional), status (inbox|park|taken|archive)
+   Seit 13.11. abends im Kompass auch: audience (wer schaut zu), pains[{id,text}] (Schmerzpunkte), wants[{id,text}] (Wünsche), ids über PC.csKeepIds
+   Idee    = kind "cidea": title, body (rohe Notizen), url, type (eigen|insp|beob|kontra), pillar (optional), status (inbox|park|taken|archive),
+             anchor (id eines Schmerzpunkts oder Wunschs), source (id einer Quelle)
+   Quelle  = kind "csource": title, url, stype (CS_SRC), note, pillar, star (Reiter „Quellen“ auf Content & Finanzen)
    Stück   = kind "cpiece": idea, title, hook, body (Markdown), pillar, principle, status (check|entwurf|produktion|geplant|live), formats[], cta, date,
              checks{pillar,principle,problem}, bei Live url, views, follows
    Die Regeln (Brand-Gate, Status-Sperre, Säulen-Balance) liegen in core.js: PC.csGateOk, PC.csCanStatus, PC.csBalance.
@@ -5399,22 +5429,33 @@ const CS_COLORS = ["#C9772B", "#4F8A55", "#3E6FB0", "#8A5BB5", "#A8443A", "#6B6B
 const CS_CHK = [["pillar", "Zahlt das auf die Säule ein?"], ["principle", "Belegt es den Grundsatz?"], ["problem", "Löst es ein echtes Problem meiner Zuschauer?"]];
 const csCol = c => CS_COLORS.includes(c) ? c : CS_COLORS[0];
 const csCompass = () => { const c = S.items.get("cs-compass"); return c && !c.archived ? c : null; };
-const csC = () => { const c = csCompass() || {}; return {positioning:c.positioning || "", principles:c.principles || [], anti:c.anti || [], pillars:c.pillars || [], toneDos:c.toneDos || [], toneDonts:c.toneDonts || []}; };
+const csC = () => { const c = csCompass() || {}; return {positioning:c.positioning || "", principles:c.principles || [], anti:c.anti || [], pillars:c.pillars || [], toneDos:c.toneDos || [], toneDonts:c.toneDonts || [],
+  audience:c.audience || "", pains:(c.pains || []).filter(a => a && a.id), wants:(c.wants || []).filter(a => a && a.id)}; };
+const csAnchor = id => { if (!id) return null; const c = csC(), p = c.pains.find(a => a.id === id); if (p) return {...p, k:"pain"}; const w = c.wants.find(a => a.id === id); return w ? {...w, k:"want"} : null; };
+const csAncOpts = sel => { const c = csC(), o = a => `<option value="${a.id}" ${a.id === sel ? "selected" : ""}>${esc(a.text)}</option>`;
+  return (c.pains.length ? `<optgroup label="Schmerzpunkte (Pain Points)">${c.pains.map(o).join("")}</optgroup>` : "") + (c.wants.length ? `<optgroup label="Wünsche (Desires)">${c.wants.map(o).join("")}</optgroup>` : ""); };
+const csAncChip = a => a ? `<span class="cs-anc-chip ${a.k}" title="${a.k === "pain" ? "Schmerzpunkt" : "Wunsch"}: ${esc(a.text)}">${a.k === "pain" ? "Nervt:" : "Will:"} ${esc(a.text.length > 48 ? a.text.slice(0, 46) + " …" : a.text)}</span>` : "";
+const CS_SRC = [["creator", "Creator / Account"], ["web", "Website"], ["video", "YouTube / Video"], ["podcast", "Podcast"], ["study", "Studie / Paper"], ["book", "Buch"], ["forum", "Forum / Community"], ["other", "Sonstiges"]];
+const csSources = () => live("csource");
+const csPlat = url => { const h = lsHost(url || "").toLowerCase(); return /instagram/.test(h) ? "Instagram" : /tiktok/.test(h) ? "TikTok" : /youtu/.test(h) ? "YouTube" : /(^|\.)x\.com$|twitter/.test(h) ? "X" : /spotify/.test(h) ? "Spotify" : ""; };
 const csPillar = id => csC().pillars.find(p => p.id === id) || null;
 const csIdeas = () => live("cidea");
 const csPieces = () => live("cpiece");
-const csU = () => S.cs || (S.cs = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem("cs-ui") || "{}") || {}; } catch(e){} return {tab:"inbox", view:"kanban", cal:"month", kom:true, ...o, pillar:"", open:null, idea:null, del:null, prev:false, ref:dkey()}; })());
-const csSaveU = () => { const u = csU(); try { localStorage.setItem("cs-ui", JSON.stringify({tab:u.tab, view:u.view, cal:u.cal, kom:u.kom})); } catch(e){} };
+const csU = () => S.cs || (S.cs = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem("cs-ui") || "{}") || {}; } catch(e){} return {tab:"inbox", view:"kanban", cal:"month", kom:true, aud:true, stf:"all", ...o, pillar:"", anchor:"", source:"", src:null, open:null, idea:null, del:null, prev:false, ref:dkey()}; })());
+const csSaveU = () => { const u = csU(); try { localStorage.setItem("cs-ui", JSON.stringify({tab:u.tab, view:u.view, cal:u.cal, kom:u.kom, aud:u.aud, stf:u.stf})); } catch(e){} };
 const csUl = a => a.length ? `<ul>${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">Noch nichts eingetragen.</p>`;
 const csPl = p => p ? `<span class="cs-pl" style="--c:${csCol(p.color)}">${esc(p.name || "Säule")}</span>` : `<span class="chip late">Säule noch zuordnen</span>`;
 
 /* --- Festhalten: ein Weg zum Speichern, für die Leiste im Studio und das Fenster von überall --- */
-function csCapture(title, url, type){
+const csUrl = url => { url = String(url || "").trim(); return url && !/^https?:\/\//i.test(url) ? (/^[\w-]+(\.[\w-]+)+\S*$/.test(url) ? "https://" + url : "") : url; };
+function csCapture(title, url, type, extra = {}){
   title = String(title || "").trim(); url = String(url || "").trim();
   if (!url && /^https?:\/\/\S+$/i.test(title)) { url = title; title = ""; }
-  if (url && !/^https?:\/\//i.test(url)) url = /^[\w-]+(\.[\w-]+)+\S*$/.test(url) ? "https://" + url : "";
+  url = csUrl(url);
   if (!title && !url) return null;
-  return create("cidea", title || lsHost(url) || "Link", {url, type: CS_TYPES.some(t => t[0] === type) ? type : "eigen", pillar: "", status: "inbox"});
+  const src = extra.source && S.items.get(extra.source);
+  return create("cidea", title || lsHost(url) || "Link", {url, type: CS_TYPES.some(t => t[0] === type) ? type : "eigen", pillar: extra.pillar || (src && src.pillar) || "", status: "inbox",
+    anchor: csAnchor(extra.anchor) ? extra.anchor : "", source: src ? src.id : ""});
 }
 function csDlg(html, cls = ""){
   let d = $("#cs-dlg");
@@ -5424,21 +5465,96 @@ function csDlg(html, cls = ""){
   d.className = "cs-dlg " + cls; d.innerHTML = html; if (!d.open) d.showModal(); return d;
 }
 const csDlgClose = () => { const d = $("#cs-dlg"); if (d && d.open) d.close(); };
-function csCapOpen(q = ""){
+function csCapOpen(q = "", pre = {}){
   if (S.mode !== "app") return;
-  S.csDlg = "cap"; S.csGType = "eigen";
+  const src = pre.source && S.items.get(pre.source), anc = csAnchor(pre.anchor), c = csC();
+  S.csDlg = "cap"; S.csGType = src ? "insp" : "eigen"; S.csGSrc = src ? src.id : "";
   csDlg(`<div class="cs-form"><h2>Idee festhalten</h2>
+    ${src ? `<p class="hint" style="margin:0">Aus meiner Quelle „${esc(src.title || "Ohne Titel")}“</p>` : ""}
     <input class="field" id="cs-g-t" placeholder="Gedanke, Beobachtung oder Arbeitstitel" aria-label="Gedanke oder Titel" enterkeyhint="done" autocomplete="off" value="${esc(q)}">
-    <input class="field" id="cs-g-u" type="url" placeholder="Link (optional)" aria-label="Link" enterkeyhint="done" autocomplete="off">
-    <div class="fd-btns">${CS_TYPES.map(([k, l], i) => `<button type="button" class="pill ${i === 0 ? "on" : ""}" data-cs="gtype" data-v="${k}">${l}</button>`).join("")}</div>
+    <input class="field" id="cs-g-u" type="url" placeholder="${src ? "Link zum Post oder Artikel (optional)" : "Link (optional)"}" aria-label="Link" enterkeyhint="done" autocomplete="off">
+    ${c.pains.length || c.wants.length ? `<select class="field" id="cs-g-a" aria-label="Welchen Punkt meiner Zielgruppe trifft das?"><option value="">Welchen Punkt meiner Zielgruppe trifft das? (freiwillig)</option>${csAncOpts(anc ? anc.id : "")}</select>` : ""}
+    <div class="fd-btns">${CS_TYPES.map(([k, l]) => `<button type="button" class="pill ${k === S.csGType ? "on" : ""}" data-cs="gtype" data-v="${k}">${l}</button>`).join("")}</div>
     <div class="cs-dlg-f"><span class="muted">Enter speichert, Esc schließt</span><span class="grow"></span><button type="button" class="btn" data-cs="gsave">Festhalten</button></div></div>`);
   const i = $("#cs-g-t"); if (i) { i.focus(); try { i.setSelectionRange(i.value.length, i.value.length); } catch(e){} }
 }
 function csCapSave(){
-  const it = csCapture(($("#cs-g-t") || {}).value, ($("#cs-g-u") || {}).value, S.csGType);
+  const it = csCapture(($("#cs-g-t") || {}).value, ($("#cs-g-u") || {}).value, S.csGType, {anchor:($("#cs-g-a") || {}).value || "", source:S.csGSrc || ""});
   if (!it) { const i = $("#cs-g-t"); if (i) i.focus(); return; }
   csDlgClose(); toast("Im Ideen-Tresor gespeichert");
   if (S.view === "brand") renderMain();
+}
+
+/* --- Für wen ich das mache: Zielgruppe, Schmerzpunkte, Wünsche als Anker für Ideen --- */
+function csAudHTML(){
+  const c = csC(), u = csU(), ideas = csIdeas().filter(i => i.status !== "archive"), cnt = id => ideas.filter(i => i.anchor === id).length;
+  const row = a => { const n = cnt(a.id), on = u.anchor === a.id;
+    return `<div class="cs-anc ${on ? "on" : ""}"><button class="cs-anc-t" data-cs="af" data-id="${a.id}" aria-pressed="${on}" title="Ideen dazu zeigen">${esc(a.text)}</button><span class="cs-anc-n num ${n ? "" : "zero"}" title="${n} ${n === 1 ? "Idee" : "Ideen"} dazu">${n}</span><button class="ibtn" data-cs="acap" data-id="${a.id}" title="Idee dazu festhalten" aria-label="Idee dazu festhalten">${ic("plus")}</button></div>`; };
+  const has = c.audience || c.pains.length || c.wants.length;
+  return `<details class="card cs-kom cs-aud" id="cs-aud"${u.aud ? " open" : ""}><summary><span class="cs-kom-h"><span class="ns-lbl">Für wen ich das mache</span><b class="cs-pos">${esc(c.audience || "Noch keine Zielgruppe eingetragen.")}</b></span>${ic("down")}</summary>
+    ${c.positioning ? `<p class="cs-aud-n"><span class="muted">Meine Nische:</span> ${esc(c.positioning)}</p>` : ""}
+    <div class="cs-two"><div class="cs-no cs-ancs"><h3>Was sie nervt (Pain Points)</h3>${c.pains.map(row).join("") || `<p class="muted">Noch nichts eingetragen.</p>`}</div>
+      <div class="cs-yes cs-ancs"><h3>Was sie sich wünschen (Desires)</h3>${c.wants.map(row).join("") || `<p class="muted">Noch nichts eingetragen.</p>`}</div></div>
+    <div class="cs-kom-f"><button class="pill" data-cs="aedit">${ic("pen")}${has ? "Bearbeiten" : "Zielgruppe ausfüllen"}</button><span class="muted">Punkt antippen zeigt die Ideen dazu, Plus hält eine neue fest. Die Zahl sagt, wie viele Ideen schon passen.</span></div></details>`;
+}
+function csAudDlg(){
+  const c = csC(), ta = (id, l, a, h) => `<label>${l}<textarea class="field" id="ca-${id}" rows="6" placeholder="${h}">${esc(a.map(x => x.text).join("\n"))}</textarea></label>`;
+  S.csDlg = "aud";
+  csDlg(`<div class="cs-form"><h2>Für wen ich das mache</h2>
+    <label>Wer schaut mir zu? (ein, zwei Sätze)<textarea class="field" id="ca-aud" rows="3">${esc(c.audience)}</textarea></label>
+    <p class="hint" style="margin:0">Ein Punkt pro Zeile. Ideen, die schon an einem Punkt hängen, bleiben dran, auch wenn ich den Text ändere.</p>
+    <div class="cs-two">${ta("pain", "Was sie nervt (Pain Points)", c.pains, "z. B. [Jeder sagt was anderes über Ernährung]")}${ta("want", "Was sie sich wünschen (Desires)", c.wants, "z. B. [Verstehen, was im Körper passiert]")}</div>
+    <div class="cs-dlg-f"><span class="grow"></span><button type="button" class="pill" data-cs="dclose">Abbrechen</button><button type="button" class="btn" data-cs="asave">Speichern</button></div></div>`, "wide");
+}
+function csAudSave(){
+  const c = csC(), v = id => (($("#ca-" + id) || {}).value || ""), lines = id => v(id).split("\n");
+  const it = csCompass() || {id:"cs-compass", kind:"ccompass", title:"Brand-Kompass", body:"", rel:[], links:[], files:[], tags:[], archived:false, created:Date.now()};
+  Object.assign(it, {audience:v("aud").trim(), pains:PC.csKeepIds(lines("pain"), c.pains, uid), wants:PC.csKeepIds(lines("want"), c.wants, uid)});
+  persist(it); csDlgClose(); toast("Zielgruppe gespeichert"); renderMain();
+}
+
+/* --- Quellen: wo ich Wissen und Ideen herhole --- */
+function csSrcRowHTML(s){
+  const u = csU(), open = u.src === s.id, url = brUrl(s.url), plat = csPlat(url), p = s.pillar ? csPillar(s.pillar) : null, arm = u.del === s.id;
+  const n = csIdeas().filter(i => i.source === s.id).length, note = (s.note || "").trim();
+  return `<div class="cs-idea cs-src ${open ? "open" : ""}"><div class="cs-idea-h"><span class="chip">${esc(brLabel(CS_SRC, s.stype || "other"))}</span>${plat ? `<span class="chip">${plat}</span>` : ""}${p ? csPl(p) : ""}<span class="grow"></span>
+      <button class="ibtn cs-star ${s.star ? "on" : ""}" data-cs="sstar" data-id="${s.id}" aria-pressed="${!!s.star}" title="${s.star ? "Stern entfernen" : "Mit Stern oben halten"}" aria-label="Stern">${ic("star")}</button></div>
+    <button class="cs-idea-t" data-cs="sopen" data-id="${s.id}" aria-expanded="${open}">${esc(s.title || "Ohne Titel")}</button>
+    ${note && !open ? `<p class="cs-idea-n">${esc(note.slice(0, 220))}${note.length > 220 ? " …" : ""}</p>` : ""}
+    ${url ? `<a class="cs-idea-u" href="${esc(url)}" target="_blank" rel="noopener">${ic("link")}${esc(lsHost(url) || "Link öffnen")}</a>` : open ? "" : `<span class="muted cs-nolink">Noch kein Link</span>`}
+    ${open ? `<div class="br-ed cs-idea-f"><label class="br-wide">Name<textarea class="field cs-title" id="cs-st-${s.id}" data-keep data-css="title" data-id="${s.id}" rows="1">${esc(s.title || "")}</textarea></label>
+      <label class="br-wide">Link<input class="field" id="cs-su-${s.id}" data-keep type="url" data-css="url" data-id="${s.id}" value="${esc(s.url || "")}" placeholder="https://"></label>
+      <label>Art<select class="field" data-css="stype" data-id="${s.id}">${brOpts(CS_SRC, s.stype || "other")}</select></label>
+      <label>Säule (freiwillig)<select class="field" data-css="pillar" data-id="${s.id}"><option value="">Passt zu mehreren</option>${csC().pillars.map(x => `<option value="${x.id}" ${x.id === s.pillar ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>
+      <label class="br-wide">Was ich da hole<textarea class="field" id="cs-sn-${s.id}" data-keep data-css="note" data-id="${s.id}" rows="3" placeholder="z. B. [Studien zu Insulin einfach erklärt]">${esc(s.note || "")}</textarea></label>
+      <div class="br-ed-f"><button class="pill" data-cs="sdel" data-id="${s.id}" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Löschen"}</button><span class="grow"></span><button class="pill on" data-cs="sopen" data-id="${s.id}">Fertig</button></div></div>` : ""}
+    <div class="cs-idea-a">${n ? `<button class="pill" data-cs="sideas" data-id="${s.id}">${n} ${n === 1 ? "Idee" : "Ideen"} daraus</button>` : ""}<button class="pill on" data-cs="scap" data-id="${s.id}">${ic("plus")}Idee daraus festhalten</button></div></div>`;
+}
+function csSrcHTML(){
+  const u = csU(), all = csSources().sort((a, b) => (!!b.star - !!a.star) || (a.title || "").localeCompare(b.title || "", "de"));
+  const types = CS_SRC.filter(([k]) => all.some(s => (s.stype || "other") === k));
+  if (u.stf !== "all" && u.stf !== "star" && !types.some(t => t[0] === u.stf)) u.stf = "all";
+  const list = all.filter(s => u.stf === "all" ? true : u.stf === "star" ? s.star : (s.stype || "other") === u.stf);
+  const tab = (k, l, n) => `<button class="pill ${u.stf === k ? "on" : ""}" data-cs="stf" data-v="${k}">${l} <span class="num">${n}</span></button>`;
+  return `<section class="card cs-cap"><div class="ns-lbl">Quelle hinzufügen</div>
+      <div class="cs-capf"><input class="field" id="cs-s-new" data-keep placeholder="Name oder Link, z. B. [Mace Woodville]" aria-label="Name oder Link der Quelle" enterkeyhint="done" autocomplete="off">
+        <input class="field" id="cs-s-url" data-keep type="url" placeholder="Link (optional)" aria-label="Link" enterkeyhint="done" autocomplete="off">
+        <select class="field" id="cs-s-type" aria-label="Art der Quelle"><option value="">Art aus dem Link</option>${brOpts(CS_SRC, "")}</select><button class="btn" data-cs="sadd">Hinzufügen</button></div>
+      <p class="hint" style="margin:10px 0 0">Hier sammle ich Websites, Accounts, Creator, Studien und Bücher, aus denen ich Wissen und Ideen für meinen Content hole. Bei jeder Quelle kann ich direkt eine Idee festhalten, die landet dann im Ideen-Tresor.</p></section>
+    <section class="card cs-vault"><div class="card-h"><h2>Meine Quellen</h2></div>
+      <div class="tr-seg">${tab("all", "Alle", all.length)}${all.some(s => s.star) ? tab("star", "Mit Stern", all.filter(s => s.star).length) : ""}${types.map(([k, l]) => tab(k, l, all.filter(s => (s.stype || "other") === k).length)).join("")}</div>
+      <div class="cs-ideas">${list.map(csSrcRowHTML).join("") || `<div class="empty">${all.length ? "Hier liegt nichts." : "Noch keine Quellen. Oben trag ich ein, wo ich mir Wissen hole."}</div>`}</div></section>`;
+}
+function csSrcAdd(){
+  const t = $("#cs-s-new"), ur = $("#cs-s-url"), ty = $("#cs-s-type");
+  let title = String((t && t.value) || "").trim(), url = String((ur && ur.value) || "").trim();
+  if (!url && /^(https?:\/\/)?[\w-]+(\.[\w-]+)+\/?\S*$/i.test(title) && !/\s/.test(title)) { url = title; title = ""; }
+  url = csUrl(url);
+  if (!title && !url) { if (t) t.focus(); return; }
+  if (!title) { const m = url.match(/(?:instagram\.com|tiktok\.com\/@?|x\.com|youtube\.com\/@?)\/?@?([\w.]+)/i); title = m ? m[1] : (lsHost(url) || "Quelle"); }
+  create("csource", title, {url, stype:(ty && ty.value) || PC.csSrcGuess(url), note:"", pillar:"", star:false});
+  if (t) t.value = ""; if (ur) ur.value = ""; if (ty) ty.value = "";
+  renderMain(); toast("Quelle gespeichert"); const n = $("#cs-s-new"); if (n) n.focus();
 }
 
 /* --- Brand-Kompass --- */
@@ -5487,8 +5603,9 @@ function csCapHTML(){
 }
 function csIdeaHTML(i){
   const u = csU(), open = u.idea === i.id, st = i.status || "inbox", p = i.pillar ? csPillar(i.pillar) : null, url = brUrl(i.url), arm = u.del === i.id;
-  const note = lsPlain(i.body), piece = st === "taken" ? csPieces().find(x => x.idea === i.id) : null;
+  const note = lsPlain(i.body), piece = st === "taken" ? csPieces().find(x => x.idea === i.id) : null, anc = csAnchor(i.anchor), src = i.source && S.items.get(i.source);
   return `<div class="cs-idea ${open ? "open" : ""}"><div class="cs-idea-h"><span class="chip">${esc(brLabel(CS_TYPES, i.type || "eigen"))}</span>${p ? csPl(p) : ""}${st !== "inbox" ? `<span class="chip">${CS_IST[st] || st}</span>` : ""}<span class="grow"></span><span class="muted num">${fmtTs(i.created)}</span></div>
+    ${anc || (src && !src.archived) ? `<div class="cs-idea-h">${csAncChip(anc)}${src && !src.archived ? `<button class="cs-src-chip" data-cs="sgo" data-id="${src.id}" title="Zur Quelle">${ic("link")}${esc(src.title || "Quelle")}</button>` : ""}</div>` : ""}
     <button class="cs-idea-t" data-cs="iopen" data-id="${i.id}" aria-expanded="${open}">${esc(i.title || "Ohne Titel")}</button>
     ${note && !open ? `<p class="cs-idea-n">${esc(note.slice(0, 180))}${note.length > 180 ? " …" : ""}</p>` : ""}
     ${url ? `<a class="cs-idea-u" href="${esc(url)}" target="_blank" rel="noopener">${ic("link")}${esc(lsHost(url) || "Link öffnen")}</a>` : ""}
@@ -5497,6 +5614,8 @@ function csIdeaHTML(i){
       <label class="br-wide">Link zur Quelle<input class="field" id="ci-u-${i.id}" data-keep type="url" data-ci="url" data-id="${i.id}" value="${esc(i.url || "")}" placeholder="https://"></label>
       <label>Art<select class="field" data-ci="type" data-id="${i.id}">${brOpts(CS_TYPES, i.type || "eigen")}</select></label>
       <label>Säule (freiwillig)<select class="field" data-ci="pillar" data-id="${i.id}"><option value="">Noch offen</option>${csC().pillars.map(x => `<option value="${x.id}" ${x.id === i.pillar ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>
+      <label class="br-wide">Trifft welchen Punkt meiner Zielgruppe?<select class="field" data-ci="anchor" data-id="${i.id}"><option value="">Noch offen</option>${csAncOpts(i.anchor)}</select></label>
+      <label class="br-wide">Aus welcher Quelle?<select class="field" data-ci="source" data-id="${i.id}"><option value="">Keine</option>${csSources().sort((a, b) => (a.title || "").localeCompare(b.title || "", "de")).map(x => `<option value="${x.id}" ${x.id === i.source ? "selected" : ""}>${esc(x.title || "Ohne Titel")}</option>`).join("")}</select></label>
       <div class="br-ed-f">${st !== "archive" ? `<button class="pill" data-cs="iarch" data-id="${i.id}">${ic("archive")}Ins Archiv</button>` : `<button class="pill" data-cs="iinbox" data-id="${i.id}">${ic("restore")}Zurück in die Inbox</button>`}
         <button class="pill" data-cs="idel" data-id="${i.id}" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Löschen"}</button><span class="grow"></span><button class="pill on" data-cs="iopen" data-id="${i.id}">Fertig</button></div></div>` : ""}
     <div class="cs-idea-a">${st === "taken" ? (piece ? `<button class="pill" data-cs="popen" data-id="${piece.id}">${ic("right")}Zum Stück in der Pipeline</button>` : `<span class="muted">Schon übernommen</span>`)
@@ -5507,13 +5626,18 @@ function csVaultHTML(){
   const f = {inbox: i => (i.status || "inbox") === "inbox", insp: i => i.type === "insp" && i.status !== "archive" && i.status !== "taken", park: i => i.status === "park", all: () => true};
   if (!f[u.tab]) u.tab = "inbox";
   let list = all.filter(f[u.tab]); if (u.pillar) list = list.filter(i => i.pillar === u.pillar);
+  const fa = u.anchor && csAnchor(u.anchor), fs = u.source && S.items.get(u.source);
+  if (!fa) u.anchor = ""; if (!fs) u.source = "";
+  if (fa) list = list.filter(i => i.anchor === u.anchor); if (fs) list = list.filter(i => i.source === u.source);
   const tab = (k, l) => `<button class="pill ${u.tab === k ? "on" : ""}" data-cs="vtab" data-v="${k}">${l} <span class="num">${all.filter(f[k]).length}</span></button>`;
   const empty = {inbox:"Die Inbox ist leer. Oben festhalten, was mir einfällt.", insp:"Noch keine Inspirationen. Beim Festhalten „Inspiration“ wählen und den Link dazulegen.", park:"Der Parkplatz ist leer. Hier landen gute Ideen, die gerade nicht zu meinem Thema passen.", all:"Noch keine Ideen."}[u.tab];
   const fp = u.pillar && csPillar(u.pillar);
-  return `<section class="card cs-vault"><div class="card-h"><h2>Ideen-Tresor</h2></div>
+  return `<section class="card cs-vault" id="cs-vault"><div class="card-h"><h2>Ideen-Tresor</h2></div>
     <div class="tr-seg">${tab("inbox", "Inbox")}${tab("insp", "Inspirationen")}${tab("park", "Parkplatz")}${tab("all", "Alle")}</div>
     ${fp ? `<p class="hint">Gefiltert nach ${csPl(fp)}. Ideen ohne Säule sind dabei ausgeblendet.</p>` : ""}
-    <div class="cs-ideas">${list.map(csIdeaHTML).join("") || `<div class="empty">${fp ? "Zu dieser Säule liegt hier nichts." : empty}</div>`}</div></section>`;
+    ${fa ? `<p class="hint cs-fhint">Nur Ideen zu ${csAncChip(fa)}<button class="pill" data-cs="acap" data-id="${fa.id}">${ic("plus")}Idee dazu</button><button class="pill" data-cs="af" data-id="">Filter aufheben</button></p>` : ""}
+    ${fs ? `<p class="hint cs-fhint">Nur Ideen aus „${esc(fs.title || "Quelle")}“<button class="pill" data-cs="sideas" data-id="">Filter aufheben</button></p>` : ""}
+    <div class="cs-ideas">${list.map(csIdeaHTML).join("") || `<div class="empty">${fa || fs ? "Dazu liegt hier noch keine Idee." : fp ? "Zu dieser Säule liegt hier nichts." : empty}</div>`}</div></section>`;
 }
 function csGateDlg(){
   const g = S.csGate, i = S.items.get(g.idea), c = csC(); if (!i) { csDlgClose(); return; }
@@ -5531,7 +5655,7 @@ function csGateDlg(){
 }
 function csGateOkDo(){
   const g = S.csGate, i = g && S.items.get(g.idea); if (!i || !PC.csGateOk(g.pillar, g.principle, csC())) return;
-  const p = create("cpiece", i.title || "", {idea:i.id, hook:"", body:i.body || "", src:i.url || "", pillar:g.pillar, principle:g.principle, status:"check", formats:[], cta:"", date:"", checks:{pillar:false, principle:false, problem:false}});
+  const p = create("cpiece", i.title || "", {idea:i.id, hook:"", body:i.body || "", src:i.url || "", pillar:g.pillar, principle:g.principle, anchor:i.anchor || "", status:"check", formats:[], cta:"", date:"", checks:{pillar:false, principle:false, problem:false}});
   i.status = "taken"; if (!i.pillar) i.pillar = g.pillar; persist(i);
   csDlgClose(); toast("In der Pipeline, Status Brand-Check"); csU().idea = null; renderMain(); return p;
 }
@@ -5607,6 +5731,7 @@ function csEditorHTML(p){
       <label>Säule<select class="field" data-cp="pillar"><option value="">Noch zuordnen</option>${c.pillars.map(x => `<option value="${x.id}" ${x.id === p.pillar ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>
       ${pil && pil.description ? `<p class="hint" style="margin:6px 0 0">${esc(pil.description)}</p>` : ""}
       <label>Grundsatz<select class="field" data-cp="principle"><option value="">Noch zuordnen</option>${[...new Set([...c.principles, ...(p.principle ? [p.principle] : [])])].map(x => `<option ${x === p.principle ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+      ${c.pains.length || c.wants.length ? `<label>Trifft welchen Punkt meiner Zielgruppe?<select class="field" data-cp="anchor"><option value="">Noch zuordnen</option>${csAncOpts(p.anchor)}</select></label>` : ""}
       <div class="cs-yes"><h3>Ton: so</h3>${csUl(c.toneDos)}</div><div class="cs-no"><h3>Ton: so nicht</h3>${csUl(c.toneDonts)}</div>
       <div class="ns-lbl" style="margin-top:16px">Pre-Flight</div>
       ${CS_CHK.map(([k, l]) => `<button class="ns-row ${ch[k] ? "on" : ""}" data-cs="chk" data-k="${k}" aria-pressed="${!!ch[k]}"><span>${l}</span><i class="ns-tick">${ch[k] ? ic("check") : ""}</i></button>`).join("")}
@@ -5632,12 +5757,13 @@ function csHTML(){
   const u = csU(), p = u.open && S.items.get(u.open);
   if (p && p.kind === "cpiece" && !p.archived) return csEditorHTML(p);
   u.open = null;
-  return csCompassHTML() + csCapHTML() + csVaultHTML() + csPipeHTML() + csStatsHTML() +
+  return csCompassHTML() + csAudHTML() + csCapHTML() + csVaultHTML() + csPipeHTML() + csStatsHTML() +
     `<p class="hint cs-bw">Meine früheren Grundlagen und die alte Video-Liste liegen weiter in <a href="../brand-weg/">Brand-Weg</a>.</p>`;
 }
 
 /* --- Eingaben --- */
-document.addEventListener("toggle", e => { const t = e.target; if (t && t.id === "cs-kom") { csU().kom = t.open; csSaveU(); } }, true);
+document.addEventListener("toggle", e => { const t = e.target; if (t && t.id === "cs-kom") { csU().kom = t.open; csSaveU(); } if (t && t.id === "cs-aud") { csU().aud = t.open; csSaveU(); } }, true);
+const csToVault = () => setTimeout(() => { const v = $("#cs-vault"); if (v) v.scrollIntoView({block:"start", behavior:"smooth"}); }, 60);
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-cs]"); if (!a) return;
   const act = a.dataset.cs, id = a.dataset.id, u = csU(), it = id ? S.items.get(id) : null, cur = u.open ? S.items.get(u.open) : null;
@@ -5657,6 +5783,20 @@ document.addEventListener("click", e => {
     case "kpdel": csKomRead(); S.csK.pillars.splice(+a.dataset.i, 1); csKomDlg(); return;
     case "kcol": csKomRead(); S.csK.pillars[+a.dataset.i].color = a.dataset.c; csKomDlg(); return;
     case "ksave": csKomSave(); return;
+    // Zielgruppe
+    case "aedit": csAudDlg(); return;
+    case "asave": csAudSave(); return;
+    case "af": u.anchor = id && u.anchor !== id ? id : ""; if (u.anchor) { u.tab = "all"; u.idea = null; csSaveU(); renderMain(); csToVault(); return; } break;
+    case "acap": csCapOpen("", {anchor:id}); return;
+    // Quellen
+    case "sadd": csSrcAdd(); return;
+    case "stf": u.stf = a.dataset.v; csSaveU(); break;
+    case "sopen": u.src = u.src === id ? null : id; break;
+    case "sstar": if (it) { it.star = !it.star; persist(it); } break;
+    case "sdel": if (!it) break; if (u.del !== id) { u.del = id; break; } csIdeas().filter(i => i.source === id).forEach(i => { i.source = ""; persist(i); }); removeItem(id); u.del = null; u.src = null; toast("Quelle gelöscht"); break;
+    case "scap": csCapOpen("", {source:id}); return;
+    case "sideas": u.source = id || ""; if (u.source) { u.tab = "all"; u.anchor = ""; u.idea = null; u.open = null; csSaveU(); S.brTab = "studio"; try { localStorage.setItem("brTab", "studio"); } catch(er){} renderMain(); window.scrollTo({top:0}); csToVault(); return; } break;
+    case "sgo": if (it) { u.src = id; u.stf = "all"; S.brTab = "quellen"; try { localStorage.setItem("brTab", "quellen"); } catch(er){} renderMain(); window.scrollTo({top:0}); } return;
     // Tresor
     case "vtab": u.tab = a.dataset.v; u.idea = null; csSaveU(); break;
     case "iopen": u.idea = u.idea === id ? null : id; break;
@@ -5696,14 +5836,17 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   const t = e.target; if (!t.dataset) return;
   if (t.dataset.cp && t.tagName !== "SELECT" && t.type !== "date") { const it = S.items.get(csU().open); if (!it) return; it[t.dataset.cp] = t.dataset.num ? brNum(t.value) : t.dataset.cp === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); return; }
-  if (t.dataset.ci && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.dataset.ci === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); }
+  if (t.dataset.ci && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.dataset.ci === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); return; }
+  if (t.dataset.css && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.css] = t.dataset.css === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); }
 });
 document.addEventListener("change", e => {
   const t = e.target; if (!t.dataset) return;
   if (t.dataset.cp && (t.tagName === "SELECT" || t.type === "date")) { const it = S.items.get(csU().open); if (!it) return; const k = t.dataset.cp;
     if (k === "status" && !PC.csCanStatus(it, t.value)) { toast("Erst die drei Pre-Flight-Haken setzen."); t.value = it.status; return; }
     it[k] = t.value; if (k === "status" && t.value === "live" && !it.date) it.date = dkey(); persist(it); renderMain(); return; }
-  if (t.dataset.ci && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.value; persist(it); renderMain(); }
+  if (t.dataset.ci && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.value; persist(it); renderMain(); return; }
+  if (t.dataset.css && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.css] = t.value; persist(it); renderMain(); return; }
+  if (t.dataset.css === "url") { const it = S.items.get(t.dataset.id); if (!it) return; it.url = csUrl(t.value); persist(it); }
 });
 document.addEventListener("keydown", e => {
   // Strg/Cmd + Umschalt + I: von jeder Seite festhalten. Strg/Cmd + I: im Studio ins Feld springen.
@@ -5718,6 +5861,7 @@ document.addEventListener("keydown", e => {
   if (id === "cs-g-t" || id === "cs-g-u") { e.preventDefault(); csCapSave(); }
   else if (id === "cs-new" || id === "cs-new-url") { e.preventDefault(); const b = document.querySelector('[data-cs="cap"]'); if (b) b.click(); }
   else if (id.startsWith("cp-fn-")) { e.preventDefault(); const b = document.querySelector('[data-cs="fmtadd"]'); if (b) b.click(); }
+  else if (id === "cs-s-new" || id === "cs-s-url") { e.preventDefault(); csSrcAdd(); }
 });
 
 function brContactsHTML(cons){
