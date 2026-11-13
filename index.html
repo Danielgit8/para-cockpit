@@ -1431,6 +1431,8 @@ button.cs-pl{cursor:pointer}
 .cs-prev{min-height:260px}
 .cs-title{field-sizing:content;resize:none;overflow:hidden;min-height:40px;line-height:1.35}
 .cs-bw{margin:16px 4px 0}
+.fin-h{margin:26px 4px 12px;scroll-margin-top:16px}
+.tr-seg+.fin-h{margin-top:4px}
 .cs-bw a{color:var(--amber);text-decoration:underline;text-underline-offset:3px}
 dialog.cs-dlg{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--panel-solid);color:var(--text);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:var(--shadow)}
 dialog.cs-dlg.wide{width:min(760px,calc(100vw - 24px))}
@@ -1766,7 +1768,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-13.3";
+const APP_VERSION = "2026-11-13.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2366,11 +2368,11 @@ function navGroups(){
   const k = kinds(), hide = new Set(S.settings.navHide || []);
   const v = (id, label, icon) => ({v:id, label, icon});
   const gs = [
-    // Umbau 13.11.2026 (Quiz mit ihm): Heute, Ziele, Lesestoff, Content & Einnahmen, Körper. Journal, Boards und Werkzeuge liegen am Handy unter „Mehr“.
+    // Umbau 13.11.2026 (Quiz mit ihm): Heute, Ziele, Lesestoff, Content & Finanzen, Körper. Journal, Boards und Werkzeuge liegen am Handy unter „Mehr“.
     {id:"today", label:"Heute", icon:"sun", views:[v("today", "Heute", "sun")]},
     {id:"weg", label:"Meine Ziele", short:"Ziele", icon:"compass", views:[v("weg", "Meine Ziele", "compass")]},
     {id:"lese", label:"Lesestoff", icon:"book", views:[v("lese", "Lesestoff", "book")]},
-    {id:"brand", label:"Content & Einnahmen", short:"Content", icon:"star", views:[v("brand", "Content & Einnahmen", "star")]},
+    {id:"brand", label:"Content & Finanzen", short:"Content", icon:"star", views:[v("brand", "Content & Finanzen", "star")]},
     {id:"koerper", label:"Körper", icon:"dumbbell", views:[v("training", "Training", "dumbbell"), v("food", "Ernährung", "food")]},
     {id:"journal", label:"Journal", icon:"pen", views:[v("journal", "Journal", "pen")]},
     {id:"boards", label:"Boards", icon:"board", views:[v("board", "Boards", "board")]},
@@ -2474,7 +2476,7 @@ function viewHTML(){
   if (v === "training") return trainingHTML();
   if (v === "food") return foodHTML();
   if (v === "brand") return brandHTML();
-  if (v === "kosten") { S.view = "brand"; S.brTab = "cost"; try { localStorage.setItem("brTab", "cost"); } catch(e){} return brandHTML(); }
+  if (v === "kosten") { S.view = "brand"; S.brTab = "fin"; try { localStorage.setItem("brTab", "fin"); } catch(e){} finToCost(); return brandHTML(); }
   if (v === "board") return boardsHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
@@ -3613,10 +3615,10 @@ function srOpen(id){
   if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
   if (it.kind === "food" || it.kind === "recipe") { if (S.open) closeOverlay(); const r = it.kind === "recipe"; S.fdTab = r ? "rec" : "food"; if (r) { S.rcOpen = id; S.rcEdit = false; } else S.fdOpen = id;
     try { localStorage.setItem("fdTab2", S.fdTab); } catch(e){} go("food"); return; }
-  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", video:"studio", contact:"studio", income:"inc", cost:"cost"}[it.kind];
+  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", video:"studio", contact:"studio", income:"fin", cost:"fin"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; const u = csU();
     if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { u.open = null; u.tab = "all"; u.idea = id; }
-    try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
+    try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); if (it.kind === "cost") finToCost(); return; }
   S.dBack = []; openDetailFresh(id);
 }
 function searchHTML(){
@@ -5337,16 +5339,19 @@ const brArea = () => live("area").find(a => a.id === brand().area) || live("area
 const brSum = mk => live("income").filter(i => (i.date || "").startsWith(mk)).reduce((s, i) => s + (+i.amount || 0), 0);
 function brandHTML(){
   if (!S.brTab) { try { S.brTab = localStorage.getItem("brTab") || "studio"; } catch (e) { S.brTab = "studio"; } }
-  // Überblick und Videos gibt es seit dem 13.11.2026 nicht mehr, alte Reiter landen im Content Studio
-  if (!["studio", "inc", "cost"].includes(S.brTab)) S.brTab = "studio";
+  // Überblick und Videos gibt es seit dem 13.11.2026 nicht mehr, alte Reiter landen im Content Studio.
+  // Einnahmen und Kosten sind seit demselben Tag ein Reiter „Finanzen“ (sein Wunsch).
+  if (S.brTab === "inc" || S.brTab === "cost") S.brTab = "fin";
+  if (!["studio", "fin"].includes(S.brTab)) S.brTab = "studio";
   const tab = S.brTab, open = csPieces().filter(p => p.status !== "live").length;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
-  const out = header("Content & Einnahmen", "Ideen, Pipeline, Zahlen und Einnahmen") + banner() +
-    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("inc", "Einnahmen")}${seg("cost", "Kosten")}</div>`;
-  if (tab === "inc") return out + brIncomeHTML();
-  if (tab === "cost") return out + brCostHTML();
+  const out = header("Content & Finanzen", "Ideen, Pipeline, Zahlen, Einnahmen und Kosten") + banner() +
+    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("fin", "Finanzen")}</div>`;
+  if (tab === "fin") return out + `<div class="ns-lbl fin-h">Einnahmen</div>` + brIncomeHTML() + `<div class="ns-lbl fin-h" id="fin-kosten">Kosten</div>` + brCostHTML();
   return out + csHTML();
 }
+// Von der Kosten-Erinnerung auf Heute oder aus der Suche direkt zum Abschnitt Kosten springen
+const finToCost = () => setTimeout(() => { const n = $("#fin-kosten"); if (n) n.scrollIntoView({block:"start"}); }, 80);
 function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${id}">${ic("trash")}${S.brDel === id ? "Wirklich löschen?" : "Löschen"}</button>`; }
 
 /* ================= Content Studio (13.11.2026, ersetzt Überblick und Videos) =================
