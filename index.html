@@ -713,25 +713,10 @@ body.bd-on{overflow:hidden}
 :root[data-theme="dark"]{--brand:#F2A23A;--brand-2:#F7C66B;--brand-soft:rgba(242,162,58,.14)}
 .nav.nav-brand{color:var(--brand);background:var(--brand-soft)}
 .nav.nav-brand.on{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff}
-.br-hero{background:linear-gradient(135deg,#1B1208,#3A2209 60%,#5C3510);color:#FFF6EA;border-color:transparent}
-.br-hero-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
-.br-kicker{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#F7C66B;font-weight:700}
-.br-hero h2{margin:4px 0 0;font-size:21px;line-height:1.3;max-width:640px}
-.br-pill{border-color:rgba(255,255,255,.28);color:#FFF6EA}
-.br-goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:20px}
-.br-goal{display:flex;flex-direction:column;gap:6px;min-width:0}
-.br-goal-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:rgba(255,246,234,.75)}
-.br-goal-h b{font-size:20px;color:#FFF6EA;white-space:nowrap}
-.br-goal-h small{font-size:12px;color:rgba(255,246,234,.6)}
 .br-track{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
 .br-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#F2A23A,#F7C66B)}
-.br-goal>small,.br-last{font-size:12px;color:rgba(255,246,234,.65);line-height:1.45}
-.br-last{margin:16px 0 0}
-.br-gform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14)}
-.br-gform label,.br-form label,.br-ed label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.br-form label,.br-ed label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
 .br-ed label .field,.br-form label .field{font-size:14px;font-weight:500;color:var(--text)}
-.br-gform label{color:rgba(255,246,234,.75)}
-.br-gform .field{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#FFF6EA}
 .br-wide{grid-column:1/-1}
 .br-form{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end}
 .br-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:20px}
@@ -742,14 +727,6 @@ body.bd-on{overflow:hidden}
 .br-col-h{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:2px 4px}
 .br-col-h b{color:var(--text)}
 .br-col-empty{font-size:12px;color:var(--muted);margin:2px 4px}
-.br-vc{background:var(--panel-solid);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.br-vc.open{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
-.br-vc-t{text-align:left;font-weight:600;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
-.br-vc-m{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px}
-.br-vc-a{display:flex;justify-content:space-between}
-.br-vc-a .ibtn{width:28px;height:28px}
-.br-vc-a .ibtn:disabled{opacity:.25;cursor:default}
-.br-edit{border-color:var(--brand)}
 .br-ed{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
 .br-ed textarea.field{height:auto;padding:10px 12px;resize:vertical;line-height:1.5}
 .br-ed-f{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -846,7 +823,7 @@ body.bd-on{overflow:hidden}
 }
 .br-links .pill{height:34px}
 @media (max-width:900px){.br-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) 32px;gap:8px;margin:0;padding:12px 0;border-bottom:1px solid var(--line)}.br-sk>input:first-child{grid-column:1/-1;font-weight:600}.br-sk .br-sk-n{grid-column:1/-1;order:5}.br-hero h2{font-size:18px}}
+@media (max-width:560px){.br-cols{grid-template-columns:minmax(0,1fr)}.br-form{grid-template-columns:1fr 1fr}.br-form .btn{grid-column:1/-1}.br-row{grid-template-columns:minmax(0,1fr) auto}.br-sk{grid-template-columns:minmax(0,1fr) 32px;gap:8px;margin:0;padding:12px 0;border-bottom:1px solid var(--line)}.br-sk>input:first-child{grid-column:1/-1;font-weight:600}.br-sk .br-sk-n{grid-column:1/-1;order:5}}
 .br-links .pill{height:auto;min-height:34px;white-space:normal;text-align:left;max-width:100%;padding:6px 14px;line-height:1.3}
 .br-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
 .br-kv:last-child{border-bottom:0}
@@ -1381,6 +1358,107 @@ a.ns-now-t{text-decoration:none}
 .ls-acts .ibtn.on svg{fill:currentColor;fill-opacity:.25}
 .ls-acts select{font:inherit;font-size:12px;max-width:140px;padding:5px 8px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel-solid);color:var(--text)}
 .ls-edit .g-task-top{margin-top:8px}
+/* --- Content Studio (13.11.2026), nur vorhandene Tokens; --c ist die Farbe der Säule --- */
+.cs-kom,.cs-stats{padding:0}
+.cs-kom>summary,.cs-stats>summary{display:flex;align-items:center;gap:12px;padding:18px 22px;cursor:pointer;list-style:none}
+.cs-kom>summary::-webkit-details-marker,.cs-stats>summary::-webkit-details-marker{display:none}
+.cs-kom>summary>svg,.cs-stats>summary>svg{width:18px;height:18px;color:var(--muted);flex:none;transition:transform .2s}
+.cs-kom[open]>summary>svg,.cs-stats[open]>summary>svg{transform:rotate(180deg)}
+.cs-kom-h{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.cs-pos{font-family:var(--f-head);font-weight:600;font-size:18px;line-height:1.35;overflow-wrap:anywhere}
+.cs-kom>:not(summary),.cs-stats>:not(summary){margin-left:22px;margin-right:22px}
+.cs-kom>:last-child,.cs-stats>:last-child{margin-bottom:20px}
+.cs-pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cs-pl{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid var(--c);color:var(--text);background:color-mix(in srgb,var(--c) 14%,transparent);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.cs-pl::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+button.cs-pl{cursor:pointer}
+.cs-pl.on{background:var(--c);color:#fff}
+.cs-pl.on::before{background:#fff}
+.cs-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.cs-yes,.cs-no{border-left:3px solid var(--good);padding:2px 0 2px 12px;min-width:0}
+.cs-no{border-left-color:var(--late)}
+.cs-yes h3,.cs-no h3{font-size:12.5px;margin:0 0 6px;color:var(--good)}
+.cs-no h3{color:var(--late)}
+.cs-yes ul,.cs-no ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.5}
+.cs-yes p,.cs-no p{margin:0;font-size:13px}
+.cs-tone ul{font-size:13px}
+.cs-kom-f{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;font-size:12.5px}
+.cs-stats,.cs-vault,.cs-pipe,.cs-cap{margin-top:16px}
+.cs-capf{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) 170px auto;gap:8px;margin-top:10px}
+.cs-ideas{display:flex;flex-direction:column;gap:10px}
+.cs-idea{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;background:var(--panel-solid);display:flex;flex-direction:column;gap:8px;min-width:0}
+.cs-idea.open{border-color:var(--ink)}
+.cs-idea-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px}
+.cs-idea-h .cs-pl{font-size:11.5px;padding:3px 9px}
+.cs-idea-t{text-align:left;font-family:var(--f-head);font-weight:600;font-size:17px;line-height:1.35;overflow-wrap:anywhere}
+.cs-idea-n{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.cs-idea-u{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--amber);align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs-idea-u svg{width:14px;height:14px;flex:none}
+.cs-idea-a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.cs-idea-f{margin-top:4px}
+.cs-pc{background:var(--panel-solid);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cs-pc-t{text-align:left;font-weight:600;font-size:13.5px;line-height:1.35;overflow-wrap:anywhere}
+.cs-pc-m{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:11.5px}
+.cs-pc-m .cs-pl{font-size:11.5px;padding:3px 9px}
+.cs-pc-m .muted{display:inline-flex;align-items:center;gap:4px}
+.cs-pc-m svg{width:13px;height:13px}
+.cs-ok{color:var(--good);display:inline-flex}
+.cs-pc-a{display:flex;justify-content:space-between;align-items:center;font-size:11.5px}
+.cs-pc-a .ibtn{width:28px;height:28px}
+.cs-pc-a .ibtn:disabled{opacity:.25;cursor:default}
+.cs-bar{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--soft);margin-bottom:10px}
+.cs-bar i{display:block;height:100%;background:var(--c);min-width:3px}
+.cs-bar i.none{background:var(--line-2)}
+.cs-bal{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:start}
+.cs-bal-r{background:var(--soft);border-radius:var(--r-md);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cs-bal-h{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px}
+.cs-cal-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.cs-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cs-day{border:1px solid var(--line);border-radius:var(--r-sm);padding:6px;min-height:76px;display:flex;flex-direction:column;gap:4px;min-width:0;background:var(--panel-solid)}
+.cs-cal.week .cs-day{min-height:120px}
+.cs-day.out{opacity:.45}
+.cs-day.now{border-color:var(--ink)}
+.cs-dn{font-size:11px;color:var(--muted)}
+.cs-cp{text-align:left;font-size:11.5px;font-weight:600;line-height:1.3;padding:4px 6px;border-radius:8px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);overflow-wrap:anywhere}
+.cs-ed-top{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.cs-ed{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:16px;align-items:start}
+.cs-ed-r{position:sticky;top:16px}
+.cs-ed-r label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);margin-top:12px}
+.cs-ed-r label .field{font-size:14px;font-weight:500;color:var(--text)}
+.cs-ed-r .cs-yes,.cs-ed-r .cs-no{margin-top:14px}
+.cs-ed-bh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.cs-body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;min-height:260px}
+.cs-prev{min-height:260px}
+.cs-title{field-sizing:content;resize:none;overflow:hidden;min-height:40px;line-height:1.35}
+.cs-bw{margin:16px 4px 0}
+.cs-bw a{color:var(--amber);text-decoration:underline;text-underline-offset:3px}
+dialog.cs-dlg{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--panel-solid);color:var(--text);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:var(--shadow)}
+dialog.cs-dlg.wide{width:min(760px,calc(100vw - 24px))}
+dialog.cs-dlg::backdrop{background:rgba(10,10,12,.45);backdrop-filter:blur(2px)}
+.cs-form{display:flex;flex-direction:column;gap:12px;padding:22px}
+.cs-form h2{font-family:var(--f-head);font-size:22px;margin:0}
+.cs-form label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.cs-form .field{font-size:15px;font-weight:500;color:var(--text)}
+.cs-form .cs-two{margin-top:0}
+.cs-dlg-f{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:12.5px}
+.cs-gate-t{font-family:var(--f-head);font-size:18px;line-height:1.35;margin:0;overflow-wrap:anywhere}
+.cs-gate-p .ns-row{margin-top:8px}
+.cs-prow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:8px}
+.cs-sw{grid-column:1/-1;display:flex;gap:6px;align-items:center}
+.cs-sw button:not(.ibtn){width:24px;height:24px;border-radius:50%;background:var(--c);border:2px solid transparent;cursor:pointer}
+.cs-sw button.on{border-color:var(--text)}
+@media (max-width:900px){.cs-ed{grid-template-columns:minmax(0,1fr)}.cs-ed-r{position:static}.cs-capf{grid-template-columns:1fr 1fr}.cs-capf #cs-new{grid-column:1/-1}}
+@media (max-width:560px){
+  .cs-kom>summary,.cs-stats>summary{padding:16px}
+  .cs-kom>:not(summary),.cs-stats>:not(summary){margin-left:16px;margin-right:16px}
+  .cs-two{grid-template-columns:1fr}
+  .cs-capf{grid-template-columns:1fr}
+  .cs-cal{grid-template-columns:1fr}
+  .cs-day{min-height:0}
+  .cs-cal .cs-day:not(.has){display:none}
+  .cs-prow{grid-template-columns:1fr}
+  .cs-pipe .card-h{flex-wrap:wrap}
+}
 /* --- Ernährungsplan (13.11.2026), nutzt die Bausteine des Tagebuchs --- */
 .pl-title{font-family:var(--f-head);font-weight:600;font-size:20px;height:46px}
 .pl-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
@@ -1590,7 +1668,6 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .ns-confetti{display:none}
 
 /* Brand & Business */
-.br-hero{background:radial-gradient(90% 70% at 88% 0%,rgba(255,236,214,.10) 0%,transparent 55%),#6F1F21;color:#F6EDE0}
 .bw-ic{background:var(--bordeaux);border-radius:50%}
 
 /* Auftritt beim Seitenwechsel: Druckfarbe zieht ins Papier */
@@ -1689,7 +1766,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-13.2";
+const APP_VERSION = "2026-11-13.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1776,7 +1853,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -2165,7 +2242,7 @@ function setupSW(){
   const had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!had) return;
-    const busy = S.open || S.pop || S.bd || S.nt || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+    const busy = S.open || S.pop || S.bd || S.nt || S.csDlg || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
     if (busy) { toast("Neue Version bereit. Sie ist beim nächsten Öffnen aktiv."); return; }
     clearTimeout(saveT); idb.set(stateKey(), snapshot()).catch(() => {}).finally(() => location.reload());
   });
@@ -2180,7 +2257,7 @@ function checkUpdate(){
   }).catch(() => {});
 }
 async function applyUpdate(force){
-  const busy = S.open || S.pop || S.bd || S.nt || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
+  const busy = S.open || S.pop || S.bd || S.nt || S.csDlg || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
   if (busy && !force) { if (!S.updateNote) { S.updateNote = true; toast("Neue Version bereit. Sie lädt, sobald ich den Eintrag schließe."); } S.updatePending = true; return; }
   // Schutz gegen Neulade-Schleifen, falls der Server kurz noch alte Dateien ausliefert
   try { const last = +sessionStorage.getItem("para-cockpit.reloaded") || 0; if (!force && Date.now() - last < 60000) return; sessionStorage.setItem("para-cockpit.reloaded", Date.now()); } catch(e){}
@@ -2339,6 +2416,7 @@ function renderSide(){
     <div class="brand"><span class="brand-mark">D</span>Daniel Cockpit</div>
     ${gs.map(g => `<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
       ${cur && cur.id === g.id && g.views.length > 1 && g.id !== "tools" ? `<div class="nav-subs">${g.views.map(x => `<button class="nav-sub ${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>` : ""}`).join("")}
+    <button class="nav" data-cs="gcap" title="Strg + Umschalt + I">${ic("plus")}<span>Idee festhalten</span></button>
     <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
     <div class="side-foot" id="side-status"></div>`;
   // Handy-Leiste: fünf feste Bereiche, der Rest steckt hinter „Mehr“ (öffnet die Seitenleiste)
@@ -3518,14 +3596,14 @@ function settingsHTML(){
 
 /* ================= search ================= */
 // Versteckte Arten haben eigene Ansichten (Training, Brand & Business) und öffnen dort
-const SR_K = {workout:{label:"Training", icon:"dumbbell"}, video:{label:"Video", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, cost:{label:"Kosten", icon:"repeat"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
+const SR_K = {workout:{label:"Training", icon:"dumbbell"}, cidea:{label:"Idee", icon:"star"}, cpiece:{label:"Content-Stück", icon:"star"}, contact:{label:"Kontakt", icon:"star"}, income:{label:"Einnahme", icon:"star"}, cost:{label:"Kosten", icon:"repeat"}, food:{label:"Lebensmittel", icon:"food"}, recipe:{label:"Rezept", icon:"food"}};
 const srKind = k => SR_K[k] || kindOf({kind:k});
 function searchRender(q){
   const box = $("#search-res"); if (!box) return;
   if (!q.trim()) { box.innerHTML = ""; return; }
   const hits = PC.searchItems(all(), q, {tagsOf});
   const row = h => { const i = h.item, k = srKind(i.kind); return `<button class="res" data-act="sr-open" data-id="${i.id}">${ic(k.icon)}<span class="t">${esc(i.title || "Ohne Titel")}</span><small>${esc(k.label)}${i.archived ? " · Archiv" : ""}</small></button>`; };
-  box.innerHTML = `<div class="search-res">${hits.slice(0, 8).map(row).join("") || `<div class="res muted">Nichts gefunden.</div>`}${hits.length ? `<button class="res" data-act="search-all"><span class="t" style="font-weight:500">${hits.length > 8 ? `Alle ${hits.length} Treffer anzeigen` : "Als Liste mit Filtern anzeigen"}</span><small>Enter</small></button>` : ""}</div>`;
+  box.innerHTML = `<div class="search-res">${hits.slice(0, 8).map(row).join("") || `<div class="res muted">Nichts gefunden.</div>`}${hits.length ? `<button class="res" data-act="search-all"><span class="t" style="font-weight:500">${hits.length > 8 ? `Alle ${hits.length} Treffer anzeigen` : "Als Liste mit Filtern anzeigen"}</span><small>Enter</small></button>` : ""}<button class="res" data-cs="gcap" data-q="${esc(q.trim())}">${ic("plus")}<span class="t" style="font-weight:500">Als Idee festhalten: „${esc(q.trim().slice(0, 40))}“</span><small>Content Studio</small></button></div>`;
 }
 function openSearch(q){ S.sq = q; S.filter.search = "all"; const n = $("#q"); if (n) n.value = ""; searchRender(""); closePop(); if (S.open) closeOverlay(); go("search"); }
 function srOpen(id){
@@ -3535,8 +3613,10 @@ function srOpen(id){
   if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
   if (it.kind === "food" || it.kind === "recipe") { if (S.open) closeOverlay(); const r = it.kind === "recipe"; S.fdTab = r ? "rec" : "food"; if (r) { S.rcOpen = id; S.rcEdit = false; } else S.fdOpen = id;
     try { localStorage.setItem("fdTab2", S.fdTab); } catch(e){} go("food"); return; }
-  const tab = {video:"vid", contact:"con", income:"inc", cost:"cost"}[it.kind];
-  if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
+  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", video:"studio", contact:"studio", income:"inc", cost:"cost"}[it.kind];
+  if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; const u = csU();
+    if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { u.open = null; u.tab = "all"; u.idea = id; }
+    try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
   S.dBack = []; openDetailFresh(id);
 }
 function searchHTML(){
@@ -5228,9 +5308,8 @@ function rcNutHTML(x, form){
 
 /* ================= Brand & Business ================= */
 // Eigene Seite für das Hauptziel: Content, Personal Brand und Geld verdienen.
-// Ziele, Wochenzahlen und Fähigkeiten liegen in settings.brand. Videos, Kontakte und Einnahmen sind eigene,
-// versteckte Einträge (kind "video" | "contact" | "income", in HIDDEN_K), damit die Einstellungen nicht mitwachsen.
-const BR_STAGES = [["idee","Idee"],["skript","Skript"],["gedreht","Gedreht"],["geschnitten","Geschnitten"],["gepostet","Gepostet"]];
+// Wochenzahlen liegen in settings.brand. Einnahmen und Kosten sind eigene, versteckte Einträge (kind "income" | "cost", in HIDDEN_K).
+// Überblick und Videos sind seit dem 13.11.2026 durch das Content Studio ersetzt (siehe unten, Präfix cs).
 const BR_ROLES = [["creator","Creator"],["marke","Marke"],["mentor","Mentor"],["kunde","Kunde"],["sonst","Sonstige"]];
 const BR_CSTAT = [["idee","Kennenlernen"],["angeschrieben","Angeschrieben"],["gespraech","Im Gespräch"],["zusammen","Zusammenarbeit"],["ruht","Ruht"]];
 const BR_ITYPE = [["ugc","UGC"],["deal","Brand Deal"],["produkt","Eigenes Produkt"],["dienst","Coaching / Dienstleistung"],["sonst","Sonstiges"]];
@@ -5255,117 +5334,358 @@ function brNum(v){
   const n = parseFloat(s); return isNaN(n) ? null : n;
 }
 const brArea = () => live("area").find(a => a.id === brand().area) || live("area").find(a => /personal.?brand/i.test(a.title || ""));
-const brHabit = () => live("habit").find(h => h.id === brand().habit) || live("habit").find(h => /gepostet/i.test(h.title || ""));
-function brStreak(h){
-  if (!h) return 0; let d = today0(); if (!hdone(h, dkey(d))) d = addDays(d, -1);
-  let n = 0; while (n < 2000 && hdone(h, dkey(d))) { n++; d = addDays(d, -1); } return n;
-}
-// Offene Aufgaben aus dem Bereich, seinen Projekten und verknüpften Notizen (z. B. dem Fahrplan)
-function brTasks(){
-  const a = brArea(); if (!a) return [];
-  const hubs = new Set([a.id]); for (const r of related(a.id)) if ((r.kind === "project" || r.kind === "note") && !r.archived) hubs.add(r.id);
-  const out = new Map(); for (const h of hubs) for (const r of related(h)) if (r.kind === "task" && !r.done && !r.archived) out.set(r.id, r);
-  return [...out.values()].sort(taskByDate);
-}
 const brSum = mk => live("income").filter(i => (i.date || "").startsWith(mk)).reduce((s, i) => s + (+i.amount || 0), 0);
-function brGoalBar(label, cur, target, sub){
-  const t = brNum(target), pct = t && cur != null ? Math.max(0, Math.min(100, cur / t * 100)) : 0;
-  return `<div class="br-goal"><div class="br-goal-h"><span>${esc(label)}</span><b class="num">${cur == null ? "noch offen" : esc(bsFmt(cur, label === "Einnahmen" ? 2 : 0))}${t ? ` <small>/ ${esc(bsFmt(t, 0))}</small>` : ""}</b></div>
-    <div class="br-track"><i style="width:${pct.toFixed(1)}%"></i></div><small>${esc(sub || (t ? `${Math.round(pct)} % geschafft` : "Ziel unter „Ziele bearbeiten“ festlegen"))}</small></div>`;
-}
-function brGoalBarsHTML(){
-  const b = brand(), g = b.goals, st = b.stats, last = st[st.length - 1], prev = st[st.length - 2], mk = dkey().slice(0, 7);
-  const fol = last && last.followers != null ? last.followers : null, vw = last && last.views != null ? last.views : null;
-  const by = g.followers.by, days = by ? Math.round((parseKey(by) - today0()) / 864e5) : null;
-  const folSub = [prev && fol != null && prev.followers != null ? `${fol - prev.followers >= 0 ? "+" : ""}${bsFmt(fol - prev.followers, 0)} seit ${fmtDay(prev.d)}` : "",
-    by ? (days >= 0 ? `Ziel bis ${fmtDay(by)}, noch ${days} Tage` : `Zieldatum ${fmtDay(by)} ist vorbei`) : ""].filter(Boolean).join(" · ");
-  const inc = brSum(mk);
-  return brGoalBar("Follower", fol, g.followers.target, folSub) + brGoalBar("Aufrufe pro Woche", vw, g.views.target) +
-    brGoalBar("Einnahmen", inc, g.revenue.target, brNum(g.revenue.target) ? `im ${brMonth(mk)}, Ziel ${brMoney(brNum(g.revenue.target))} pro Monat` : `im ${brMonth(mk)}`);
-}
 function brandHTML(){
-  if (!S.brTab) { try { S.brTab = localStorage.getItem("brTab") || "over"; } catch (e) { S.brTab = "over"; } }
-  const vids = live("video"), cons = live("contact"), tab = S.brTab;
+  if (!S.brTab) { try { S.brTab = localStorage.getItem("brTab") || "studio"; } catch (e) { S.brTab = "studio"; } }
+  // Überblick und Videos gibt es seit dem 13.11.2026 nicht mehr, alte Reiter landen im Content Studio
+  if (!["studio", "inc", "cost"].includes(S.brTab)) S.brTab = "studio";
+  const tab = S.brTab, open = csPieces().filter(p => p.status !== "live").length;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
-  const out = header("Content & Einnahmen", "Krafttraining, Darm und Ernährung: mein Weg als Content") + banner() +
-    `<a class="card bw-link" href="../brand-weg/"><span class="bw-ic">${ic("star")}</span><span><b>Mein Brand-Weg öffnen</b><small>Grundlagen, Strategie, Videos und Zahlen</small></span><span class="bw-go">›</span></a>` +
-    `<div class="tr-seg">${seg("over", "Überblick")}${seg("vid", `Videos <span class="num">${vids.filter(v => v.stage !== "gepostet").length}</span>`)}${seg("inc", "Einnahmen")}${seg("cost", "Kosten")}</div>`;
-  // Neustart 07.11.2026: Wissen, Kontakte und Fähigkeiten sind raus (Daten bleiben gespeichert)
-  if (tab === "vid") return out + brVideosHTML(vids);
+  const out = header("Content & Einnahmen", "Ideen, Pipeline, Zahlen und Einnahmen") + banner() +
+    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("inc", "Einnahmen")}${seg("cost", "Kosten")}</div>`;
   if (tab === "inc") return out + brIncomeHTML();
   if (tab === "cost") return out + brCostHTML();
-  return out + brOverHTML(vids, cons);
+  return out + csHTML();
 }
-function brOverHTML(vids, cons){
-  const b = brand(), g = b.goals, st = b.stats, last = st[st.length - 1], tk = dkey(), mk = tk.slice(0, 7);
-  const h = brHabit(), streak = brStreak(h), tasks = brTasks();
-  const posted = vids.filter(v => v.stage === "gepostet" && (v.date || "").startsWith(mk)).length, inWork = vids.filter(v => v.stage !== "gepostet").length;
-  const dueC = cons.filter(c => c.next && c.next <= tk && c.status !== "ruht").length;
-  const a = brArea(), projs = a ? related(a.id).filter(r => r.kind === "project" && !r.archived) : [];
+function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${id}">${ic("trash")}${S.brDel === id ? "Wirklich löschen?" : "Löschen"}</button>`; }
+
+/* ================= Content Studio (13.11.2026, ersetzt Überblick und Videos) =================
+   Kompass = ein Eintrag kind "ccompass", feste id "cs-compass": positioning, principles[], anti[], pillars[{id,name,description,color}], toneDos[], toneDonts[]
+   Idee    = kind "cidea": title, body (rohe Notizen), url, type (eigen|insp|beob|kontra), pillar (optional), status (inbox|park|taken|archive)
+   Stück   = kind "cpiece": idea, title, hook, body (Markdown), pillar, principle, status (check|entwurf|produktion|geplant|live), formats[], cta, date,
+             checks{pillar,principle,problem}, bei Live url, views, follows
+   Die Regeln (Brand-Gate, Status-Sperre, Säulen-Balance) liegen in core.js: PC.csGateOk, PC.csCanStatus, PC.csBalance.
+   Fenster (Kompass bearbeiten, Brand-Gate, Festhalten von überall) sind ein <dialog id="cs-dlg"> außerhalb von #main. */
+const CS_TYPES = [["eigen", "Eigene Idee"], ["insp", "Inspiration"], ["beob", "Beobachtung"], ["kontra", "Konträre These"]];
+const CS_IST = {inbox:"Inbox", park:"Parkplatz", taken:"Übernommen", archive:"Archiv"};
+const CS_ST = [["check", "Brand-Check"], ["entwurf", "Entwurf"], ["produktion", "Produktion"], ["geplant", "Geplant"], ["live", "Live"]];
+const CS_FORMATS = ["Kurzvideo", "Text-Post", "Karussell", "Newsletter", "Deep-Dive"];
+const CS_CTA = ["Diskussion", "Newsletter", "Angebot", "Reichweite"];
+const CS_COLORS = ["#C9772B", "#4F8A55", "#3E6FB0", "#8A5BB5", "#A8443A", "#6B6B73"];
+const CS_CHK = [["pillar", "Zahlt das auf die Säule ein?"], ["principle", "Belegt es den Grundsatz?"], ["problem", "Löst es ein echtes Problem meiner Zuschauer?"]];
+const csCol = c => CS_COLORS.includes(c) ? c : CS_COLORS[0];
+const csCompass = () => { const c = S.items.get("cs-compass"); return c && !c.archived ? c : null; };
+const csC = () => { const c = csCompass() || {}; return {positioning:c.positioning || "", principles:c.principles || [], anti:c.anti || [], pillars:c.pillars || [], toneDos:c.toneDos || [], toneDonts:c.toneDonts || []}; };
+const csPillar = id => csC().pillars.find(p => p.id === id) || null;
+const csIdeas = () => live("cidea");
+const csPieces = () => live("cpiece");
+const csU = () => S.cs || (S.cs = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem("cs-ui") || "{}") || {}; } catch(e){} return {tab:"inbox", view:"kanban", cal:"month", kom:true, ...o, pillar:"", open:null, idea:null, del:null, prev:false, ref:dkey()}; })());
+const csSaveU = () => { const u = csU(); try { localStorage.setItem("cs-ui", JSON.stringify({tab:u.tab, view:u.view, cal:u.cal, kom:u.kom})); } catch(e){} };
+const csUl = a => a.length ? `<ul>${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">Noch nichts eingetragen.</p>`;
+const csPl = p => p ? `<span class="cs-pl" style="--c:${csCol(p.color)}">${esc(p.name || "Säule")}</span>` : `<span class="chip late">Säule noch zuordnen</span>`;
+
+/* --- Festhalten: ein Weg zum Speichern, für die Leiste im Studio und das Fenster von überall --- */
+function csCapture(title, url, type){
+  title = String(title || "").trim(); url = String(url || "").trim();
+  if (!url && /^https?:\/\/\S+$/i.test(title)) { url = title; title = ""; }
+  if (url && !/^https?:\/\//i.test(url)) url = /^[\w-]+(\.[\w-]+)+\S*$/.test(url) ? "https://" + url : "";
+  if (!title && !url) return null;
+  return create("cidea", title || lsHost(url) || "Link", {url, type: CS_TYPES.some(t => t[0] === type) ? type : "eigen", pillar: "", status: "inbox"});
+}
+function csDlg(html, cls = ""){
+  let d = $("#cs-dlg");
+  if (!d) { d = document.createElement("dialog"); d.id = "cs-dlg"; document.body.appendChild(d);
+    d.addEventListener("close", () => { S.csDlg = null; S.csGate = null; S.csK = null; });
+    d.addEventListener("mousedown", e => { if (e.target === d) d.close(); }); }
+  d.className = "cs-dlg " + cls; d.innerHTML = html; if (!d.open) d.showModal(); return d;
+}
+const csDlgClose = () => { const d = $("#cs-dlg"); if (d && d.open) d.close(); };
+function csCapOpen(q = ""){
+  if (S.mode !== "app") return;
+  S.csDlg = "cap"; S.csGType = "eigen";
+  csDlg(`<div class="cs-form"><h2>Idee festhalten</h2>
+    <input class="field" id="cs-g-t" placeholder="Gedanke, Beobachtung oder Arbeitstitel" aria-label="Gedanke oder Titel" enterkeyhint="done" autocomplete="off" value="${esc(q)}">
+    <input class="field" id="cs-g-u" type="url" placeholder="Link (optional)" aria-label="Link" enterkeyhint="done" autocomplete="off">
+    <div class="fd-btns">${CS_TYPES.map(([k, l], i) => `<button type="button" class="pill ${i === 0 ? "on" : ""}" data-cs="gtype" data-v="${k}">${l}</button>`).join("")}</div>
+    <div class="cs-dlg-f"><span class="muted">Enter speichert, Esc schließt</span><span class="grow"></span><button type="button" class="btn" data-cs="gsave">Festhalten</button></div></div>`);
+  const i = $("#cs-g-t"); if (i) { i.focus(); try { i.setSelectionRange(i.value.length, i.value.length); } catch(e){} }
+}
+function csCapSave(){
+  const it = csCapture(($("#cs-g-t") || {}).value, ($("#cs-g-u") || {}).value, S.csGType);
+  if (!it) { const i = $("#cs-g-t"); if (i) i.focus(); return; }
+  csDlgClose(); toast("Im Ideen-Tresor gespeichert");
+  if (S.view === "brand") renderMain();
+}
+
+/* --- Brand-Kompass --- */
+function csCompassHTML(){
+  const c = csC(), u = csU(), has = !!csCompass();
+  return `<details class="card cs-kom" id="cs-kom"${u.kom ? " open" : ""}><summary><span class="cs-kom-h"><span class="ns-lbl">Mein Brand-Kompass</span><b class="cs-pos">${esc(c.positioning || "Noch keine Positionierung eingetragen.")}</b></span>${ic("down")}</summary>
+    <div class="cs-pills">${c.pillars.map(p => `<button class="cs-pl ${u.pillar === p.id ? "on" : ""}" style="--c:${csCol(p.color)}" data-cs="pf" data-id="${p.id}" aria-pressed="${u.pillar === p.id}" title="${esc(p.description || "Nach dieser Säule filtern")}">${esc(p.name || "Säule")}</button>`).join("") || `<span class="muted">Noch keine Säulen eingetragen.</span>`}${u.pillar ? `<button class="pill" data-cs="pf" data-id="">Filter aufheben</button>` : ""}</div>
+    <div class="cs-two"><div class="cs-yes"><h3>Dafür steh ich</h3>${csUl(c.principles)}</div><div class="cs-no"><h3>Mach ich nicht</h3>${csUl(c.anti)}</div></div>
+    <div class="cs-two cs-tone"><div class="cs-yes"><h3>Ton: so</h3>${csUl(c.toneDos)}</div><div class="cs-no"><h3>Ton: so nicht</h3>${csUl(c.toneDonts)}</div></div>
+    <div class="cs-kom-f"><button class="pill" data-cs="kedit">${ic("pen")}${has ? "Bearbeiten" : "Kompass ausfüllen"}</button><span class="muted">Säule antippen filtert Tresor und Pipeline.</span></div></details>`;
+}
+function csKomDlg(){
+  const k = S.csK, ta = (id, l, a) => `<label>${l}<textarea class="field" id="ck-${id}" rows="5">${esc(a.join("\n"))}</textarea></label>`;
+  S.csDlg = "kom";
+  csDlg(`<div class="cs-form"><h2>Brand-Kompass bearbeiten</h2>
+    <label>Meine Positionierung in einem Satz<textarea class="field" id="ck-pos" rows="2">${esc(k.positioning)}</textarea></label>
+    <div class="ns-lbl">Content-Säulen</div>
+    ${k.pillars.map((p, i) => `<div class="cs-prow"><input class="field" id="ck-pn-${i}" value="${esc(p.name || "")}" placeholder="Name der Säule" aria-label="Name der Säule"><input class="field" id="ck-pd-${i}" value="${esc(p.description || "")}" placeholder="Worum geht es da?" aria-label="Beschreibung der Säule">
+      <div class="cs-sw">${CS_COLORS.map(col => `<button type="button" class="${csCol(p.color) === col ? "on" : ""}" style="--c:${col}" data-cs="kcol" data-i="${i}" data-c="${col}" aria-label="Farbe wählen" aria-pressed="${csCol(p.color) === col}"></button>`).join("")}<span class="grow"></span><button type="button" class="ibtn" data-cs="kpdel" data-i="${i}" title="Säule entfernen" aria-label="Säule entfernen">${ic("trash")}</button></div></div>`).join("")}
+    <div><button type="button" class="pill" data-cs="kpadd">${ic("plus")}Säule hinzufügen</button></div>
+    <p class="hint" style="margin:6px 0 0">In den vier Feldern unten steht ein Punkt pro Zeile.</p>
+    <div class="cs-two">${ta("pri", "Dafür steh ich (3 bis 5 Grundsätze)", k.principles)}${ta("anti", "Mach ich nicht (3 bis 5 Tabus)", k.anti)}</div>
+    <div class="cs-two">${ta("do", "Ton: so", k.toneDos)}${ta("dont", "Ton: so nicht", k.toneDonts)}</div>
+    <div class="cs-dlg-f"><span class="grow"></span><button type="button" class="pill" data-cs="dclose">Abbrechen</button><button type="button" class="btn" data-cs="ksave">Speichern</button></div></div>`, "wide");
+}
+function csKomRead(){
+  const k = S.csK, v = id => (($("#ck-" + id) || {}).value || ""), lines = id => v(id).split("\n").map(x => x.trim()).filter(Boolean);
+  k.positioning = v("pos").trim(); k.pillars.forEach((p, i) => { p.name = v("pn-" + i).trim(); p.description = v("pd-" + i).trim(); });
+  k.principles = lines("pri"); k.anti = lines("anti"); k.toneDos = lines("do"); k.toneDonts = lines("dont");
+}
+function csKomSave(){
+  csKomRead(); const k = S.csK;
+  const it = csCompass() || {id:"cs-compass", kind:"ccompass", title:"Brand-Kompass", body:"", rel:[], links:[], files:[], tags:[], archived:false, created:Date.now()};
+  Object.assign(it, {positioning:k.positioning, principles:k.principles, anti:k.anti, toneDos:k.toneDos, toneDonts:k.toneDonts,
+    pillars:k.pillars.filter(p => p.name).map(p => ({id:p.id || uid(), name:p.name, description:p.description || "", color:csCol(p.color)}))});
+  persist(it); csDlgClose(); toast("Kompass gespeichert"); renderMain();
+}
+
+/* --- Schnell festhalten und Ideen-Tresor --- */
+function csCapHTML(){
+  return `<section class="card cs-cap"><div class="ns-lbl">Schnell festhalten</div>
+    <div class="cs-capf"><input class="field" id="cs-new" data-keep placeholder="Gedanke, Beobachtung oder Arbeitstitel" aria-label="Gedanke oder Titel" enterkeyhint="done" autocomplete="off">
+      <input class="field" id="cs-new-url" data-keep type="url" placeholder="Link (optional)" aria-label="Link" enterkeyhint="done" autocomplete="off">
+      <select class="field" id="cs-new-type" aria-label="Art der Idee">${brOpts(CS_TYPES, "eigen")}</select><button class="btn" data-cs="cap">Festhalten</button></div>
+    <p class="hint" style="margin:10px 0 0">Enter speichert sofort in die Inbox. Strg + I springt in dieses Feld, Strg + Umschalt + I öffnet das Festhalten von jeder Seite aus.</p></section>`;
+}
+function csIdeaHTML(i){
+  const u = csU(), open = u.idea === i.id, st = i.status || "inbox", p = i.pillar ? csPillar(i.pillar) : null, url = brUrl(i.url), arm = u.del === i.id;
+  const note = lsPlain(i.body), piece = st === "taken" ? csPieces().find(x => x.idea === i.id) : null;
+  return `<div class="cs-idea ${open ? "open" : ""}"><div class="cs-idea-h"><span class="chip">${esc(brLabel(CS_TYPES, i.type || "eigen"))}</span>${p ? csPl(p) : ""}${st !== "inbox" ? `<span class="chip">${CS_IST[st] || st}</span>` : ""}<span class="grow"></span><span class="muted num">${fmtTs(i.created)}</span></div>
+    <button class="cs-idea-t" data-cs="iopen" data-id="${i.id}" aria-expanded="${open}">${esc(i.title || "Ohne Titel")}</button>
+    ${note && !open ? `<p class="cs-idea-n">${esc(note.slice(0, 180))}${note.length > 180 ? " …" : ""}</p>` : ""}
+    ${url ? `<a class="cs-idea-u" href="${esc(url)}" target="_blank" rel="noopener">${ic("link")}${esc(lsHost(url) || "Link öffnen")}</a>` : ""}
+    ${open ? `<div class="br-ed cs-idea-f"><label class="br-wide">Titel oder Hook<textarea class="field cs-title" id="ci-t-${i.id}" data-keep data-ci="title" data-id="${i.id}" rows="1">${esc(i.title || "")}</textarea></label>
+      <label class="br-wide">Rohe Gedanken, Zitate, Stichpunkte<textarea class="field" id="ci-b-${i.id}" data-keep data-ci="body" data-id="${i.id}" rows="4">${esc(i.body || "")}</textarea></label>
+      <label class="br-wide">Link zur Quelle<input class="field" id="ci-u-${i.id}" data-keep type="url" data-ci="url" data-id="${i.id}" value="${esc(i.url || "")}" placeholder="https://"></label>
+      <label>Art<select class="field" data-ci="type" data-id="${i.id}">${brOpts(CS_TYPES, i.type || "eigen")}</select></label>
+      <label>Säule (freiwillig)<select class="field" data-ci="pillar" data-id="${i.id}"><option value="">Noch offen</option>${csC().pillars.map(x => `<option value="${x.id}" ${x.id === i.pillar ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>
+      <div class="br-ed-f">${st !== "archive" ? `<button class="pill" data-cs="iarch" data-id="${i.id}">${ic("archive")}Ins Archiv</button>` : `<button class="pill" data-cs="iinbox" data-id="${i.id}">${ic("restore")}Zurück in die Inbox</button>`}
+        <button class="pill" data-cs="idel" data-id="${i.id}" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Löschen"}</button><span class="grow"></span><button class="pill on" data-cs="iopen" data-id="${i.id}">Fertig</button></div></div>` : ""}
+    <div class="cs-idea-a">${st === "taken" ? (piece ? `<button class="pill" data-cs="popen" data-id="${piece.id}">${ic("right")}Zum Stück in der Pipeline</button>` : `<span class="muted">Schon übernommen</span>`)
+      : `${st === "park" || st === "archive" ? `<button class="pill" data-cs="iinbox" data-id="${i.id}">Zurück in die Inbox</button>` : `<button class="pill" data-cs="ipark" data-id="${i.id}">Parkplatz</button>`}<button class="pill on" data-cs="gate" data-id="${i.id}">In Pipeline übernehmen</button>`}</div></div>`;
+}
+function csVaultHTML(){
+  const u = csU(), all = csIdeas().sort((a, b) => (b.created || 0) - (a.created || 0));
+  const f = {inbox: i => (i.status || "inbox") === "inbox", insp: i => i.type === "insp" && i.status !== "archive" && i.status !== "taken", park: i => i.status === "park", all: () => true};
+  if (!f[u.tab]) u.tab = "inbox";
+  let list = all.filter(f[u.tab]); if (u.pillar) list = list.filter(i => i.pillar === u.pillar);
+  const tab = (k, l) => `<button class="pill ${u.tab === k ? "on" : ""}" data-cs="vtab" data-v="${k}">${l} <span class="num">${all.filter(f[k]).length}</span></button>`;
+  const empty = {inbox:"Die Inbox ist leer. Oben festhalten, was mir einfällt.", insp:"Noch keine Inspirationen. Beim Festhalten „Inspiration“ wählen und den Link dazulegen.", park:"Der Parkplatz ist leer. Hier landen gute Ideen, die gerade nicht zu meinem Thema passen.", all:"Noch keine Ideen."}[u.tab];
+  const fp = u.pillar && csPillar(u.pillar);
+  return `<section class="card cs-vault"><div class="card-h"><h2>Ideen-Tresor</h2></div>
+    <div class="tr-seg">${tab("inbox", "Inbox")}${tab("insp", "Inspirationen")}${tab("park", "Parkplatz")}${tab("all", "Alle")}</div>
+    ${fp ? `<p class="hint">Gefiltert nach ${csPl(fp)}. Ideen ohne Säule sind dabei ausgeblendet.</p>` : ""}
+    <div class="cs-ideas">${list.map(csIdeaHTML).join("") || `<div class="empty">${fp ? "Zu dieser Säule liegt hier nichts." : empty}</div>`}</div></section>`;
+}
+function csGateDlg(){
+  const g = S.csGate, i = S.items.get(g.idea), c = csC(); if (!i) { csDlgClose(); return; }
+  const ok = PC.csGateOk(g.pillar, g.principle, c), ready = c.pillars.length && c.principles.length;
+  S.csDlg = "gate";
+  csDlg(`<div class="cs-form"><h2>Brand-Gate</h2><p class="cs-gate-t">${esc(i.title || "Ohne Titel")}</p>
+    ${ready ? `<div class="ns-lbl">Auf welche Säule zahlt das ein?</div>
+      <div class="cs-pills">${c.pillars.map(p => `<button type="button" class="cs-pl ${g.pillar === p.id ? "on" : ""}" style="--c:${csCol(p.color)}" data-cs="gpil" data-id="${p.id}" aria-pressed="${g.pillar === p.id}">${esc(p.name)}</button>`).join("")}</div>
+      <div class="ns-lbl">Welchen Grundsatz belegt es?</div>
+      <div class="cs-gate-p">${c.principles.map((x, n) => `<button type="button" class="ns-row ${g.principle === x ? "on" : ""}" data-cs="gpri" data-i="${n}" aria-pressed="${g.principle === x}"><span>${esc(x)}</span><i class="ns-tick">${g.principle === x ? ic("check") : ""}</i></button>`).join("")}</div>
+      <p class="hint" style="margin:10px 0 0">Passt keine Säule und kein Grundsatz, gehört die Idee auf den Parkplatz.</p>`
+      : `<p class="hint">Für das Gate brauch ich mindestens eine Säule und einen Grundsatz im Brand-Kompass.</p>`}
+    <div class="cs-dlg-f"><button type="button" class="pill" data-cs="gparkit">Lieber auf den Parkplatz</button><span class="grow"></span><button type="button" class="pill" data-cs="dclose">Abbrechen</button>
+      ${ready ? `<button type="button" class="btn" data-cs="gok" ${ok ? "" : "disabled"}>In die Pipeline</button>` : `<button type="button" class="btn" data-cs="kedit">Kompass ausfüllen</button>`}</div></div>`);
+}
+function csGateOkDo(){
+  const g = S.csGate, i = g && S.items.get(g.idea); if (!i || !PC.csGateOk(g.pillar, g.principle, csC())) return;
+  const p = create("cpiece", i.title || "", {idea:i.id, hook:"", body:i.body || "", src:i.url || "", pillar:g.pillar, principle:g.principle, status:"check", formats:[], cta:"", date:"", checks:{pillar:false, principle:false, problem:false}});
+  i.status = "taken"; if (!i.pillar) i.pillar = g.pillar; persist(i);
+  csDlgClose(); toast("In der Pipeline, Status Brand-Check"); csU().idea = null; renderMain(); return p;
+}
+
+/* --- Pipeline: Kanban, Säulen-Balance, Redaktionskalender --- */
+function csCardHTML(p){
+  const i = Math.max(0, CS_ST.findIndex(s => s[0] === p.status)), pil = csPillar(p.pillar), ok = PC.csChecksOk(p);
+  return `<div class="cs-pc"><button class="cs-pc-t" data-cs="popen" data-id="${p.id}">${esc(p.title || "Ohne Titel")}</button>
+    <div class="cs-pc-m">${csPl(pil)}${(p.formats || []).map(f => `<span class="chip">${esc(f)}</span>`).join("")}${p.date ? `<span class="muted num">${ic("cal")}${fmtDay(p.date)}</span>` : ""}${ok ? `<span class="cs-ok" title="Pre-Flight bestanden">${ic("check")}</span>` : ""}</div>
+    <div class="cs-pc-a"><button class="ibtn" data-cs="pmove" data-id="${p.id}" data-d="-1" ${i === 0 ? "disabled" : ""} title="Eine Stufe zurück" aria-label="Eine Stufe zurück">${ic("left")}</button><span class="muted">${CS_ST[i][1]}</span><button class="ibtn" data-cs="pmove" data-id="${p.id}" data-d="1" ${i === CS_ST.length - 1 ? "disabled" : ""} title="Eine Stufe weiter" aria-label="Eine Stufe weiter">${ic("right")}</button></div></div>`;
+}
+function csCalHTML(list){
+  const u = csU(), ref = parseKey(u.ref || dkey()), tk = dkey(), by = {};
+  for (const p of list) if (p.date) (by[p.date] = by[p.date] || []).push(p);
+  let days, label;
+  if (u.cal === "week") { const mon = addDays(ref, -((ref.getDay() + 6) % 7)); days = Array.from({length:7}, (_, i) => addDays(mon, i)); label = `${fmtDay(dkey(days[0]))} bis ${fmtDay(dkey(days[6]))}`; }
+  else { const first = new Date(ref.getFullYear(), ref.getMonth(), 1), off = (first.getDay() + 6) % 7, last = new Date(ref.getFullYear(), ref.getMonth() + 1, 0).getDate();
+    days = Array.from({length: Math.ceil((off + last) / 7) * 7}, (_, i) => addDays(first, i - off)); label = ref.toLocaleDateString("de-DE", {month:"long", year:"numeric"}); }
+  const cell = d => { const k = dkey(d), ps = by[k] || [], out = u.cal !== "week" && d.getMonth() !== ref.getMonth();
+    return `<div class="cs-day ${ps.length ? "has" : ""} ${k === tk ? "now" : ""} ${out ? "out" : ""}"><span class="cs-dn num">${d.toLocaleDateString("de-DE", {weekday:"short"})} ${d.getDate()}.</span>${ps.map(p => `<button class="cs-cp" style="--c:${csCol((csPillar(p.pillar) || {}).color)}" data-cs="popen" data-id="${p.id}">${esc(p.title || "Ohne Titel")}</button>`).join("")}</div>`; };
+  const none = list.filter(p => !p.date).length, any = days.some(d => (by[dkey(d)] || []).length);
+  const seg = (k, l) => `<button class="pill ${u.cal === k || (k === "month" && u.cal !== "week") ? "on" : ""}" data-cs="cmode" data-v="${k}">${l}</button>`;
+  return `<div class="cs-cal-h"><div class="fd-btns">${seg("week", "Woche")}${seg("month", "Monat")}</div><span class="grow"></span><button class="ibtn" data-cs="cnav" data-d="-1" aria-label="Zurück">${ic("left")}</button><b class="num">${esc(label)}</b><button class="ibtn" data-cs="cnav" data-d="1" aria-label="Weiter">${ic("right")}</button><button class="pill" data-cs="cnav" data-d="0">Heute</button></div>
+    <div class="cs-cal ${u.cal === "week" ? "week" : "month"}">${days.map(cell).join("")}</div>
+    ${any ? "" : `<p class="hint cs-cal-e" style="margin:10px 0 0">In diesem Zeitraum ist nichts geplant.</p>`}
+    ${none ? `<p class="hint" style="margin:10px 0 0">${none} ${none === 1 ? "Stück hat" : "Stücke haben"} noch kein Datum. Das Datum setz ich im Stück unter „Geplant für“.</p>` : ""}`;
+}
+function csBalanceHTML(list){
+  const c = csC(), b = PC.csBalance(list, c.pillars);
+  if (!c.pillars.length) return `<div class="empty">Für die Balance brauch ich Säulen im Brand-Kompass.</div>`;
+  const row = (p, r) => `<div class="cs-bal-r"><div class="cs-bal-h">${csPl(p)}<span class="num">${r.n} · ${Math.round(r.pct)} %</span>${r.low ? `<span class="chip late">kommt zu kurz</span>` : r.high ? `<span class="chip">dominiert</span>` : ""}</div>
+    ${list.filter(x => x.pillar === p.id).map(csCardHTML).join("") || `<p class="br-col-empty">Noch kein Stück in dieser Säule.</p>`}</div>`;
+  const noneL = list.filter(x => !c.pillars.some(p => p.id === x.pillar));
+  return `<div class="cs-bar" role="img" aria-label="Verteilung der Stücke auf die Säulen">${b.total ? b.rows.filter(r => r.n).map(r => `<i style="width:${r.pct.toFixed(1)}%;--c:${csCol((csPillar(r.id) || {}).color)}" title="${esc((csPillar(r.id) || {}).name || "")}: ${Math.round(r.pct)} %"></i>`).join("") + (b.none ? `<i class="none" style="width:${(b.none / b.total * 100).toFixed(1)}%" title="Ohne Säule"></i>` : "") : ""}</div>
+    <p class="hint">${b.total ? `${b.total} ${b.total === 1 ? "Stück" : "Stücke"} in der Pipeline. Ab vier Stücken zeigt die App, welche Säule zu kurz kommt.` : "Noch keine Stücke in der Pipeline."}</p>
+    <div class="cs-bal">${c.pillars.map((p, i) => row(p, b.rows[i])).join("")}${noneL.length ? `<div class="cs-bal-r"><div class="cs-bal-h"><span class="chip late">Säule noch zuordnen</span><span class="num">${noneL.length}</span></div>${noneL.map(csCardHTML).join("")}</div>` : ""}</div>`;
+}
+function csPipeHTML(){
+  const u = csU(); let list = csPieces().sort((a, b) => (a.created || 0) - (b.created || 0));
+  if (u.pillar) list = list.filter(p => p.pillar === u.pillar);
+  const seg = (k, l) => `<button class="pill ${u.view === k ? "on" : ""}" data-cs="pview" data-v="${k}">${l}</button>`;
+  const body = u.view === "balance" ? csBalanceHTML(list) : u.view === "cal" ? csCalHTML(list)
+    : `<div class="br-cols">${CS_ST.map(([k, l]) => { const col = list.filter(p => (p.status || "check") === k); return `<div class="br-col"><div class="br-col-h"><b>${l}</b><span class="num">${col.length}</span></div>${col.map(csCardHTML).join("") || `<p class="br-col-empty">leer</p>`}</div>`; }).join("")}</div>
+      <p class="hint" style="margin:12px 0 0">Neue Stücke entstehen nur über „In Pipeline übernehmen“ im Tresor. Geplant und Live gehen erst mit allen drei Pre-Flight-Haken.</p>`;
+  const fp = u.pillar && csPillar(u.pillar);
+  return `<section class="card cs-pipe"><div class="card-h"><h2>Pipeline</h2><span class="grow"></span><div class="fd-btns">${seg("kanban", "Kanban")}${seg("balance", "Säulen-Balance")}${seg("cal", "Kalender")}</div></div>
+    ${fp ? `<p class="hint">Gefiltert nach ${csPl(fp)}.</p>` : ""}${body}</section>`;
+}
+
+/* --- Stück bearbeiten: links der Entwurf, rechts der Brand-Kontext mit den drei Pre-Flight-Haken --- */
+function csEditorHTML(p){
+  const u = csU(), c = csC(), pil = csPillar(p.pillar), ok = PC.csChecksOk(p), ch = p.checks || {}, arm = u.del === p.id, fm = p.formats || [];
+  const fAll = [...new Set([...CS_FORMATS, ...fm])], ctaAll = [...new Set([...CS_CTA, ...(p.cta ? [p.cta] : [])])];
+  const idea = p.idea ? S.items.get(p.idea) : null, src = brUrl(p.src);
+  return `<div class="cs-ed-top"><button class="pill" data-cs="pclose">${ic("left")}Zurück zur Pipeline</button><span class="grow"></span><span class="chip">${esc(brLabel(CS_ST, p.status || "check"))}</span></div>
+  <div class="cs-ed"><section class="card cs-ed-l"><div class="br-ed">
+      <label class="br-wide">Titel<textarea class="field cs-title" id="cp-t-${p.id}" data-keep data-cp="title" rows="1">${esc(p.title || "")}</textarea></label>
+      <label class="br-wide">Hook<textarea class="field" id="cp-h-${p.id}" data-keep data-cp="hook" rows="2" placeholder="Der erste Satz, die ersten drei Sekunden">${esc(p.hook || "")}</textarea></label>
+      <div class="br-wide cs-ed-bh"><span>Skript oder Textentwurf (Markdown)</span><button class="pill" data-cs="prev">${u.prev ? `${ic("pen")}Schreiben` : "Vorschau"}</button></div>
+      ${u.prev ? `<div class="mded br-wide cs-prev">${(p.body || "").trim() ? mdBlocks(p.body, p) : `<p class="muted">Noch kein Entwurf.</p>`}</div>`
+        : `<textarea class="field br-wide cs-body" id="cp-b-${p.id}" data-keep data-cp="body" rows="14" placeholder="# Überschrift, - Liste, **fett**">${esc(p.body || "")}</textarea>`}
+      <div class="fd-lbl br-wide"><span>Formate</span><div class="fd-btns">${fAll.map(f => `<button class="pill ${fm.includes(f) ? "on" : ""}" data-cs="fmt" data-v="${esc(f)}" aria-pressed="${fm.includes(f)}">${esc(f)}</button>`).join("")}</div>
+        <div class="ns-add" style="margin-top:8px"><input id="cp-fn-${p.id}" data-keep placeholder="Eigenes Format" aria-label="Eigenes Format" enterkeyhint="done"><button class="btn" data-cs="fmtadd" aria-label="Format hinzufügen">${ic("plus")}</button></div></div>
+      <div class="fd-lbl br-wide"><span>Ziel des Stücks</span><div class="fd-btns">${ctaAll.map(x => `<button class="pill ${p.cta === x ? "on" : ""}" data-cs="cta" data-v="${esc(x)}" aria-pressed="${p.cta === x}">${esc(x)}</button>`).join("")}</div></div>
+      <label>Geplant für<input class="field" type="date" data-cp="date" value="${esc(p.date || "")}"></label>
+      <label>Status<select class="field" data-cp="status">${CS_ST.map(([k, l]) => `<option value="${k}" ${k === (p.status || "check") ? "selected" : ""} ${PC.csCanStatus(p, k) ? "" : "disabled"}>${l}${PC.csCanStatus(p, k) ? "" : " (erst Pre-Flight)"}</option>`).join("")}</select></label>
+      ${p.status === "live" ? `<label class="br-wide">Link zum fertigen Stück<input class="field" id="cp-u-${p.id}" data-keep type="url" data-cp="url" value="${esc(p.url || "")}" placeholder="https://"></label>
+        <label>Aufrufe<input class="field num" id="cp-v-${p.id}" data-keep inputmode="numeric" data-cp="views" data-num="1" value="${p.views == null ? "" : esc(bsFmt(p.views, 0))}"></label>
+        <label>Neue Follower<input class="field num" id="cp-f-${p.id}" data-keep inputmode="numeric" data-cp="follows" data-num="1" value="${p.follows == null ? "" : esc(bsFmt(p.follows, 0))}"></label>` : ""}
+      <div class="br-ed-f">${src ? `<a class="pill" href="${esc(src)}" target="_blank" rel="noopener">${ic("link")}Quelle der Idee</a>` : ""}${idea ? `<span class="muted">Aus der Idee „${esc((idea.title || "").slice(0, 60))}“</span>` : ""}<span class="grow"></span>
+        <button class="pill" data-cs="pdel" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Stück löschen"}</button></div></div></section>
+    <aside class="card cs-ed-r"><div class="ns-lbl">Brand-Kontext</div>
+      <label>Säule<select class="field" data-cp="pillar"><option value="">Noch zuordnen</option>${c.pillars.map(x => `<option value="${x.id}" ${x.id === p.pillar ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>
+      ${pil && pil.description ? `<p class="hint" style="margin:6px 0 0">${esc(pil.description)}</p>` : ""}
+      <label>Grundsatz<select class="field" data-cp="principle"><option value="">Noch zuordnen</option>${[...new Set([...c.principles, ...(p.principle ? [p.principle] : [])])].map(x => `<option ${x === p.principle ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+      <div class="cs-yes"><h3>Ton: so</h3>${csUl(c.toneDos)}</div><div class="cs-no"><h3>Ton: so nicht</h3>${csUl(c.toneDonts)}</div>
+      <div class="ns-lbl" style="margin-top:16px">Pre-Flight</div>
+      ${CS_CHK.map(([k, l]) => `<button class="ns-row ${ch[k] ? "on" : ""}" data-cs="chk" data-k="${k}" aria-pressed="${!!ch[k]}"><span>${l}</span><i class="ns-tick">${ch[k] ? ic("check") : ""}</i></button>`).join("")}
+      <p class="hint" style="margin:10px 0 0">${ok ? "Alle drei Haken sitzen. Geplant und Live sind frei." : "Geplant und Live gehen erst mit allen drei Haken."}</p></aside></div>`;
+}
+
+/* --- Zahlen der Woche (aus dem alten Überblick übernommen) --- */
+function csStatsHTML(){
+  const st = brand().stats, tk = dkey(), last = st[st.length - 1];
   const pts = k => st.filter(s => s[k] != null).map(s => ({d:s.d, v:s[k], s:""}));
-  return mainProjHTML() + `<section class="card br-hero"><div class="br-hero-top"><div><span class="br-kicker">Mein Hauptziel</span><h2>${esc(b.goalText || "Mit Krafttraining, Ernährung und meinem eigenen Weg anderen wirklich helfen und daraus eine Community aufbauen.")}</h2></div>
-      <button class="pill br-pill" data-bact="goals">${S.brGoals ? "Fertig" : "Ziele bearbeiten"}</button></div>
-    <div class="br-goals" id="br-goalbars">${brGoalBarsHTML()}</div>
-    ${S.brGoals ? `<div class="br-gform">
-      <label class="br-wide">Mein Ziel in einem Satz<input class="field" data-bg="goalText" value="${esc(b.goalText || "")}" placeholder="Wofür mach ich das?"></label>
-      <label>Follower-Ziel<input class="field" inputmode="numeric" data-bg="goals.followers.target" value="${esc(g.followers.target)}" placeholder="z. B. 10000"></label>
-      <label>bis zum<input class="field" type="date" data-bg="goals.followers.by" value="${esc(g.followers.by || "")}"></label>
-      <label>Aufrufe pro Woche<input class="field" inputmode="numeric" data-bg="goals.views.target" value="${esc(g.views.target)}" placeholder="z. B. 50000"></label>
-      <label>Einnahmen pro Monat in €<input class="field" inputmode="decimal" data-bg="goals.revenue.target" value="${esc(g.revenue.target)}" placeholder="z. B. 1000"></label></div>` : ""}
-    <p class="br-last">${last ? `Zahlen zuletzt eingetragen am ${esc(fmtLong(last.d))}.` : "Unten die ersten Zahlen eintragen, dann füllen sich die Balken."}</p></section>
-  <section class="card"><div class="card-h"><h2>Dranbleiben</h2></div>
-    <div class="bs-kpis"><div><span>Serie „${esc(h ? h.title : "Video gepostet")}“</span><b class="num">${streak} ${streak === 1 ? "Tag" : "Tage"}</b><small>${h ? `diese Woche ${weekCount(h)} von ${h.target || 7}` : "Gewohnheit nicht gefunden"}</small></div>
-      <div><span>Gepostet</span><b class="num">${posted}</b><small>Videos im ${esc(brMonth(mk))}</small></div>
-      <div><span>In Arbeit</span><b class="num">${inWork}</b><small>von der Idee bis geschnitten</small></div></div>
-    <h3 class="br-sub">Nächste Schritte${a ? ` aus „${esc(a.title)}“` : ""}</h3>
-    ${tasks.slice(0, 5).map(t => taskRow(t, tk)).join("") || `<div class="empty">Keine offenen Aufgaben im Bereich ${a ? `„${esc(a.title)}“` : "Personal Brand"}.</div>`}</section>
-  <section class="card"><div class="card-h"><h2>Zahlen der Woche</h2></div>
-    <p class="hint">Einmal pro Woche eintragen, z. B. sonntags beim Wochenrückblick. Follower: aktueller Stand. Aufrufe: alle Videos der letzten 7 Tage zusammen (Instagram: Profi-Dashboard).</p>
+  return `<details class="card cs-stats"><summary><span class="cs-kom-h"><span class="ns-lbl">Zahlen der Woche</span><b class="cs-pos">${last ? `Zuletzt am ${esc(fmtLong(last.d))}${last.followers != null ? ` · ${esc(bsFmt(last.followers, 0))} Follower` : ""}` : "Noch nichts eingetragen"}</b></span>${ic("down")}</summary>
+    <p class="hint">Einmal pro Woche eintragen. Follower: aktueller Stand. Aufrufe: alle Videos der letzten 7 Tage zusammen (Instagram: Profi-Dashboard).</p>
     <div class="br-form"><label>Datum<input class="field" type="date" id="br-s-d" value="${tk}"></label>
-      <label>Follower<input class="field" id="br-s-f" inputmode="numeric" placeholder="z. B. 1250"></label>
-      <label>Aufrufe (7 Tage)<input class="field" id="br-s-v" inputmode="numeric" placeholder="z. B. 18000"></label>
+      <label>Follower<input class="field" id="br-s-f" inputmode="numeric" placeholder="z. B. [1250]"></label>
+      <label>Aufrufe (7 Tage)<input class="field" id="br-s-v" inputmode="numeric" placeholder="z. B. [18000]"></label>
       <button class="btn" data-bact="stat-save">Eintragen</button></div>
     ${st.length ? `<div class="br-charts"><div><h3>Follower</h3>${trChartHTML("Follower", {pts:pts("followers"), unit:"Follower", col:false, empty:"Noch keine Follower eingetragen.", one:"Ab dem zweiten Eintrag seh ich hier eine Linie."})}</div>
       <div><h3>Aufrufe pro Woche</h3>${trChartHTML("Aufrufe", {pts:pts("views"), unit:"Aufrufe", col:false, empty:"Noch keine Aufrufe eingetragen.", one:"Ab dem zweiten Eintrag seh ich hier eine Linie."})}</div></div>
       <details class="trc-tbl"><summary>Alle Einträge</summary><table><tr><th>Datum</th><th>Follower</th><th>Aufrufe</th><th></th></tr>
-        ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</section>`;
+        ${st.slice().reverse().map(s => `<tr><td class="num">${esc(fmtLong(s.d))}</td><td class="num">${s.followers == null ? "" : esc(bsFmt(s.followers, 0))}</td><td class="num">${s.views == null ? "" : esc(bsFmt(s.views, 0))}</td><td><button class="ibtn" data-bact="stat-del" data-d="${s.d}" title="Eintrag löschen" aria-label="Eintrag löschen">${ic("trash")}</button></td></tr>`).join("")}</table></details>` : ""}</details>`;
 }
-function brVideosHTML(vids){
-  const open = S.brOpen && vids.find(v => v.id === S.brOpen);
-  const posted = vids.filter(v => v.stage === "gepostet" && v.views != null).sort((x, y) => y.views - x.views);
-  const byF = {}; for (const v of posted) { const f = (v.format || "ohne Format").trim(); (byF[f] = byF[f] || []).push(v); }
-  const fRows = Object.entries(byF).map(([f, l]) => [f, l.length, l.reduce((s, v) => s + v.views, 0) / l.length, l.reduce((s, v) => s + (v.follows || 0), 0) / l.length]).sort((x, y) => y[2] - x[2]);
-  return `<section class="card"><div class="add"><input id="br-v-new" placeholder="Neue Video-Idee, Enter zum Speichern" aria-label="Neue Video-Idee"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-bact="v-add" aria-label="Video-Idee speichern">${ic("plus")}</button></div>
-    <p class="hint" style="margin:10px 0 0">Mit den Pfeilen schieb ich ein Video eine Stufe weiter. Titel antippen für Hook, Format, Skript und Zahlen.</p></section>
-  ${open ? `<section class="card br-edit"><div class="card-h"><h2>Video bearbeiten</h2></div>${brVidForm(open)}</section>` : ""}
-  <div class="br-cols">${BR_STAGES.map(([k, l]) => { const list = vids.filter(v => (v.stage || "idee") === k).sort(k === "gepostet" ? (x, y) => (y.date || "").localeCompare(x.date || "") : (x, y) => x.created - y.created);
-    return `<div class="br-col"><div class="br-col-h"><b>${l}</b><span class="num">${list.length}</span></div>${list.map(brVidCard).join("") || `<p class="br-col-empty">leer</p>`}</div>`; }).join("")}</div>
-  <section class="card" style="margin-top:16px"><div class="card-h"><h2>Was läuft</h2></div>
-    ${posted.length ? `<p class="hint">Sam Gaudet zählt nur zwei Zahlen: Aufrufe und neue Follower pro Video.</p>
-      <div class="br-scroll"><table class="br-tbl"><tr><th>Video</th><th>Format</th><th class="num">Aufrufe</th><th class="num">Follower</th><th class="num">pro 1.000</th></tr>
-      ${posted.slice(0, 15).map(v => `<tr><td><button class="br-row-t" data-bact="edit" data-id="${v.id}">${esc(v.title || "Ohne Titel")}</button></td><td>${esc(v.format || "")}</td><td class="num">${esc(bsFmt(v.views, 0))}</td><td class="num">${v.follows == null ? "" : esc(bsFmt(v.follows, 0))}</td><td class="num">${v.follows == null || !v.views ? "" : esc(bsFmt(v.follows / v.views * 1000, 1))}</td></tr>`).join("")}</table></div>
-      ${fRows.length > 1 ? `<h3 class="br-sub">Nach Format, im Schnitt</h3><div class="br-scroll"><table class="br-tbl"><tr><th>Format</th><th class="num">Videos</th><th class="num">Aufrufe</th><th class="num">Follower</th></tr>
-        ${fRows.map(r => `<tr><td>${esc(r[0])}</td><td class="num">${r[1]}</td><td class="num">${esc(bsFmt(r[2], 0))}</td><td class="num">${esc(bsFmt(r[3], 0))}</td></tr>`).join("")}</table></div>` : ""}`
-    : `<p class="hint" style="margin:0">Sobald ich bei geposteten Videos Aufrufe eintrage, seh ich hier, welche Videos und Formate am besten laufen.</p>`}</section>`;
+function csHTML(){
+  const u = csU(), p = u.open && S.items.get(u.open);
+  if (p && p.kind === "cpiece" && !p.archived) return csEditorHTML(p);
+  u.open = null;
+  return csCompassHTML() + csCapHTML() + csVaultHTML() + csPipeHTML() + csStatsHTML() +
+    `<p class="hint cs-bw">Meine früheren Grundlagen und die alte Video-Liste liegen weiter in <a href="../brand-weg/">Brand-Weg</a>.</p>`;
 }
-function brVidCard(v){
-  const i = Math.max(0, BR_STAGES.findIndex(s => s[0] === (v.stage || "idee"))), p = v.stage === "gepostet";
-  return `<div class="br-vc ${S.brOpen === v.id ? "open" : ""}"><button class="br-vc-t" data-bact="edit" data-id="${v.id}">${esc(v.title || "Ohne Titel")}</button>
-    ${v.format || p ? `<div class="br-vc-m">${v.format ? `<span class="chip">${esc(v.format)}</span>` : ""}${p ? `<span class="muted num">${v.views != null ? `${esc(bsFmt(v.views, 0))} Aufrufe` : "Zahlen fehlen"}${v.follows != null ? ` · +${esc(bsFmt(v.follows, 0))}` : ""}</span>` : ""}</div>` : ""}
-    <div class="br-vc-a"><button class="ibtn" data-bact="v-move" data-id="${v.id}" data-d="-1" ${i === 0 ? "disabled" : ""} title="Eine Stufe zurück" aria-label="Eine Stufe zurück">${ic("left")}</button><button class="ibtn" data-bact="v-move" data-id="${v.id}" data-d="1" ${i === BR_STAGES.length - 1 ? "disabled" : ""} title="Eine Stufe weiter" aria-label="Eine Stufe weiter">${ic("right")}</button></div></div>`;
-}
-function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${id}">${ic("trash")}${S.brDel === id ? "Wirklich löschen?" : "Löschen"}</button>`; }
-function brVidForm(v){
-  const f = (k, l, extra = "") => `<label>${l}<input class="field" data-bv="${k}" data-id="${v.id}" value="${esc(v[k] ?? "")}" ${extra}></label>`;
-  const u = brUrl(v.url);
-  return `<div class="br-ed">${f("title", "Titel")}${f("format", "Format", 'placeholder="z. B. Talking Head, Q&A, Vlog"')}
-    <label>Stufe<select class="field" data-bv="stage" data-id="${v.id}">${brOpts(BR_STAGES, v.stage || "idee")}</select></label>
-    <label class="br-wide">Hook<textarea class="field" rows="2" data-bv="hook" data-id="${v.id}" placeholder="Der erste Satz, die ersten drei Sekunden">${esc(v.hook || "")}</textarea></label>
-    <label>Gepostet am<input class="field" type="date" data-bv="date" data-id="${v.id}" value="${esc(v.date || "")}"></label>
-    ${f("url", "Link zum Video", 'placeholder="https://"')}${f("views", "Aufrufe", 'inputmode="numeric" data-num="1"')}${f("follows", "Neue Follower", 'inputmode="numeric" data-num="1"')}
-    <label class="br-wide">Skript und Notizen<textarea class="field" rows="6" data-bv="note" data-id="${v.id}" placeholder="Stichpunkte, Skript, was ich beim nächsten Mal anders mache">${esc(v.note || "")}</textarea></label>
-    <div class="br-ed-f">${u ? `<a class="pill" href="${esc(u)}" target="_blank" rel="noopener">${ic("ext")}Video öffnen</a>` : ""}<span class="grow"></span>${brDelBtn(v.id)}<button class="pill on" data-bact="edit" data-id="${v.id}">Fertig</button></div></div>`;
-}
+
+/* --- Eingaben --- */
+document.addEventListener("toggle", e => { const t = e.target; if (t && t.id === "cs-kom") { csU().kom = t.open; csSaveU(); } }, true);
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-cs]"); if (!a) return;
+  const act = a.dataset.cs, id = a.dataset.id, u = csU(), it = id ? S.items.get(id) : null, cur = u.open ? S.items.get(u.open) : null;
+  if (!["idel", "pdel"].includes(act)) u.del = null;
+  switch (act) {
+    // Festhalten
+    case "gcap": { const q = a.dataset.q || ""; const n = $("#q"); if (n && n.value) { n.value = ""; searchRender(""); } $("#side").classList.remove("open"); csCapOpen(q); return; }
+    case "gtype": S.csGType = a.dataset.v; document.querySelectorAll('[data-cs="gtype"]').forEach(b => b.classList.toggle("on", b.dataset.v === S.csGType)); { const i = $("#cs-g-t"); if (i) i.focus(); } return;
+    case "gsave": csCapSave(); return;
+    case "cap": { const t = $("#cs-new"), x = csCapture(t && t.value, ($("#cs-new-url") || {}).value, ($("#cs-new-type") || {}).value);
+      if (!x) { if (t) t.focus(); return; } t.value = ""; const ur = $("#cs-new-url"); if (ur) ur.value = ""; u.tab = "inbox"; csSaveU(); renderMain(); toast("In der Inbox gespeichert"); const n = $("#cs-new"); if (n) n.focus(); return; }
+    case "dclose": csDlgClose(); return;
+    // Kompass
+    case "pf": u.pillar = id || ""; break;
+    case "kedit": { const c = csC(); S.csK = {positioning:c.positioning, principles:[...c.principles], anti:[...c.anti], toneDos:[...c.toneDos], toneDonts:[...c.toneDonts], pillars:c.pillars.map(p => ({...p}))}; csKomDlg(); return; }
+    case "kpadd": csKomRead(); S.csK.pillars.push({id:uid(), name:"", description:"", color:CS_COLORS[S.csK.pillars.length % CS_COLORS.length]}); csKomDlg(); { const n = $("#ck-pn-" + (S.csK.pillars.length - 1)); if (n) n.focus(); } return;
+    case "kpdel": csKomRead(); S.csK.pillars.splice(+a.dataset.i, 1); csKomDlg(); return;
+    case "kcol": csKomRead(); S.csK.pillars[+a.dataset.i].color = a.dataset.c; csKomDlg(); return;
+    case "ksave": csKomSave(); return;
+    // Tresor
+    case "vtab": u.tab = a.dataset.v; u.idea = null; csSaveU(); break;
+    case "iopen": u.idea = u.idea === id ? null : id; break;
+    case "ipark": if (it) { it.status = "park"; persist(it); toast("Auf dem Parkplatz"); } break;
+    case "iinbox": if (it) { it.status = "inbox"; persist(it); toast("Zurück in der Inbox"); } break;
+    case "iarch": if (it) { it.status = "archive"; persist(it); u.idea = null; toast("Im Archiv, zu finden unter „Alle“"); } break;
+    case "idel": if (!it) break; if (u.del !== id) { u.del = id; break; } removeItem(id); u.del = null; u.idea = null; toast("Gelöscht"); break;
+    case "gate": if (it) { S.csGate = {idea:id, pillar: it.pillar && csPillar(it.pillar) ? it.pillar : "", principle:""}; csGateDlg(); } return;
+    case "gpil": S.csGate.pillar = id; csGateDlg(); return;
+    case "gpri": S.csGate.principle = csC().principles[+a.dataset.i] || ""; csGateDlg(); return;
+    case "gparkit": { const i = S.csGate && S.items.get(S.csGate.idea); if (i) { i.status = "park"; persist(i); toast("Auf dem Parkplatz"); } csDlgClose(); break; }
+    case "gok": csGateOkDo(); return;
+    // Pipeline
+    case "pview": u.view = a.dataset.v; csSaveU(); break;
+    case "cmode": u.cal = a.dataset.v; csSaveU(); break;
+    case "cnav": { const d = +a.dataset.d, r = parseKey(u.ref || dkey());
+      u.ref = d === 0 ? dkey() : u.cal === "week" ? dkey(addDays(r, 7 * d)) : dkey(new Date(r.getFullYear(), r.getMonth() + d, 1)); break; }
+    case "popen": if (it) { csDlgClose(); u.open = id; u.prev = false; if (S.view !== "brand" || S.brTab !== "studio") { S.brTab = "studio"; go("brand"); return; } renderMain(); window.scrollTo({top:0}); } return;
+    case "pclose": u.open = null; renderMain(); window.scrollTo({top:0}); return;
+    case "pmove": { if (!it) break; const i = Math.max(0, CS_ST.findIndex(s => s[0] === it.status)), n = Math.max(0, Math.min(CS_ST.length - 1, i + +a.dataset.d)), to = CS_ST[n][0];
+      if (!PC.csCanStatus(it, to)) { toast("Erst die drei Pre-Flight-Haken setzen."); u.open = id; u.prev = false; renderMain(); window.scrollTo({top:0}); return; }
+      it.status = to; if (to === "live" && !it.date) it.date = dkey(); persist(it); break; }
+    // Editor
+    case "prev": u.prev = !u.prev; break;
+    case "fmt": if (cur) { const v = a.dataset.v, f = cur.formats || []; cur.formats = f.includes(v) ? f.filter(x => x !== v) : [...f, v]; persist(cur); } break;
+    case "fmtadd": { if (!cur) break; const i = $("#cp-fn-" + cur.id), v = i && i.value.trim(); if (!v) { if (i) i.focus(); return; } if (!(cur.formats || []).includes(v)) { cur.formats = [...(cur.formats || []), v]; persist(cur); } i.value = ""; break; }
+    case "cta": if (cur) { cur.cta = cur.cta === a.dataset.v ? "" : a.dataset.v; persist(cur); } break;
+    case "chk": { if (!cur) break; const k = a.dataset.k, c = {pillar:false, principle:false, problem:false, ...(cur.checks || {})}; c[k] = !c[k]; cur.checks = c;
+      if (!PC.csChecksOk(cur) && (cur.status === "geplant" || cur.status === "live")) { cur.status = "produktion"; toast("Zurück auf Produktion, weil ein Haken fehlt."); }
+      persist(cur); break; }
+    case "pdel": { if (!cur) break; if (u.del !== cur.id) { u.del = cur.id; break; } const idea = cur.idea && S.items.get(cur.idea); if (idea && idea.status === "taken") { idea.status = "inbox"; persist(idea); }
+      removeItem(cur.id); u.del = null; u.open = null; toast(idea ? "Stück gelöscht, die Idee liegt wieder in der Inbox" : "Stück gelöscht"); break; }
+    default: return;
+  }
+  renderMain();
+});
+document.addEventListener("input", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.cp && t.tagName !== "SELECT" && t.type !== "date") { const it = S.items.get(csU().open); if (!it) return; it[t.dataset.cp] = t.dataset.num ? brNum(t.value) : t.dataset.cp === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); return; }
+  if (t.dataset.ci && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.dataset.ci === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); }
+});
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.cp && (t.tagName === "SELECT" || t.type === "date")) { const it = S.items.get(csU().open); if (!it) return; const k = t.dataset.cp;
+    if (k === "status" && !PC.csCanStatus(it, t.value)) { toast("Erst die drei Pre-Flight-Haken setzen."); t.value = it.status; return; }
+    it[k] = t.value; if (k === "status" && t.value === "live" && !it.date) it.date = dkey(); persist(it); renderMain(); return; }
+  if (t.dataset.ci && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.value; persist(it); renderMain(); }
+});
+document.addEventListener("keydown", e => {
+  // Strg/Cmd + Umschalt + I: von jeder Seite festhalten. Strg/Cmd + I: im Studio ins Feld springen.
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key || "").toLowerCase() === "i") {
+    if (S.mode !== "app") return;
+    if (e.shiftKey) { e.preventDefault(); if (S.csDlg !== "cap") csCapOpen(); return; }
+    if (S.view === "brand" && S.brTab === "studio" && !csU().open && !S.csDlg) { const i = $("#cs-new"); if (i) { e.preventDefault(); i.focus(); i.scrollIntoView({block:"center"}); } }
+    return;
+  }
+  if (e.key !== "Enter" || e.isComposing) return;
+  const id = e.target.id || "";
+  if (id === "cs-g-t" || id === "cs-g-u") { e.preventDefault(); csCapSave(); }
+  else if (id === "cs-new" || id === "cs-new-url") { e.preventDefault(); const b = document.querySelector('[data-cs="cap"]'); if (b) b.click(); }
+  else if (id.startsWith("cp-fn-")) { e.preventDefault(); const b = document.querySelector('[data-cs="fmtadd"]'); if (b) b.click(); }
+});
+
 function brContactsHTML(cons){
   const tk = dkey(), ord = s => BR_CSTAT.findIndex(x => x[0] === (s || "idee"));
   const due = c => c.next && c.next <= tk && c.status !== "ruht";
@@ -5499,10 +5819,10 @@ function brSkillsHTML(){
     ${sk.length ? "" : `<button class="pill" style="margin-top:12px" data-bact="sk-tpl">${ic("plus")}Vorschläge aus dem Leitfaden übernehmen</button>`}</section>`;
 }
 function brAdd(kind){
-  const inp = $(kind === "video" ? "#br-v-new" : "#br-c-new"); const v = inp ? inp.value.trim() : "";
+  const inp = $("#br-c-new"); const v = inp ? inp.value.trim() : "";
   if (!v) { if (inp) inp.focus(); return; }
-  create(kind, v, kind === "video" ? {stage:"idee"} : {status:"idee", role:"creator"});
-  renderMain(); const n = $(kind === "video" ? "#br-v-new" : "#br-c-new"); if (n) n.focus();
+  create(kind, v, {status:"idee", role:"creator"});
+  renderMain(); const n = $("#br-c-new"); if (n) n.focus();
 }
 function brStatSave(){
   const b = brand(), d = ($("#br-s-d") || {}).value || dkey(), f = brNum(($("#br-s-f") || {}).value), v = brNum(($("#br-s-v") || {}).value);
@@ -5511,20 +5831,15 @@ function brStatSave(){
   if (ex) { if (f != null) ex.followers = f; if (v != null) ex.views = v; } else b.stats.push({d, followers:f, views:v});
   b.stats.sort((x, y) => x.d.localeCompare(y.d)); saveSettings(0); toast("Zahlen gespeichert."); renderMain();
 }
-function brSetGoal(path, v){ const ks = path.split("."); let o = brand(); for (const k of ks.slice(0, -1)) o = o[k] = o[k] || {}; o[ks[ks.length - 1]] = v; }
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-bact]"); if (!a) return;
   const act = a.dataset.bact, id = a.dataset.id, b = brand(), it = id && S.items.get(id);
   if (act !== "del" && act !== "sk-del") S.brDel = null;
   switch (act) {
     case "tab": S.brTab = a.dataset.v; S.brOpen = null; try { localStorage.setItem("brTab", S.brTab); } catch (er) {} renderMain(); window.scrollTo({top:0}); return;
-    case "goals": S.brGoals = !S.brGoals; break;
     case "edit": S.brOpen = S.brOpen === id ? null : id; break;
     case "del": if (S.brDel === id) { removeItem(id); if (S.brOpen === id) S.brOpen = null; S.brDel = null; toast("Gelöscht."); } else S.brDel = id; break;
-    case "v-add": brAdd("video"); return;
     case "c-add": brAdd("contact"); return;
-    case "v-move": if (it) { const i = Math.max(0, BR_STAGES.findIndex(s => s[0] === (it.stage || "idee"))), n = Math.max(0, Math.min(BR_STAGES.length - 1, i + +a.dataset.d));
-      it.stage = BR_STAGES[n][0]; if (it.stage === "gepostet" && !it.date) it.date = dkey(); persist(it); } break;
     case "i-add": { const t = ($("#br-i-t") || {}).value.trim(), amt = brNum(($("#br-i-a") || {}).value);
       if (!t || amt == null) { toast("Bitte Quelle und Betrag eintragen."); return; }
       create("income", t, {amount:amt, type:$("#br-i-k").value, date:$("#br-i-d").value || dkey()}); toast("Einnahme gespeichert."); break; }
@@ -5549,21 +5864,18 @@ document.addEventListener("input", e => {
   const t = e.target;
   if (t.dataset.bv && t.tagName !== "SELECT" && t.type !== "date") { const it = S.items.get(t.dataset.id); if (!it) return;
     it[t.dataset.bv] = t.dataset.num ? brNum(t.value) : t.value; persist(it, 800);
-    if (t.dataset.bv === "title") document.querySelectorAll(`.br-vc-t[data-id="${it.id}"]`).forEach(n => { n.textContent = t.value || "Ohne Titel"; });
     return; }
-  if (t.dataset.bg) { brSetGoal(t.dataset.bg, t.value); saveSettings(700); return; }
   if (t.dataset.bsk) { const s = brand().skills.find(x => x.id === t.dataset.id); if (s) { s[t.dataset.bsk] = t.value; saveSettings(700); } return; }
 });
 document.addEventListener("change", e => {
   const t = e.target;
   if (t.dataset.bv && (t.tagName === "SELECT" || t.type === "date")) { const it = S.items.get(t.dataset.id); if (!it) return;
-    it[t.dataset.bv] = t.value; if (t.dataset.bv === "stage" && t.value === "gepostet" && !it.date) it.date = dkey(); persist(it); renderMain(); return; }
-  if (t.dataset.bg) { const g = $("#br-goalbars"); if (g) g.innerHTML = brGoalBarsHTML(); return; }
+    it[t.dataset.bv] = t.value; persist(it); renderMain(); return; }
 });
 document.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.isComposing) return;
   const id = e.target.id;
-  const map = {"br-v-new":"v-add", "br-c-new":"c-add", "br-k-new":"sk-add", "br-s-f":"stat-save", "br-s-v":"stat-save", "br-i-a":"i-add", "br-i-t":"i-add", "br-o-t":"o-add", "br-o-a":"o-add"};
+  const map = {"br-c-new":"c-add", "br-k-new":"sk-add", "br-s-f":"stat-save", "br-s-v":"stat-save", "br-i-a":"i-add", "br-i-t":"i-add", "br-o-t":"o-add", "br-o-a":"o-add"};
   if (map[id]) { e.preventDefault(); const btn = document.querySelector(`[data-bact="${map[id]}"]`); if (btn) btn.click(); }
 });
 

@@ -289,3 +289,40 @@ test("Ausschnitt rund um den Treffer", () => {
   const s = C.snippet(t, "zielwort", 60);
   assert.ok(s.includes("Zielwort") && s.startsWith("…"));
 });
+
+/* ---------- Content Studio ---------- */
+test("Content Studio: Geplant und Live nur mit allen drei Pre-Flight-Haken", () => {
+  const p = {status:"produktion", checks:{pillar:true, principle:true, problem:false}};
+  assert.equal(C.csCanStatus(p, "entwurf"), true);
+  assert.equal(C.csCanStatus(p, "geplant"), false);
+  assert.equal(C.csCanStatus(p, "live"), false);
+  p.checks.problem = true;
+  assert.equal(C.csCanStatus(p, "geplant"), true);
+  assert.equal(C.csCanStatus(p, "live"), true);
+  assert.equal(C.csCanStatus({}, "live"), false);
+  assert.equal(C.csCanStatus(p, "gibtsnicht"), false);
+});
+
+test("Content Studio: Brand-Gate verlangt Säule und Grundsatz aus dem Kompass", () => {
+  const k = {pillars:[{id:"a", name:"Ernährung"}], principles:["Kein Dogma"]};
+  assert.equal(C.csGateOk("a", "Kein Dogma", k), true);
+  assert.equal(C.csGateOk("", "Kein Dogma", k), false);
+  assert.equal(C.csGateOk("a", "", k), false);
+  assert.equal(C.csGateOk("x", "Kein Dogma", k), false);
+  assert.equal(C.csGateOk("a", "Erfunden", k), false);
+  assert.equal(C.csGateOk("a", "Kein Dogma", null), false);
+});
+
+test("Content Studio: Säulen-Balance zeigt, was zu kurz kommt und was dominiert", () => {
+  const ps = [{id:"a"}, {id:"b"}, {id:"c"}, {id:"d"}];
+  const pieces = [{pillar:"a"}, {pillar:"a"}, {pillar:"a"}, {pillar:"b"}, {pillar:"c"}, {pillar:""}, {pillar:"a", archived:true}];
+  const r = C.csBalance(pieces, ps);
+  assert.equal(r.total, 6);
+  assert.equal(r.none, 1);
+  assert.deepEqual(r.rows.map(x => x.n), [3, 1, 1, 0]);
+  assert.equal(r.rows[0].high, true);
+  assert.equal(r.rows[3].low, true);
+  assert.equal(r.rows[1].low, false);
+  assert.deepEqual(C.csBalance([{pillar:"a"}], ps).rows.map(x => x.low || x.high), [false, false, false, false]);
+});
+
