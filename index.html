@@ -1809,6 +1809,18 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
   .gd-cr{grid-template-columns:56px minmax(0,1fr) 34px}.gd-cb{grid-column:1/-1;grid-row:2}
   .gd-month b{min-width:0;flex:1}
 }
+
+/* ===== Makro-Quellen (14.11.2026) ===== */
+.ms-g{margin-top:16px}.ms-gh{display:flex;align-items:center;gap:8px;margin-bottom:4px}.ms-gh h3{margin:0;font-size:15px}
+.ms-e{margin:4px 0 0;font-size:13px}
+.ms-sug{margin-top:22px;padding-top:14px;border-top:1px dashed var(--line)}.ms-sug h3{margin:0;font-size:15px}
+.ms-cr{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);flex-wrap:wrap}
+.ms-cr .nt-r{border-top:0;flex:1 1 220px;min-width:0}
+.ms-pills{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 8px 6px}
+.ms-pills .pill.sug{border-color:var(--ink);font-weight:700}
+.ms-also{flex:none;font-size:12px;padding:4px 9px}
+.ms-card .nt-et b,.ms-card .nt-et small{white-space:normal;overflow:visible;text-overflow:clip}
+@media (max-width:560px){ .ms-pills{padding-left:62px} }
 </style>
 <style id="user-css"></style>
 </head>
@@ -1831,7 +1843,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-14.1";
+const APP_VERSION = "2026-11-14.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1919,7 +1931,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -3685,6 +3697,7 @@ function srOpen(id){
   if (it.kind === "income" || it.kind === "cost" || it.kind === "spend") { if (S.open) closeOverlay();
     S.gdTab = {income:"inc", cost:"abo", spend:"spend"}[it.kind]; S.brOpen = id; S.gdOpen = id; if (it.kind === "spend" && it.date) S.gdMk = it.date.slice(0, 7);
     try { localStorage.setItem("gdTab", S.gdTab); } catch(e){} go("geld"); return; }
+  if (it.kind === "fmsrc") { if (S.open) closeOverlay(); S.fdTab = "food"; try { localStorage.setItem("fdTab2", "food"); } catch(e){} go("food"); return; }
   if (it.kind === "fprice") { if (S.open) closeOverlay(); S.fdTab = "plan"; try { localStorage.setItem("fdTab2", "plan"); } catch(e){} go("food"); return; }
   const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", csource:"quellen", video:"studio", contact:"studio"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; const u = csU();
@@ -4378,7 +4391,7 @@ function foodHTML(){
   if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab2") || "diary"; } catch(e) { S.fdTab = "diary"; } }
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
-  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML}[S.fdTab] || ntDiaryHTML;
+  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML}[S.fdTab] || ntDiaryHTML;
   return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Lebensmittel, Rezepte und meine Ziele") + banner() +
     `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
@@ -4949,20 +4962,20 @@ function ntSheet(){
   if (!S.nt) { if (ov) ov.remove(); document.body.classList.remove("nt-lock"); return; }
   if (!ov) { ov = document.createElement("div"); ov.id = "nt-ov"; document.body.appendChild(ov); }
   document.body.classList.add("nt-lock");
-  const N = S.nt, pick = N.mode === "pick", plan = N.mode === "plan", sub = N.sel || N.scan;
-  const title = pick ? "Nährwerte übernehmen" : plan ? `Für ${plSheetMeal()} planen` : `${ntMealName(N.meal)} hinzufügen`;
+  const N = S.nt, ms = N.mode === "msrc", pick = N.mode === "pick" || ms, plan = N.mode === "plan", sub = N.sel || N.scan;
+  const title = ms ? `${msLabel(N.macro)}: Lebensmittel zuordnen` : pick ? "Nährwerte übernehmen" : plan ? `Für ${plSheetMeal()} planen` : `${ntMealName(N.meal)} hinzufügen`;
   ov.innerHTML = `<div class="scrim nt-scrim" data-nt="close"></div><div class="nt-sheet ${N.q.trim() ? "q" : ""}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
     <div class="nt-sh"><button class="ibtn" data-nt="${sub ? "back" : "close"}" aria-label="${sub ? "Zurück" : "Schließen"}">${ic(sub ? "left" : "close")}</button><h2>${esc(title)}</h2>
       ${pick || plan ? "" : `<span class="muted nt-shd">${esc(N.date === dkey() ? "Heute" : fmtLong(N.date))}</span>`}${sub ? `<button class="ibtn" data-nt="close" aria-label="Schließen">${ic("close")}</button>` : ""}</div>
     <div class="nt-body">${N.scan ? ntScanHTML() : N.sel ? ntSelHTML() : ntFindHTML()}</div>
     ${N.sel && !N.scan && N.edit ? `<div class="nt-foot"><button class="btn" data-nt="fixsave" id="nt-addbtn">Werte speichern</button></div>` : ""}
-    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${pick ? "pickdo" : "addit"}" id="nt-addbtn">${pick ? "Werte übernehmen" : plan ? "In den Plan" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
+    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${ms ? "msdo" : pick ? "pickdo" : "addit"}" id="nt-addbtn">${ms ? `Als ${esc(msOne(N.macro))} speichern` : pick ? "Werte übernehmen" : plan ? "In den Plan" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
   if (N.scan && !N.camOff) ntScanStart();
 }
 function ntFindHTML(){
-  const N = S.nt, pick = N.mode === "pick";
+  const N = S.nt, pick = N.mode === "pick" || N.mode === "msrc";
   const tab = (v, l) => `<button class="pill ${N.tab === v ? "on" : ""}" data-nt="stab" data-v="${v}">${l}</button>`;
-  return `${pick ? `<p class="hint">Das passende Lebensmittel suchen. Die Nährwerte pro 100 g werden übernommen.</p>` : N.mode === "plan" ? `<p class="hint">Was ich hier auswähle, kommt in den Plan und nicht ins Tagebuch.</p>` : `<div class="nt-mealsel">${NT_MEALS.map(([m, l]) => `<button class="pill ${N.meal === m ? "on" : ""}" data-nt="smeal" data-meal="${m}">${l}</button>`).join("")}</div>`}
+  return `${N.mode === "msrc" ? `<p class="hint">Was ich hier auswähle, kommt zu meinen Quellen für ${esc(msLabel(N.macro))}.</p>` : pick ? `<p class="hint">Das passende Lebensmittel suchen. Die Nährwerte pro 100 g werden übernommen.</p>` : N.mode === "plan" ? `<p class="hint">Was ich hier auswähle, kommt in den Plan und nicht ins Tagebuch.</p>` : `<div class="nt-mealsel">${NT_MEALS.map(([m, l]) => `<button class="pill ${N.meal === m ? "on" : ""}" data-nt="smeal" data-meal="${m}">${l}</button>`).join("")}</div>`}
     <div class="nt-sbar"><div class="nt-sin">${ic("search")}<input id="nt-q" type="search" enterkeyhint="search" value="${esc(N.q)}" placeholder="Lebensmittel oder Marke suchen" autocomplete="off" aria-label="Lebensmittel suchen"></div>
       <button class="rbtn ink" data-nt="scan" title="Barcode scannen" aria-label="Barcode scannen">${ic("scan")}</button></div>
     <div class="tr-seg nt-stabs">${tab("fav", "Favoriten")}${tab("recent", "Zuletzt")}${tab("mine", "Meine")}${pick ? "" : tab("quick", "Schnell eintragen")}</div>
@@ -5010,11 +5023,11 @@ function ntSelect(x){
 }
 const ntSelG = () => { const N = S.nt, u = ntUnits(N.sel)[N.unit] || ["g", 1]; return (ntNum(N.qty) || 0) * u[1]; };
 function ntSelNut(){
-  const N = S.nt, x = N.sel, g = ntSelG(), pick = N.mode === "pick";
+  const N = S.nt, x = N.sel, g = ntSelG(), pick = N.mode === "pick" || N.mode === "msrc";
   return pick ? `<h3 class="nt-h3">Pro 100 g</h3>${ntNutHTML(x.n, 1)}` : `<div class="nt-selk"><b class="num">${bsFmt(Math.round((x.n.kcal || 0) * g / 100))}</b> kcal <span class="muted num">für ${bsFmt(ntR(g, 1))} g</span></div>${ntNutHTML(x.n, g / 100)}`;
 }
 function ntSelHTML(){
-  const N = S.nt, x = N.sel, units = ntUnits(x), pick = N.mode === "pick";
+  const N = S.nt, x = N.sel, units = ntUnits(x), pick = N.mode === "pick" || N.mode === "msrc";
   const canFix = !!ntRef(x);
   if (N.edit && canFix) return `<div class="nt-selh">${ntImg(x, "nt-img lg")}<div><h3>${esc(x.name)}</h3><p class="muted">${esc(ntSrcLine(x))}</p></div></div>${ntFixHTML()}`;
   return `<div class="nt-selh">${ntImg(x, "nt-img lg")}<div><h3>${esc(x.name)}</h3><p class="muted">${esc(ntSrcLine(x))}${x.code ? ` · <span class="num">${esc(x.code)}</span>` : ""}</p>
@@ -5112,6 +5125,7 @@ function ntFavLog(x, meal, date){
   renderMain();
 }
 function ntLog(x, date, meal, g, qty, unit){
+  if (S.nt && S.nt.mode === "msrc") { msToggle(x, S.nt.macro, true); return; }
   if (S.nt && S.nt.mode === "plan") { plAdd(x, g, qty, unit); return; }
   const d = ntDay(date), quick = x.src === "quick";
   d.entries = [...(d.entries || []), {id:uid(), meal, name:x.name, brand:x.brand || "", src:x.src, ref: quick ? "" : x.id, code:x.code || "", img:x.img || "", emoji:x.emoji || "",
@@ -5129,7 +5143,7 @@ const ntFavKcal = x => { if (x.src === "quick") return Math.round(x.n.kcal || 0)
 function ntFavResHTML(){
   const N = S.nt, L = ntFavs(); N.list = L;
   if (!L.length) return `<div class="empty">Noch keine Favoriten. Bei einem Lebensmittel, Produkt oder Rezept auf „Als Favorit merken“ tippen, dann steht es hier und ich trag es mit einem Tipp auf das Plus ein. Das geht auch bei schnell eingetragenen Mahlzeiten.</div>`;
-  const pick = N.mode === "pick";
+  const pick = N.mode === "pick" || N.mode === "msrc";
   return L.map((x, i) => `<div class="nt-fr"><button class="nt-r" data-nt="sel" data-i="${i}">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc([ntFavAmt(x), ntSrcLine(x)].filter(Boolean).join(" · "))}</small></span><span class="nt-ek num">${bsFmt(ntFavKcal(x))} <small>kcal</small></span></button>
     ${pick || x.src === "quick" && N.mode === "pick" ? "" : `<button class="rbtn ink nt-fadd" data-nt="favadd" data-i="${i}" title="Mit dieser Menge eintragen" aria-label="${esc(x.name)} eintragen">${ic("plus")}</button>`}</div>`).join("")
     + `<p class="hint" style="margin:12px 4px 0">Das Plus trägt die Menge vom letzten Mal ein. Namen antippen, um die Menge zu ändern.</p>`;
@@ -5144,6 +5158,79 @@ function ntFavListHTML(){
       <button class="ibtn nt-star on" data-nt="favdel" data-id="${x.fav}" title="Aus den Favoriten entfernen" aria-label="${esc(x.name)} aus den Favoriten entfernen">${ic("star")}</button>
       <button class="rbtn ink nt-fadd" data-nt="favlog" data-id="${x.fav}" title="Jetzt eintragen" aria-label="${esc(x.name)} jetzt eintragen">${ic("plus")}</button></div>`).join("")}</section>`;
 }
+
+// ---- Meine Makro-Quellen (14.11.2026, sein Wunsch): welche Lebensmittel mir Eiweiß, Kohlenhydrate und Fett liefern ----
+// Versteckter Eintrag kind "fmsrc" pro Lebensmittel: key wie ntKey, snap wie bei Favoriten, macros ["p","c","f"] (ein Lebensmittel darf in mehreren Gruppen stehen).
+// Zugeordnet wird von Hand: über „Zuordnen“ (Fenster #nt-ov im Modus "msrc") oder bei den Vorschlägen aus Favoriten, Plan und eigenen Lebensmitteln.
+const MS_M = [["p", "Eiweiß", "Eiweißquelle"], ["c", "Kohlenhydrate", "Kohlenhydratquelle"], ["f", "Fett", "Fettquelle"]];
+const msLabel = id => (MS_M.find(m => m[0] === id) || [, "Makros"])[1];
+const msOne = id => (MS_M.find(m => m[0] === id) || [, , "Quelle"])[2];
+const msOf = k => live("fmsrc").find(m => m.key === k);
+const msSnap = x => ({src:x.src, id:x.id || "", code:x.code || "", name:x.name, brand:x.brand || "", n:{...x.n}, img:x.img || "", emoji:x.emoji || "", portion:x.portion || null, serving:x.serving || 0, qty:x.qty || "", cat:x.cat || ""});
+function msToggle(x, mac, on){
+  const k = ntKey(x); if (!k || !mac) return false;
+  const m = msOf(k);
+  if (!m) { if (on === false) return false; create("fmsrc", x.name, {key:k, snap:msSnap(x), macros:[mac]}); return true; }
+  const has = (m.macros || []).includes(mac), want = on == null ? !has : on; if (has === want) return want;
+  m.macros = want ? [...(m.macros || []), mac] : (m.macros || []).filter(y => y !== mac);
+  if (!m.macros.length) removeItem(m.id); else persist(m);
+  return want;
+}
+const msItem = m => ntFavItem({snap:m.snap || {}}) || ntMake({...(m.snap || {})});
+// Vorschlag nach Anteil an den Kalorien: Eiweiß ab 25 %, Kohlenhydrate oder Fett ab 50 %
+function msGuess(n){
+  const p = (+n.p || 0) * 4, c = (+n.c || 0) * 4, f = (+n.f || 0) * 9, t = p + c + f; if (!t) return [];
+  return [["p", p / t >= .25], ["c", c / t >= .5], ["f", f / t >= .5]].filter(z => z[1]).map(z => z[0]);
+}
+function msDo(){
+  const N = S.nt, x = N && N.sel; if (!x) return;
+  msToggle(x, N.macro, true); toast(`${x.name} steht jetzt bei ${msLabel(N.macro)}.`);
+  N.sel = null; N.q = ""; N.online = null; ntSheet(); renderMain();
+}
+function msCands(){
+  const have = new Set(live("fmsrc").map(m => m.key)), seen = new Set(), out = [];
+  const push = x => { if (!x || x.src === "quick") return; const k = ntKey(x); if (!k || have.has(k) || seen.has(k)) return; seen.add(k); out.push(x); };
+  ntFavs().forEach(push);
+  for (const p of plPlans()) for (const m of p.meals || []) for (const e of m.items || []) push(ntEntryItem(e));
+  ntOwn().forEach(push);
+  return out;
+}
+function msHTML(){
+  if (!NT.db && !NT.msTried) { NT.msTried = true; ntLoad().then(() => { if (NT.db && S.view === "food" && S.fdTab === "food") renderMain(); }); }
+  const items = live("fmsrc").map(m => ({m, x: msItem(m)}));
+  const grp = ([id, l, one]) => {
+    const L = items.filter(o => (o.m.macros || []).includes(id)).sort((a, b) => (+b.x.n[id] || 0) - (+a.x.n[id] || 0));
+    return `<div class="ms-g"><div class="ms-gh"><h3>${esc(l)}</h3><span class="chip">${L.length}</span><span class="grow"></span><button class="pill" data-ms="add" data-m="${id}">${ic("plus")}Zuordnen</button></div>
+      ${L.length ? L.map(({m, x}) => { const also = (m.macros || []).filter(y => y !== id).map(msLabel);
+        return `<div class="nt-fr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc([`${bsFmt(ntR(+x.n[id] || 0, 1))} g ${l} pro 100 g`, also.length ? `auch ${also.join(" und ")}` : ""].filter(Boolean).join(" · "))}</small></span></span>
+          ${msGuess(x.n || {}).filter(y => !(m.macros || []).includes(y)).map(y => `<button class="pill ms-also" data-ms="also" data-id="${m.id}" data-m="${y}" title="Vorschlag nach den Nährwerten">${ic("plus")}${esc(msLabel(y))}</button>`).join("")}
+          <button class="ibtn" data-ms="rm" data-id="${m.id}" data-m="${id}" title="Bei ${esc(l)} entfernen" aria-label="${esc(x.name)} bei ${esc(l)} entfernen">${ic("close")}</button></div>`; }).join("")
+        : `<p class="muted ms-e">Noch keine ${esc(one)} zugeordnet.</p>`}</div>`; };
+  const C = msCands(); S.msCand = C;
+  const shown = S.msMore ? C : C.slice(0, 6);
+  const sug = C.length ? `<div class="ms-sug"><h3>Noch nicht zugeordnet</h3>
+      <p class="hint" style="margin:4px 0 6px">Aus meinen Favoriten, dem Ernährungsplan und meinen eigenen Lebensmitteln. Markiert ist, was die Nährwerte vorschlagen. Ein Tipp ordnet zu.</p>
+      ${shown.map((x, i) => { const g = msGuess(x.n || {});
+        return `<div class="ms-cr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc(`pro 100 g: E ${bsFmt(ntR(+x.n.p || 0, 1))} · K ${bsFmt(ntR(+x.n.c || 0, 1))} · F ${bsFmt(ntR(+x.n.f || 0, 1))} g`)}</small></span></span>
+          <span class="ms-pills">${MS_M.map(([id, l]) => `<button class="pill ${g.includes(id) ? "sug" : ""}" data-ms="set" data-i="${i}" data-m="${id}" title="${g.includes(id) ? "Vorschlag nach den Nährwerten" : ""}">${ic("plus")}${esc(l)}</button>`).join("")}</span></div>`; }).join("")}
+      ${C.length > 6 ? `<button class="pill" data-ms="more" style="margin-top:10px">${S.msMore ? "Weniger anzeigen" : `Alle ${C.length} anzeigen`}</button>` : ""}</div>` : "";
+  return `<section class="card ms-card"><div class="card-h"><h2>Meine Quellen für Makros</h2></div>
+    <p class="hint">Welche Lebensmittel mir Eiweiß, Kohlenhydrate und Fett liefern. Ich ordne selbst zu, ein Lebensmittel darf auch in mehreren Gruppen stehen. Sortiert nach Gramm pro 100 g.</p>
+    ${MS_M.map(grp).join("")}${sug}</section>`;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-ms]"); if (!a) return;
+  const act = a.dataset.ms, mac = a.dataset.m;
+  switch (act) {
+    case "add": ntOpen(null, {mode:"msrc", macro:mac}); return;
+    case "rm": { const m = S.items.get(a.dataset.id); if (m) { m.macros = (m.macros || []).filter(y => y !== mac); if (!m.macros.length) removeItem(m.id); else persist(m); } break; }
+    case "set": { const x = (S.msCand || [])[+a.dataset.i]; if (x) { msToggle(x, mac, true); toast(`${x.name} steht jetzt bei ${msLabel(mac)}.`); } break; }
+    case "also": { const m = S.items.get(a.dataset.id); if (m && !(m.macros || []).includes(mac)) { m.macros = [...(m.macros || []), mac]; persist(m); toast(`${m.title} steht jetzt auch bei ${msLabel(mac)}.`); } break; }
+    case "more": S.msMore = !S.msMore; break;
+    default: return;
+  }
+  renderMain();
+});
 
 // ---- Eigene Korrekturen an Lebensmitteln aus der Datenbank ----
 // Versteckter Eintrag kind "fdfix" (in HIDDEN_K) pro Lebensmittel: ref "ch:<id>" oder "off:<code>", name (leer = Name aus der Datenbank), n pro 100 g.
@@ -5322,6 +5409,7 @@ document.addEventListener("click", e => {
         case "unit": { const u = ntUnits(N.sel), g = ntSelG(), i = +a.dataset.i; N.unit = i; N.qty = i === 0 ? ntR(g, 1) || 100 : 1; ntSheet(); return; }
         case "addit": ntAddSel(); return;
         case "pickdo": ntPickDo(); return;
+        case "msdo": msDo(); return;
         case "quick": ntQuickAdd(); return;
         case "scan": N.scan = true; N.camOff = false; N.notFound = null; N.scanMsg = ""; N.sel = null; ntSheet(); return;
         case "code": { const v = String(($("#nt-code") || {}).value || "").replace(/\s/g, ""); if (/^\d{6,14}$/.test(v)) ntFound(v); else toast("Ein Barcode hat 8 bis 13 Ziffern."); return; }
