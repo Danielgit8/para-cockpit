@@ -1,7 +1,7 @@
 {
-  "name": "PARA Cockpit",
-  "short_name": "Cockpit",
-  "description": "Habits, Aufgaben, Projekte, Bereiche, Ressourcen und Notizen – verknüpft und offline nutzbar.",
+  "name": "Life OS",
+  "short_name": "Life OS",
+  "description": "Ziele, Training, Ernährung, Geld und Content an einem Ort, offline nutzbar.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

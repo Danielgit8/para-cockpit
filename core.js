@@ -285,8 +285,38 @@ function csSrcGuess(url){
   return "web";
 }
 
+// ---- Geld (14.11.2026): Lebensmittel-Kosten und Finanz-Kategorien ----
+// Deutsche Eingabe lesen: „1,29“, „1.250“, „12,50 €“. Leer oder Unsinn = null.
+function moneyNum(v){
+  if (typeof v === "number") return isFinite(v) ? v : null;
+  let s = String(v ?? "").replace(/[€\s]/g, "");
+  if (!s) return null;
+  if (/,/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  const n = +s; return isFinite(n) ? n : null;
+}
+// Was eine Menge kostet: Preis für eine Packung mit pack Gramm, davon g Gramm.
+// Ohne Packungsgröße oder ohne Gramm (schnell eingetragen) gilt der Preis für den ganzen Eintrag.
+function foodCost(g, price, pack){
+  const p = moneyNum(price); if (p == null) return null;
+  const k = moneyNum(pack), gr = +g || 0;
+  if (!k || k <= 0 || !gr) return p;
+  return p / k * gr;
+}
+// Kosten einer Woche: für jeden Wochentag (1 = Montag) der Plan, der ihm zugeordnet ist, sonst der Standardplan.
+function weekCost(plans, fallbackId, dayCost){
+  const L = plans || [], fb = L.find(p => p.id === fallbackId) || L[0];
+  let sum = 0;
+  for (let d = 1; d <= 7; d++) { const p = L.find(x => (x.days || []).includes(d)) || fb; if (p) sum += dayCost(p) || 0; }
+  return sum;
+}
+// Summe der Ausgaben eines Monats (mk = "2026-11"), optional nur eine Kategorie
+function spentIn(list, mk, cat){
+  return (list || []).filter(s => s && String(s.date || "").startsWith(mk) && (!cat || s.cat === cat)).reduce((t, s) => t + (moneyNum(s.amount) || 0), 0);
+}
+
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, CS_CHECKS, csChecksOk, csCanStatus, csGateOk, csBalance, csKeepIds, csSrcGuess};
+  CS_STATUS, CS_CHECKS, csChecksOk, csCanStatus, csGateOk, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -344,3 +344,30 @@ test("csSrcGuess: Art aus dem Link", () => {
   assert.equal(C.csSrcGuess("https://wikipeatia.org/wiki/Main_Page"), "web");
   assert.equal(C.csSrcGuess(""), "creator");
 });
+
+/* ---------- Geld: Lebensmittel-Kosten und Ausgaben (14.11.2026) ---------- */
+test("moneyNum liest deutsche Beträge", () => {
+  assert.equal(C.moneyNum("1,29"), 1.29);
+  assert.equal(C.moneyNum("1.250"), 1250);
+  assert.equal(C.moneyNum("12,50 €"), 12.5);
+  assert.equal(C.moneyNum("3.5"), 3.5);
+  assert.equal(C.moneyNum(""), null);
+  assert.equal(C.moneyNum("abc"), null);
+});
+test("foodCost rechnet Preis pro Packung auf die Menge um", () => {
+  assert.equal(C.foodCost(250, "1,29", 500), 0.645);
+  assert.equal(C.foodCost(0, "2", 500), 2);      // schnell eingetragen: Preis für den Eintrag
+  assert.equal(C.foodCost(100, "2", ""), 2);     // ohne Packung: Preis für den Eintrag
+  assert.equal(C.foodCost(100, "", 500), null);  // ohne Preis: unbekannt
+});
+test("weekCost nimmt pro Wochentag den zugeordneten Plan", () => {
+  const plans = [{id:"a", c:5}, {id:"b", c:8, days:[6, 7]}];
+  assert.equal(C.weekCost(plans, "a", p => p.c), 5 * 5 + 8 * 2);
+  assert.equal(C.weekCost([{id:"a", c:4}], "a", p => p.c), 28);
+  assert.equal(C.weekCost([], "", p => 1), 0);
+});
+test("spentIn summiert einen Monat und eine Kategorie", () => {
+  const L = [{date:"2026-11-02", amount:"10,50", cat:"food"}, {date:"2026-11-20", amount:4, cat:"online"}, {date:"2026-10-31", amount:99, cat:"food"}];
+  assert.equal(C.spentIn(L, "2026-11"), 14.5);
+  assert.equal(C.spentIn(L, "2026-11", "food"), 10.5);
+});

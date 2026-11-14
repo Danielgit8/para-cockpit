@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>PARA Cockpit</title>
+<title>Life OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Pinyon+Script&display=swap">
@@ -1773,6 +1773,42 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
   .bottom button svg{width:19px;height:19px}
   .bottom button.on{box-shadow:inset 0 2px 0 var(--bordeaux)}
 }
+
+/* ===== Geld und Essenskosten (14.11.2026) ===== */
+.nav-lbl{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:14px 12px 4px}
+.gd-month{display:flex;align-items:center;gap:8px;margin:0 0 14px}.gd-month b{font-size:16px;min-width:140px;text-align:center}
+.gd-cat{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid var(--line);cursor:pointer}
+.gd-cat:first-of-type{border-top:0}.gd-cat:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:8px}
+.gd-e{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--soft);font-size:17px;line-height:1}
+.gd-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.gd-t small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.gd-t i{display:block;height:5px;border-radius:999px;background:var(--soft);overflow:hidden;margin-top:3px}.gd-t em{display:block;height:100%;border-radius:999px;background:var(--ink)}
+.gd-cat.over .gd-t em{background:var(--late)}.gd-cat.over .gd-a{color:var(--late)}
+.gd-a{flex:none;font-weight:700;text-align:right;display:flex;flex-direction:column;align-items:flex-end}.gd-a small{font-weight:500;color:var(--muted);font-size:12px}
+.gd-cr{display:grid;grid-template-columns:56px minmax(0,1fr) 150px 34px;gap:8px;align-items:end;padding:8px 0;border-top:1px solid var(--line)}.gd-cr:first-child{border-top:0}
+.gd-em{text-align:center;font-size:18px;padding-left:4px;padding-right:4px}
+.gd-cb{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.gd-cb .field{font-size:14px;font-weight:500;color:var(--text)}
+.gd-fix{font-size:12px;text-align:center;align-self:center}
+.gd-links{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 18px}
+.gd-filter{flex-wrap:wrap}
+.pl-days{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:14px}
+.fp-miss{margin:10px 0 0}
+.fp-rows{margin-top:14px}
+.fp-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 110px 90px;gap:10px;align-items:end;padding:10px 0;border-top:1px solid var(--line)}
+.fp-row:first-child{border-top:0}
+.fp-n{display:flex;flex-direction:column;gap:2px;min-width:0;align-self:center}.fp-n b{overflow-wrap:anywhere}.fp-n small{color:var(--muted);font-size:12.5px}
+.fp-in{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.fp-in .field{font-size:14px;font-weight:500;color:var(--text)}
+.fp-q{align-self:center;font-size:12px}
+.fp-c{text-align:right;font-weight:700;display:flex;flex-direction:column;align-items:flex-end;align-self:center}.fp-c small{font-weight:500;color:var(--muted);font-size:12px}
+.fp-row.miss .fp-c{color:var(--muted)}
+button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+@media (max-width:560px){
+  .fp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:8px}
+  .fp-n{grid-column:1/-1}.fp-c{grid-column:1/-1;flex-direction:row;gap:6px;justify-content:flex-end;align-items:baseline}
+  .gd-cr{grid-template-columns:56px minmax(0,1fr) 34px}.gd-cb{grid-column:1/-1;grid-row:2}
+  .gd-month b{min-width:0;flex:1}
+}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1795,7 +1831,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-13.6";
+const APP_VERSION = "2026-11-14.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1846,6 +1882,7 @@ const P = {
   grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01", left:"M15 5l-7 7 7 7", right:"M9 5l7 7-7 7", cal:"M4 5h16v15H4zM8 3v4M16 3v4M4 10h16", img:"M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01", scan:"M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M8 8v8M11 8v8M14 8v8M17 8v8", pulse:"M3 12h4l3-7 4 14 3-7h4", food:"M12 8c-2.2-1.8-7-1.6-7 3.3C5 15.6 8 20 10.4 20c.8 0 1-.4 1.6-.4s.8.4 1.6.4C16 20 19 15.6 19 11.3 19 6.4 14.2 6.2 12 8zM12 8c0-2 .8-3.6 2.6-4.6", dumbbell:"M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12",
   up:"M12 19V5M6 11l6-6 6 6", down:"M12 5v14M6 13l6 6 6-6", copy:"M9 9h11v11H9zM5 15V4h11",
   board:"M3 4h18v12H3zM12 16v4M8 20h8M7 8h6M7 11h4", layout:"M4 4h16v16H4zM4 10h16M10 10v10", sticky:"M5 4h14v10l-6 6H5zM13 20v-6h6",
+  wallet:"M4 7a2 2 0 0 1 2-2h12v3M4 7v11a2 2 0 0 0 2 2h14V8H6a2 2 0 0 1-2-1zM16 14h.01",
   play:"M7 5l12 7-12 7z", chart:"M4 4v16h16M7 15l4-4 3 3 6-7", clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2", pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", tip:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3", star:"M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z"
 };
 const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || P.folder}"/></svg>`;
@@ -1882,7 +1919,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource"];
+const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -2352,7 +2389,7 @@ function authMsg(e){
 function loginHTML(){
   const reg = S.authMode === "signup";
   return `<div class="login"><div class="card login-card">
-    <div class="brand" style="padding:0 0 22px"><span class="brand-mark">P</span>PARA Cockpit</div>
+    <div class="brand" style="padding:0 0 22px"><span class="brand-mark">L</span>Life OS</div>
     <h1 class="login-h">${reg ? "Konto erstellen" : "Anmelden"}</h1>
     <p class="hint">${reg ? "Einmalig: meine E-Mail und ein Passwort mit mindestens 8 Zeichen." : "Mit E-Mail und Passwort. Danach funktioniert die App auch ohne Internet."}</p>
     <form id="login-form" class="login-form" novalidate>
@@ -2397,10 +2434,12 @@ function navGroups(){
   const gs = [
     // Umbau 13.11.2026 (Quiz mit ihm): Heute, Ziele, Lesestoff, Content & Finanzen, Körper. Journal, Boards und Werkzeuge liegen am Handy unter „Mehr“.
     {id:"today", label:"Heute", icon:"sun", views:[v("today", "Heute", "sun")]},
+    // 14.11.2026 (sein Wunsch, flacher): unten Heute · Ziele · Körper · Geld · Content, Lesestoff wandert mit Journal, Boards, Werkzeuge unter „Mehr“.
     {id:"weg", label:"Meine Ziele", short:"Ziele", icon:"compass", views:[v("weg", "Meine Ziele", "compass")]},
-    {id:"lese", label:"Lesestoff", icon:"book", views:[v("lese", "Lesestoff", "book")]},
-    {id:"brand", label:"Content & Finanzen", short:"Content", icon:"star", views:[v("brand", "Content & Finanzen", "star")]},
     {id:"koerper", label:"Körper", icon:"dumbbell", views:[v("training", "Training", "dumbbell"), v("food", "Ernährung", "food")]},
+    {id:"geld", label:"Geld", icon:"wallet", views:[v("geld", "Geld", "wallet")]},
+    {id:"brand", label:"Content", icon:"star", views:[v("brand", "Content", "star")]},
+    {id:"lese", label:"Lesestoff", icon:"book", views:[v("lese", "Lesestoff", "book")]},
     {id:"journal", label:"Journal", icon:"pen", views:[v("journal", "Journal", "pen")]},
     {id:"boards", label:"Boards", icon:"board", views:[v("board", "Boards", "board")]},
     {id:"tools", label:"Werkzeuge", icon:"tools", views:[v("tools", "Werkzeuge", "tools"), ...toolViews(k).flatMap(g => g.views)]},
@@ -2442,14 +2481,14 @@ function renderSide(){
   const gs = navGroups(), cur = groupOf(S.view), hide = new Set(S.settings.navHide || []);
   const extra = [...(hide.has("tags") ? [] : [{v:"tags", label:"Stichwörter", icon:"tag"}]), {v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"}];
   $("#side").innerHTML = `
-    <div class="brand"><span class="brand-mark">D</span>Daniel Cockpit</div>
-    ${gs.map(g => `<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
+    <div class="brand"><span class="brand-mark">L</span>Life OS</div>
+    ${gs.map(g => `${g.id === "lese" ? `<div class="nav-lbl">Mehr</div>` : ""}<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
       ${cur && cur.id === g.id && g.views.length > 1 && g.id !== "tools" ? `<div class="nav-subs">${g.views.map(x => `<button class="nav-sub ${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>` : ""}`).join("")}
     <button class="nav" data-cs="gcap" title="Strg + Umschalt + I">${ic("plus")}<span>Idee festhalten</span></button>
     <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
     <div class="side-foot" id="side-status"></div>`;
   // Handy-Leiste: fünf feste Bereiche, der Rest steckt hinter „Mehr“ (öffnet die Seitenleiste)
-  const inMore = g => g.id === "journal" || g.id === "boards" || g.id === "tools", moreOn = !cur || inMore(cur);
+  const inMore = g => g.id === "lese" || g.id === "journal" || g.id === "boards" || g.id === "tools", moreOn = !cur || inMore(cur);
   $("#bottom").innerHTML = gs.filter(g => !inMore(g)).map(g => `<button class="${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.short || g.label)}</span></button>`).join("")
     + `<button class="${moreOn ? "on" : ""}" data-act="menu">${ic("menu")}<span>Mehr</span></button>`;
   renderStatus();
@@ -2503,7 +2542,8 @@ function viewHTML(){
   if (v === "training") return trainingHTML();
   if (v === "food") return foodHTML();
   if (v === "brand") return brandHTML();
-  if (v === "kosten") { S.view = "brand"; S.brTab = "fin"; try { localStorage.setItem("brTab", "fin"); } catch(e){} finToCost(); return brandHTML(); }
+  if (v === "kosten") { S.view = "geld"; S.gdTab = "abo"; try { localStorage.setItem("gdTab", "abo"); } catch(e){} return geldHTML(); }
+  if (v === "geld") return geldHTML();
   if (v === "board") return boardsHTML();
   if (v === "tags") return tagsHTML();
   if (v === "task") return tasksHTML();
@@ -3642,10 +3682,14 @@ function srOpen(id){
   if (it.kind === "workout") { if (S.open) closeOverlay(); S.trWo = id; S.trTab = "log"; go("training"); return; }
   if (it.kind === "food" || it.kind === "recipe") { if (S.open) closeOverlay(); const r = it.kind === "recipe"; S.fdTab = r ? "rec" : "food"; if (r) { S.rcOpen = id; S.rcEdit = false; } else S.fdOpen = id;
     try { localStorage.setItem("fdTab2", S.fdTab); } catch(e){} go("food"); return; }
-  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", csource:"quellen", video:"studio", contact:"studio", income:"fin", cost:"fin"}[it.kind];
+  if (it.kind === "income" || it.kind === "cost" || it.kind === "spend") { if (S.open) closeOverlay();
+    S.gdTab = {income:"inc", cost:"abo", spend:"spend"}[it.kind]; S.brOpen = id; S.gdOpen = id; if (it.kind === "spend" && it.date) S.gdMk = it.date.slice(0, 7);
+    try { localStorage.setItem("gdTab", S.gdTab); } catch(e){} go("geld"); return; }
+  if (it.kind === "fprice") { if (S.open) closeOverlay(); S.fdTab = "plan"; try { localStorage.setItem("fdTab2", "plan"); } catch(e){} go("food"); return; }
+  const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", csource:"quellen", video:"studio", contact:"studio"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; const u = csU();
     if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { u.open = null; u.tab = "all"; u.idea = id; } else if (it.kind === "csource") u.src = id;
-    try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); if (it.kind === "cost") finToCost(); return; }
+    try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
   S.dBack = []; openDetailFresh(id);
 }
 function searchHTML(){
@@ -4335,8 +4379,8 @@ function foodHTML(){
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
   const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML}[S.fdTab] || ntDiaryHTML;
-  return header("Ernährung", "Kalorien zählen, Ernährungsplan, Lebensmittel, Rezepte und meine Ziele an einem Ort") + banner() +
-    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
+  return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Lebensmittel, Rezepte und meine Ziele") + banner() +
+    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
 function fdListHTML(){
   const day = S.fdDay || 0;
@@ -4786,7 +4830,7 @@ function plStatHTML(t, g){
 }
 function plEntryHTML(e){
   const open = S.plOpen === e.id, q = e.src === "quick", kc = Math.round((e.n && e.n.kcal || 0) * ntFac(e)), arm = S.plDel === e.id;
-  return `<button class="nt-e pl-e ${open ? "open" : ""}" data-pl="eopen" data-id="${e.id}" aria-expanded="${open}">${ntImg(e)}<span class="nt-et"><b>${esc(e.name || "Ohne Namen")}</b><small>${esc([e.brand, ntAmt(e)].filter(Boolean).join(" · "))}</small></span><span class="nt-ek num">${bsFmt(kc)} <small>kcal</small></span></button>` +
+  return `<button class="nt-e pl-e ${open ? "open" : ""}" data-pl="eopen" data-id="${e.id}" aria-expanded="${open}">${ntImg(e)}<span class="nt-et"><b>${esc(e.name || "Ohne Namen")}</b><small>${esc([e.brand, ntAmt(e), fpChip(e)].filter(Boolean).join(" · "))}</small></span><span class="nt-ek num">${bsFmt(kc)} <small>kcal</small></span></button>` +
     (open ? `<div class="nt-ef br-ed"><label class="br-wide">Name<input class="field" id="ple-n-${e.id}" data-keep data-plv="name" data-id="${e.id}" value="${esc(e.name || "")}"></label>
       ${q ? `<label>Kalorien<input class="field num" id="ple-k-${e.id}" data-keep inputmode="decimal" data-plv="kcal" data-id="${e.id}" value="${esc(bsIn(e.n.kcal))}"></label>`
           : `<label>Menge in Gramm<input class="field num" id="ple-g-${e.id}" data-keep inputmode="decimal" data-plv="g" data-id="${e.id}" value="${esc(bsIn(e.g))}"></label>`}
@@ -4814,9 +4858,12 @@ function plHTML(){
     `<section class="card pl-head"><input class="field pl-title" id="pl-title" data-keep data-plp="title" value="${esc(p.title || "")}" placeholder="Name des Plans" aria-label="Name des Plans">
       ${plStatHTML(t, g)}
       <p class="hint" style="margin:12px 0 0">${g.kcal ? "Summe aller Mahlzeiten im Plan, daneben mein Tagesziel aus „Ziele & Verbrauch“." : "Summe aller Mahlzeiten im Plan. Ein Kalorienziel hab ich noch nicht eingetragen, das geht unter „Ziele & Verbrauch“."}</p>
+      ${L.length > 1 ? `<div class="pl-days"><span class="muted">So ess ich am</span>${WD.map((w, i) => `<button class="pill ${(p.days || []).includes(i + 1) ? "on" : ""}" data-pl="pday" data-d="${i + 1}" aria-pressed="${(p.days || []).includes(i + 1)}">${w}</button>`).join("")}</div>
+      <p class="hint" style="margin:6px 0 0">Tage ohne Plan zählen mit dem Plan, der gerade offen ist. Daraus rechnet die App die Kosten pro Woche.</p>` : ""}
       <div class="pl-acts"><button class="pill" data-pl="copy">${ic("copy")}Plan kopieren</button><button class="pill" data-pl="new" data-tpl="1">${ic("plus")}Neuer Plan</button><span class="grow"></span><button class="pill" data-pl="pdel" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Plan löschen"}</button></div></section>
     <div class="pl-meals">${meals.map(plMealHTML).join("")}</div>
     <button class="ns-more pl-madd" data-pl="madd">${ic("plus")}Mahlzeit hinzufügen</button>
+    ${plCostHTML(p)}
     <section class="card pl-note"><div class="card-h"><h2>Notizen zum Plan</h2></div>
       <textarea class="field" id="pl-note" data-keep data-plp="note" rows="4" placeholder="Zum Beispiel, was ich vorkoche oder worauf ich achte">${esc(p.note || "")}</textarea>
       ${plShotsHTML(p)}
@@ -4856,6 +4903,10 @@ document.addEventListener("click", e => {
   switch (act) {
     case "new": plNew(!!a.dataset.tpl); break;
     case "pick": plSet(id); break;
+    case "pday": if (p) { const d = +a.dataset.d, on = (p.days || []).includes(d);
+      p.days = on ? p.days.filter(x => x !== d) : [...(p.days || []), d].sort();
+      if (!on) for (const o of plPlans()) if (o.id !== p.id && (o.days || []).includes(d)) { o.days = o.days.filter(x => x !== d); persist(o); }
+      persist(p); } break;
     case "copy": if (p) { const c = create("mplan", (p.title || "Plan") + " (Kopie)", {note: p.note || "", meals: clone(p.meals || []).map(m => ({...m, id: uid(), items: (m.items || []).map(x => ({...x, id: uid()}))}))}); plSet(c.id); toast("Plan kopiert"); } break;
     case "pdel": if (!p) break; if (S.plDel !== p.id) { S.plDel = p.id; break; } { const paths = (p.shots || []).map(f => f.path).filter(Boolean); if (sb && paths.length) sb.storage.from("files").remove(paths).catch(() => {}); }
       removeItem(p.id); S.plId = ""; S.plDel = null; S.plOpen = null; toast("Plan gelöscht"); break;
@@ -5396,18 +5447,190 @@ function brandHTML(){
   if (!S.brTab) { try { S.brTab = localStorage.getItem("brTab") || "studio"; } catch (e) { S.brTab = "studio"; } }
   // Überblick und Videos gibt es seit dem 13.11.2026 nicht mehr, alte Reiter landen im Content Studio.
   // Einnahmen und Kosten sind seit demselben Tag ein Reiter „Finanzen“ (sein Wunsch).
-  if (S.brTab === "inc" || S.brTab === "cost") S.brTab = "fin";
-  if (!["studio", "quellen", "fin"].includes(S.brTab)) S.brTab = "studio";
+  // Finanzen sind seit 14.11.2026 eine eigene Seite „Geld“.
+  if (!["studio", "quellen"].includes(S.brTab)) S.brTab = "studio";
   const tab = S.brTab, open = csPieces().filter(p => p.status !== "live").length;
   const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-bact="tab" data-v="${v}">${l}</button>`;
-  const out = header("Content & Finanzen", "Zielgruppe, Ideen, Quellen, Pipeline und Geld") + banner() +
-    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("quellen", "Quellen")}${seg("fin", "Finanzen")}</div>`;
+  const out = header("Content", "Zielgruppe, Ideen, Quellen und Pipeline") + banner() +
+    `<div class="tr-seg">${seg("studio", `Content Studio${open ? ` <span class="num">${open}</span>` : ""}`)}${seg("quellen", "Quellen")}</div>`;
   if (tab === "quellen") return out + csSrcHTML();
-  if (tab === "fin") return out + `<div class="ns-lbl fin-h">Einnahmen</div>` + brIncomeHTML() + `<div class="ns-lbl fin-h" id="fin-kosten">Kosten</div>` + brCostHTML();
   return out + csHTML();
 }
-// Von der Kosten-Erinnerung auf Heute oder aus der Suche direkt zum Abschnitt Kosten springen
-const finToCost = () => setTimeout(() => { const n = $("#fin-kosten"); if (n) n.scrollIntoView({block:"start"}); }, 80);
+
+/* ================= Was mein Essen kostet (14.11.2026, sein Wunsch) =================
+   Preis + Packungsgröße pro Lebensmittel als versteckter Eintrag kind "fprice" (key wie ntKey: "<src>:<id>", schnell eingetragen "quick:<name>", title, price, pack).
+   Der Plan rechnet daraus Kosten pro Tag, Woche und Monat (PC.foodCost, PC.weekCost). Die Seite „Geld“ nimmt das als Soll für die Kategorie Lebensmittel. */
+const eur = n => (+n || 0).toLocaleString("de-DE", {style:"currency", currency:"EUR"});
+const fpKey = e => e.src === "quick" ? `quick:${ntNorm(e.name)}` : e.src && e.ref ? `${e.src}:${e.ref}` : `name:${ntNorm(e.name)}`;
+const fpMap = () => new Map(live("fprice").map(x => [x.key, x]));
+const fpCostOf = (e, M = fpMap()) => { const f = M.get(fpKey(e)); return f ? PC.foodCost(e.src === "quick" ? 0 : e.g, f.price, f.pack) : null; };
+const fpChip = e => { const c = fpCostOf(e); return c == null ? "" : eur(c); };
+function plDayCost(p, M = fpMap()){
+  let sum = 0, miss = 0;
+  for (const m of p.meals || []) for (const e of m.items || []) { const c = fpCostOf(e, M); if (c == null) miss++; else sum += c; }
+  return {sum, miss};
+}
+const fdWeekCost = (M = fpMap()) => PC.weekCost(plPlans(), (plCur() || {}).id, p => plDayCost(p, M).sum);
+function plCostHTML(p){
+  const M = fpMap(), rows = new Map();
+  for (const m of plMeals(p)) for (const e of m.items || []) {
+    const k = fpKey(e), r = rows.get(k) || {k, e, g:0, n:0, cost:0, known:true};
+    r.g += e.src === "quick" ? 0 : (+e.g || 0); r.n++;
+    const c = fpCostOf(e, M); if (c == null) r.known = false; else r.cost += c;
+    rows.set(k, r);
+  }
+  const day = plDayCost(p, M), week = fdWeekCost(M), L = plPlans();
+  const list = [...rows.values()].sort((a, b) => (a.known - b.known) || b.cost - a.cost);
+  const sid = k => k.replace(/[^a-z0-9]/gi, "_");
+  return `<section class="card fp-card"><div class="card-h"><h2>Was mein Essen kostet</h2></div>
+    <div class="bs-kpis"><div><span>Pro Tag</span><b class="num">${eur(day.sum)}</b><small>${esc(p.title || "dieser Plan")}</small></div>
+      <div><span>Pro Woche</span><b class="num">${eur(week)}</b><small>${L.length > 1 ? "alle Pläne nach Wochentag" : "7 Tage mit diesem Plan"}</small></div>
+      <div><span>Pro Monat</span><b class="num">${eur(week / 7 * 30)}</b><small>gerechnet auf 30 Tage</small></div></div>
+    ${day.miss ? `<p class="hint fp-miss">Bei ${day.miss} ${day.miss === 1 ? "Eintrag fehlt" : "Einträgen fehlt"} noch der Preis, die Summe ist deshalb zu niedrig.</p>` : ""}
+    ${list.length ? `<div class="fp-rows">${list.map(r => { const f = M.get(r.k) || {}, q = r.e.src === "quick";
+      return `<div class="fp-row ${r.known ? "" : "miss"}"><span class="fp-n"><b>${esc(r.e.name || "Ohne Namen")}</b><small>${q ? `${r.n}× am Tag` : `${bsFmt(Math.round(r.g))} g am Tag`}</small></span>
+        <label class="fp-in"><span>Preis in €</span><input class="field num" id="fp-p-${sid(r.k)}" data-keep inputmode="decimal" data-fp="price" data-k="${esc(r.k)}" data-n="${esc(r.e.name || "")}" value="${esc(f.price ?? "")}" placeholder="1,29"></label>
+        ${q ? `<span class="fp-in fp-q muted">Preis gilt pro Stück</span>` : `<label class="fp-in"><span>Packung in g</span><input class="field num" id="fp-k-${sid(r.k)}" data-keep inputmode="decimal" data-fp="pack" data-k="${esc(r.k)}" data-n="${esc(r.e.name || "")}" value="${esc(f.pack ?? "")}" placeholder="500"></label>`}
+        <span class="fp-c num">${r.known ? eur(r.cost) : "–"}<small>${r.known ? "am Tag" : "Preis fehlt"}</small></span></div>`; }).join("")}</div>`
+      : `<div class="empty">Im Plan steht noch nichts. Sobald ich Lebensmittel eintrage, kann ich hier die Preise ergänzen.</div>`}
+    <p class="hint" style="margin:12px 0 0">Preis und Packungsgröße trag ich einmal ein, so wie sie auf dem Kassenzettel oder am Regal stehen. Ohne Packungsgröße gilt der Preis für die ganze Menge im Plan. Was ich wirklich ausgebe, landet unter <button class="xref" data-gd="go">Geld</button>.</p></section>`;
+}
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || !t.dataset.fp) return;
+  const k = t.dataset.k, v = t.value.trim(); let f = fpMap().get(k);
+  if (!f) { if (!v) return; f = create("fprice", t.dataset.n || k, {key:k, price:"", pack:""}); }
+  f[t.dataset.fp] = v; persist(f); plLater();
+});
+
+/* ================= Geld (14.11.2026, sein Wunsch: eigener Finanztracker, verbunden mit dem Ernährungsplan) =================
+   Eigene Seite statt Reiter auf Content. Reiter Überblick · Ausgaben · Abos · Einnahmen (S.gdTab, localStorage gdTab).
+   Kategorien in settings.fin.cats [{id, name, emoji, budget}], die Standardliste wird erst beim ersten Bearbeiten gespeichert (wie DEF_PLANS).
+   Ausgabe = versteckter Eintrag kind "spend" (title, amount, cat, date). Abos sind die "cost"-Einträge und zählen zur Kategorie "abo".
+   Lebensmittel: Soll aus dem Ernährungsplan (fdWeekCost), Ist = eingetragene Einkäufe. Vorbild: Kategorien mit Budget wie bei Finanzguru und YNAB. */
+const FIN_DEF = [
+  {id:"food", name:"Lebensmittel", emoji:"🛒", budget:""},
+  {id:"abo", name:"Abos", emoji:"🔁", budget:""},
+  {id:"online", name:"Online-Bestellungen", emoji:"📦", budget:""},
+  {id:"out", name:"Essen unterwegs", emoji:"🍔", budget:""},
+  {id:"fun", name:"Freizeit", emoji:"🎮", budget:""},
+  {id:"other", name:"Sonstiges", emoji:"🧾", budget:""},
+];
+const FIN_FIXED = ["food", "abo"];
+const finCats = () => S.settings.fin && Array.isArray(S.settings.fin.cats) && S.settings.fin.cats.length ? S.settings.fin.cats : FIN_DEF;
+function finOwn(){ if (!S.settings.fin || !Array.isArray(S.settings.fin.cats) || !S.settings.fin.cats.length) S.settings.fin = {...(S.settings.fin || {}), cats: clone(FIN_DEF)}; return S.settings.fin.cats; }
+const finCat = id => finCats().find(c => c.id === id) || {id, name:"Ohne Kategorie", emoji:"🧾"};
+const finMk = () => S.gdMk || dkey().slice(0, 7);
+const finDaysIn = mk => new Date(+mk.slice(0, 4), +mk.slice(5, 7), 0).getDate();
+const finIst = (c, mk) => PC.spentIn(live("spend"), mk, c.id) + (c.id === "abo" ? coMonth(mk) : 0);
+function geldHTML(){
+  if (!S.gdTab) { try { S.gdTab = localStorage.getItem("gdTab") || "over"; } catch(e) { S.gdTab = "over"; } }
+  if (!["over", "spend", "abo", "inc"].includes(S.gdTab)) S.gdTab = "over";
+  const mk = finMk(), tab = S.gdTab;
+  const seg = (v, l) => `<button class="pill ${tab === v ? "on" : ""}" data-gd="tab" data-v="${v}">${l}</button>`;
+  const head = header("Geld", "Was reinkommt, was rausgeht und was mein Essen kostet") + banner() +
+    `<div class="tr-seg">${seg("over", "Überblick")}${seg("spend", "Ausgaben")}${seg("abo", "Abos")}${seg("inc", "Einnahmen")}</div>`;
+  if (tab === "abo") return head + brCostHTML();
+  if (tab === "inc") return head + brIncomeHTML();
+  const month = `<div class="gd-month"><button class="ibtn" data-gd="mk" data-d="-1" aria-label="Monat davor">${ic("left")}</button><b>${esc(brMonth(mk))} ${mk.slice(0, 4)}</b><button class="ibtn" data-gd="mk" data-d="1" aria-label="Nächster Monat">${ic("right")}</button>${mk !== dkey().slice(0, 7) ? `<button class="pill" data-gd="mk" data-d="0">Dieser Monat</button>` : ""}</div>`;
+  return head + month + (tab === "spend" ? gdSpendHTML(mk) : gdOverHTML(mk));
+}
+function gdAddHTML(){
+  const cats = finCats(), last = S.gdLastCat || "food";
+  return `<section class="card"><div class="card-h"><h2>Ausgabe eintragen</h2></div>
+    <div class="br-ed gd-add"><label>Betrag in €<input class="field num" id="gd-a" data-keep inputmode="decimal" placeholder="12,50"></label>
+      <label>Kategorie<select class="field" id="gd-c" data-keep>${cats.map(c => `<option value="${esc(c.id)}" ${c.id === last ? "selected" : ""}>${esc((c.emoji ? c.emoji + " " : "") + c.name)}</option>`).join("")}</select></label>
+      <label>Was<input class="field" id="gd-t" data-keep placeholder="z. B. Wocheneinkauf"></label>
+      <label>Datum<input class="field" type="date" id="gd-d" data-keep value="${dkey()}"></label>
+      <div class="br-ed-f"><button class="btn" data-gd="add">${ic("plus")}Eintragen</button></div></div></section>`;
+}
+function gdOverHTML(mk){
+  const cats = finCats(), inc = brSum(mk), spent = PC.spentIn(live("spend"), mk) + coMonth(mk), week = fdWeekCost(), soll = week / 7 * finDaysIn(mk);
+  const row = c => { const ist = finIst(c, mk), b = PC.moneyNum(c.budget), pct = b ? Math.min(100, Math.round(ist / b * 100)) : 0;
+    const note = c.id === "food" ? (week ? `Laut Plan etwa ${eur(soll)} im Monat (${eur(week)} pro Woche)${ist ? `, ich lieg ${eur(Math.abs(ist - soll))} ${ist > soll ? "drüber" : "drunter"}` : ""}` : "Noch keine Preise im Ernährungsplan")
+      : c.id === "abo" ? "Kommt automatisch aus meinen Abos" : "";
+    return `<button class="gd-cat ${b && ist > b ? "over" : ""}" data-gd="cat" data-id="${esc(c.id)}"><span class="gd-e" aria-hidden="true">${esc(c.emoji || "🧾")}</span>
+      <span class="gd-t"><b>${esc(c.name)}</b>${note ? `<small>${esc(note)}</small>` : ""}${b ? `<i><em style="width:${pct}%"></em></i>` : ""}</span>
+      <span class="gd-a num">${eur(ist)}${b ? `<small>von ${eur(b)}</small>` : ""}</span></button>`; };
+  return `<section class="card"><div class="bs-kpis">
+      <div><span>Eingenommen</span><b class="num">${eur(inc)}</b><small>${esc(brMonth(mk))}</small></div>
+      <div><span>Ausgegeben</span><b class="num">${eur(spent)}</b><small>mit Abos</small></div>
+      <div><span>Plus/Minus</span><b class="num" style="${inc - spent < 0 ? "color:var(--late)" : ""}">${eur(inc - spent)}</b><small>was übrig bleibt</small></div>
+      <div><span>Essen laut Plan</span><b class="num">${eur(week)}</b><small>pro Woche</small></div></div></section>
+    ${gdAddHTML()}
+    <section class="card"><div class="card-h"><h2>Kategorien</h2><span class="grow"></span><button class="pill d-editbtn ${S.gdEdit ? "on" : ""}" data-gd="cedit">${ic(S.gdEdit ? "check" : "pen")}${S.gdEdit ? "Fertig" : "Bearbeiten"}</button></div>
+      ${S.gdEdit ? gdCatEditHTML() : cats.map(row).join("")}
+      ${S.gdEdit ? "" : `<p class="hint" style="margin:12px 0 0">Eine Kategorie antippen zeigt alle Ausgaben darin. Budgets und eigene Kategorien stell ich unter „Bearbeiten“ ein.</p>`}</section>
+    <div class="gd-links"><button class="pill" data-gd="toplan">${ic("food")}Plan & Kosten in der Ernährung</button></div>`;
+}
+function gdCatEditHTML(){
+  const cats = finCats();
+  return `<div class="gd-ced">${cats.map(c => `<div class="gd-cr">
+      <input class="field gd-em" id="gdc-e-${esc(c.id)}" data-keep data-gdc="emoji" data-id="${esc(c.id)}" value="${esc(c.emoji || "")}" aria-label="Emoji für ${esc(c.name)}" maxlength="4">
+      <input class="field gd-cn" id="gdc-n-${esc(c.id)}" data-keep data-gdc="name" data-id="${esc(c.id)}" value="${esc(c.name)}" aria-label="Name der Kategorie">
+      <label class="gd-cb"><span>Budget pro Monat</span><input class="field num" id="gdc-b-${esc(c.id)}" data-keep inputmode="decimal" data-gdc="budget" data-id="${esc(c.id)}" value="${esc(c.budget ?? "")}" placeholder="kein Budget"></label>
+      ${FIN_FIXED.includes(c.id) ? `<span class="gd-fix muted" title="Hängt am Ernährungsplan oder an den Abos">fest</span>` : `<button class="ibtn" data-gd="cdel" data-id="${esc(c.id)}" aria-label="Kategorie löschen" title="${S.gdDel === c.id ? "Nochmal tippen zum Löschen" : "Löschen"}" style="${S.gdDel === c.id ? "color:var(--late)" : ""}">${ic("trash")}</button>`}</div>`).join("")}</div>
+    <div class="add" style="margin-top:12px"><input id="gd-cnew" data-keep placeholder="Neue Kategorie, z. B. Kleidung" aria-label="Neue Kategorie"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-gd="cadd" aria-label="Kategorie speichern">${ic("plus")}</button></div>
+    <p class="hint" style="margin:10px 0 0">Lebensmittel und Abos bleiben, weil sie mit dem Ernährungsplan und den Abos verbunden sind. Name, Emoji und Budget kann ich trotzdem ändern.</p>`;
+}
+function gdSpendHTML(mk){
+  const cats = finCats(), f = S.gdCat || "";
+  const list = live("spend").filter(x => String(x.date || "").startsWith(mk) && (!f || x.cat === f)).sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.created || 0) - (a.created || 0));
+  const sum = list.reduce((t, x) => t + (PC.moneyNum(x.amount) || 0), 0);
+  const pill = (id, l) => `<button class="pill ${f === id ? "on" : ""}" data-gd="fcat" data-id="${esc(id)}">${esc(l)}</button>`;
+  const row = x => { const c = finCat(x.cat), open = S.gdOpen === x.id;
+    return `<div class="br-co"><button class="br-co-h" data-gd="open" data-id="${x.id}" aria-expanded="${open}"><span class="br-co-ic gd-e" aria-hidden="true">${esc(c.emoji || "🧾")}</span>
+        <span class="br-co-t"><b>${esc(x.title || c.name)}</b><small>${esc(c.name)} · ${esc(fmtLong(x.date || dkey()))}</small></span>
+        <span class="br-co-a num">${eur(PC.moneyNum(x.amount))}</span></button>
+      ${open ? `<div class="br-ed"><label>Betrag in €<input class="field num" id="gds-a-${x.id}" data-keep inputmode="decimal" data-gs="amount" data-id="${x.id}" value="${esc(x.amount ?? "")}"></label>
+        <label>Kategorie<select class="field" data-gs="cat" data-id="${x.id}">${cats.map(o => `<option value="${esc(o.id)}" ${o.id === x.cat ? "selected" : ""}>${esc((o.emoji ? o.emoji + " " : "") + o.name)}</option>`).join("")}</select></label>
+        <label>Was<input class="field" id="gds-t-${x.id}" data-keep data-gs="title" data-id="${x.id}" value="${esc(x.title || "")}"></label>
+        <label>Datum<input class="field" type="date" data-gs="date" data-id="${x.id}" value="${esc(x.date || "")}"></label>
+        <div class="br-ed-f"><button class="pill" data-gd="del" data-id="${x.id}" style="${S.gdDel === x.id ? "color:var(--late)" : ""}">${ic("trash")}${S.gdDel === x.id ? "Wirklich löschen?" : "Löschen"}</button><button class="btn" data-gd="open" data-id="${x.id}">Fertig</button></div></div>` : ""}</div>`; };
+  return gdAddHTML() + `<div class="tr-seg gd-filter">${pill("", "Alle")}${cats.filter(c => c.id !== "abo").map(c => pill(c.id, (c.emoji ? c.emoji + " " : "") + c.name)).join("")}</div>
+    <section class="card"><div class="card-h"><h2>${f ? esc(finCat(f).name) : "Alle Ausgaben"}</h2><span class="grow"></span><b class="num">${eur(sum)}</b></div>
+      ${list.length ? list.map(row).join("") : `<div class="empty">In ${esc(brMonth(mk))} hab ich hier noch nichts eingetragen.</div>`}
+      ${f === "food" ? `<p class="hint" style="margin:12px 0 0">Laut Ernährungsplan wären es etwa ${eur(fdWeekCost() / 7 * finDaysIn(mk))} in diesem Monat.</p>` : ""}
+      <p class="hint" style="margin:12px 0 0">Abos stehen im Reiter „Abos“ und zählen im Überblick automatisch mit.</p></section>`;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-gd]"); if (!a) return;
+  const act = a.dataset.gd, id = a.dataset.id, it = id && S.items.get(id);
+  if (act !== "del" && act !== "cdel") S.gdDel = null;
+  switch (act) {
+    case "go": go("geld"); return;
+    case "tab": S.gdTab = a.dataset.v; S.gdOpen = null; try { localStorage.setItem("gdTab", S.gdTab); } catch(er){} renderMain(); window.scrollTo({top:0}); return;
+    case "mk": { const d = +a.dataset.d; S.gdMk = d ? coAddM(finMk() + "-01", d).slice(0, 7) : ""; S.gdOpen = null; break; }
+    case "add": { const amt = PC.moneyNum(($("#gd-a") || {}).value), cat = ($("#gd-c") || {}).value || "other", t = (($("#gd-t") || {}).value || "").trim(), d = ($("#gd-d") || {}).value || dkey();
+      if (amt == null) { toast("Erst den Betrag eintragen."); const n = $("#gd-a"); if (n) n.focus(); return; }
+      create("spend", t || finCat(cat).name, {amount:amt, cat, date:d}); S.gdLastCat = cat;
+      $("#gd-a").value = ""; $("#gd-t").value = ""; toast(`${eur(amt)} bei ${finCat(cat).name} eingetragen`);
+      if (d.slice(0, 7) !== finMk()) S.gdMk = d.slice(0, 7); break; }
+    case "cat": if (id === "abo") { S.gdTab = "abo"; try { localStorage.setItem("gdTab", "abo"); } catch(er){} }
+      else { S.gdCat = id; S.gdTab = "spend"; try { localStorage.setItem("gdTab", "spend"); } catch(er){} } renderMain(); window.scrollTo({top:0}); return;
+    case "fcat": S.gdCat = id || ""; S.gdOpen = null; break;
+    case "open": S.gdOpen = S.gdOpen === id ? null : id; break;
+    case "del": if (S.gdDel === id) { removeItem(id); S.gdDel = null; S.gdOpen = null; toast("Gelöscht."); } else S.gdDel = id; break;
+    case "cedit": S.gdEdit = !S.gdEdit; break;
+    case "cadd": { const inp = $("#gd-cnew"), v = inp ? inp.value.trim() : ""; if (!v) { if (inp) inp.focus(); return; }
+      finOwn().push({id:uid(), name:v, emoji:"🧾", budget:""}); saveSettings(0); inp.value = ""; break; }
+    case "cdel": if (S.gdDel !== id) { S.gdDel = id; break; }
+      { const cs = finOwn(); S.settings.fin.cats = cs.filter(c => c.id !== id); saveSettings(0); S.gdDel = null;
+        for (const x of live("spend")) if (x.cat === id) { x.cat = "other"; persist(x); }
+        if (S.settings.fin.cats.length && !S.settings.fin.cats.some(c => c.id === "other")) S.settings.fin.cats.push({id:"other", name:"Sonstiges", emoji:"🧾", budget:""});
+        toast("Kategorie gelöscht, die Ausgaben stehen jetzt unter Sonstiges."); } break;
+    case "toplan": S.fdTab = "plan"; try { localStorage.setItem("fdTab2", "plan"); } catch(er){} go("food"); return;
+    default: return;
+  }
+  renderMain();
+});
+let gdT = null;
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.gdc) { const c = finOwn().find(x => x.id === t.dataset.id); if (!c) return; c[t.dataset.gdc] = t.dataset.gdc === "budget" ? t.value.trim() : t.value.trim() || c[t.dataset.gdc]; saveSettings(0); return; }
+  if (t.dataset.gs) { const x = S.items.get(t.dataset.id); if (!x) return; const k = t.dataset.gs;
+    if (k === "amount") { const n = PC.moneyNum(t.value); if (n == null) { toast("Das ist kein Betrag."); return; } x.amount = n; } else x[k] = t.value;
+    persist(x); clearTimeout(gdT); gdT = setTimeout(() => { if (S.view === "geld") renderMain(); }, 250); }
+});
 function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${id}">${ic("trash")}${S.brDel === id ? "Wirklich löschen?" : "Löschen"}</button>`; }
 
 /* ================= Content Studio (13.11.2026, ersetzt Überblick und Videos) =================
