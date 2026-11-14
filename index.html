@@ -1821,6 +1821,24 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 .ms-also{flex:none;font-size:12px;padding:4px 9px}
 .ms-card .nt-et b,.ms-card .nt-et small{white-space:normal;overflow:visible;text-overflow:clip}
 @media (max-width:560px){ .ms-pills{padding-left:62px} }
+
+/* ===== Quellen-Gruppen und Mikronährstoffe (14.11.2026) ===== */
+.ms-er{display:grid;grid-template-columns:minmax(0,1fr) 220px 34px;gap:8px;align-items:end;padding:8px 0;border-top:1px solid var(--line)}.ms-er:first-child{border-top:0}
+.ms-ek{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}.ms-ek .field{font-size:14px;font-weight:500;color:var(--text)}
+.ms-new{display:grid;grid-template-columns:minmax(0,1fr) 220px auto;gap:8px;margin-top:14px}
+.ms-other{width:auto;max-width:200px;padding-top:6px;padding-bottom:6px;font-size:13px}
+.nt-mic{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.nt-mic summary{cursor:pointer;font-weight:700;font-size:14px}
+.nt-mic-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;margin-top:10px}
+.nt-mic-g div{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0;border-bottom:1px solid var(--line)}
+.nt-mic-g span{color:var(--muted)}.nt-mic-g b small{font-weight:500;color:var(--muted);margin-left:6px;font-size:11.5px}
+.nt-mic-g div.src b small{color:var(--text);font-weight:700}
+.nt-mic-none{margin:12px 0 0}
+@media (max-width:560px){
+  .ms-er{grid-template-columns:minmax(0,1fr) 34px}.ms-ek{grid-column:1/-1;grid-row:2}
+  .ms-new{grid-template-columns:1fr}
+  .nt-mic-g{grid-template-columns:1fr}
+}
 </style>
 <style id="user-css"></style>
 </head>
@@ -1843,7 +1861,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-14.2";
+const APP_VERSION = "2026-11-14.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -4572,10 +4590,12 @@ function ntLoad(){
   if (NT.db) return Promise.resolve(NT.db);
   if (NT.loading) return NT.loading;
   const get = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
-  NT.loading = Promise.all([get("data/foods-ch.json"), get("data/foods-off.json")]).then(([ch, off]) => {
+  NT.loading = Promise.all([get("data/foods-ch.json"), get("data/foods-off.json"), get("data/foods-ch-micro.json")]).then(([ch, off, mi]) => {
     NT.loading = null; if (!ch && !off) return [];
     const L = [], nut = r => ({kcal:r[0], p:r[1], c:r[2], f:r[3], sug:r[4], fib:r[5], salt:r[6]});
-    if (ch) for (const r of ch.items) L.push(ntMake({src:"ch", id:r[0], name:r[1], syn:r[2], cat:ch.cats[r[3]], n:nut(r.slice(4, 11)), emoji:r[11], portion:r[12] || null}));
+    // Vitamine, Mineralstoffe und Fettsäuren der Schweizer Datenbank (seit 14.11.2026, gebaut mit food-db/build_micro.py)
+    const mic = id => { const v = mi && mi.items[id], o = {}; if (v) mi.f.forEach((k, i) => { if (v[i] != null) o[k] = v[i]; }); return o; };
+    if (ch) for (const r of ch.items) L.push(ntMake({src:"ch", id:r[0], name:r[1], syn:r[2], cat:ch.cats[r[3]], n:{...nut(r.slice(4, 11)), ...mic(r[0])}, emoji:r[11], portion:r[12] || null}));
     if (off) for (const r of off.items) L.push(ntMake({src:"off", id:r[0], code:r[0], name:r[1], brand:r[2], qty:r[3], serving:r[4], n:nut(r.slice(5, 12)), img: r[12] ? off.img + r[12] + ".200.jpg" : ""}));
     NT.db = L; NT.byCode = new Map(L.filter(x => x.code).map(x => [x.code, x])); NT.byId = new Map(L.filter(x => x.src === "ch").map(x => [x.id, x]));
     return L;
@@ -4687,6 +4707,26 @@ function ntSrcLine(x){
   return [x.brand, x.qty].filter(Boolean).join(" · ") || "Produkt";
 }
 const NT_SRC = {ch:"Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch)", off:"Open Food Facts (openfoodfacts.org, Lizenz ODbL, Bild CC BY-SA)", own:"meinen eigenen Angaben", rec:"den Zutaten deines Rezepts"};
+// ---- Mikronährstoffe (14.11.2026): Schlüssel in n, Bezeichnung, Einheit, EU-Nährstoffbezugswert (NRV, LMIV Anhang XIII) ----
+// 15 % des NRV pro 100 g gelten als „Quelle“, 30 % als „reich an“ (Health-Claims-Verordnung, laut Verbraucherzentrale).
+const NT_MIC = [["vita", "Vitamin A", "µg", 800], ["b1", "Vitamin B1", "mg", 1.1], ["b2", "Vitamin B2", "mg", 1.4], ["nia", "Niacin (B3)", "mg", 16], ["panto", "Pantothensäure (B5)", "mg", 6],
+  ["b6", "Vitamin B6", "mg", 1.4], ["fol", "Folat", "µg", 200], ["b12", "Vitamin B12", "µg", 2.5], ["vitc", "Vitamin C", "mg", 80], ["vitd", "Vitamin D", "µg", 5], ["vite", "Vitamin E", "mg", 12],
+  ["ca", "Calcium", "mg", 800], ["mgn", "Magnesium", "mg", 375], ["fe", "Eisen", "mg", 14], ["zn", "Zink", "mg", 10], ["kal", "Kalium", "mg", 2000], ["phos", "Phosphor", "mg", 700],
+  ["se", "Selen", "µg", 55], ["jod", "Jod", "µg", 150], ["na", "Natrium", "mg", 0], ["sfa", "Gesättigte Fettsäuren", "g", 0], ["ala", "Omega-3 (ALA)", "g", 0], ["epa", "Omega-3 (EPA)", "g", 0],
+  ["dha", "Omega-3 (DHA)", "g", 0], ["chol", "Cholesterin", "mg", 0]];
+// Alles, wonach ich Gruppen bei den Quellen bilden kann
+const NT_GRP = [["p", "Eiweiß", "g", 0], ["c", "Kohlenhydrate", "g", 0], ["f", "Fett", "g", 0], ["fib", "Ballaststoffe", "g", 0], ["sug", "Zucker", "g", 0], ...NT_MIC];
+const ntNutDef = k => NT_GRP.find(d => d[0] === k);
+const mFmt = v => (+v).toLocaleString("de-DE", {maximumFractionDigits: v >= 100 ? 0 : v >= 1 ? 1 : 2});
+function ntMicHTML(n){
+  const L = NT_MIC.filter(([k]) => ntNum(n && n[k]) != null);
+  if (!L.length) return n && n.kcal != null ? `<p class="hint nt-mic-none">Zu Vitaminen und Mineralstoffen hat die Datenbank hier keine Angaben.</p>` : "";
+  return `<details class="nt-mic" ${S.ntMicOpen ? "open" : ""}><summary>Vitamine und Mineralstoffe <span class="muted">pro 100 g</span></summary>
+    <div class="nt-mic-g">${L.map(([k, l, u, nrv]) => { const v = +n[k], pct = nrv ? Math.round(v / nrv * 100) : null;
+      return `<div class="${pct != null && pct >= 15 ? "src" : ""}"><span>${esc(l)}</span><b class="num">${mFmt(v)} ${u}${pct != null ? `<small>${pct} %</small>` : ""}</b></div>`; }).join("")}</div>
+    <p class="hint" style="margin:8px 0 0">Prozent vom EU-Tagesbezugswert. Ab 15 % pro 100 g darf man von einer Quelle sprechen, ab 30 % von „reich an“. Werte: Schweizer Nährwertdatenbank.</p></details>`;
+}
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("nt-mic")) S.ntMicOpen = e.target.open; }, true);
 function ntNutHTML(n, k = 1){
   const row = (l, v, u = "g") => ntNum(v) == null ? "" : `<div><span>${l}</span><b class="num">${bsFmt(v * k, v * k < 10 ? 1 : 0)} ${u}</b></div>`;
   return `<div class="nt-nutg">${row("Kalorien", n.kcal, "kcal")}${row("Kohlenhydrate", n.c)}${row("davon Zucker", n.sug)}${row("Eiweiß", n.p)}${row("Fett", n.f)}${row("Ballaststoffe", n.fib)}${row("Salz", n.salt)}</div>`;
@@ -5035,6 +5075,7 @@ function ntSelHTML(){
     ${pick ? "" : `<div class="nt-amt"><label>Menge<input class="field num" id="nt-qty" inputmode="decimal" enterkeyhint="done" value="${esc(bsIn(N.qty))}" aria-label="Menge"></label>
       <div class="fd-btns">${units.map((u, i) => `<button class="pill ${i === N.unit ? "on" : ""}" data-nt="unit" data-i="${i}">${esc(u[0])}${u[1] !== 1 ? ` <span class="num nt-ug">${bsFmt(u[1])} g</span>` : ""}</button>`).join("")}</div></div>`}
     <div id="nt-selnut">${ntSelNut()}</div>
+    ${ntMicHTML(x.n)}
     <p class="hint" style="margin:12px 0 0">${x.fixed ? `Werte von mir angepasst. Das Original stammt aus ${esc(NT_SRC[x.src] || "Open Food Facts")}.` : `Werte aus ${esc(NT_SRC[x.src] || "Open Food Facts")}. Stimmt etwas nicht, tipp oben auf „Werte anpassen“.`}</p>`;
 }
 function ntAddSel(){
@@ -5159,28 +5200,43 @@ function ntFavListHTML(){
       <button class="rbtn ink nt-fadd" data-nt="favlog" data-id="${x.fav}" title="Jetzt eintragen" aria-label="${esc(x.name)} jetzt eintragen">${ic("plus")}</button></div>`).join("")}</section>`;
 }
 
-// ---- Meine Makro-Quellen (14.11.2026, sein Wunsch): welche Lebensmittel mir Eiweiß, Kohlenhydrate und Fett liefern ----
-// Versteckter Eintrag kind "fmsrc" pro Lebensmittel: key wie ntKey, snap wie bei Favoriten, macros ["p","c","f"] (ein Lebensmittel darf in mehreren Gruppen stehen).
-// Zugeordnet wird von Hand: über „Zuordnen“ (Fenster #nt-ov im Modus "msrc") oder bei den Vorschlägen aus Favoriten, Plan und eigenen Lebensmitteln.
-const MS_M = [["p", "Eiweiß", "Eiweißquelle"], ["c", "Kohlenhydrate", "Kohlenhydratquelle"], ["f", "Fett", "Fettquelle"]];
-const msLabel = id => (MS_M.find(m => m[0] === id) || [, "Makros"])[1];
-const msOne = id => (MS_M.find(m => m[0] === id) || [, , "Quelle"])[2];
+// ---- Meine Quellen (14.11.2026, sein Wunsch): welche Lebensmittel mir Eiweiß, Kohlenhydrate, Fett, Vitamine und Mineralstoffe liefern ----
+// Gruppen stell ich selbst ein: settings.msg [{id, name, key}] (key = Nährwert aus NT_GRP oder leer). Standard Eiweiß/Kohlenhydrate/Fett wird erst beim Bearbeiten gespeichert.
+// Versteckter Eintrag kind "fmsrc" pro Lebensmittel: key wie ntKey, snap wie bei Favoriten, macros = ids der Gruppen (mehrere erlaubt).
+const MS_DEF = [{id:"p", name:"Eiweiß", key:"p"}, {id:"c", name:"Kohlenhydrate", key:"c"}, {id:"f", name:"Fett", key:"f"}];
+const msGroups = () => Array.isArray(S.settings.msg) && S.settings.msg.length ? S.settings.msg : MS_DEF;
+function msOwn(){ if (!Array.isArray(S.settings.msg) || !S.settings.msg.length) S.settings.msg = clone(MS_DEF); return S.settings.msg; }
+const msGroup = id => msGroups().find(g => g.id === id);
+const msLabel = id => (msGroup(id) || {}).name || "Quellen";
+const msOne = id => `Quelle für ${msLabel(id)}`;
 const msOf = k => live("fmsrc").find(m => m.key === k);
 const msSnap = x => ({src:x.src, id:x.id || "", code:x.code || "", name:x.name, brand:x.brand || "", n:{...x.n}, img:x.img || "", emoji:x.emoji || "", portion:x.portion || null, serving:x.serving || 0, qty:x.qty || "", cat:x.cat || ""});
-function msToggle(x, mac, on){
-  const k = ntKey(x); if (!k || !mac) return false;
+// Lebensmittel mit allen Werten aus der Datenbank (ältere Einträge haben noch keine Vitamine gespeichert)
+const msFull = x => { const db = x && x.src === "ch" && NT.byId && NT.byId.get(x.id); return db ? ntFix(db) : x; };
+function msToggle(x, gid, on){
+  const k = ntKey(x); if (!k || !gid) return false;
   const m = msOf(k);
-  if (!m) { if (on === false) return false; create("fmsrc", x.name, {key:k, snap:msSnap(x), macros:[mac]}); return true; }
-  const has = (m.macros || []).includes(mac), want = on == null ? !has : on; if (has === want) return want;
-  m.macros = want ? [...(m.macros || []), mac] : (m.macros || []).filter(y => y !== mac);
+  if (!m) { if (on === false) return false; create("fmsrc", x.name, {key:k, snap:msSnap(msFull(x)), macros:[gid]}); return true; }
+  const has = (m.macros || []).includes(gid), want = on == null ? !has : on; if (has === want) return want;
+  m.macros = want ? [...(m.macros || []), gid] : (m.macros || []).filter(y => y !== gid);
   if (!m.macros.length) removeItem(m.id); else persist(m);
   return want;
 }
-const msItem = m => ntFavItem({snap:m.snap || {}}) || ntMake({...(m.snap || {})});
-// Vorschlag nach Anteil an den Kalorien: Eiweiß ab 25 %, Kohlenhydrate oder Fett ab 50 %
-function msGuess(n){
-  const p = (+n.p || 0) * 4, c = (+n.c || 0) * 4, f = (+n.f || 0) * 9, t = p + c + f; if (!t) return [];
-  return [["p", p / t >= .25], ["c", c / t >= .5], ["f", f / t >= .5]].filter(z => z[1]).map(z => z[0]);
+const msItem = m => msFull(ntFavItem({snap:m.snap || {}}) || ntMake({...(m.snap || {})}));
+// Vorschlag: Eiweiß ab 25 % der Kalorien, Kohlenhydrate und Fett ab 50 %, Vitamine und Mineralstoffe ab 15 % des EU-Bezugswerts pro 100 g
+function msSugg(g, n){
+  if (!g.key || !n) return false;
+  const p = (+n.p || 0) * 4, c = (+n.c || 0) * 4, f = (+n.f || 0) * 9, t = p + c + f;
+  if (g.key === "p") return t > 0 && p / t >= .25;
+  if (g.key === "c") return t > 0 && c / t >= .5;
+  if (g.key === "f") return t > 0 && f / t >= .5;
+  const d = ntNutDef(g.key); return !!(d && d[3] && ntNum(n[g.key]) != null && n[g.key] / d[3] >= .15);
+}
+const msGuess = n => msGroups().filter(g => msSugg(g, n)).map(g => g.id);
+function msAmt(g, x){
+  const d = g.key && ntNutDef(g.key); if (!d) return "";
+  const v = x.n && x.n[g.key]; if (ntNum(v) == null) return "keine Angabe in der Datenbank";
+  return `${mFmt(+v)} ${d[2]} ${d[1]} pro 100 g${d[3] ? ` · ${Math.round(v / d[3] * 100)} % vom Tagesbezugswert` : ""}`;
 }
 function msDo(){
   const N = S.nt, x = N && N.sel; if (!x) return;
@@ -5189,47 +5245,75 @@ function msDo(){
 }
 function msCands(){
   const have = new Set(live("fmsrc").map(m => m.key)), seen = new Set(), out = [];
-  const push = x => { if (!x || x.src === "quick") return; const k = ntKey(x); if (!k || have.has(k) || seen.has(k)) return; seen.add(k); out.push(x); };
+  const push = x => { if (!x || x.src === "quick") return; const k = ntKey(x); if (!k || have.has(k) || seen.has(k)) return; seen.add(k); out.push(msFull(x)); };
   ntFavs().forEach(push);
   for (const p of plPlans()) for (const m of p.meals || []) for (const e of m.items || []) push(ntEntryItem(e));
   ntOwn().forEach(push);
   return out;
 }
+function msEditHTML(){
+  const opts = sel => `<option value="">ohne Wert</option>` + NT_GRP.map(([k, l, u]) => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(l)} (${u})</option>`).join("");
+  return `<div class="ms-ed">${msGroups().map(g => `<div class="ms-er">
+      <input class="field" id="msg-n-${esc(g.id)}" data-keep data-msg="name" data-id="${esc(g.id)}" value="${esc(g.name)}" aria-label="Name der Gruppe">
+      <label class="ms-ek"><span>Sortieren nach</span><select class="field" data-msg="key" data-id="${esc(g.id)}">${opts(g.key)}</select></label>
+      <button class="ibtn" data-ms="gdel" data-id="${esc(g.id)}" aria-label="Gruppe ${esc(g.name)} löschen" title="${S.msDel === g.id ? "Nochmal tippen zum Löschen" : "Löschen"}" style="${S.msDel === g.id ? "color:var(--late)" : ""}">${ic("trash")}</button></div>`).join("")}</div>
+    <div class="ms-new"><input class="field" id="ms-gn" data-keep placeholder="Neue Gruppe, z. B. Eisen" aria-label="Name der neuen Gruppe">
+      <select class="field" id="ms-gk" data-keep aria-label="Nährwert der neuen Gruppe">${opts("")}</select>
+      <button class="btn" data-ms="gadd">${ic("plus")}Gruppe anlegen</button></div>
+    <p class="hint" style="margin:10px 0 0">Mit einem Nährwert zeigt die Gruppe die Menge pro 100 g, sortiert danach und schlägt passende Lebensmittel vor. Ohne Wert ordne ich nur von Hand zu. Löschen nimmt die Gruppe raus, die Lebensmittel bleiben in den anderen Gruppen.</p>`;
+}
 function msHTML(){
   if (!NT.db && !NT.msTried) { NT.msTried = true; ntLoad().then(() => { if (NT.db && S.view === "food" && S.fdTab === "food") renderMain(); }); }
-  const items = live("fmsrc").map(m => ({m, x: msItem(m)}));
-  const grp = ([id, l, one]) => {
-    const L = items.filter(o => (o.m.macros || []).includes(id)).sort((a, b) => (+b.x.n[id] || 0) - (+a.x.n[id] || 0));
-    return `<div class="ms-g"><div class="ms-gh"><h3>${esc(l)}</h3><span class="chip">${L.length}</span><span class="grow"></span><button class="pill" data-ms="add" data-m="${id}">${ic("plus")}Zuordnen</button></div>
-      ${L.length ? L.map(({m, x}) => { const also = (m.macros || []).filter(y => y !== id).map(msLabel);
-        return `<div class="nt-fr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc([`${bsFmt(ntR(+x.n[id] || 0, 1))} g ${l} pro 100 g`, also.length ? `auch ${also.join(" und ")}` : ""].filter(Boolean).join(" · "))}</small></span></span>
-          ${msGuess(x.n || {}).filter(y => !(m.macros || []).includes(y)).map(y => `<button class="pill ms-also" data-ms="also" data-id="${m.id}" data-m="${y}" title="Vorschlag nach den Nährwerten">${ic("plus")}${esc(msLabel(y))}</button>`).join("")}
-          <button class="ibtn" data-ms="rm" data-id="${m.id}" data-m="${id}" title="Bei ${esc(l)} entfernen" aria-label="${esc(x.name)} bei ${esc(l)} entfernen">${ic("close")}</button></div>`; }).join("")
-        : `<p class="muted ms-e">Noch keine ${esc(one)} zugeordnet.</p>`}</div>`; };
+  const G = msGroups(), items = live("fmsrc").map(m => ({m, x: msItem(m)}));
+  const grp = g => {
+    const L = items.filter(o => (o.m.macros || []).includes(g.id)).sort((a, b) => g.key ? (+b.x.n[g.key] || 0) - (+a.x.n[g.key] || 0) : (a.x.name || "").localeCompare(b.x.name || "", "de"));
+    return `<div class="ms-g"><div class="ms-gh"><h3>${esc(g.name)}</h3><span class="chip">${L.length}</span><span class="grow"></span><button class="pill" data-ms="add" data-m="${esc(g.id)}">${ic("plus")}Zuordnen</button></div>
+      ${L.length ? L.map(({m, x}) => { const also = (m.macros || []).filter(y => y !== g.id).map(msLabel), amt = msAmt(g, x);
+        return `<div class="nt-fr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc([amt, also.length ? `auch ${also.join(", ")}` : ""].filter(Boolean).join(" · "))}</small></span></span>
+          ${msGuess(x.n || {}).filter(y => !(m.macros || []).includes(y)).slice(0, 3).map(y => `<button class="pill ms-also" data-ms="also" data-id="${m.id}" data-m="${esc(y)}" title="Vorschlag nach den Nährwerten">${ic("plus")}${esc(msLabel(y))}</button>`).join("")}
+          <button class="ibtn" data-ms="rm" data-id="${m.id}" data-m="${esc(g.id)}" title="Bei ${esc(g.name)} entfernen" aria-label="${esc(x.name)} bei ${esc(g.name)} entfernen">${ic("close")}</button></div>`; }).join("")
+        : `<p class="muted ms-e">Noch nichts zugeordnet.</p>`}</div>`; };
   const C = msCands(); S.msCand = C;
   const shown = S.msMore ? C : C.slice(0, 6);
-  const sug = C.length ? `<div class="ms-sug"><h3>Noch nicht zugeordnet</h3>
-      <p class="hint" style="margin:4px 0 6px">Aus meinen Favoriten, dem Ernährungsplan und meinen eigenen Lebensmitteln. Markiert ist, was die Nährwerte vorschlagen. Ein Tipp ordnet zu.</p>
-      ${shown.map((x, i) => { const g = msGuess(x.n || {});
+  const sug = C.length && !S.msEdit ? `<div class="ms-sug"><h3>Noch nicht zugeordnet</h3>
+      <p class="hint" style="margin:4px 0 6px">Aus meinen Favoriten, dem Ernährungsplan und meinen eigenen Lebensmitteln. Die Knöpfe zeigen, wozu die Nährwerte passen, über „Andere Gruppe“ geht jede.</p>
+      ${shown.map((x, i) => { const sg = msGuess(x.n || {}), rest = G.filter(g => !sg.includes(g.id));
         return `<div class="ms-cr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc(`pro 100 g: E ${bsFmt(ntR(+x.n.p || 0, 1))} · K ${bsFmt(ntR(+x.n.c || 0, 1))} · F ${bsFmt(ntR(+x.n.f || 0, 1))} g`)}</small></span></span>
-          <span class="ms-pills">${MS_M.map(([id, l]) => `<button class="pill ${g.includes(id) ? "sug" : ""}" data-ms="set" data-i="${i}" data-m="${id}" title="${g.includes(id) ? "Vorschlag nach den Nährwerten" : ""}">${ic("plus")}${esc(l)}</button>`).join("")}</span></div>`; }).join("")}
+          <span class="ms-pills">${sg.map(id => `<button class="pill sug" data-ms="set" data-i="${i}" data-m="${esc(id)}">${ic("plus")}${esc(msLabel(id))}</button>`).join("")}
+            ${rest.length ? `<select class="field ms-other" data-msset="${i}" aria-label="${esc(x.name)} einer anderen Gruppe zuordnen"><option value="">${sg.length ? "Andere Gruppe …" : "Gruppe wählen …"}</option>${rest.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select>` : ""}</span></div>`; }).join("")}
       ${C.length > 6 ? `<button class="pill" data-ms="more" style="margin-top:10px">${S.msMore ? "Weniger anzeigen" : `Alle ${C.length} anzeigen`}</button>` : ""}</div>` : "";
-  return `<section class="card ms-card"><div class="card-h"><h2>Meine Quellen für Makros</h2></div>
-    <p class="hint">Welche Lebensmittel mir Eiweiß, Kohlenhydrate und Fett liefern. Ich ordne selbst zu, ein Lebensmittel darf auch in mehreren Gruppen stehen. Sortiert nach Gramm pro 100 g.</p>
-    ${MS_M.map(grp).join("")}${sug}</section>`;
+  return `<section class="card ms-card"><div class="card-h"><h2>Meine Quellen</h2><span class="grow"></span><button class="pill d-editbtn ${S.msEdit ? "on" : ""}" data-ms="edit">${ic(S.msEdit ? "check" : "pen")}${S.msEdit ? "Fertig" : "Gruppen bearbeiten"}</button></div>
+    <p class="hint">Welche Lebensmittel mir was liefern: Makros, Vitamine, Mineralstoffe oder was ich sonst als Gruppe anlege. Ein Lebensmittel darf in mehreren Gruppen stehen.</p>
+    ${S.msEdit ? msEditHTML() : G.map(grp).join("")}${sug}</section>`;
 }
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-ms]"); if (!a) return;
-  const act = a.dataset.ms, mac = a.dataset.m;
+  const act = a.dataset.ms, gid = a.dataset.m;
+  if (act !== "gdel") S.msDel = null;
   switch (act) {
-    case "add": ntOpen(null, {mode:"msrc", macro:mac}); return;
-    case "rm": { const m = S.items.get(a.dataset.id); if (m) { m.macros = (m.macros || []).filter(y => y !== mac); if (!m.macros.length) removeItem(m.id); else persist(m); } break; }
-    case "set": { const x = (S.msCand || [])[+a.dataset.i]; if (x) { msToggle(x, mac, true); toast(`${x.name} steht jetzt bei ${msLabel(mac)}.`); } break; }
-    case "also": { const m = S.items.get(a.dataset.id); if (m && !(m.macros || []).includes(mac)) { m.macros = [...(m.macros || []), mac]; persist(m); toast(`${m.title} steht jetzt auch bei ${msLabel(mac)}.`); } break; }
+    case "add": ntOpen(null, {mode:"msrc", macro:gid}); return;
+    case "rm": { const m = S.items.get(a.dataset.id); if (m) { m.macros = (m.macros || []).filter(y => y !== gid); if (!m.macros.length) removeItem(m.id); else persist(m); } break; }
+    case "also": { const m = S.items.get(a.dataset.id); if (m && !(m.macros || []).includes(gid)) { m.macros = [...(m.macros || []), gid]; persist(m); toast(`${m.title} steht jetzt auch bei ${msLabel(gid)}.`); } break; }
+    case "set": { const x = (S.msCand || [])[+a.dataset.i]; if (x) { msToggle(x, gid, true); toast(`${x.name} steht jetzt bei ${msLabel(gid)}.`); } break; }
     case "more": S.msMore = !S.msMore; break;
+    case "edit": S.msEdit = !S.msEdit; break;
+    case "gadd": { const n = $("#ms-gn"), k = ($("#ms-gk") || {}).value || "", d = k && ntNutDef(k), name = (n && n.value.trim()) || (d ? d[1] : "");
+      if (!name) { toast("Gib der Gruppe einen Namen oder wähl einen Nährwert."); if (n) n.focus(); return; }
+      msOwn().push({id:uid(), name, key:k}); saveSettings(0); if (n) n.value = ""; const s2 = $("#ms-gk"); if (s2) s2.value = ""; toast(`Gruppe ${name} angelegt.`); break; }
+    case "gdel": { const id = a.dataset.id; if (S.msDel !== id) { S.msDel = id; break; }
+      S.settings.msg = msOwn().filter(g => g.id !== id); saveSettings(0); S.msDel = null;
+      for (const m of live("fmsrc")) if ((m.macros || []).includes(id)) { m.macros = m.macros.filter(y => y !== id); if (!m.macros.length) removeItem(m.id); else persist(m); }
+      toast("Gruppe gelöscht."); break; }
     default: return;
   }
   renderMain();
+});
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.msg) { const g = msOwn().find(x => x.id === t.dataset.id); if (!g) return;
+    if (t.dataset.msg === "name") { const v = t.value.trim(); if (v) g.name = v; } else g.key = t.value;
+    saveSettings(0); return; }
+  if (t.dataset.msset != null && t.value) { const x = (S.msCand || [])[+t.dataset.msset]; if (x) { msToggle(x, t.value, true); toast(`${x.name} steht jetzt bei ${msLabel(t.value)}.`); renderMain(); } }
 });
 
 // ---- Eigene Korrekturen an Lebensmitteln aus der Datenbank ----
@@ -5240,7 +5324,7 @@ const ntRef = x => x && (x.src === "ch" || x.src === "off") && x.id ? `${x.src}:
 function ntFixes(){ const m = new Map(); for (const f of live("fdfix")) if (f.ref) m.set(f.ref, f); return m; }
 function ntFix(x, M = ntFixes()){
   const f = M.get(ntRef(x)); if (!f || !x) return x;
-  return {...x, name: f.name || x.name, n: {...f.n}, fixed: f.id};
+  return {...x, name: f.name || x.name, n: {...x.n, ...f.n}, fixed: f.id};
 }
 // Lebensmittel so, wie es in der Datenbank steht (für „Original wiederherstellen“)
 function ntBase(x){
