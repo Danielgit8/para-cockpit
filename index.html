@@ -129,14 +129,14 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .side-foot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
 /* Seitenleiste einklappbar (15.11.2026): schmale Leiste nur mit Symbolen */
-.side-tog{display:flex;align-items:center;gap:8px;width:calc(100% - 8px);margin:0 4px 14px;padding:8px 12px;border:1px solid var(--line-2);border-radius:999px;background:var(--panel-solid);color:var(--text);font:600 13px/1.2 var(--f-ui);text-align:left;transition:background-color .15s,border-color .15s}
+.side-tog{display:flex;align-items:center;gap:8px;width:calc(100% - 8px);margin:0 4px 14px;padding:8px 12px;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-solid);color:var(--text);font:600 13px/1.2 var(--f-ui);text-align:left;transition:background-color .15s,border-color .15s}
 .side-tog:hover{background:var(--soft);border-color:var(--text)}
 .side-tog svg{width:16px;height:16px;flex:none}
 @media (min-width:861px){
   body.side-mini .app{grid-template-columns:60px minmax(0,1fr);max-width:none}
   body.side-mini .side{padding:18px 6px 14px;align-items:center;overflow-x:hidden}
   body.side-mini .brand{flex-direction:column;gap:12px;padding:0 0 16px;font-size:0}
-  body.side-mini .side-tog{width:40px;height:40px;padding:0;justify-content:center;border-radius:50%;margin:0 0 14px}
+  body.side-mini .side-tog{width:40px;height:40px;padding:0;justify-content:center;border-radius:3px;margin:0 0 14px}
   body.side-mini .side-tog span{display:none}
   body.side-mini .nav{justify-content:center;width:44px;padding:10px 0;gap:0}
   body.side-mini .nav > span,body.side-mini .nav-subs,body.side-mini .nav-lbl{display:none}
@@ -2000,6 +2000,49 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 .ms-ek{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}.ms-ek .field{font-size:14px;font-weight:500;color:var(--text)}
 .ms-new{display:grid;grid-template-columns:minmax(0,1fr) 220px auto;gap:8px;margin-top:14px}
 .ms-other{width:auto;max-width:200px;padding-top:6px;padding-bottom:6px;font-size:13px}
+/* Meine Quellen nach Lebensmitteln (15.11.2026): ein Lebensmittel pro Zeile, Kategorien als Etiketten, Filter oben */
+.ms-filters{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 12px}
+.ms-filters .pill{height:32px;font-size:13px}
+.ms-filters .pill .num{opacity:.6;font-weight:600;margin-left:3px}
+.ms-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.ms-q{flex:1 1 220px;min-width:0}
+.ms-fh{margin:10px 0 2px;font-size:13px;color:var(--muted)}
+.ms-fh b{color:var(--text)}
+.ms-list{display:flex;flex-direction:column;margin-top:6px}
+.ms-row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+.ms-img{flex:none}
+.ms-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.ms-name{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.ms-name b{font-size:15.5px;font-weight:600}
+.ms-amt{font-size:12.5px;color:var(--text);background:var(--amber-soft);padding:1px 8px;border-radius:3px}
+.ms-mac{font-size:12px;color:var(--muted)}
+.ms-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ms-chip{display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:3px;background:var(--panel-solid);font-size:12.5px;font-weight:600;line-height:1}
+.ms-chip.is-cur{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.ms-chip.is-main{background:var(--amber-soft)}
+.ms-chip button{display:inline-flex;align-items:center;justify-content:center;color:var(--text);min-height:30px}
+.ms-star{min-width:30px;color:var(--muted);border-right:1px solid var(--line)}
+.ms-star svg{width:13px;height:13px}
+.ms-chip.is-main .ms-star{color:var(--senf)}
+.ms-chip.is-main .ms-star .i{fill:currentColor}
+.ms-ct{padding:0 9px}
+.ms-ct:hover{text-decoration:underline;text-underline-offset:2px}
+.ms-cx{min-width:30px;color:var(--muted);border-left:1px solid var(--line)}
+.ms-cx svg{width:12px;height:12px}
+.ms-cx:hover{color:var(--late)}
+.ms-sg{display:inline-flex;align-items:center;gap:4px;min-height:30px;border:1px dashed var(--line-2);border-radius:3px;padding:0 11px;font-size:12px;font-weight:600;color:var(--muted)}
+.ms-sg:hover{color:var(--text);border-color:var(--text)}
+.ms-sg svg{width:12px;height:12px}
+.ms-add{min-height:30px;border:1px dashed var(--line-2);border-radius:3px;padding:0 10px;font:600 12px var(--f-ui);color:var(--muted);background:transparent;max-width:160px;cursor:pointer}
+.ms-add:hover{color:var(--text);border-color:var(--text)}
+.ms-none{font-size:12px}
+.ms-del{flex:none;margin-top:4px}
+.ms-del.arm{width:auto;padding:0 10px;border-radius:3px;color:var(--late);font-weight:700;font-size:12px}
+@media (max-width:560px){.ms-tools .btn{width:100%;justify-content:center}.ms-row{gap:10px}}
+@media (pointer:coarse){.ms-star,.ms-cx{min-width:36px}.ms-chip button,.ms-sg,.ms-add{min-height:36px}}
+.toast.has-act{display:flex;align-items:center;gap:14px}
+.toast-act{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+
 .nt-mic{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
 .nt-mic summary{cursor:pointer;font-weight:700;font-size:14px}
 .nt-mic-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;margin-top:10px}
@@ -2034,7 +2077,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-15.9";
+const APP_VERSION = "2026-11-15.10";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -4824,7 +4867,10 @@ async function enableNotify(){
 }
 setInterval(checkReminders, 30000);
 let toastT;
-function toast(msg){ clearTimeout(toastT); $("#toast-wrap").innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; toastT = setTimeout(() => $("#toast-wrap").innerHTML = "", 3200); }
+// act = {label, fn}: Knopf im Toast, z. B. „Rückgängig“ (bleibt dann etwas länger stehen)
+function toast(msg, act){ clearTimeout(toastT); S.toastFn = act && act.fn || null;
+  $("#toast-wrap").innerHTML = `<div class="toast ${act ? "has-act" : ""}" role="status">${esc(msg)}${act ? `<button class="toast-act" data-act="toast-act">${esc(act.label)}</button>` : ""}</div>`;
+  toastT = setTimeout(() => { $("#toast-wrap").innerHTML = ""; S.toastFn = null; }, act ? 6000 : 3200); }
 function quickAdd(kind, inputId, relId){
   const inp = document.getElementById(inputId); if (!inp) return;
   const title = inp.value.trim(); if (!title) { inp.focus(); return; }
@@ -5624,19 +5670,19 @@ function ntSheet(){
   if (!ov) { ov = document.createElement("div"); ov.id = "nt-ov"; document.body.appendChild(ov); }
   document.body.classList.add("nt-lock");
   const N = S.nt, ms = N.mode === "msrc", pick = N.mode === "pick" || ms, plan = N.mode === "plan", sub = N.sel || N.scan;
-  const title = ms ? `${msLabel(N.macro)}: Lebensmittel zuordnen` : pick ? "Nährwerte übernehmen" : plan ? `Für ${plSheetMeal()} planen` : `${ntMealName(N.meal)} hinzufügen`;
+  const title = ms ? (N.macro ? `${msLabel(N.macro)}: Lebensmittel zuordnen` : "Zu meinen Quellen hinzufügen") : pick ? "Nährwerte übernehmen" : plan ? `Für ${plSheetMeal()} planen` : `${ntMealName(N.meal)} hinzufügen`;
   ov.innerHTML = `<div class="scrim nt-scrim" data-nt="close"></div><div class="nt-sheet ${N.q.trim() ? "q" : ""}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
     <div class="nt-sh"><button class="ibtn" data-nt="${sub ? "back" : "close"}" aria-label="${sub ? "Zurück" : "Schließen"}">${ic(sub ? "left" : "close")}</button><h2>${esc(title)}</h2>
       ${pick || plan ? "" : `<span class="muted nt-shd">${esc(N.date === dkey() ? "Heute" : fmtLong(N.date))}</span>`}${sub ? `<button class="ibtn" data-nt="close" aria-label="Schließen">${ic("close")}</button>` : ""}</div>
     <div class="nt-body">${N.scan ? ntScanHTML() : N.sel ? ntSelHTML() : ntFindHTML()}</div>
     ${N.sel && !N.scan && N.edit ? `<div class="nt-foot"><button class="btn" data-nt="fixsave" id="nt-addbtn">Werte speichern</button></div>` : ""}
-    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${ms ? "msdo" : pick ? "pickdo" : "addit"}" id="nt-addbtn">${ms ? `Als ${esc(msOne(N.macro))} speichern` : pick ? "Werte übernehmen" : plan ? "In den Plan" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
+    ${N.sel && !N.scan && !N.edit ? `<div class="nt-foot"><button class="btn" data-nt="${ms ? "msdo" : pick ? "pickdo" : "addit"}" id="nt-addbtn">${ms ? (N.macro ? `Als ${esc(msOne(N.macro))} speichern` : "Zu meinen Quellen") : pick ? "Werte übernehmen" : plan ? "In den Plan" : `Zu ${esc(ntMealName(N.meal))} hinzufügen`}</button></div>` : ""}</div>`;
   if (N.scan && !N.camOff) ntScanStart();
 }
 function ntFindHTML(){
   const N = S.nt, pick = N.mode === "pick" || N.mode === "msrc";
   const tab = (v, l) => `<button class="pill ${N.tab === v ? "on" : ""}" data-nt="stab" data-v="${v}">${l}</button>`;
-  return `${N.mode === "msrc" ? `<p class="hint">Was ich hier auswähle, kommt zu meinen Quellen für ${esc(msLabel(N.macro))}.</p>` : pick ? `<p class="hint">Das passende Lebensmittel suchen. Die Nährwerte pro 100 g werden übernommen.</p>` : N.mode === "plan" ? `<p class="hint">Was ich hier auswähle, kommt in den Plan und nicht ins Tagebuch.</p>` : `<div class="nt-mealsel">${NT_MEALS.map(([m, l]) => `<button class="pill ${N.meal === m ? "on" : ""}" data-nt="smeal" data-meal="${m}">${l}</button>`).join("")}</div>`}
+  return `${N.mode === "msrc" ? `<p class="hint">${N.macro ? `Was ich hier auswähle, kommt zu meinen Quellen für ${esc(msLabel(N.macro))}.` : "Was ich hier auswähle, kommt zu meinen Quellen, gleich mit den Kategorien, zu denen die Nährwerte passen."}</p>` : pick ? `<p class="hint">Das passende Lebensmittel suchen. Die Nährwerte pro 100 g werden übernommen.</p>` : N.mode === "plan" ? `<p class="hint">Was ich hier auswähle, kommt in den Plan und nicht ins Tagebuch.</p>` : `<div class="nt-mealsel">${NT_MEALS.map(([m, l]) => `<button class="pill ${N.meal === m ? "on" : ""}" data-nt="smeal" data-meal="${m}">${l}</button>`).join("")}</div>`}
     <div class="nt-sbar"><div class="nt-sin">${ic("search")}<input id="nt-q" type="search" enterkeyhint="search" value="${esc(N.q)}" placeholder="Lebensmittel oder Marke suchen" autocomplete="off" aria-label="Lebensmittel suchen"></div>
       <button class="rbtn ink" data-nt="scan" title="Barcode scannen" aria-label="Barcode scannen">${ic("scan")}</button></div>
     <div class="tr-seg nt-stabs">${tab("fav", "Favoriten")}${tab("recent", "Zuletzt")}${tab("mine", "Meine")}${pick ? "" : tab("quick", "Schnell eintragen")}</div>
@@ -5787,7 +5833,7 @@ function ntFavLog(x, meal, date){
   renderMain();
 }
 function ntLog(x, date, meal, g, qty, unit){
-  if (S.nt && S.nt.mode === "msrc") { msToggle(x, S.nt.macro, true); return; }
+  if (S.nt && S.nt.mode === "msrc") { msAddFood(x, S.nt.macro ? [S.nt.macro] : msGuess(msFull(x).n || {})); return; }
   if (S.nt && S.nt.mode === "plan") { plAdd(x, g, qty, unit); return; }
   const d = ntDay(date), quick = x.src === "quick";
   d.entries = [...(d.entries || []), {id:uid(), meal, name:x.name, brand:x.brand || "", src:x.src, ref: quick ? "" : x.id, code:x.code || "", img:x.img || "", emoji:x.emoji || "",
@@ -5842,7 +5888,7 @@ function msToggle(x, gid, on){
   const has = (m.macros || []).includes(gid), want = on == null ? !has : on; if (has === want) return want;
   m.macros = want ? [...(m.macros || []), gid] : (m.macros || []).filter(y => y !== gid);
   if (!want && m.main) m.main = m.main.filter(y => y !== gid);
-  if (!m.macros.length) removeItem(m.id); else persist(m);
+  persist(m);
   return want;
 }
 const msItem = m => msFull(ntFavItem({snap:m.snap || {}}) || ntMake({...(m.snap || {})}));
@@ -5856,14 +5902,19 @@ function msSugg(g, n){
   const d = ntNutDef(g.key); return !!(d && d[3] && ntNum(n[g.key]) != null && n[g.key] / d[3] >= .15);
 }
 const msGuess = n => msGroups().filter(g => msSugg(g, n)).map(g => g.id);
-function msAmt(g, x){
-  const d = g.key && ntNutDef(g.key); if (!d) return "";
-  const v = x.n && x.n[g.key]; if (ntNum(v) == null) return "keine Angabe in der Datenbank";
-  return `${mFmt(+v)} ${d[2]} ${d[1]} pro 100 g${d[3] ? ` · ${Math.round(v / d[3] * 100)} % vom Tagesbezugswert` : ""}`;
+// Lebensmittel zu meinen Quellen hinzufügen. Ohne gewählte Kategorie schlag ich die passenden nach den Nährwerten vor.
+function msAddFood(x, gids){
+  const k = ntKey(x); if (!k) return null;
+  const want = [...new Set((gids || []).filter(Boolean))], m = msOf(k);
+  if (!m) return create("fmsrc", x.name, {key:k, snap:msSnap(msFull(x)), macros:want});
+  const add = want.filter(g => !(m.macros || []).includes(g)); if (add.length) { m.macros = [...(m.macros || []), ...add]; persist(m); }
+  return m;
 }
 function msDo(){
   const N = S.nt, x = N && N.sel; if (!x) return;
-  msToggle(x, N.macro, true); toast(`${x.name} steht jetzt bei ${msLabel(N.macro)}.`);
+  const gids = N.macro ? [N.macro] : msGuess(msFull(x).n || {});
+  msAddFood(x, gids);
+  toast(gids.length ? `${x.name} steht jetzt bei ${gids.map(msLabel).join(", ")}.` : `${x.name} ist jetzt in meinen Quellen. Kategorien kann ich über „+ Kategorie“ dranhängen.`);
   N.sel = null; N.q = ""; N.online = null; ntSheet(); renderMain();
 }
 function msCands(){
@@ -5877,47 +5928,80 @@ function msCands(){
 function msEditHTML(){
   const opts = sel => `<option value="">ohne Wert</option>` + NT_GRP.map(([k, l, u]) => `<option value="${k}" ${k === sel ? "selected" : ""}>${esc(l)} (${u})</option>`).join("");
   return `<div class="ms-ed">${msGroups().map(g => `<div class="ms-er">
-      <input class="field" id="msg-n-${esc(g.id)}" data-keep data-msg="name" data-id="${esc(g.id)}" value="${esc(g.name)}" aria-label="Name der Gruppe">
+      <input class="field" id="msg-n-${esc(g.id)}" data-keep data-msg="name" data-id="${esc(g.id)}" value="${esc(g.name)}" aria-label="Name der Kategorie">
       <label class="ms-ek"><span>Sortieren nach</span><select class="field" data-msg="key" data-id="${esc(g.id)}">${opts(g.key)}</select></label>
-      <button class="ibtn" data-ms="gdel" data-id="${esc(g.id)}" aria-label="Gruppe ${esc(g.name)} löschen" title="${S.msDel === g.id ? "Nochmal tippen zum Löschen" : "Löschen"}" style="${S.msDel === g.id ? "color:var(--late)" : ""}">${ic("trash")}</button></div>`).join("")}</div>
-    <div class="ms-new"><input class="field" id="ms-gn" data-keep placeholder="Neue Gruppe, z. B. Eisen" aria-label="Name der neuen Gruppe">
-      <select class="field" id="ms-gk" data-keep aria-label="Nährwert der neuen Gruppe">${opts("")}</select>
-      <button class="btn" data-ms="gadd">${ic("plus")}Gruppe anlegen</button></div>
-    <p class="hint" style="margin:10px 0 0">Mit einem Nährwert zeigt die Gruppe die Menge pro 100 g, sortiert danach und schlägt passende Lebensmittel vor. Ohne Wert ordne ich nur von Hand zu. Löschen nimmt die Gruppe raus, die Lebensmittel bleiben in den anderen Gruppen.</p>`;
+      <button class="ibtn" data-ms="gdel" data-id="${esc(g.id)}" aria-label="Kategorie ${esc(g.name)} löschen" title="${S.msDel === g.id ? "Nochmal tippen zum Löschen" : "Löschen"}" style="${S.msDel === g.id ? "color:var(--late)" : ""}">${ic("trash")}</button></div>`).join("")}</div>
+    <div class="ms-new"><input class="field" id="ms-gn" data-keep placeholder="Neue Kategorie, z. B. Eisen" aria-label="Name der neuen Kategorie">
+      <select class="field" id="ms-gk" data-keep aria-label="Nährwert der neuen Kategorie">${opts("")}</select>
+      <button class="btn" data-ms="gadd">${ic("plus")}Kategorie anlegen</button></div>
+    <p class="hint" style="margin:10px 0 0">Mit einem Nährwert zeigt die Kategorie beim Filtern die Menge pro 100 g, sortiert danach und schlägt passende Lebensmittel vor. Ohne Wert ordne ich nur von Hand zu. Lösche ich eine Kategorie, bleiben die Lebensmittel in meinen Quellen.</p>`;
+}
+// Menge des Nährwerts der gefilterten Kategorie, z. B. „410 mg pro 100 g · 21 % vom Tagesbezugswert“
+function msAmt(g, x){
+  const d = g && g.key && ntNutDef(g.key); if (!d) return "";
+  const v = x.n && x.n[g.key]; if (ntNum(v) == null) return `${d[1]}: keine Angabe in der Datenbank`;
+  return `${mFmt(+v)} ${d[2]} pro 100 g${d[3] ? ` · ${Math.round(v / d[3] * 100)} % vom Tagesbezugswert` : ""}`;
+}
+const msMac = x => `pro 100 g: Eiweiß ${bsFmt(ntR(+x.n.p || 0, 1))} g · Kohlenhydrate ${bsFmt(ntR(+x.n.c || 0, 1))} g · Fett ${bsFmt(ntR(+x.n.f || 0, 1))} g`;
+function msRowHTML({m, x}, F){
+  const G = msGroups(), mine = (m.macros || []).filter(id => G.some(g => g.id === id)), mn = m.main || [], fg = F && msGroup(F);
+  const chips = G.filter(g => mine.includes(g.id)).map(g => { const main = mn.includes(g.id);
+    return `<span class="ms-chip ${main ? "is-main" : ""} ${g.id === F ? "is-cur" : ""}">
+      <button class="ms-star" data-ms="main" data-id="${m.id}" data-m="${esc(g.id)}" aria-pressed="${main}" title="${main ? `Doch keine Hauptquelle für ${esc(g.name)}` : `Als Hauptquelle für ${esc(g.name)} markieren`}" aria-label="${esc(x.name)}: Hauptquelle für ${esc(g.name)}">${ic("star")}</button>
+      <button class="ms-ct" data-ms="filter" data-m="${esc(g.id)}" title="Nur ${esc(g.name)}-Quellen zeigen">${esc(g.name)}</button>
+      <button class="ms-cx" data-ms="rm" data-id="${m.id}" data-m="${esc(g.id)}" title="${esc(g.name)} entfernen" aria-label="${esc(g.name)} bei ${esc(x.name)} entfernen">${ic("close")}</button></span>`; }).join("");
+  const sug = msGuess(x.n || {}).filter(y => !mine.includes(y)).slice(0, 3).map(y => `<button class="ms-sg" data-ms="also" data-id="${m.id}" data-m="${esc(y)}" title="Passt nach den Nährwerten">${ic("plus")}${esc(msLabel(y))}</button>`).join("");
+  const rest = G.filter(g => !mine.includes(g.id));
+  const add = rest.length ? `<select class="ms-add" data-msadd="${m.id}" aria-label="${esc(x.name)}: Kategorie hinzufügen"><option value="">+ Kategorie</option>${rest.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select>` : "";
+  const amt = fg && fg.key ? msAmt(fg, x) : "", arm = S.msDelItem === m.id;
+  return `<div class="ms-row">${ntImg(x, "nt-img ms-img")}
+    <div class="ms-body"><div class="ms-name"><b>${esc(x.name)}</b>${amt ? `<span class="ms-amt num">${esc(amt)}</span>` : `<span class="ms-mac num">${esc(msMac(x))}</span>`}</div>
+      <div class="ms-tags">${chips}${sug}${add}${!mine.length && !sug ? `<span class="muted ms-none">Noch keine Kategorie</span>` : ""}</div></div>
+    <button class="ibtn ms-del ${arm ? "arm" : ""}" data-ms="del" data-id="${m.id}" title="${arm ? "Nochmal tippen: ganz aus meinen Quellen nehmen" : "Aus meinen Quellen nehmen"}" aria-label="${esc(x.name)} aus meinen Quellen nehmen">${arm ? "Weg?" : ic("trash")}</button></div>`;
 }
 function msHTML(){
   if (!NT.db && !NT.msTried) { NT.msTried = true; ntLoad().then(() => { if (NT.db && S.view === "food" && S.fdTab === "food") renderMain(); }); }
-  const G = msGroups(), items = live("fmsrc").map(m => ({m, x: msItem(m)}));
-  const grp = g => {
-    const isMain = o => (o.m.main || []).includes(g.id);
-    const L = items.filter(o => (o.m.macros || []).includes(g.id)).sort((a, b) => (isMain(b) - isMain(a)) || (g.key ? (+b.x.n[g.key] || 0) - (+a.x.n[g.key] || 0) : (a.x.name || "").localeCompare(b.x.name || "", "de")));
-    return `<div class="ms-g"><div class="ms-gh"><h3>${esc(g.name)}</h3><span class="chip">${L.length}</span><span class="grow"></span><button class="pill" data-ms="add" data-m="${esc(g.id)}">${ic("plus")}Zuordnen</button></div>
-      ${L.length ? L.map(({m, x}) => { const mn = m.main || [], main = mn.includes(g.id), also = (m.macros || []).filter(y => y !== g.id).map(y => msLabel(y) + (mn.includes(y) ? " (Hauptquelle)" : "")), amt = msAmt(g, x);
-        return `<div class="nt-fr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${main ? `<span class="ms-tag">Hauptquelle</span>` : ""}${esc([amt, also.length ? `auch ${also.join(", ")}` : ""].filter(Boolean).join(" · "))}</small></span></span>
-          ${msGuess(x.n || {}).filter(y => !(m.macros || []).includes(y)).slice(0, 3).map(y => `<button class="pill ms-also" data-ms="also" data-id="${m.id}" data-m="${esc(y)}" title="Vorschlag nach den Nährwerten">${ic("plus")}${esc(msLabel(y))}</button>`).join("")}
-          <button class="ibtn ms-main ${main ? "on" : ""}" data-ms="main" data-id="${m.id}" data-m="${esc(g.id)}" aria-pressed="${main}" title="${main ? "Doch keine Hauptquelle" : `Als Hauptquelle für ${esc(g.name)} markieren`}" aria-label="${esc(x.name)}: Hauptquelle für ${esc(g.name)}">${ic("star")}</button>
-          <button class="ibtn" data-ms="rm" data-id="${m.id}" data-m="${esc(g.id)}" title="Bei ${esc(g.name)} entfernen" aria-label="${esc(x.name)} bei ${esc(g.name)} entfernen">${ic("close")}</button></div>`; }).join("")
-        : `<p class="muted ms-e">Noch nichts zugeordnet.</p>`}</div>`; };
+  if (S.msF == null) { try { S.msF = localStorage.getItem("pc-msf") || ""; } catch(e) { S.msF = ""; } }
+  const G = msGroups(), F = G.some(g => g.id === S.msF) ? S.msF : "", fg = F && msGroup(F);
+  const items = live("fmsrc").map(m => ({m, x: msItem(m)})), q = (S.msQ || "").trim().toLowerCase();
+  const cnt = id => items.filter(o => (o.m.macros || []).includes(id)).length;
+  const isMain = o => F && (o.m.main || []).includes(F);
+  const L = items.filter(o => (!F || (o.m.macros || []).includes(F)) && (!q || (o.x.name || "").toLowerCase().includes(q)))
+    .sort((a, b) => (isMain(b) - isMain(a)) || (fg && fg.key ? (+b.x.n[fg.key] || 0) - (+a.x.n[fg.key] || 0) : 0) || (a.x.name || "").localeCompare(b.x.name || "", "de"));
+  const filters = `<div class="ms-filters" role="group" aria-label="Nach Kategorie filtern">
+      <button class="pill ${F ? "" : "on"}" data-ms="filter" data-m="">Alle <span class="num">${items.length}</span></button>
+      ${G.map(g => `<button class="pill ${F === g.id ? "on" : ""}" data-ms="filter" data-m="${esc(g.id)}">${esc(g.name)} <span class="num">${cnt(g.id)}</span></button>`).join("")}</div>`;
+  const tools = `<div class="ms-tools"><div class="nt-sin ms-q">${ic("search")}<input id="ms-q" data-keep type="search" value="${esc(S.msQ || "")}" placeholder="In meinen Quellen suchen" aria-label="In meinen Quellen suchen"></div>
+      <button class="btn" data-ms="add" data-m="${esc(F)}">${ic("plus")}${fg ? `${esc(fg.name)}-Quelle hinzufügen` : "Lebensmittel hinzufügen"}</button></div>`;
+  const head = fg ? `<p class="ms-fh">${L.length} ${L.length === 1 ? "Quelle" : "Quellen"} für <b>${esc(fg.name)}</b>${fg.key ? ", die reichste zuerst" : ""}. Hauptquellen mit Stern stehen oben.</p>` : "";
+  const list = L.length ? `<div class="ms-list">${L.map(o => msRowHTML(o, F)).join("")}</div>`
+    : `<p class="muted ms-e">${q ? "Nichts gefunden." : fg ? `Noch keine ${esc(fg.name)}-Quellen. Über „${esc(fg.name)}-Quelle hinzufügen“ oder unten bei den Vorschlägen leg ich welche an.` : "Noch keine Lebensmittel in meinen Quellen."}</p>`;
   const C = msCands(); S.msCand = C;
   const shown = S.msMore ? C : C.slice(0, 6);
-  const sug = C.length && !S.msEdit ? `<div class="ms-sug"><h3>Noch nicht zugeordnet</h3>
-      <p class="hint" style="margin:4px 0 6px">Aus meinen Favoriten, dem Ernährungsplan und meinen eigenen Lebensmitteln. Die Knöpfe zeigen, wozu die Nährwerte passen, über „Andere Gruppe“ geht jede.</p>
+  const sug = C.length && !S.msEdit ? `<div class="ms-sug"><h3>Noch nicht in meinen Quellen</h3>
+      <p class="hint" style="margin:4px 0 6px">Aus meinen Favoriten, dem Ernährungsplan und meinen eigenen Lebensmitteln. Die Knöpfe zeigen, wozu die Nährwerte passen, über „Andere Kategorie“ geht jede.</p>
       ${shown.map((x, i) => { const sg = msGuess(x.n || {}), rest = G.filter(g => !sg.includes(g.id));
-        return `<div class="ms-cr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc(`pro 100 g: E ${bsFmt(ntR(+x.n.p || 0, 1))} · K ${bsFmt(ntR(+x.n.c || 0, 1))} · F ${bsFmt(ntR(+x.n.f || 0, 1))} g`)}</small></span></span>
+        return `<div class="ms-cr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc(msMac(x))}</small></span></span>
           <span class="ms-pills">${sg.map(id => `<button class="pill sug" data-ms="set" data-i="${i}" data-m="${esc(id)}">${ic("plus")}${esc(msLabel(id))}</button>`).join("")}
-            ${rest.length ? `<select class="field ms-other" data-msset="${i}" aria-label="${esc(x.name)} einer anderen Gruppe zuordnen"><option value="">${sg.length ? "Andere Gruppe …" : "Gruppe wählen …"}</option>${rest.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select>` : ""}</span></div>`; }).join("")}
+            ${rest.length ? `<select class="field ms-other" data-msset="${i}" aria-label="${esc(x.name)} einer anderen Kategorie zuordnen"><option value="">${sg.length ? "Andere Kategorie …" : "Kategorie wählen …"}</option>${rest.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select>` : ""}</span></div>`; }).join("")}
       ${C.length > 6 ? `<button class="pill" data-ms="more" style="margin-top:10px">${S.msMore ? "Weniger anzeigen" : `Alle ${C.length} anzeigen`}</button>` : ""}</div>` : "";
-  return `<section class="card ms-card"><div class="card-h"><h2>Meine Quellen</h2><span class="grow"></span><button class="pill d-editbtn ${S.msEdit ? "on" : ""}" data-ms="edit">${ic(S.msEdit ? "check" : "pen")}${S.msEdit ? "Fertig" : "Gruppen bearbeiten"}</button></div>
-    <p class="hint">Welche Lebensmittel mir was liefern: Makros, Vitamine, Mineralstoffe oder was ich sonst als Gruppe anlege. Ein Lebensmittel darf in mehreren Gruppen stehen. Mit dem Stern markier ich, wofür es meine Hauptquelle ist, z. B. Sardinen bei Omega-3 oder Eier bei Cholin.</p>
-    ${S.msEdit ? msEditHTML() : G.map(grp).join("")}${sug}</section>`;
+  return `<section class="card ms-card"><div class="card-h"><h2>Meine Quellen</h2><span class="grow"></span><button class="pill d-editbtn ${S.msEdit ? "on" : ""}" data-ms="edit">${ic(S.msEdit ? "check" : "pen")}${S.msEdit ? "Fertig" : "Kategorien bearbeiten"}</button></div>
+    <p class="hint">Was mir welches Lebensmittel liefert: Makros, Vitamine, Mineralstoffe. Jedes Lebensmittel steht einmal da, mit seinen Kategorien dahinter. Der Stern an einer Kategorie heißt: Dafür ist es meine Hauptquelle, z. B. Sardinen bei Omega-3. Tippe ich auf eine Kategorie, seh ich nur noch ihre Quellen.</p>
+    ${S.msEdit ? msEditHTML() : filters + tools + head + list}${sug}</section>`;
 }
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-ms]"); if (!a) return;
   const act = a.dataset.ms, gid = a.dataset.m;
   if (act !== "gdel") S.msDel = null;
+  if (act !== "del") S.msDelItem = null;
   switch (act) {
-    case "add": ntOpen(null, {mode:"msrc", macro:gid}); return;
-    case "rm": { const m = S.items.get(a.dataset.id); if (m) { m.macros = (m.macros || []).filter(y => y !== gid); if (m.main) m.main = m.main.filter(y => y !== gid); if (!m.macros.length) removeItem(m.id); else persist(m); } break; }
+    case "filter": { S.msF = gid || ""; try { localStorage.setItem("pc-msf", S.msF); } catch(e){} const fromRow = !!a.closest(".ms-row"); renderMain();
+      if (fromRow) { const f = document.querySelector(".ms-filters"); if (f && f.getBoundingClientRect().top < 0) f.scrollIntoView({block:"start", behavior:"smooth"}); } return; }
+    case "add": ntOpen(null, {mode:"msrc", macro:gid || ""}); return;
+    case "rm": { const m = S.items.get(a.dataset.id); if (!m) break; const before = {macros:[...(m.macros || [])], main:[...(m.main || [])]};
+      m.macros = before.macros.filter(y => y !== gid); m.main = before.main.filter(y => y !== gid); persist(m);
+      toast(`${msLabel(gid)} bei ${m.title} entfernt.`, {label:"Rückgängig", fn: () => { const x = S.items.get(m.id); if (!x) return; x.macros = before.macros; x.main = before.main; persist(x); renderMain(); }}); break; }
+    case "del": { const m = S.items.get(a.dataset.id); if (!m) break; if (S.msDelItem !== m.id) { S.msDelItem = m.id; break; } S.msDelItem = null; removeItem(m.id); toast(`${m.title} ist nicht mehr in meinen Quellen.`); break; }
     case "main": { const m = S.items.get(a.dataset.id); if (!m) return; const on = (m.main || []).includes(gid);
       m.main = on ? m.main.filter(y => y !== gid) : [...(m.main || []), gid]; persist(m);
       toast(on ? `${m.title} ist keine Hauptquelle mehr für ${msLabel(gid)}.` : `${m.title} ist jetzt meine Hauptquelle für ${msLabel(gid)}.`); break; }
@@ -5926,12 +6010,12 @@ document.addEventListener("click", e => {
     case "more": S.msMore = !S.msMore; break;
     case "edit": S.msEdit = !S.msEdit; break;
     case "gadd": { const n = $("#ms-gn"), k = ($("#ms-gk") || {}).value || "", d = k && ntNutDef(k), name = (n && n.value.trim()) || (d ? d[1] : "");
-      if (!name) { toast("Gib der Gruppe einen Namen oder wähl einen Nährwert."); if (n) n.focus(); return; }
-      msOwn().push({id:uid(), name, key:k}); saveSettings(0); if (n) n.value = ""; const s2 = $("#ms-gk"); if (s2) s2.value = ""; toast(`Gruppe ${name} angelegt.`); break; }
-    case "gdel": { const id = a.dataset.id; if (S.msDel !== id) { S.msDel = id; break; }
-      S.settings.msg = msOwn().filter(g => g.id !== id); saveSettings(0); S.msDel = null;
-      for (const m of live("fmsrc")) if ((m.macros || []).includes(id)) { m.macros = m.macros.filter(y => y !== id); if (m.main) m.main = m.main.filter(y => y !== id); if (!m.macros.length) removeItem(m.id); else persist(m); }
-      toast("Gruppe gelöscht."); break; }
+      if (!name) { toast("Gib der Kategorie einen Namen oder wähl einen Nährwert."); if (n) n.focus(); return; }
+      msOwn().push({id:uid(), name, key:k}); saveSettings(0); if (n) n.value = ""; const s2 = $("#ms-gk"); if (s2) s2.value = ""; toast(`Kategorie ${name} angelegt.`); break; }
+    case "gdel": { const id = a.dataset.id; if (msGroups().length <= 1) { toast("Eine Kategorie brauch ich mindestens."); break; } if (S.msDel !== id) { S.msDel = id; break; }
+      S.settings.msg = msOwn().filter(g => g.id !== id); saveSettings(0); S.msDel = null; if (S.msF === id) S.msF = "";
+      for (const m of live("fmsrc")) if ((m.macros || []).includes(id) || (m.main || []).includes(id)) { m.macros = (m.macros || []).filter(y => y !== id); if (m.main) m.main = m.main.filter(y => y !== id); persist(m); }
+      toast("Kategorie gelöscht, die Lebensmittel bleiben."); break; }
     default: return;
   }
   renderMain();
@@ -5941,8 +6025,10 @@ document.addEventListener("change", e => {
   if (t.dataset.msg) { const g = msOwn().find(x => x.id === t.dataset.id); if (!g) return;
     if (t.dataset.msg === "name") { const v = t.value.trim(); if (v) g.name = v; } else g.key = t.value;
     saveSettings(0); return; }
+  if (t.dataset.msadd && t.value) { const m = S.items.get(t.dataset.msadd); if (m && !(m.macros || []).includes(t.value)) { const G = msGroups(); m.macros = [...(m.macros || []).filter(id => G.some(g => g.id === id)), t.value]; persist(m); toast(`${m.title} steht jetzt auch bei ${msLabel(t.value)}.`); } renderMain(); return; }
   if (t.dataset.msset != null && t.value) { const x = (S.msCand || [])[+t.dataset.msset]; if (x) { msToggle(x, t.value, true); toast(`${x.name} steht jetzt bei ${msLabel(t.value)}.`); renderMain(); } }
 });
+document.addEventListener("input", e => { if (e.target.id === "ms-q") { S.msQ = e.target.value; renderMain(); } });
 
 // ---- Eigene Korrekturen an Lebensmitteln aus der Datenbank ----
 // Versteckter Eintrag kind "fdfix" (in HIDDEN_K) pro Lebensmittel: ref "bls:<id>" (alt: "ch:<id>") oder "off:<code>", name (leer = Name aus der Datenbank), n pro 100 g.
@@ -7573,6 +7659,7 @@ document.addEventListener("click", e => {
   const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
   switch (act) {
     case "menu": $("#side").classList.toggle("open"); break;
+    case "toast-act": { const fn = S.toastFn; S.toastFn = null; clearTimeout(toastT); $("#toast-wrap").innerHTML = ""; if (fn) fn(); break; }
     case "side-mini": S.sideMini = !S.sideMini; try { localStorage.setItem("pc-side-mini", S.sideMini ? "1" : ""); } catch(e){} document.body.classList.toggle("side-mini", S.sideMini); renderSide(); break;
     case "d-back": { const bk = (S.dBack || []).pop(); if (bk && S.items.has(bk)) openDetailFresh(bk); else S.dBack = []; break; }
     case "grp": closePop(); if (S.open) closeOverlay(); goGroup(id); break;
