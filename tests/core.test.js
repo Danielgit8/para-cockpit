@@ -371,3 +371,155 @@ test("spentIn summiert einen Monat und eine Kategorie", () => {
   assert.equal(C.spentIn(L, "2026-11"), 14.5);
   assert.equal(C.spentIn(L, "2026-11", "food"), 10.5);
 });
+
+/* ---------- Wochenkalender: Layout, Raster, Wochen, Adapter ---------- */
+const lay = list => Object.fromEntries(C.calLayout(list).map(x => [x.id, x]));
+test("calLayout: zwei überlappende Termine teilen sich die Breite", () => {
+  const r = lay([{id:"a", s:540, e:600}, {id:"b", s:570, e:630}]);
+  assert.deepEqual([r.a.col, r.a.cols, r.a.leftPct, r.a.widthPct], [0, 2, 0, 50]);
+  assert.deepEqual([r.b.col, r.b.cols, r.b.leftPct, r.b.widthPct], [1, 2, 50, 50]);
+  assert.ok(r.b.z > r.a.z);
+});
+test("calLayout: drei verschachtelte Termine bekommen drei Spalten", () => {
+  const r = lay([{id:"lang", s:540, e:720}, {id:"mitte", s:570, e:690}, {id:"kurz", s:600, e:630}]);
+  assert.deepEqual(["lang", "mitte", "kurz"].map(k => r[k].col), [0, 1, 2]);
+  for (const k of ["lang", "mitte", "kurz"]) { assert.equal(r[k].cols, 3); assert.ok(Math.abs(r[k].widthPct - 100 / 3) < 1e-9); }
+  assert.ok(Math.abs(r.kurz.leftPct - 200 / 3) < 1e-9);
+});
+test("calLayout: Kette A–B–C braucht nur zwei Spalten, C nimmt die Spalte von A", () => {
+  const r = lay([{id:"A", s:540, e:600}, {id:"B", s:580, e:660}, {id:"C", s:620, e:700}]);
+  assert.deepEqual([r.A.col, r.B.col, r.C.col], [0, 1, 0]);
+  assert.ok(["A", "B", "C"].every(k => r[k].cols === 2));
+});
+test("calLayout: Ende gleich Start ist keine Überschneidung", () => {
+  const r = lay([{id:"a", s:540, e:600}, {id:"b", s:600, e:660}]);
+  assert.equal(r.a.cols, 1); assert.equal(r.b.cols, 1); assert.equal(r.b.leftPct, 0);
+});
+test("calLayout: Gruppen sind unabhängig, ein später Termin bleibt volle Breite", () => {
+  const r = lay([{id:"a", s:540, e:600}, {id:"b", s:550, e:580}, {id:"c", s:800, e:860}]);
+  assert.equal(r.a.cols, 2); assert.equal(r.c.cols, 1); assert.equal(r.c.widthPct, 100);
+});
+test("calLayout: Zeitpunkt ohne Dauer belegt Platz für die Beschriftung", () => {
+  const r = lay([{id:"p", s:600, e:600, pt:true}, {id:"x", s:605, e:660}]);
+  assert.equal(r.p.cols, 2); assert.equal(r.x.col, 1);
+  assert.deepEqual(C.calLayout([]), []);
+});
+test("snapMin rundet auf 15 Minuten, pxToMin rechnet Pixel um", () => {
+  assert.deepEqual([7, 8, 52, 53, 0, 1439].map(m => C.snapMin(m)), [0, 15, 45, 60, 0, 1440]);
+  assert.equal(C.snapMin(22, 30), 30);
+  assert.equal(C.pxToMin(0, 5, 48), 300);
+  assert.equal(C.pxToMin(48 * 4 + 12, 5, 48), 300 + 240 + 15);
+  assert.equal(C.snapMin(C.pxToMin(100, 5, 48)), 420); // 100 px = 125 Min. nach 05:00 = 07:05 -> 07:00
+});
+test("clampSpan: Mitternacht, Mindestdauer, Tagesgrenzen", () => {
+  assert.deepEqual(C.clampSpan(1380, 60), {s:1380, e:1440});   // 23:00 bis 01:00 endet um 24:00
+  assert.deepEqual(C.clampSpan(1430, 1475), {s:1425, e:1440}); // 23:50 + 45 passt nicht mehr, rutscht auf 23:45
+  assert.deepEqual(C.clampSpan(-30, 30), {s:0, e:30});
+  assert.deepEqual(C.clampSpan(600, 605), {s:600, e:615});     // mindestens 15 Minuten
+  assert.deepEqual(C.clampSpan(600, null), {s:600, e:615});
+  assert.equal(C.m2hm(1440), "24:00"); assert.equal(C.endHM(1440), "23:59"); assert.equal(C.hm2m("07:30"), 450); assert.equal(C.hm2m(""), null);
+});
+test("weekKeys: Montag bis Sonntag, über Jahreswechsel und Zeitumstellung", () => {
+  assert.deepEqual(C.weekKeys("2026-11-15"), ["2026-11-09","2026-11-10","2026-11-11","2026-11-12","2026-11-13","2026-11-14","2026-11-15"]);
+  assert.deepEqual(C.weekKeys("2026-12-31"), ["2026-12-28","2026-12-29","2026-12-30","2026-12-31","2027-01-01","2027-01-02","2027-01-03"]);
+  assert.deepEqual(C.weekKeys("2026-03-29"), ["2026-03-23","2026-03-24","2026-03-25","2026-03-26","2026-03-27","2026-03-28","2026-03-29"]); // Sommerzeit
+  assert.deepEqual(C.weekKeys("2026-10-26"), ["2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-10-31","2026-11-01"]);
+  assert.deepEqual(C.weekKeys("2026-10-24", 3), ["2026-10-24","2026-10-25","2026-10-26"]); // Winterzeit mittendrin
+  assert.equal(C.weekStart("2026-11-09"), "2026-11-09");
+});
+test("calExpand: feste Aufgaben stehen nur an ihren Wochentagen, auch über den Wochenwechsel", () => {
+  const keys = C.weekKeys("2026-11-15", 3).concat(["2026-11-17"]); // So, Mo, Di + Di
+  const items = [{id:"g1", kind:"gtask", title:"Sport", days:[1, 3], log:{"2026-11-16":true}}, {id:"g2", kind:"gtask", title:"Wasser", days:[], log:{}}];
+  const evs = C.calExpand(items, C.weekKeys("2026-11-15", 3), {today:"2026-11-16"});
+  const sport = evs.filter(e => e.src === "g1");
+  assert.deepEqual(sport.map(e => e.date), ["2026-11-16"]);
+  assert.equal(sport[0].done, true); assert.equal(sport[0].allDay, true); assert.equal(sport[0].id, "habit_g1_2026-11-16");
+  assert.equal(sport[0].meta.editable, true);
+  assert.equal(evs.filter(e => e.src === "g2").length, 3);
+  assert.equal(evs.find(e => e.src === "g2" && e.date === "2026-11-15").meta.editable, false);
+  assert.ok(keys.length);
+});
+test("calExpand: alte Habits fragen hdone und kennen rückwirkendes Abhaken", () => {
+  const h = {id:"h", kind:"habit", title:"Lesen", log:{"2026-11-10":5}, mode:"number", goal:10};
+  const evs = C.calExpand([h], ["2026-11-10", "2026-11-20"], {today:"2026-11-15", hdone:(x, k) => (x.log[k] || 0) >= 10, streak:() => 4});
+  assert.deepEqual(evs.map(e => [e.date, e.done, e.meta.editable, e.meta.streak]), [["2026-11-10", false, true, 4], ["2026-11-20", false, false, 4]]);
+});
+test("calExpand: Aufgaben mit Uhrzeit sind Blöcke, nur mit Datum ganztägig, ohne Datum fehlen sie", () => {
+  const items = [{id:"t1", kind:"task", title:"Mail", due:"2026-11-16", at:"09:30", dur:30, prio:"hoch"}, {id:"t2", kind:"task", title:"Zahnarzt", due:"2026-11-16"},
+    {id:"t3", kind:"task", title:"Irgendwann"}, {id:"t4", kind:"task", title:"Alt", due:"2026-11-16", archived:true}, {id:"t5", kind:"task", title:"Ohne Dauer", due:"2026-11-17", at:"10:00"}];
+  const evs = C.calExpand(items, C.weekKeys("2026-11-16"));
+  const by = Object.fromEntries(evs.map(e => [e.src, e]));
+  assert.deepEqual([by.t1.s, by.t1.e, by.t1.allDay, by.t1.meta.prio], [570, 600, false, "hoch"]);
+  assert.equal(by.t2.allDay, true); assert.equal(by.t3, undefined); assert.equal(by.t4, undefined);
+  assert.equal(by.t5.e - by.t5.s, 45);
+});
+test("calExpand: Training geplant und absolviert, Content-Veröffentlichung und Schritte, Termine", () => {
+  const items = [
+    {id:"wp", kind:"wplan", date:"2026-11-17", at:"17:00", dur:60, plan:"p1", day:"d1"},
+    {id:"wo", kind:"workout", title:"Unterkörper", date:"2026-11-16", done:true, ex:[{name:"Kniebeuge"}]},
+    {id:"cp", kind:"cpiece", title:"Reel Zucker", status:"produktion", date:"2026-11-20", steps:[{id:"s1", step:"dreh", date:"2026-11-18", at:"14:00", dur:90, done:false}]},
+    {id:"ev", kind:"event", title:"Arzt", date:"2026-11-19", from:"23:00", to:"01:00"},
+    {id:"ev2", kind:"event", title:"Urlaub", date:"2026-11-14", dateTo:"2026-11-17", from:"10:00"},
+    {id:"ev3", kind:"event", title:"Ins Bett", date:"2026-11-19", from:"22:00"}];
+  const evs = C.calExpand(items, C.weekKeys("2026-11-16"), {planDay:(p, d) => p === "p1" && d === "d1" ? {name:"Oberkörper", ex:[{name:"Bankdrücken"}]} : null});
+  const f = id => evs.filter(e => e.src === id);
+  assert.deepEqual([f("wp")[0].title, f("wp")[0].meta.planned, f("wp")[0].meta.ex, f("wp")[0].s, f("wp")[0].e, f("wp")[0].done], ["Oberkörper", true, ["Bankdrücken"], 1020, 1080, false]);
+  assert.deepEqual([f("wo")[0].allDay, f("wo")[0].done, f("wo")[0].meta.planned], [true, true, false]);
+  assert.deepEqual([f("cp.pub")[0].allDay, f("cp.pub")[0].meta.type, f("cp.pub")[0].date], [true, "publish", "2026-11-20"]);
+  assert.deepEqual([f("cp.s1")[0].title, f("cp.s1")[0].s, f("cp.s1")[0].e, f("cp.s1")[0].meta.step], ["Dreh: Reel Zucker", 840, 930, "dreh"]);
+  assert.deepEqual([f("ev")[0].s, f("ev")[0].e], [1380, 1440]);
+  assert.deepEqual(f("ev2").map(e => [e.date, e.allDay, e.meta.multi]), [["2026-11-16", true, true], ["2026-11-17", true, true]]);
+  assert.deepEqual([f("ev3")[0].s, f("ev3")[0].e, f("ev3")[0].meta.pt], [1320, 1320, true]);
+  assert.equal(new Set(evs.map(e => e.id)).size, evs.length); // keine doppelten ids
+});
+test("calBacklog: Aufgaben ohne Datum und offene Content-Schritte", () => {
+  const items = [{id:"t1", kind:"task", title:"A"}, {id:"t2", kind:"task", title:"B", done:true}, {id:"t3", kind:"task", title:"C", due:"2026-11-20"},
+    {id:"c1", kind:"cpiece", title:"Reel", status:"entwurf", steps:[{id:"s1", step:"skript", done:true}, {id:"s2", step:"dreh", date:"2026-11-18"}]},
+    {id:"c2", kind:"cpiece", title:"Fertig", status:"live"}, {id:"c3", kind:"cpiece", title:"Neu"}];
+  const b = C.calBacklog(items);
+  assert.deepEqual(b.filter(x => x.domain === "task").map(x => x.src), ["t1"]);
+  assert.deepEqual(b.filter(x => x.domain === "content").map(x => x.src), ["c1.schnitt", "c3.skript", "c3.dreh", "c3.schnitt"]);
+  assert.equal(b.find(x => x.src === "c3.skript").title, "Skript: Neu");
+});
+test("calPatch: Verschieben, Resize, Einplanen und Entplanen je Bereich", () => {
+  const t = {id:"t", kind:"task", due:"2026-11-16", at:"09:00", dur:45};
+  assert.deepEqual(C.calPatch({domain:"task", meta:{}}, {date:"2026-11-18", s:615, e:690}, t), {due:"2026-11-18", at:"10:15", dur:75});
+  assert.deepEqual(C.calPatch({domain:"task", meta:{}}, {date:"2026-11-18", s:null}, t), {due:"2026-11-18", at:""});
+  assert.deepEqual(C.calPatch({domain:"task", meta:{}}, {unplan:true}, t), {due:"", at:""});
+  assert.deepEqual(C.calPatch({domain:"task", meta:{}}, {date:"2026-11-18", s:600}, t), {due:"2026-11-18", at:"10:00", dur:45}); // aus dem Backlog: 45 Min.
+  assert.deepEqual(C.calPatch({domain:"termin", meta:{type:"event"}}, {date:"2026-11-19", s:1410, e:1500}, {}), {date:"2026-11-19", dateTo:"", from:"23:30", to:"23:59"});
+  assert.deepEqual(C.calPatch({domain:"termin", meta:{type:"event", pt:true}}, {date:"2026-11-19", s:600}, {}), {date:"2026-11-19", dateTo:"", from:"10:00", to:""});
+  assert.equal(C.calPatch({domain:"termin", meta:{multi:true}}, {date:"2026-11-19", s:600}, {}), null);
+  assert.deepEqual(C.calPatch({domain:"workout", meta:{planned:true}}, {date:"2026-11-20", s:1020, e:1110}, {}), {date:"2026-11-20", at:"17:00", dur:90});
+  assert.equal(C.calPatch({domain:"habit", meta:{}}, {date:"2026-11-20", s:600}, {}), null);
+  const cp = {id:"c", kind:"cpiece", steps:[{id:"s1", step:"dreh", date:"2026-11-18", at:"14:00", dur:90, done:false}]};
+  const moved = C.calPatch({domain:"content", meta:{type:"step", stepId:"s1", step:"dreh"}}, {date:"2026-11-19", s:900, e:960}, cp);
+  assert.deepEqual(moved.steps, [{id:"s1", step:"dreh", date:"2026-11-19", at:"15:00", dur:60, done:false}]);
+  assert.equal(cp.steps[0].date, "2026-11-18"); // Original bleibt unberührt
+  const added = C.calPatch({domain:"content", meta:{type:"step", step:"schnitt", stepId:""}}, {date:"2026-11-21", s:600}, cp, () => "neu");
+  assert.deepEqual(added.steps[1], {id:"neu", step:"schnitt", date:"2026-11-21", at:"10:00", dur:45, done:false});
+  assert.deepEqual(C.calPatch({domain:"content", meta:{type:"step", stepId:"s1", step:"dreh"}}, {unplan:true}, cp).steps[0].date, "");
+  assert.deepEqual(C.calPatch({domain:"content", meta:{type:"publish"}}, {date:"2026-11-22", s:null}, cp), {date:"2026-11-22"});
+  assert.equal(C.calPatch({domain:"content", meta:{type:"publish"}}, {date:"2026-11-22", s:600}, cp), null);
+  assert.throws(() => C.calPatch({domain:"quatsch", meta:{}}, {date:"x", s:1}, {}));
+});
+
+test("Kalender nach Review: Zeitpunkt aus calExpand belegt Platz, 23:59 = 24:00, gleiches Von/Bis, Nacht-Termin", () => {
+  const evs = C.calExpand([{id:"p", kind:"event", title:"Ins Bett", date:"2026-11-16", from:"10:00"}, {id:"t", kind:"task", title:"A", due:"2026-11-16", at:"10:15", dur:30}], ["2026-11-16"]);
+  const r = Object.fromEntries(C.calLayout(evs, 28).map(x => [x.src, x]));
+  assert.equal(r.p.cols, 2); assert.notEqual(r.p.col, r.t.col);
+  const r2 = Object.fromEntries(C.calLayout([{id:"a", s:600, e:615}, {id:"b", s:615, e:630}], 28).map(x => [x.id, x]));
+  assert.equal(r2.a.cols, 2); // gezeichnet 20 px hoch, würden sich sonst überdecken
+  assert.equal(C.endMin("23:59"), 1440); assert.equal(C.endMin("10:00"), 600);
+  assert.deepEqual(C.clampSpan(600, 600), {s:600, e:615});
+  const late = C.calExpand([{id:"e", kind:"event", date:"2026-11-16", from:"23:00", to:"23:59"}, {id:"n", kind:"event", date:"2026-11-16", from:"23:00", to:"01:00"}], ["2026-11-16"]);
+  assert.equal(late.find(x => x.src === "e").e, 1440);
+  const night = late.find(x => x.src === "n"); assert.equal(night.meta.overnight, true);
+  assert.equal(C.calPatch(night, {date:"2026-11-17", s:600}, {}), null);
+});
+test("calPatch Content: ohne stepId nur offener Schritt ohne Datum, geplante bleiben, fehlender Schritt ohne Art = null", () => {
+  const cp = {steps:[{id:"d1", step:"dreh", date:"2026-11-18", at:"14:00", dur:90, done:false}, {id:"d0", step:"dreh", date:"", done:true}]};
+  const p = C.calPatch({domain:"content", meta:{type:"step", step:"dreh", stepId:""}}, {date:"2026-11-20", s:600}, cp, () => "neu");
+  assert.equal(p.steps.length, 3); assert.equal(p.steps[0].date, "2026-11-18"); assert.equal(p.steps[2].id, "neu");
+  assert.equal(C.calPatch({domain:"content", meta:{type:"step", stepId:"weg"}}, {date:"2026-11-20", s:600}, cp), null);
+});

@@ -200,7 +200,7 @@ async function unzip(u8){
 }
 
 /* ---------- Suche mit Rangfolge ---------- */
-const SKIP_K = ["day", "boardlib", "brandtpl"]; // interne Hilfseinträge
+const SKIP_K = ["day", "boardlib", "brandtpl", "wplan"]; // interne Hilfseinträge
 const NOFIELD = new Set(["id", "kind", "title", "body", "tags", "links", "files", "shots", "rel", "thumb", "scene", "log", "path"]);
 // Weitere Textfelder (Notizen bei Kontakten, Hook bei Videos, Übungsnamen im Training …)
 function extraText(i){
@@ -315,7 +315,163 @@ function spentIn(list, mk, cat){
   return (list || []).filter(s => s && String(s.date || "").startsWith(mk) && (!cat || s.cat === cat)).reduce((t, s) => t + (moneyNum(s.amount) || 0), 0);
 }
 
-const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
+/* ---------- Wochenkalender (15.11.2026): alles Planbare in einer Woche ---------- */
+// Zeiten sind Minuten ab Mitternacht in lokaler Wanduhrzeit, Tage sind Schlüssel "JJJJ-MM-TT".
+// So verschiebt die Sommer-/Winterzeit nichts: 09:00 bleibt 09:00, egal ob der Tag 23 oder 25 Stunden hat.
+const DAY_MIN = 1440;
+const CAL_DOMAINS = ["habit", "task", "workout", "content", "termin"];
+const CAL_STEPS = ["skript", "dreh", "schnitt"];
+const CAL_STEP_LABEL = {skript:"Skript", dreh:"Dreh", schnitt:"Schnitt"};
+const CAL_OPEN_ST = ["check", "entwurf", "produktion"];
+const hm2m = s => { const m = /^(\d{1,2}):(\d{2})/.exec(s || ""); return m ? +m[1] * 60 + +m[2] : null; };
+const m2hm = n => { const x = Math.max(0, Math.min(DAY_MIN, Math.round(n))); return x >= DAY_MIN ? "24:00" : `${pad(Math.floor(x / 60))}:${pad(x % 60)}`; };
+// Für Felder vom Typ time: 24:00 kennt der Browser nicht
+const endHM = n => n >= DAY_MIN ? "23:59" : m2hm(n);
+// Ein gespeichertes Ende "23:59" steht für 24:00, damit Dauer und Raster stimmen
+const endMin = s => { const m = hm2m(s); return m === DAY_MIN - 1 ? DAY_MIN : m; };
+// Auf das 15-Minuten-Raster runden (zur nächsten Marke)
+const snapMin = (m, step = 15) => Math.round(m / step) * step;
+// Pixel im Stundenraster in Minuten: lo = erste Stunde, hh = Pixel pro Stunde
+const pxToMin = (px, lo, hh) => lo * 60 + px / hh * 60;
+// Spanne in den Tag zwingen: Start 0 bis 24:00 minus Mindestdauer, Ende nach dem Start.
+// Ende vor dem Start heißt: geht über Mitternacht, endet dann um 24:00. Ende gleich Start zählt wie keine Dauer.
+function clampSpan(s, e, min = 15){
+  const a = Math.max(0, Math.min(DAY_MIN - min, s));
+  let b = e == null || e === s ? a + min : e < s ? DAY_MIN : e;
+  b = Math.max(a + min, Math.min(DAY_MIN, b));
+  return {s:a, e:b};
+}
+// Montag der Woche
+const weekStart = k => dkey(addDays(parseKey(k), -(isoDay(parseKey(k)) - 1)));
+// Tage der Ansicht: 7 = Montag bis Sonntag der Woche von k, sonst n Tage ab k
+function weekKeys(k, n = 7){
+  const start = parseKey(n === 7 ? weekStart(k) : k);
+  return Array.from({length:n}, (_, i) => dkey(addDays(start, i)));
+}
+
+// Überlappungen nebeneinander legen (Sweep-Line):
+// 1. nach Start sortieren, 2. zusammenhängende Gruppen bilden (alles, was sich direkt oder über andere überschneidet),
+// 3. in jeder Gruppe der Reihe nach die erste freie Spalte nehmen. Ende = Start zählt nicht als Überschneidung.
+// Einträge ohne Dauer (pt) belegen für das Layout minDur Minuten, damit ihre Beschriftung Platz hat.
+function calLayout(list, minDur = 15){
+  const isPt = x => !!(x.pt || (x.meta && x.meta.pt));
+  // Jeder Eintrag belegt mindestens minDur, so viel Platz braucht er auch beim Zeichnen
+  const xs = (list || []).map((x, i) => ({...x, _i:i, _pt:isPt(x), _end: Math.max(x.e ?? x.s, x.s + minDur)}))
+    .sort((a, b) => a.s - b.s || (b._pt ? 1 : 0) - (a._pt ? 1 : 0) || b._end - a._end || a._i - b._i);
+  const out = []; let group = [], end = -Infinity;
+  const flush = () => {
+    const cols = [];
+    for (const x of group) { let c = cols.findIndex(t => t <= x.s); if (c < 0) { c = cols.length; cols.push(0); } cols[c] = x._end; x.col = c; }
+    for (const x of group) { x.cols = cols.length; x.widthPct = 100 / x.cols; x.leftPct = x.col * x.widthPct; x.z = x.col + 1; }
+    out.push(...group); group = [];
+  };
+  for (const x of xs) { if (group.length && x.s >= end) { flush(); end = -Infinity; } group.push(x); end = Math.max(end, x._end); }
+  flush();
+  return out.map(x => { const {_i, _end, _pt, ...r} = x; return r; });
+}
+
+// Adapter: Einträge aus den getrennten Bereichen werden zu einheitlichen Kalender-Einträgen.
+// CalEvent = {id: "<bereich>_<quelle>_<tag>", src, domain, title, date, s, e, allDay, done, meta}
+// ctx (alles optional): today, hdone(h, k), streak(h), goalName(id), planDay(planId, dayId) -> {name, ex}
+function calExpand(items, keys, ctx = {}){
+  const L = (items || []).filter(i => i && !i.archived && !i.deleted), K = new Set(keys || []), out = [];
+  const today = ctx.today || dkey();
+  const ev = (domain, src, date, title, extra) => out.push({id:`${domain}_${src}_${date}`, src, domain, title: title || "", date, s:null, e:null, allDay:true, done:false, meta:{}, ...extra});
+  const timed = (at, dur) => { const s = hm2m(at); if (s == null) return null; return clampSpan(s, s + (+dur > 0 ? +dur : 45)); };
+  for (const i of L) {
+    if (i.kind === "gtask") {
+      for (const k of keys) {
+        const on = !(i.days || []).length || i.days.includes(isoDay(parseKey(k)));
+        if (on) ev("habit", i.id, k, i.title, {done: !!(i.log || {})[k], meta:{type:"fix", goal:i.goal || "", goalName: ctx.goalName ? ctx.goalName(i.goal) : "", editable: k === today}});
+      }
+    } else if (i.kind === "habit") {
+      for (const k of keys) ev("habit", i.id, k, i.title, {done: ctx.hdone ? !!ctx.hdone(i, k) : !!(i.log || {})[k], meta:{type:"habit", mode:i.mode || "check", streak: ctx.streak ? ctx.streak(i) : 0, editable: k <= today}});
+    } else if (i.kind === "task") {
+      if (!i.due || !K.has(i.due)) continue;
+      const t = timed(i.at, i.dur);
+      ev("task", i.id, i.due, i.title, {done: !!i.done, ...(t ? {...t, allDay:false} : {}), meta:{prio:i.prio || "normal", repeat:i.repeat || ""}});
+    } else if (i.kind === "wplan" || i.kind === "workout") {
+      if (!i.date || !K.has(i.date)) continue;
+      const planned = i.kind === "wplan", t = timed(i.at, i.dur);
+      const pd = planned && ctx.planDay ? ctx.planDay(i.plan, i.day) : null;
+      ev("workout", i.id, i.date, i.title || (pd && pd.name) || "Training", {done: !planned && !!i.done, ...(t ? {...t, allDay:false} : {}),
+        meta:{planned, plan:i.plan || "", day:i.day || "", ex: planned ? ((pd && pd.ex) || []).map(e => e.name).filter(Boolean) : (i.ex || []).map(e => e.name).filter(Boolean), note:i.note || ""}});
+    } else if (i.kind === "cpiece") {
+      if (i.date && K.has(i.date)) ev("content", i.id + ".pub", i.date, i.title || "Ohne Titel", {done: i.status === "live", meta:{type:"publish", piece:i.id, status:i.status || "check", formats:i.formats || []}});
+      for (const st of (i.steps || [])) {
+        if (!st || !st.date || !K.has(st.date)) continue;
+        const t = timed(st.at, st.dur);
+        ev("content", i.id + "." + st.id, st.date, `${CAL_STEP_LABEL[st.step] || "Block"}: ${i.title || "Ohne Titel"}`, {done: !!st.done, ...(t ? {...t, allDay:false} : {}),
+          meta:{type:"step", piece:i.id, stepId:st.id, step:st.step, status:i.status || "check"}});
+      }
+    } else if (i.kind === "event") {
+      if (!i.date) continue;
+      for (const k of keys) {
+        if (!(i.date <= k && (i.dateTo || i.date) >= k)) continue;
+        const s = hm2m(i.from), multi = !!i.dateTo && i.dateTo !== i.date;
+        if (s == null || multi) { ev("termin", i.id, k, i.title || "Termin", {meta:{type:"event", multi}}); continue; }
+        const en = endMin(i.to), pt = en == null, overnight = !pt && en < s;
+        const sp = pt ? {s, e:s} : clampSpan(s, en);
+        ev("termin", i.id, k, i.title || "Termin", {s:sp.s, e:sp.e, allDay:false, meta:{type:"event", pt, multi, overnight}});
+      }
+    }
+  }
+  return out;
+}
+
+// Was noch keinen Platz in der Woche hat: offene Aufgaben ohne Datum und Content-Schritte ohne Datum.
+// Schritte gibt es pro Stück in check/entwurf/produktion für Skript, Dreh und Schnitt, solange sie nicht erledigt sind.
+function calBacklog(items){
+  const L = (items || []).filter(i => i && !i.archived && !i.deleted), out = [];
+  for (const t of L) if (t.kind === "task" && !t.done && !t.due) out.push({id:`task_${t.id}_backlog`, src:t.id, domain:"task", title:t.title || "", meta:{prio:t.prio || "normal"}});
+  for (const p of L) {
+    if (p.kind !== "cpiece" || !CAL_OPEN_ST.includes(p.status || "check")) continue;
+    for (const step of CAL_STEPS) {
+      const st = (p.steps || []).find(x => x && x.step === step);
+      if (st && (st.date || st.done)) continue;
+      out.push({id:`content_${p.id}.${step}_backlog`, src:p.id + "." + step, domain:"content", title:`${CAL_STEP_LABEL[step]}: ${p.title || "Ohne Titel"}`, meta:{type:"step", piece:p.id, step, stepId: st ? st.id : "", status:p.status || "check"}});
+    }
+  }
+  return out;
+}
+
+// Was sich am Quell-Eintrag ändert, wenn ein Kalender-Eintrag verschoben, in der Dauer geändert, eingeplant oder entplant wird.
+// ch = {date, s, e} (s = null heißt: ganztägig an date) oder {unplan:true}. Rückgabe: Felder zum Übernehmen oder null, wenn das nicht geht.
+function calPatch(ev, ch, item, mkId){
+  if (!ev || !ch || !item) return null;
+  const span = ch.s == null ? null : clampSpan(ch.s, ch.e == null ? ch.s + 45 : ch.e);
+  const dur = span ? span.e - span.s : undefined;
+  switch (ev.domain) {
+    case "task":
+      if (ch.unplan) return {due:"", at:""};
+      return span ? {due:ch.date, at:m2hm(span.s), dur} : {due:ch.date, at:""};
+    case "termin":
+      if (ev.meta && (ev.meta.multi || ev.meta.overnight || ev.meta.type === "block")) return null;
+      if (ch.unplan) return null;
+      if (!span) return {date:ch.date, dateTo:"", from:"", to:""};
+      return {date:ch.date, dateTo:"", from:m2hm(span.s), to: ev.meta && ev.meta.pt && ch.e == null ? "" : endHM(span.e)};
+    case "workout":
+      if (ch.unplan) return null;
+      return span ? {date:ch.date, at:m2hm(span.s), dur} : {date:ch.date, at:""};
+    case "content": {
+      const m = ev.meta || {};
+      if (m.type === "publish") return ch.unplan ? {date:""} : span ? null : {date:ch.date};
+      const steps = (item.steps || []).map(x => ({...x}));
+      // Mit stepId genau diesen Schritt, sonst nur einen offenen Schritt dieser Art ohne Datum. Geplante oder erledigte bleiben, wie sie sind.
+      let st = m.stepId ? steps.find(x => x.id === m.stepId) : steps.find(x => x.step === m.step && !x.done && !x.date);
+      if (!st) { if (ch.unplan || !m.step) return null; st = {id: mkId ? mkId() : m.step + "-" + Date.now().toString(36), step:m.step, date:"", at:"", dur:45, done:false}; steps.push(st); }
+      if (ch.unplan) Object.assign(st, {date:"", at:""});
+      else if (span) Object.assign(st, {date:ch.date, at:m2hm(span.s), dur});
+      else Object.assign(st, {date:ch.date, at:""});
+      return {steps};
+    }
+    case "habit": return null;
+    default: throw new Error("Unbekannter Kalender-Bereich: " + ev.domain);
+  }
+}
+
+const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
+  DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
   CS_STATUS, CS_CHECKS, csChecksOk, csCanStatus, csGateOk, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;

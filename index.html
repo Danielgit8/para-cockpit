@@ -434,6 +434,123 @@ body.tdragging .tdrop.over .tdrop-hint{color:var(--text);font-weight:600}
 .cal-ev.pt{border-radius:999px}
 .cal-now{position:absolute;left:0;right:0;height:2px;background:var(--late);z-index:3;pointer-events:none}
 .cal-now::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--late)}
+/* ---------- Weekly Cockpit (15.11.2026): Woche mit Habits, Aufgaben, Training, Content, Terminen ---------- */
+.wk-card{padding:14px 14px 16px}
+.wk-filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+.wk-filters .grow{flex:1}
+.wk-f i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.wk-f .num{opacity:.6;font-weight:600}
+.wk-f.on{background:var(--c);color:var(--on-ink);border-color:transparent}
+.wk-f.on i{background:currentColor}
+.wk-seg{flex:none;flex-wrap:nowrap}
+.wk{display:grid;grid-template-columns:232px minmax(0,1fr);gap:12px;align-items:start}
+.wk.noback{grid-template-columns:minmax(0,1fr)}
+.wk-back{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:var(--r-lg);padding:10px;background:var(--bg-hi);max-height:calc(100vh - 230px);min-height:0;min-width:0}
+.wk-bh{display:flex;align-items:center;gap:6px}
+.wk-bh .grow{flex:1}
+.wk-bh .num{font-size:12px;color:var(--muted)}
+.wk-bl{overflow:auto;display:flex;flex-direction:column;gap:5px;min-height:0;flex:1}
+.wk-bl .sec-l{margin:6px 0 0}
+.wk-bi{font-size:12.5px;padding:6px 8px;border-radius:var(--r-md);background:color-mix(in srgb,var(--c) 14%,var(--panel-solid));border-left:3px solid var(--c);cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;flex:none}
+.wk-bi span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-bi.hoch{font-weight:700}
+.wk-bhint{font-size:11.5px;margin:0}
+.wk-main{min-width:0;display:flex;flex-direction:column;gap:8px}
+.wk-bopen{align-self:flex-start}
+.wk-scroll{overflow:auto;max-height:calc(100vh - 230px);min-height:420px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--panel-solid);position:relative;overscroll-behavior:contain}
+.wk-in{min-width:calc(52px + var(--n) * var(--colw));user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.wk-top,.wk-body{display:grid;grid-template-columns:52px repeat(var(--n),minmax(var(--colw),1fr))}
+/* Eigene Ebene fürs Raster: Jetzt-Linie und Blöcke bleiben unter der klebenden Kopfzeile */
+.wk-body{position:relative;z-index:0}
+.wk-top{position:sticky;top:0;z-index:30;background:var(--panel-solid);border-bottom:1px solid var(--line-2);box-shadow:0 6px 12px -10px rgba(0,0,0,.35)}
+.wk-corner{position:sticky;left:0;z-index:2;background:var(--panel-solid)}
+.wk-adl{font-size:10px;color:var(--muted);padding:6px 6px 0 2px;text-align:right;border-top:1px solid var(--line)}
+.wk-colh{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 6px;font-size:11px;color:var(--muted);font-weight:700;min-width:0;border-left:1px solid var(--line)}
+.wk-colh b{font-size:16px;color:var(--text);padding:0 7px;border-radius:999px}
+.wk-colh.today b{background:var(--bordeaux);color:#FFF8EE}
+.wk-colh.past{opacity:.72}
+.wk-colh small{font-weight:600;font-size:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-ad{display:flex;flex-direction:column;gap:3px;padding:4px 3px 6px;min-width:0;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.wk-ad.today{background:var(--brand-soft)}
+.wk-ad.over{outline:2px dashed var(--text);outline-offset:-2px}
+.wk-prog{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);padding:0 3px}
+.wk-prog i{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.wk-prog b{display:block;height:100%;background:var(--olive)}
+.wk-hb{display:flex;align-items:center;gap:5px;font-size:11.5px;text-align:left;padding:2px 5px 2px 3px;border-radius:var(--r-sm);min-width:0;color:var(--text);width:100%}
+.wk-hb:hover{background:var(--soft)}
+.wk-hb i{width:15px;height:15px;flex:none;border:1.5px solid var(--olive);border-radius:3px;display:grid;place-items:center;color:var(--on-ink)}
+.wk-hb i svg{width:11px;height:11px;stroke-width:3.4;opacity:0}
+.wk-hb.on i{background:var(--olive)}
+.wk-hb.on i svg{opacity:1}
+.wk-hb.on span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.wk-hb.lock{cursor:default}
+.wk-hb.lock:not(.on) i{opacity:.45}
+.wk-hb span,.wk-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.wk-chip{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 6px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--c) 16%,var(--panel-solid));border-left:3px solid var(--c);min-width:0;cursor:pointer}
+.wk-chip.mv{cursor:grab}
+.wk-chip svg{width:12px;height:12px;flex:none}
+.wk-chip.done span{text-decoration:line-through;opacity:.6}
+.wk-more{font-size:11px;color:var(--muted);text-align:left;padding:1px 5px;font-weight:600}
+.wk-hours{position:sticky;left:0;z-index:45;background:var(--panel-solid);border-right:1px solid var(--line)}
+.wk-hours span{position:absolute;right:6px;transform:translateY(-50%);font-size:10.5px;color:var(--muted)}
+.wk-hours span:first-child{transform:none}
+.wk-col{position:relative;border-left:1px solid var(--line);cursor:cell;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--line) 40%,transparent) 1px,transparent 1px);background-size:100% var(--hh),100% calc(var(--hh) / 2)}
+.wk-col.today{background-color:color-mix(in srgb,var(--brand-soft) 55%,transparent)}
+.wk-ev{position:absolute;border-radius:var(--r-md);padding:3px 6px;font-size:11.5px;line-height:1.25;overflow:hidden;background:color-mix(in srgb,var(--c) 20%,var(--panel-solid));border-left:3px solid var(--c);color:var(--text);cursor:pointer;box-shadow:0 1px 0 var(--line)}
+.wk-ev.mv{cursor:grab}
+.wk-ev b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-ev small{display:block;color:var(--muted);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-ev.short{display:flex;align-items:center;padding:0 6px}
+.wk-ev.short b span{font-weight:600;opacity:.7}
+.wk-ev.pt{border-radius:999px}
+.wk-ev.done{opacity:.55}
+.wk-ev.done b{text-decoration:line-through}
+.wk-ev.blk{background:color-mix(in srgb,var(--c) 9%,transparent);border-left-style:dashed;box-shadow:none}
+.wk-ev.blk b{font-weight:600}
+.wk-ev.d-termin:not(.blk){background:var(--ink);color:var(--on-ink);border-left-color:var(--ink)}
+.wk-ev.d-termin:not(.blk) small{color:inherit;opacity:.7}
+.wk-ev:focus-visible,.wk-chip:focus-visible,.wk-bi:focus-visible{outline:2px solid var(--text);outline-offset:1px}
+.wk-ev.dragging,.wk-bi.dragging,.wk-chip.dragging{opacity:.35}
+.wk-armed{outline:2px solid var(--text);outline-offset:1px}
+.wk-rs{position:absolute;left:0;right:0;bottom:0;height:9px;cursor:ns-resize;touch-action:none}
+.wk-rs::after{content:"";position:absolute;left:50%;bottom:3px;width:18px;height:3px;margin-left:-9px;border-radius:2px;background:var(--c);opacity:0;transition:opacity .15s}
+.wk-ev:hover .wk-rs::after{opacity:.85}
+@media (hover:none){.wk-rs{height:14px}.wk-rs::after{opacity:.6}}
+.wk-ghost{position:absolute;left:2px;right:2px;z-index:40;pointer-events:none;border-radius:var(--r-md);border:1.5px dashed var(--c);background:color-mix(in srgb,var(--c) 22%,transparent);padding:2px 6px;font-size:11.5px;overflow:hidden;color:var(--text)}
+.wk-ghost b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-ghost small{font-weight:700}
+body.wk-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+.wk-now{position:absolute;left:0;right:0;height:2px;background:var(--late);z-index:35;pointer-events:none}
+.wk-now::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--late)}
+.modal.wk-pop.at{transform:none}
+.wk-pop h2{font-size:18px;margin:0}
+.wk-dtitle{font-family:var(--f-head);font-size:26px;line-height:1.15;margin:0;overflow-wrap:anywhere}
+.wk-dchip i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.wk-done{display:flex;align-items:center;gap:10px;font-weight:600}
+.wk-done input{width:20px;height:20px;accent-color:var(--olive)}
+.wk-acts{display:flex;flex-wrap:wrap;gap:8px}
+.wk-ex{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.wk-ex li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px;font-size:14px}
+.wk-ex li span{color:var(--muted);font-size:12.5px;text-align:right}
+.wk-big{font-size:17px;font-weight:600;margin:0}
+@media (max-width:860px){
+  .wk{grid-template-columns:minmax(0,1fr)}
+  .wk-back{max-height:230px}
+  .wk-scroll{max-height:calc(100dvh - 300px);min-height:380px}
+  .wk-filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -14px 12px;padding:0 14px 2px;scrollbar-width:none}
+  .wk-filters .grow{display:none}
+  .wk-filters .pill{flex:none}
+  .wk-seg{order:-1}
+}
+@media (max-width:560px){
+  .wk-card{padding:10px 8px 12px}
+  .wk-filters{margin:0 -8px 10px;padding:0 8px 2px}
+  .wk-top,.wk-body{grid-template-columns:40px repeat(var(--n),minmax(var(--colw),1fr))}
+  .wk-in{min-width:calc(40px + var(--n) * var(--colw))}
+  .wk-hours span{right:4px;font-size:9.5px}
+  .wk-top .wk-adl{visibility:hidden}
+}
 .plan-row{display:grid;grid-template-columns:28px 104px 104px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .plan-row .field{height:36px;padding:0 8px}
 .bs-row{display:grid;grid-template-columns:minmax(0,1.3fr) 104px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
@@ -1873,7 +1990,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-15.3";
+const APP_VERSION = "2026-11-15.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1961,7 +2078,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc"];
+const HIDDEN_K = ["nsday", "jday", "day", "wplan", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -2350,7 +2467,7 @@ function setupSW(){
   const had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!had) return;
-    const busy = S.open || S.pop || S.bd || S.nt || S.csDlg || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
+    const busy = S.open || S.pop || S.bd || S.nt || S.csDlg || (S.wkD && document.querySelector("#overlay .wk-drawer")) || S.wkOn || (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName));
     if (busy) { toast("Neue Version bereit. Sie ist beim nächsten Öffnen aktiv."); return; }
     clearTimeout(saveT); idb.set(stateKey(), snapshot()).catch(() => {}).finally(() => location.reload());
   });
@@ -2365,7 +2482,7 @@ function checkUpdate(){
   }).catch(() => {});
 }
 async function applyUpdate(force){
-  const busy = S.open || S.pop || S.bd || S.nt || S.csDlg || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
+  const busy = S.open || S.pop || S.bd || S.nt || S.csDlg || (S.wkD && document.querySelector("#overlay .wk-drawer")) || S.wkOn || (document.activeElement && (/INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.activeElement.isContentEditable));
   if (busy && !force) { if (!S.updateNote) { S.updateNote = true; toast("Neue Version bereit. Sie lädt, sobald ich den Eintrag schließe."); } S.updatePending = true; return; }
   // Schutz gegen Neulade-Schleifen, falls der Server kurz noch alte Dateien ausliefert
   try { const last = +sessionStorage.getItem("para-cockpit.reloaded") || 0; if (!force && Date.now() - last < 60000) return; sessionStorage.setItem("para-cockpit.reloaded", Date.now()); } catch(e){}
@@ -2548,11 +2665,16 @@ function header(title, sub){
     </div></div>${groupTabs()}`;
 }
 function renderMain(){
+  if (S.wkOn) { S.wkRenderLater = true; return; } // Kalender: erst nach dem Ziehen neu zeichnen, sonst hängen Spalte und Block nicht mehr im Dokument
   const main = $("#main");
   const a = document.activeElement; const fid = a && a.id && main.contains(a) ? a.id : null;
   let ss = null, se = null; try { ss = a.selectionStart; se = a.selectionEnd; } catch(e){}
   const keep = {}; main.querySelectorAll("[data-keep]").forEach(n => { if (n.id) keep[n.id] = n.value; });
+  wkKeepScroll(true);
   main.innerHTML = viewHTML();
+  wkKeepScroll(false);
+  // Offenes Kalender-Panel mitziehen, außer ich tippe gerade darin
+  if (S.wkD && document.querySelector("#overlay .wk-drawer") && !(a && a.closest && a.closest(".wk-drawer") && /INPUT|SELECT|TEXTAREA/.test(a.tagName))) wkDrawer();
   // Seitenwechsel bekommt einen kurzen Auftritt (nur Aussehen, siehe CSS „Cuisine de papier“)
   if (S.view !== renderMain.v || S.mode !== renderMain.m) { renderMain.v = S.view; renderMain.m = S.mode; main.classList.remove("pg-in"); void main.offsetWidth; main.classList.add("pg-in"); clearTimeout(renderMain.t); renderMain.t = setTimeout(() => main.classList.remove("pg-in"), 1300); }
   for (const [id, v] of Object.entries(keep)) { const n = document.getElementById(id); if (n) n.value = v; }
@@ -3384,7 +3506,7 @@ const sortBlocks = bs => bs.slice().sort((a, b) => (toMin(a.start) ?? 0) - (toMi
 const dayItem = k => all().find(i => i.kind === "day" && i.date === k);
 const eventsOn = k => live("event").filter(e => e.date && e.date <= k && (e.dateTo || e.date) >= k).sort((a, b) => (toMin(a.from) ?? -1) - (toMin(b.from) ?? -1));
 const calDay = () => S.calDay || dkey();
-const calMode = () => S.calMode || (matchMedia("(max-width:860px)").matches ? "day" : "week");
+const calMode = () => S.calMode || "week";
 function dayPlan(k){
   const o = dayItem(k); const events = eventsOn(k);
   const pid = o && o.plan != null ? o.plan : (S.settings.week || DEF_WEEK)[isoDay(parseKey(k))];
@@ -3413,13 +3535,11 @@ function dayEntries(d){
   const evs = d.events.filter(e => toMin(e.from) != null).map(e => { const s = toMin(e.from), en = toMin(e.to), pt = en == null; return {kind:"event", id:e.id, s, e: pt ? s : en > s ? en : s + 60, pt, title:e.title || "Termin", c:"var(--ink)"}; });
   const bls = d.blocks.filter(b => toMin(b.start) != null).map(b => { const s = toMin(b.start), en = toMin(b.end), pt = en == null; return {kind:"block", id:b.id, s, e: pt ? s : en > s ? en : s + 30, pt, title:b.title || "Block", c:b.color || CAL_COLORS[0], ref:b.ref}; });
   for (const b of bls) b.off = evs.some(v => !v.pt && v.s < Math.max(b.e, b.s + 1) && v.e > b.s);
-  const list = [...evs, ...bls].sort((a, b) => a.s - b.s || b.pt - a.pt || b.e - a.e);
-  let group = [], end = -1;
-  const flush = () => { const cols = []; for (const x of group) { let i = cols.findIndex(c => c <= x.s); if (i < 0) { i = cols.length; cols.push(0); } cols[i] = x.e; x.col = i; } for (const x of group) x.cols = cols.length; group = []; };
-  for (const x of list) { if (group.length && x.s >= end) flush(); group.push(x); end = Math.max(end, x.e); }
-  flush();
-  return list;
+  // Gleiche Spalten-Logik wie im Weekly Cockpit (core.js, getestet)
+  return calLayoutSafe([...evs, ...bls]);
 }
+// Passt core.js (noch) nicht zur Seite, z. B. weil das Handy beim Update eine alte Fassung aus dem Speicher nimmt, bricht „Heute“ nicht ab
+const calLayoutSafe = list => PC.calLayout ? PC.calLayout(list, 15) : list.map(x => ({...x, col:0, cols:1, leftPct:0, widthPct:100, z:1}));
 function calRange(days){
   let lo = 6 * 60, hi = 23 * 60;
   for (const d of days) for (const x of dayEntries(d)) { lo = Math.min(lo, x.s); hi = Math.max(hi, x.e); }
@@ -3453,15 +3573,370 @@ function calDayHTML(k){
     <div class="cal-grid" style="--cols:1;--colw:0px;--hh:${hh}px">${calHoursHTML(lo, hi, hh)}${calColHTML(d, lo, hi, hh, false)}</div>
     <p class="hint" style="margin:12px 0 0">Auf einen Block tippen, um ihn zu ändern, oder auf eine freie Stelle für einen neuen Block oder Termin.</p></section>`;
 }
-function calWeekHTML(k){
-  const dt = parseKey(k); const mon = addDays(dt, -(isoDay(dt) - 1)); const tk = dkey();
-  const ds = Array.from({length:7}, (_, i) => dayPlan(dkey(addDays(mon, i))));
-  const [lo, hi] = calRange(ds); const hh = 44;
-  const heads = ds.map((d, i) => `<button class="cal-colh ${d.k === tk ? "today" : ""}" data-act="cal-day" data-day="${d.k}" title="Tagesansicht">${WD[i]}<b class="num">${parseKey(d.k).getDate()}</b><small>${esc(d.hidden ? "Ausgeblendet" : d.plan ? d.plan.name : "Frei")}${d.custom ? " •" : ""}</small></button>`).join("");
-  const alld = ds.map(d => `<div class="cal-ad">${d.events.filter(e => toMin(e.from) == null).map(evChip).join("")}</div>`).join("");
-  return `<section class="card"><div class="cal-scroll"><div class="cal-grid" style="--cols:7;--colw:96px;--hh:${hh}px"><span></span>${heads}<span></span>${alld}${calHoursHTML(lo, hi, hh)}${ds.map(d => calColHTML(d, lo, hi, hh, true)).join("")}</div></div>
-    <p class="hint" style="margin:12px 0 0">Auf eine freie Stelle tippen für einen neuen Block oder Termin. Ein Punkt hinter der Vorlage heißt: Dieser Tag ist angepasst.</p></section>`;
+/* --- Weekly Cockpit (15.11.2026): Habits, Aufgaben, Training, Content und Termine in einer Woche ---
+   Die Bereiche bleiben getrennt gespeichert. PC.calExpand (core.js) macht daraus einheitliche Kalender-Einträge,
+   PC.calLayout legt Überschneidungen nebeneinander, PC.calPatch sagt, was sich beim Verschieben am Eintrag ändert. */
+const WK_DOM = [["all","Alle"],["habit","Habits"],["task","Aufgaben"],["workout","Training"],["content","Content"],["termin","Termine"]];
+const WK_COL = {habit:"var(--olive)", task:"var(--ardoise)", workout:"var(--bordeaux)", content:"var(--senf)", termin:"var(--ink)"};
+const WK_LO = 5, WK_HI = 23, WK_HH = 48, WK_DUR = 45;
+function wkSt(){
+  if (!S.wk) { let o = {}; try { o = JSON.parse(localStorage.getItem("pc-wk") || "{}") || {}; } catch(e){}
+    S.wk = {days: [3, 7].includes(o.days) ? o.days : 0, filter: WK_DOM.some(d => d[0] === o.filter) ? o.filter : "all", back: o.back === undefined ? !wkNarrow() : !!o.back, q:"", more:{}}; }
+  return S.wk;
 }
+function wkSave(){ const w = wkSt(); try { localStorage.setItem("pc-wk", JSON.stringify({days:w.days, filter:w.filter, back:w.back})); } catch(e){} }
+const wkNarrow = () => matchMedia("(max-width:860px)").matches;
+const wkDays = () => wkSt().days || (wkNarrow() ? 3 : 7);
+const wkKeys = () => PC.weekKeys(calDay(), wkDays());
+// Feste Aufgaben nur, solange ihr Ziel noch da ist (wie auf der Heute-Seite)
+const wkItems = () => all().filter(i => !i.archived && (i.kind !== "gtask" || i.goal === G_BASICS || (S.items.get(i.goal) && !S.items.get(i.goal).archived)));
+function wkPlanDay(pid, did){ const p = ((S.settings.training || {}).plans || []).find(x => x.id === pid); const d = p && (p.days || []).find(x => x.id === did); return d ? {name:d.name, ex:d.ex || [], plan:p} : null; }
+const wkCtx = () => ({today: dkey(), hdone, streak, goalName: id => id === G_BASICS ? "Basics" : ((S.items.get(id) || {}).title || ""), planDay: wkPlanDay});
+// Blöcke aus der Tagesvorlage stehen blass im Hintergrund und werden wie bisher per Klick bearbeitet
+function wkBlocks(keys){
+  const out = [];
+  for (const k of keys) for (const b of dayPlan(k).blocks) { const s = toMin(b.start); if (s == null) continue; const en = toMin(b.end), pt = en == null;
+    const sp = pt ? {s, e:s} : PC.clampSpan(s, en, 15);
+    out.push({id:`termin_${b.id}_${k}`, src:b.id, domain:"termin", title:b.title || "Block", date:k, s:sp.s, e:sp.e, allDay:false, done:false, meta:{type:"block", pt, color:b.color || CAL_COLORS[0]}}); }
+  return out;
+}
+const wkEvents = keys => [...PC.calExpand(wkItems(), keys, wkCtx()), ...wkBlocks(keys)];
+const wkMovable = ev => !!ev && (ev.domain === "task" || ev.domain === "workout" || ev.domain === "content" || (ev.domain === "termin" && ev.meta.type === "event" && !ev.meta.multi && !ev.meta.overnight));
+const wkTime = ev => ev.meta && ev.meta.pt ? toHM(ev.s) : `${toHM(ev.s)}–${PC.m2hm(ev.e)}`;
+const wkSrcItem = ev => S.items.get(ev.domain === "content" ? ev.meta.piece : ev.src);
+
+function wkEvHTML(ev, lo, hh){
+  const top = (ev.s - lo * 60) / 60 * hh, h = Math.max(ev.meta.pt ? 22 : 20, (Math.max(ev.e, ev.s) - ev.s) / 60 * hh) - 2, short = ev.meta.pt || h < 34;
+  const blk = ev.meta.type === "block", mv = wkMovable(ev), col = blk ? ev.meta.color : WK_COL[ev.domain];
+  const tag = ev.domain === "workout" && ev.meta.planned ? " · geplant" : "";
+  return `<div class="wk-ev d-${ev.domain} ${ev.done ? "done" : ""} ${short ? "short" : ""} ${ev.meta.pt ? "pt" : ""} ${blk ? "blk" : ""} ${mv ? "mv" : ""}" role="button" tabindex="0" data-wkev="${esc(ev.id)}"
+    style="--c:${esc(col)};top:${top}px;height:${h}px;left:calc(${ev.leftPct}% + 2px);width:calc(${ev.widthPct}% - 4px);z-index:${ev.z + (blk ? 0 : 10)}" title="${esc(wkTime(ev) + " · " + ev.title + tag)}">
+    ${short ? `<b><span class="num">${toHM(ev.s)}</span> ${esc(ev.title)}</b>` : `<b>${esc(ev.title)}</b><small class="num">${wkTime(ev)}${tag}</small>`}
+    ${mv && !ev.meta.pt ? `<i class="wk-rs" data-wkrs aria-hidden="true"></i>` : ""}</div>`;
+}
+function wkChipHTML(ev){
+  const ico = {task:"task", workout:"dumbbell", content:"video", termin:"cal"}[ev.domain] || "cal";
+  const lbl = ev.domain === "content" && ev.meta.type === "publish" ? "Raus: " : "";
+  return `<div class="wk-chip d-${ev.domain} ${ev.done ? "done" : ""} ${wkMovable(ev) ? "mv" : ""}" role="button" tabindex="0" data-wkev="${esc(ev.id)}" style="--c:${WK_COL[ev.domain]}" title="${esc(lbl + ev.title)}">${ic(ico)}<span>${esc(lbl + ev.title)}</span></div>`;
+}
+function wkHabitHTML(ev){
+  const k = ev.date, lock = !ev.meta.editable;
+  const attrs = lock ? `data-wklock="${ev.meta.type}"` : ev.meta.type === "fix" ? `data-g="tick" data-id="${ev.src}"` : `data-act="hday" data-id="${ev.src}" data-day="${k}"`;
+  return `<button class="wk-hb ${ev.done ? "on" : ""} ${lock ? "lock" : ""}" ${attrs} aria-pressed="${ev.done}" title="${esc(ev.title + (ev.meta.goalName ? " · " + ev.meta.goalName : ""))}"><i>${ic("check")}</i><span>${esc(ev.title)}</span></button>`;
+}
+function wkAllDayHTML(k, evs, f){
+  const w = wkSt(), open = !!w.more[k];
+  const hab = evs.filter(e => e.domain === "habit"), rest = evs.filter(e => e.domain !== "habit");
+  const showH = f === "all" || f === "habit", list = [...(f === "habit" ? [] : rest.filter(e => f === "all" || e.domain === f)), ...(showH ? hab : [])];
+  const done = hab.filter(e => e.done).length;
+  const prog = showH && hab.length ? `<div class="wk-prog" title="${done} von ${hab.length} Habits erledigt"><span class="num">${done}/${hab.length}</span><i><b style="width:${Math.round(done / hab.length * 100)}%"></b></i></div>` : "";
+  const cut = open ? list : list.slice(0, 4), more = list.length - cut.length;
+  return `<div class="wk-ad ${k === dkey() ? "today" : ""}" data-wkad="${k}">${prog}${cut.map(e => e.domain === "habit" ? wkHabitHTML(e) : wkChipHTML(e)).join("")}
+    ${more > 0 ? `<button class="wk-more" data-wkmore="${k}">+${more} weitere</button>` : open && list.length > 4 ? `<button class="wk-more" data-wkmore="${k}">weniger</button>` : ""}</div>`;
+}
+function wkBackHTML(){
+  const w = wkSt(), q = w.q.trim().toLowerCase(), list = PC.calBacklog(wkItems()).filter(b => !q || b.title.toLowerCase().includes(q));
+  S.wkBack = new Map(list.map(b => [b.id, b]));
+  const grp = (d, l) => { const xs = list.filter(b => b.domain === d); return xs.length ? `<div class="sec-l">${l}</div>${xs.map(b => `<div class="wk-bi d-${d} ${b.meta.prio === "hoch" ? "hoch" : ""}" role="button" tabindex="0" data-wkback="${esc(b.id)}" style="--c:${WK_COL[d]}" title="${esc(b.title)}"><span>${esc(b.title)}</span></div>`).join("")}` : ""; };
+  const body = grp("task", "Aufgaben") + grp("content", "Content-Schritte");
+  return `<aside class="wk-back" aria-label="Noch nicht eingeplant"><div class="wk-bh"><b>Noch ohne Platz</b><span class="num">${list.length}</span><span class="grow"></span><button class="ibtn" data-wkact="back" aria-label="Liste einklappen" title="Einklappen">${ic("left")}</button></div>
+    <input class="field" id="wk-q" data-keep value="${esc(w.q)}" placeholder="Suchen" aria-label="Liste durchsuchen">
+    <div class="wk-bl">${body || `<p class="hint">${q ? "Nichts gefunden." : "Alles hat einen Platz. Aufgaben ohne Datum und offene Content-Schritte tauchen hier auf."}</p>`}</div>
+    <p class="hint wk-bhint">Ziehe ich etwas in einen Tag, ist es eingeplant (45 Min.). Am Handy halte ich es vorher kurz gedrückt.</p></aside>`;
+}
+function wkHTML(){
+  if (!PC.calExpand) return `<section class="card"><p class="hint" style="margin:0">Die App hat sich gerade aktualisiert. Ich lade einmal neu, dann ist die Woche da.</p></section>`;
+  const w = wkSt(), keys = wkKeys(), tk = dkey(), f = w.filter, n = keys.length, hh = WK_HH;
+  const evs = wkEvents(keys); S.wkMap = new Map(evs.map(e => [e.id, e]));
+  const vis = e => f === "all" || e.domain === f;
+  let lo = WK_LO, hi = WK_HI;
+  for (const e of evs) if (!e.allDay && vis(e)) { lo = Math.min(lo, Math.floor(e.s / 60)); hi = Math.max(hi, Math.ceil(Math.max(e.e, e.s + 15) / 60)); }
+  hi = Math.min(24, hi); S.wkGeo = {lo, hi, hh};
+  const cnt = d => evs.filter(e => d === "all" || e.domain === d).length;
+  const filters = `<div class="wk-filters">${WK_DOM.map(([d, l]) => `<button class="pill wk-f ${f === d ? "on" : ""}" data-wkact="filter" data-v="${d}" style="--c:${d === "all" ? "var(--ink)" : WK_COL[d]}"><i></i>${l}<span class="num">${cnt(d)}</span></button>`).join("")}
+    <span class="grow"></span><div class="pills wk-seg"><button class="pill ${n === 7 ? "on" : ""}" data-wkact="days" data-v="7">7 Tage</button><button class="pill ${n === 3 ? "on" : ""}" data-wkact="days" data-v="3">3 Tage</button></div></div>`;
+  const heads = keys.map(k => { const d = parseKey(k), dp = dayPlan(k);
+    return `<button class="wk-colh ${k === tk ? "today" : ""} ${k < tk ? "past" : ""}" data-act="cal-day" data-day="${k}" title="Tagesansicht">${WD[isoDay(d) - 1]}<b class="num">${d.getDate()}</b><small>${esc(dp.hidden ? "Ausgeblendet" : dp.plan ? dp.plan.name : "Frei")}</small></button>`; }).join("");
+  const alld = keys.map(k => wkAllDayHTML(k, evs.filter(e => e.allDay && e.date === k), f)).join("");
+  const nm = new Date().getHours() * 60 + new Date().getMinutes();
+  const cols = keys.map(k => {
+    const timed = PC.calLayout(evs.filter(e => !e.allDay && e.date === k && vis(e)), Math.ceil(22 / hh * 60));
+    const now = k === tk && nm >= lo * 60 && nm <= hi * 60 ? `<i class="wk-now" style="top:${(nm - lo * 60) / 60 * hh}px"></i>` : "";
+    return `<div class="wk-col ${k === tk ? "today" : ""}" data-wkday="${k}" style="height:${(hi - lo) * hh}px">${timed.map(e => wkEvHTML(e, lo, hh)).join("")}${now}</div>`; }).join("");
+  const hours = `<div class="wk-hours" style="height:${(hi - lo) * hh}px">${Array.from({length:hi - lo}, (_, i) => `<span class="num" style="top:${i * hh}px">${pad(lo + i)}:00</span>`).join("")}</div>`;
+  const nb = PC.calBacklog(wkItems()).length;
+  return `<section class="card wk-card">${filters}
+    <div class="wk ${w.back ? "" : "noback"}">${w.back ? wkBackHTML() : ""}
+      <div class="wk-main">${w.back ? "" : `<button class="pill wk-bopen" data-wkact="back">${ic("right")}Noch ohne Platz <span class="num">${nb}</span></button>`}
+        <div class="wk-scroll" id="wk-scroll"><div class="wk-in" style="--n:${n};--hh:${hh}px;--colw:${n === 7 ? 112 : 0}px">
+          <div class="wk-top"><span class="wk-corner"></span>${heads}<span class="wk-corner wk-adl">Ganztägig</span>${alld}</div>
+          <div class="wk-body">${hours}${cols}</div>
+        </div></div></div></div>
+    <p class="hint" style="margin:12px 0 0">Antippen öffnet die Details. Ziehen verschiebt, der Griff unten ändert die Dauer, alles im 15-Minuten-Raster. Tippe oder ziehe ich auf eine freie Stelle, leg ich dort was Neues an. Mit T spring ich zu heute.</p></section>`;
+}
+// Scrollstand bleibt beim Neuzeichnen, beim ersten Öffnen springt das Raster zur aktuellen Uhrzeit
+function wkKeepScroll(before){
+  const sc = $("#wk-scroll"); if (!sc) { S.wkPos = null; return; }
+  if (before) { S.wkPos = {t: sc.scrollTop, l: sc.scrollLeft}; return; }
+  if (S.wkPos) { sc.scrollTop = S.wkPos.t; sc.scrollLeft = S.wkPos.l; return; }
+  const g = S.wkGeo || {lo:WK_LO, hh:WK_HH}, nm = new Date().getHours() * 60 + new Date().getMinutes();
+  sc.scrollTop = Math.max(0, (nm - g.lo * 60 - 60) / 60 * g.hh);
+  const td = sc.querySelector(".wk-col.today"); if (td && sc.scrollWidth > sc.clientWidth) sc.scrollLeft = Math.max(0, td.offsetLeft - 60);
+}
+
+// Änderung aus dem Kalender auf den Quell-Eintrag übertragen (lokal sofort, Abgleich im Hintergrund)
+function wkApply(ev, ch){
+  const it = wkSrcItem(ev); if (!it) return false;
+  if (ev.domain === "workout" && !ev.meta.planned && !ch.unplan && ch.date && ch.date !== it.date) { toast("Absolvierte Einheiten bleiben an ihrem Tag."); return false; }
+  const p = PC.calPatch(ev, ch, it, uid);
+  if (!p) { toast("Das lässt sich so nicht verschieben."); return false; }
+  Object.assign(it, p); persist(it); renderMain(); return true;
+}
+
+/* Schnell anlegen an einer freien Stelle */
+function wkPop(day, s, e, x, y){
+  const tp = trPlan(), pieces = live("cpiece").filter(p => p.status !== "live").sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+  S.pop = {wk:true, day, from: toHM(s), to: PC.endHM(e), type:"task", title:"", x, y, wday: tp && tp.days[0] ? tp.days[0].id : "", piece: pieces[0] ? pieces[0].id : "", step:"skript"};
+  renderPop(); const t = $("#wkp-title"); if (t) t.focus();
+}
+function wkPopRead(){ const p = S.pop; for (const [k, id] of [["title","wkp-title"],["from","wkp-from"],["to","wkp-to"],["wday","wkp-wday"],["piece","wkp-piece"]]) { const n = document.getElementById(id); if (n) p[k] = n.value; } return p; }
+function renderWkPop(){
+  const p = S.pop, tp = trPlan(), pieces = live("cpiece").filter(x => x.status !== "live").sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+  const narrow = wkNarrow(), W = 340, left = Math.max(12, Math.min(innerWidth - W - 12, (p.x || 0) + 12)), top = Math.max(12, Math.min(innerHeight - 380, (p.y || 0) - 40));
+  const body = p.type === "workout" ? (tp && tp.days.length ? `<div><label class="sec-l" for="wkp-wday">Aus „${esc(tp.name || "Plan")}“</label><select class="field" id="wkp-wday">${tp.days.map(d => `<option value="${d.id}" ${p.wday === d.id ? "selected" : ""}>${esc(d.name || "Tag")}</option>`).join("")}<option value="" ${p.wday ? "" : "selected"}>Freies Training</option></select></div>`
+      : `<p class="hint" style="margin:0">Noch kein Trainingsplan. Ich plane ein freies Training ein.</p>`)
+    : p.type === "content" ? (pieces.length ? `<div><label class="sec-l" for="wkp-piece">Stück</label><select class="field" id="wkp-piece">${pieces.map(x => `<option value="${x.id}" ${p.piece === x.id ? "selected" : ""}>${esc(x.title || "Ohne Titel")}</option>`).join("")}</select></div>
+        <div class="pills">${PC.CAL_STEPS.map(s => `<button class="pill ${p.step === s ? "on" : ""}" data-wkact="pstep" data-v="${s}">${PC.CAL_STEP_LABEL[s]}</button>`).join("")}</div>`
+      : `<p class="hint" style="margin:0">Noch kein Stück in der Pipeline. Ideen kommen über das Brand-Gate im Content Studio rein.</p>`)
+    : `<input class="field" id="wkp-title" value="${esc(p.title)}" placeholder="${p.type === "termin" ? "z. B. Arzttermin" : "z. B. Mails beantworten"}" aria-label="Titel" style="height:44px;font-size:16px">`;
+  $("#pop").innerHTML = `<div class="scrim wk-scrim" data-act="pop-close"></div><div class="modal wk-pop ${narrow ? "" : "at"}" role="dialog" aria-label="Neu im Kalender" ${narrow ? "" : `style="left:${left}px;top:${top}px;width:${W}px"`}>
+    <h2>Neu am ${esc(fmtLong(p.day))}</h2>
+    <div class="pills">${[["task","Aufgabe"],["workout","Training"],["content","Content"],["termin","Termin"]].map(([v, l]) => `<button class="pill ${p.type === v ? "on" : ""}" data-wkact="ptype" data-v="${v}">${l}</button>`).join("")}</div>
+    ${body}
+    <div class="d-fields" style="grid-template-columns:1fr 1fr"><div><label for="wkp-from">Von</label><input class="field num" type="time" step="900" id="wkp-from" value="${esc(p.from)}"></div><div><label for="wkp-to">Bis</label><input class="field num" type="time" step="900" id="wkp-to" value="${esc(p.to)}"></div></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="pop-close">Abbrechen</button><button class="btn" data-wkact="psave">Anlegen</button></div></div>`;
+}
+function wkPopSave(){
+  const p = wkPopRead(); const s = toMin(p.from); let e = PC.endMin(p.to);
+  if (s == null) { toast("Bitte eine Startzeit angeben."); return; }
+  const sp = PC.clampSpan(s, e == null || e <= s ? s + WK_DUR : e), at = toHM(sp.s), dur = sp.e - sp.s, title = (p.title || "").trim();
+  if (p.type === "task" || p.type === "termin") {
+    if (!title) { toast("Der Eintrag braucht einen Titel."); const t = $("#wkp-title"); if (t) t.focus(); return; }
+    if (p.type === "task") create("task", title, {due:p.day, at, dur}); else create("event", title, {date:p.day, from:at, to:PC.endHM(sp.e)});
+  } else if (p.type === "workout") {
+    const tp = trPlan(), d = tp && tp.days.find(x => x.id === p.wday);
+    create("wplan", d ? (d.name || "Training") : "Freies Training", {date:p.day, at, dur, plan: d ? tp.id : "", day: d ? d.id : ""});
+  } else if (p.type === "content") {
+    const it = S.items.get(p.piece); if (!it) { toast("Dafür brauch ich erst ein Stück in der Pipeline."); return; }
+    const patch = PC.calPatch({domain:"content", meta:{type:"step", step:p.step, stepId:""}}, {date:p.day, s:sp.s, e:sp.e}, it, uid);
+    Object.assign(it, patch); persist(it);
+  }
+  closePop(); renderMain(); toast("Eingeplant");
+}
+
+/* Detail-Panel rechts: je nach Bereich andere Felder */
+const wkDurOpts = cur => { const v = [15, 30, 45, 60, 75, 90, 120, 150, 180, 240]; if (cur && !v.includes(cur)) v.push(cur); return v.sort((a, b) => a - b).map(m => `<option value="${m}" ${m === cur ? "selected" : ""}>${m < 60 ? m + " Min." : m % 60 ? `${Math.floor(m / 60)} Std. ${m % 60} Min.` : m / 60 + " Std."}</option>`).join(""); };
+const wkTimeFields = (date, at, dur, noTime) => `<div class="d-fields"><div><label for="wkd-date">Tag</label><input class="field" type="date" id="wkd-date" data-wkf="date" value="${esc(date || "")}"></div>
+  ${noTime ? "" : `<div><label for="wkd-at">Von</label><input class="field num" type="time" step="900" id="wkd-at" data-wkf="at" value="${esc(at || "")}"></div>
+  <div><label for="wkd-dur">Dauer</label><select class="field" id="wkd-dur" data-wkf="dur">${wkDurOpts(+dur || WK_DUR)}</select></div>`}</div>`;
+function wkOpen(ev){
+  if (ev.domain === "termin") { if (ev.meta.type === "block") calPop(ev.date, ev.src); else { closePop(); openDetailFresh(ev.src); } return; }
+  S.wkD = {domain:ev.domain, id: ev.domain === "content" ? ev.meta.piece : ev.src, stepId: ev.meta.stepId || "", type: ev.meta.type || "", k: ev.date};
+  wkDrawer();
+}
+function wkDrawer(){
+  const d = S.wkD; if (!d) return; const it = S.items.get(d.id);
+  if (!it || it.archived) { wkClose(); return; }
+  const tk = dkey(); let chip = "", body = "";
+  switch (d.domain) {
+    case "task": {
+      chip = "Aufgabe";
+      body = `<label class="wk-done"><input type="checkbox" data-wkf="done" ${it.done ? "checked" : ""}>Erledigt</label>
+        ${wkTimeFields(it.due, it.at, it.dur)}
+        <div class="d-fields"><div><label for="wkd-prio">Priorität</label><select class="field" id="wkd-prio" data-wkf="prio"><option value="normal" ${it.prio !== "hoch" ? "selected" : ""}>Normal</option><option value="hoch" ${it.prio === "hoch" ? "selected" : ""}>Hoch</option></select></div></div>
+        ${it.repeat ? `<p class="hint">Wiederholt sich. Beim Abhaken entsteht die nächste mit derselben Uhrzeit.</p>` : ""}
+        <div class="wk-acts"><button class="btn ghost" data-wkact="unplan">Zurück in „Noch ohne Platz“</button><button class="btn ghost" data-wkact="full">Ganz öffnen</button></div>`;
+      break; }
+    case "habit": {
+      const fix = it.kind === "gtask", done = fix ? !!(it.log || {})[d.k] : hdone(it, d.k), edit = fix ? d.k === tk : d.k <= tk;
+      chip = fix ? (it.goal === G_BASICS ? "Basics" : "Feste Aufgabe") : "Gewohnheit";
+      const wk = PC.weekKeys(d.k), on = fix ? wk.filter(k => !(it.days || []).length || it.days.includes(isoDay(parseKey(k)))) : wk;
+      const n = on.filter(k => fix ? (it.log || {})[k] : hdone(it, k)).length;
+      body = `<p class="wk-big">${done ? "Erledigt" : "Noch offen"} am ${esc(fmtLong(d.k))}</p>
+        <p class="hint">${fix ? `Diese Woche ${n} von ${on.length}. Verpasste Tage verfallen, abhaken geht nur am selben Tag.` : `Diese Woche ${n} von ${it.target || 7}. ${inRow(streak(it))}.`}</p>
+        <div class="wk-acts">${edit ? (fix ? `<button class="btn" data-g="tick" data-id="${it.id}" ${d.k === tk ? "" : "disabled"}>${done ? "Nicht erledigt" : "Abhaken"}</button>` : `<button class="btn" data-act="hday" data-id="${it.id}" data-day="${d.k}">${done ? "Nicht erledigt" : "Abhaken"}</button>`) : ""}
+          <button class="btn ghost" data-wkact="${fix ? "goals" : "full"}">${fix ? "In meinen Zielen ändern" : "Ganz öffnen"}</button></div>`;
+      break; }
+    case "workout": {
+      if (it.kind === "wplan") {
+        const pd = wkPlanDay(it.plan, it.day); chip = "Training geplant";
+        body = `${pd ? `<div class="sec"><div class="sec-l">Übungen aus „${esc(pd.plan.name || "Plan")}“</div><ul class="wk-ex">${pd.ex.filter(e => (e.name || "").trim()).map(e => `<li><b>${esc(e.name)}</b><span class="num">${esc([e.sets && e.sets + " Sätze", e.reps && e.reps + " Wdh."].filter(Boolean).join(" · "))}</span></li>`).join("") || "<li>Keine Übungen im Plan.</li>"}</ul></div>` : `<p class="hint">Freies Training, die Übungen trag ich beim Start ein.</p>`}
+          ${wkTimeFields(it.date, it.at, it.dur)}
+          <div class="wk-acts"><button class="btn" data-wkact="wstart">${ic("play")}Jetzt starten</button><button class="btn ghost" data-wkact="wdel">Löschen</button></div>`;
+      } else {
+        chip = it.done ? "Training absolviert" : "Training läuft";
+        const ex = (it.ex || []).filter(e => (e.name || "").trim());
+        body = `<div class="sec"><div class="sec-l">Übungen</div><ul class="wk-ex">${ex.map(e => { const ss = (e.sets || []).filter(s => s.w !== "" || s.r !== ""); return `<li><b>${esc(e.name)}</b><span class="num">${ss.length ? esc(ss.map(s => `${s.w || 0} kg × ${s.r || 0}`).join(", ")) : "keine Sätze eingetragen"}</span></li>`; }).join("") || "<li>Keine Übungen.</li>"}</ul></div>
+          ${it.note ? `<div class="sec"><div class="sec-l">Notiz</div><p>${esc(it.note)}</p></div>` : ""}
+          ${wkTimeFields(it.date, it.at, it.dur)}
+          <div class="wk-acts"><button class="btn ghost" data-wkact="full">Im Training öffnen</button></div>`;
+      }
+      break; }
+    case "content": {
+      const st = d.type === "step" ? (it.steps || []).find(x => x.id === d.stepId) : null;
+      if (d.type === "step" && !st) { wkClose(); return; }
+      chip = st ? "Content · " + (PC.CAL_STEP_LABEL[st.step] || "Block") : "Content · Veröffentlichung";
+      const stat = `<div class="d-fields"><div><label for="wkd-status">Status des Stücks</label><select class="field" id="wkd-status" data-wkf="status">${CS_ST.map(([v, l]) => `<option value="${v}" ${it.status === v ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>`;
+      body = st ? `<label class="wk-done"><input type="checkbox" data-wkf="sdone" ${st.done ? "checked" : ""}>${esc(PC.CAL_STEP_LABEL[st.step] || "Schritt")} erledigt</label>${stat}${wkTimeFields(st.date, st.at, st.dur)}
+          <div class="wk-acts"><button class="btn ghost" data-wkact="unplan">Zurück in „Noch ohne Platz“</button><button class="btn ghost" data-wkact="full">Stück öffnen</button></div>`
+        : `${stat}${wkTimeFields(it.date, "", 0, true)}<p class="hint">Geplant und Live gehen erst, wenn alle drei Pre-Flight-Haken im Studio gesetzt sind.</p>
+          <div class="wk-acts"><button class="btn ghost" data-wkact="full">Stück öffnen</button></div>`;
+      break; }
+    default: console.error("Unbekannter Kalender-Bereich", d.domain); body = `<p class="hint">Diesen Eintrag kann ich hier nicht anzeigen.</p>`;
+  }
+  const title = d.domain === "content" ? it.title || "Ohne Titel" : it.title || (d.domain === "workout" ? "Training" : "Ohne Titel");
+  $("#overlay").innerHTML = `<div class="scrim" data-wkact="close"></div><aside class="drawer wk-drawer" role="dialog" aria-label="${esc(title)}">
+    <div class="d-head"><span class="chip wk-dchip" style="--c:${WK_COL[d.domain]}"><i></i>${esc(chip)}</span><span class="grow"></span><button class="ibtn" data-wkact="close" aria-label="Schließen">${ic("close")}</button></div>
+    <div class="d-scroll"><h2 class="wk-dtitle">${esc(title)}</h2>${body}</div></aside>`;
+}
+function wkClose(){ S.wkD = null; if (!S.open) $("#overlay").innerHTML = ""; }
+function wkField(k, v, el){
+  const d = S.wkD; if (!d) return; const it = S.items.get(d.id); if (!it) return;
+  const st = d.domain === "content" && d.type === "step" ? (it.steps || []).find(x => x.id === d.stepId) : null;
+  if (k === "done") { toggleTask(it.id); wkDrawer(); return; }
+  if (k === "prio") { it.prio = v; persist(it); renderMain(); return; }
+  if (k === "sdone") { if (!st) return; it.steps = (it.steps || []).map(x => x.id === st.id ? {...x, done: !!el.checked} : x); persist(it); renderMain(); return; }
+  if (k === "status") { if (!csSetStatus(it, v)) { toast("Erst die drei Pre-Flight-Haken setzen."); el.value = it.status; return; } renderMain(); return; }
+  // Tag, Uhrzeit oder Dauer: über denselben Weg wie Ziehen
+  const cur = d.domain === "task" ? {date:it.due, at:it.at, dur:it.dur} : st ? {date:st.date, at:st.at, dur:st.dur} : {date:it.date, at:it.at, dur:it.dur};
+  const nx = {...cur, [k]: k === "dur" ? +v : v}, ev = wkEvFor(d);
+  if (!nx.date) { if (d.domain === "task" || st) wkApply(ev, {unplan:true}); else { toast("Ohne Tag geht das hier nicht."); el.value = cur.date || ""; } return; }
+  const s = toMin(nx.at);
+  if (k === "dur" && s == null) { if (st) it.steps = (it.steps || []).map(x => x.id === st.id ? {...x, dur: nx.dur} : x); else it.dur = nx.dur; persist(it); }
+  else if (s == null || (d.domain === "content" && !st)) wkApply(ev, {date:nx.date, s:null});
+  else wkApply(ev, {date:nx.date, s, e: s + (+nx.dur || WK_DUR)});
+  // Abgelehnt, gekürzt oder gerundet: das Panel zeigt immer, was wirklich gespeichert ist
+  if (S.wkD) { wkDrawer(); const n = el.id && document.getElementById(el.id); if (n) n.focus({preventScroll:true}); }
+}
+// Ein Kalender-Eintrag als Vorlage für calPatch (nur Bereich und meta zählen)
+const wkEvFor = d => ({domain:d.domain, src:d.id, meta: d.domain === "content" ? {type:d.type, piece:d.id, stepId:d.stepId} : d.domain === "workout" ? {planned: (S.items.get(d.id) || {}).kind === "wplan"} : {}});
+function wpStart(wp){
+  const pd = wkPlanDay(wp.plan, wp.day), wo = woStart(pd ? pd.plan : null, pd ? (pd.plan.days || []).find(x => x.id === wp.day) : null);
+  removeItem(wp.id); wkClose(); closePop(); S.trWo = wo.id; S.trTab = "log"; go("training"); toast("Los geht’s");
+}
+document.addEventListener("click", e => {
+  if (Date.now() - (S.justDragged || 0) < 300) return;
+  const lk = e.target.closest("[data-wklock]"); if (lk) { toast(lk.dataset.wklock === "fix" ? "Feste Aufgaben hake ich nur am selben Tag ab." : "Die Zukunft hake ich noch nicht ab."); return; }
+  const mo = e.target.closest("[data-wkmore]"); if (mo) { const w = wkSt(), k = mo.dataset.wkmore; w.more[k] = !w.more[k]; renderMain(); return; }
+  const evEl = e.target.closest("[data-wkev]"); if (evEl && !e.target.closest("[data-wkrs]")) { const ev = S.wkMap && S.wkMap.get(evEl.dataset.wkev); if (ev) wkOpen(ev); return; }
+  const a = e.target.closest("[data-wkact]"); if (!a) return;
+  const w = wkSt(), v = a.dataset.v, d = S.wkD, it = d && S.items.get(d.id);
+  switch (a.dataset.wkact) {
+    case "filter": w.filter = v; wkSave(); renderMain(); break;
+    case "days": w.days = +v; wkSave(); renderMain(); break;
+    case "back": w.back = !w.back; wkSave(); renderMain(); break;
+    case "ptype": wkPopRead(); S.pop.type = v; renderWkPop(); { const t = $("#wkp-title"); if (t) t.focus(); } break;
+    case "pstep": wkPopRead(); S.pop.step = v; renderWkPop(); break;
+    case "psave": wkPopSave(); break;
+    case "close": wkClose(); break;
+    case "unplan": if (it) wkApply(wkEvFor(d), {unplan:true}) && wkClose(); break;
+    case "full": if (it) { const id = it.id; wkClose(); srOpen(id); } break;
+    case "goals": wkClose(); go("weg"); break;
+    case "wstart": if (it && it.kind === "wplan") wpStart(it); break;
+    case "wdel": if (!it) break; if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen zum Löschen"); break; } removeItem(it.id); wkClose(); renderMain(); toast("Geplantes Training gelöscht"); break;
+  }
+});
+document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.wkf && t.closest(".wk-drawer")) wkField(t.dataset.wkf, t.value, t); });
+document.addEventListener("input", e => { if (e.target.id === "wk-q") { wkSt().q = e.target.value; renderMain(); } });
+
+/* Ziehen im Wochenraster: verschieben, Dauer ändern, aus „Noch ohne Platz“ einplanen, freie Stelle aufziehen.
+   Maus: ab 4 px Bewegung. Finger: erst nach 300 ms gedrückt halten, damit normales Scrollen weiter geht. */
+let wkd = null;
+const wkColAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest(".wk-col"); };
+const wkAdAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest("[data-wkad]"); };
+const wkMinAt = (col, y, off = 0) => { const g = S.wkGeo, r = col.getBoundingClientRect(); return PC.snapMin(PC.pxToMin(y - r.top - off, g.lo, g.hh)); };
+document.addEventListener("pointerdown", e => {
+  if (e.button > 0 || S.view !== "cal" || S.pop || !e.target.closest(".wk")) return;
+  const rs = e.target.closest("[data-wkrs]"), evEl = e.target.closest("[data-wkev]"), bk = e.target.closest("[data-wkback]"), col = e.target.closest(".wk-col");
+  let type = null, ev = null;
+  if (rs && evEl) { ev = S.wkMap.get(evEl.dataset.wkev); type = "resize"; }
+  else if (evEl) { ev = S.wkMap.get(evEl.dataset.wkev); if (!wkMovable(ev)) return; type = "move"; }
+  else if (bk) { ev = S.wkBack && S.wkBack.get(bk.dataset.wkback); type = "back"; }
+  else if (col && !e.target.closest(".wk-now")) type = "slot";
+  if (!type || (type !== "slot" && !ev)) return;
+  const el = evEl || bk || col, r = el.getBoundingClientRect();
+  wkd = {type, ev, el, col, x:e.clientX, y:e.clientY, off: type === "move" && !ev.allDay ? e.clientY - r.top : 10, touch: e.pointerType !== "mouse", on:false, armed: e.pointerType === "mouse" || type === "resize", pid:e.pointerId};
+  if (type === "resize") { e.preventDefault(); e.stopPropagation(); }
+  if (wkd.touch && !wkd.armed) wkd.timer = setTimeout(() => { if (wkd) { wkd.armed = true; el.classList.add("wk-armed"); try { navigator.vibrate && navigator.vibrate(12); } catch(err){} } }, 300);
+});
+// Ist der Finger eingerastet, darf die Seite nicht mehr scrollen
+document.addEventListener("touchmove", e => { if (wkd && wkd.armed && wkd.touch) e.preventDefault(); }, {passive:false});
+document.addEventListener("contextmenu", e => { if (wkd && wkd.touch) e.preventDefault(); });
+function wkGhost(){ const g = document.createElement("div"); g.className = "wk-ghost d-" + (wkd.ev ? wkd.ev.domain : "new"); g.style.setProperty("--c", wkd.ev ? (WK_COL[wkd.ev.domain] || "var(--ink)") : "var(--ink)"); g.innerHTML = `<b></b><small class="num"></small>`; return g; }
+document.addEventListener("pointermove", e => {
+  if (!wkd) return;
+  const dist = Math.hypot(e.clientX - wkd.x, e.clientY - wkd.y);
+  if (!wkd.on) {
+    if (!wkd.armed) { if (dist > 8) { clearTimeout(wkd.timer); wkd = null; } return; }
+    if (dist < 4) return;
+    wkd.on = true; S.wkOn = true; document.body.classList.add("wk-dragging"); wkd.el.classList.add("dragging");
+    if (wkd.type === "slot") wkd.a0 = wkMinAt(wkd.col, wkd.y); // Startzeit festhalten, bevor das Raster am Rand mitscrollt
+    if (wkd.type !== "resize") { wkd.g = wkGhost(); wkd.g.querySelector("b").textContent = wkd.ev ? wkd.ev.title : "Neu"; }
+    try { wkd.el.setPointerCapture(wkd.pid); } catch(err){}
+  }
+  e.preventDefault();
+  const sc = $("#wk-scroll"); if (sc) { const r = sc.getBoundingClientRect(); if (e.clientY < r.top + 30) sc.scrollTop -= 12; else if (e.clientY > r.bottom - 30) sc.scrollTop += 12; if (e.clientX > r.right - 30) sc.scrollLeft += 12; else if (e.clientX < r.left + 30) sc.scrollLeft -= 12; }
+  const g = S.wkGeo, ev = wkd.ev;
+  if (wkd.type === "resize") {
+    const col = wkd.el.closest(".wk-col"); const m = Math.max(ev.s + 15, Math.min(PC.DAY_MIN, wkMinAt(col, e.clientY)));
+    wkd.drop = {date:ev.date, s:ev.s, e:m}; wkd.el.style.height = ((m - ev.s) / 60 * g.hh - 2) + "px";
+    const sm = wkd.el.querySelector("small"); if (sm) sm.textContent = `${toHM(ev.s)}–${PC.m2hm(m)}`; return;
+  }
+  if (wkd.type === "slot") {
+    const col = wkd.col, a = wkd.a0, b = wkMinAt(col, e.clientY), s = Math.max(g.lo * 60, Math.min(a, b)), en = Math.max(s + 15, Math.max(a, b));
+    wkd.drop = {date: col.dataset.wkday, s, e: en};
+    if (wkd.g.parentElement !== col) col.appendChild(wkd.g);
+    Object.assign(wkd.g.style, {top: (s - g.lo * 60) / 60 * g.hh + "px", height: Math.max(18, (en - s) / 60 * g.hh - 2) + "px"});
+    wkd.g.querySelector("small").textContent = `${toHM(s)}–${PC.m2hm(en)}`; return;
+  }
+  // verschieben oder einplanen
+  document.querySelectorAll(".wk-ad.over").forEach(n => n.classList.remove("over"));
+  const col = wkColAt(e.clientX, e.clientY), ad = !col && wkAdAt(e.clientX, e.clientY);
+  const dur = ev && !ev.allDay && ev.e > ev.s ? ev.e - ev.s : WK_DUR;
+  if (col && !(ev && ev.domain === "content" && ev.meta.type === "publish")) {
+    const s = Math.max(0, Math.min(PC.DAY_MIN - dur, wkMinAt(col, e.clientY, wkd.off)));
+    wkd.drop = {date: col.dataset.wkday, s, e: ev && ev.meta && ev.meta.pt ? null : s + dur};
+    if (wkd.g.parentElement !== col) col.appendChild(wkd.g);
+    Object.assign(wkd.g.style, {top: (s - g.lo * 60) / 60 * g.hh + "px", height: Math.max(20, dur / 60 * g.hh - 2) + "px"});
+    wkd.g.querySelector("small").textContent = ev && ev.meta && ev.meta.pt ? toHM(s) : `${toHM(s)}–${PC.m2hm(s + dur)}`;
+  } else if (ad) {
+    wkd.drop = {date: ad.dataset.wkad, s:null}; ad.classList.add("over"); wkd.g.remove();
+  } else { wkd.drop = null; wkd.g.remove(); }
+}, {passive:false});
+function wkEnd(e){
+  if (!wkd) return; const d = wkd; wkd = null; clearTimeout(d.timer);
+  S.wkOn = false; if (S.wkRenderLater) { S.wkRenderLater = false; setTimeout(renderMain, 0); }
+  d.el.classList.remove("wk-armed", "dragging"); document.body.classList.remove("wk-dragging"); document.querySelectorAll(".wk-ad.over").forEach(n => n.classList.remove("over"));
+  if (d.g) d.g.remove();
+  if (!d.on) { if (d.type === "slot" && e && e.type === "pointerup" && Date.now() - (S.wkScrollAt || 0) > 250) { if (d.touch) S.justDragged = Date.now(); const g = S.wkGeo, r = d.col.getBoundingClientRect(); const s = Math.max(0, Math.min(PC.DAY_MIN - WK_DUR, Math.floor(PC.pxToMin(d.y - r.top, g.lo, g.hh) / 15) * 15)); wkPop(d.col.dataset.wkday, s, s + WK_DUR, d.x, d.y); } return; }
+  S.justDragged = Date.now();
+  if (!d.drop || (e && e.type === "pointercancel")) { renderMain(); return; }
+  if (d.type === "slot") { wkPop(d.drop.date, d.drop.s, d.drop.e, d.x, d.y); return; }
+  const ev = d.ev;
+  if (d.type === "move" && ev.date === d.drop.date && ev.s === d.drop.s && !!ev.allDay === (d.drop.s == null)) { renderMain(); return; }
+  if (!wkApply(ev, d.drop)) renderMain(); else toast(d.drop.s == null ? `Auf ${fmtDay(d.drop.date)} gelegt` : `${fmtDay(d.drop.date)}, ${toHM(d.drop.s)}`);
+}
+document.addEventListener("pointerup", wkEnd); document.addEventListener("pointercancel", wkEnd);
+// Ein Tippen, das nur das Scrollen stoppt, legt nichts an
+document.addEventListener("scroll", e => { if (e.target && e.target.id === "wk-scroll") S.wkScrollAt = Date.now(); }, true);
+// Tastatur: Enter oder Leertaste öffnet einen Eintrag
+document.addEventListener("keydown", e => {
+  if ((e.key !== "Enter" && e.key !== " ") || e.isComposing) return;
+  const ev = e.target.closest && e.target.closest("[data-wkev]"), bk = e.target.closest && e.target.closest("[data-wkback]");
+  if (ev) { const x = S.wkMap && S.wkMap.get(ev.dataset.wkev); if (x) { e.preventDefault(); wkOpen(x); } }
+  else if (bk) { const b = S.wkBack && S.wkBack.get(bk.dataset.wkback); if (b) { e.preventDefault(); srOpen(b.meta.piece || b.src); } }
+});
+
 function calPlansHTML(){
   const wk = S.settings.week || DEF_WEEK; const ps = plans();
   const opt = sel => ps.map(p => `<option value="${p.id}" ${sel === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("") + `<option value="none" ${planById(sel) ? "" : "selected"}>Keine Vorlage</option>`;
@@ -3483,13 +3958,15 @@ function calPlansHTML(){
 }
 function calHTML(){
   const k = calDay(), mode = calMode(), dt = parseKey(k), tk = dkey(); const mon = addDays(dt, -(isoDay(dt) - 1));
-  const label = mode === "week" ? `KW ${isoWeek(dt)} · ${fmtDay(dkey(mon))} – ${fmtDay(dkey(addDays(mon, 6)))}` : dt.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"long", year:"numeric"});
+  const wks = mode === "week" ? (PC.weekKeys ? wkKeys() : [k, k]) : null;
+  const wa = parseKey(wks ? wks[0] : k), wb = parseKey(wks ? wks[wks.length - 1] : k);
+  const label = mode === "week" ? `KW ${isoWeek(wa)} · ${wa.getMonth() === wb.getMonth() ? wa.getDate() + "." : fmtDay(dkey(wa))}–${fmtDay(dkey(wb))}` : dt.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"long", year:"numeric"});
   const strip = mode === "day" ? `<div class="cal-strip">${Array.from({length:7}, (_, i) => { const x = addDays(mon, i), xk = dkey(x), dp = dayPlan(xk);
     return `<button class="${xk === k ? "on" : ""} ${xk === tk ? "today" : ""} ${dp.custom || dp.events.length ? "cust" : ""}" data-act="cal-pick" data-day="${xk}">${WD[i]}<b class="num">${x.getDate()}</b></button>`; }).join("")}</div>` : "";
   return header("Kalender", dateLine()) + banner() + `<section class="card" style="padding:14px 16px"><div class="cal-bar">
       <div class="pills">${[["day","Tag"],["week","Woche"],["plans","Vorlagen"]].map(([v, l]) => `<button class="pill ${mode === v ? "on" : ""}" data-act="cal-mode" data-val="${v}">${l}</button>`).join("")}</div>
       ${mode === "plans" ? "" : `<div class="cal-navg"><button class="ibtn" data-act="cal-nav" data-d="-1" aria-label="Zurück">${ic("left")}</button><button class="pill" data-act="cal-nav" data-d="0">Heute</button><button class="ibtn" data-act="cal-nav" data-d="1" aria-label="Weiter">${ic("right")}</button><span class="lbl num">${esc(label)}</span></div>`}
-    </div>${strip}</section>` + (mode === "plans" ? calPlansHTML() : mode === "week" ? calWeekHTML(k) : calDayHTML(k));
+    </div>${strip}</section>` + (mode === "plans" ? calPlansHTML() : mode === "week" ? wkHTML() : calDayHTML(k));
 }
 // Tagesplan auf der Heute-Seite
 function dayPlanCardHTML(){
@@ -3986,6 +4463,7 @@ function renderShotPop(){
 function renderPop(){
   if (S.pop && S.pop.shots) { renderShotPop(); return; }
   if (S.pop && S.pop.cal) { renderCalPop(); return; }
+  if (S.pop && S.pop.wk) { renderWkPop(); return; }
   if (S.pop && S.pop.imp) { renderImpPop(); return; }
   const p = S.pop; const h = p && S.items.get(p.id); if (!h) { closePop(); return; }
   $("#pop").innerHTML = `<div class="scrim" data-act="pop-close"></div><div class="modal" role="dialog" aria-label="Tag eintragen">
@@ -4103,7 +4581,7 @@ function toggleTask(id){
   if (t.done && t.repeat && !t.spawned) {
     const due = nextDue(t);
     const n = create("task", t.title, {due, prio:t.prio, repeat:t.repeat, repeatDays:t.repeatDays, repeatDom:t.repeatDom || (t.due ? parseKey(t.due).getDate() : new Date().getDate()),
-      remind:t.remind, tags:[...tagsOf(t)], body:t.body, links:clone(t.links || []), rel:related(t.id).map(r => r.id), order:t.order});
+      remind:t.remind, at:t.at || "", dur:t.dur, tags:[...tagsOf(t)], body:t.body, links:clone(t.links || []), rel:related(t.id).map(r => r.id), order:t.order});
     t.spawned = n.id; msg = `Nächster Termin: ${fmtLong(due)}`;
   }
   persist(t); renderMain(); renderSide(); refreshDetail(); if (msg) toast(msg);
@@ -5899,6 +6377,8 @@ function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${i
 const CS_TYPES = [["eigen", "Eigene Idee"], ["insp", "Inspiration"], ["beob", "Beobachtung"], ["kontra", "Konträre These"]];
 const CS_IST = {inbox:"Inbox", park:"Parkplatz", taken:"Übernommen", archive:"Archiv"};
 const CS_ST = [["check", "Brand-Check"], ["entwurf", "Entwurf"], ["produktion", "Produktion"], ["geplant", "Geplant"], ["live", "Live"]];
+// Status eines Stücks wechseln: Geplant und Live nur mit allen drei Haken, Live ohne Datum bekommt heute (auch aus dem Kalender genutzt)
+function csSetStatus(p, to){ if (!p || !PC.csCanStatus(p, to)) return false; p.status = to; if (to === "live" && !p.date) p.date = dkey(); persist(p); return true; }
 const CS_FORMATS = ["Kurzvideo", "Text-Post", "Karussell", "Newsletter", "Deep-Dive"];
 const CS_CTA = ["Diskussion", "Newsletter", "Angebot", "Reichweite"];
 const CS_COLORS = ["#C9772B", "#4F8A55", "#3E6FB0", "#8A5BB5", "#A8443A", "#6B6B73"];
@@ -6293,8 +6773,8 @@ document.addEventListener("click", e => {
     case "popen": if (it) { csDlgClose(); u.open = id; u.prev = false; if (S.view !== "brand" || S.brTab !== "studio") { S.brTab = "studio"; go("brand"); return; } renderMain(); window.scrollTo({top:0}); } return;
     case "pclose": u.open = null; renderMain(); window.scrollTo({top:0}); return;
     case "pmove": { if (!it) break; const i = Math.max(0, CS_ST.findIndex(s => s[0] === it.status)), n = Math.max(0, Math.min(CS_ST.length - 1, i + +a.dataset.d)), to = CS_ST[n][0];
-      if (!PC.csCanStatus(it, to)) { toast("Erst die drei Pre-Flight-Haken setzen."); u.open = id; u.prev = false; renderMain(); window.scrollTo({top:0}); return; }
-      it.status = to; if (to === "live" && !it.date) it.date = dkey(); persist(it); break; }
+      if (!csSetStatus(it, to)) { toast("Erst die drei Pre-Flight-Haken setzen."); u.open = id; u.prev = false; renderMain(); window.scrollTo({top:0}); return; }
+      break; }
     // Editor
     case "prev": u.prev = !u.prev; break;
     case "fmt": if (cur) { const v = a.dataset.v, f = cur.formats || []; cur.formats = f.includes(v) ? f.filter(x => x !== v) : [...f, v]; persist(cur); } break;
@@ -6318,8 +6798,8 @@ document.addEventListener("input", e => {
 document.addEventListener("change", e => {
   const t = e.target; if (!t.dataset) return;
   if (t.dataset.cp && (t.tagName === "SELECT" || t.type === "date")) { const it = S.items.get(csU().open); if (!it) return; const k = t.dataset.cp;
-    if (k === "status" && !PC.csCanStatus(it, t.value)) { toast("Erst die drei Pre-Flight-Haken setzen."); t.value = it.status; return; }
-    it[k] = t.value; if (k === "status" && t.value === "live" && !it.date) it.date = dkey(); persist(it); renderMain(); return; }
+    if (k === "status") { if (!csSetStatus(it, t.value)) { toast("Erst die drei Pre-Flight-Haken setzen."); t.value = it.status; return; } renderMain(); return; }
+    it[k] = t.value; persist(it); renderMain(); return; }
   if (t.dataset.ci && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.value; persist(it); renderMain(); return; }
   if (t.dataset.css && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.css] = t.value; persist(it); renderMain(); return; }
   if (t.dataset.css === "url") { const it = S.items.get(t.dataset.id); if (!it) return; it.url = csUrl(t.value); persist(it); }
@@ -6838,7 +7318,7 @@ function woHTML(wo){
     <div class="tr-foot"><button class="btn" data-act="wo-finish" data-id="${wo.id}">${ic("check")}${wo.done ? "Fertig" : "Training abschließen"}</button></div></section>`;
 }
 function woStart(p, d){
-  const wo = create("workout", d ? (d.name || "Training") : "Freies Training", {date:dkey(), plan: d ? p.id : "", day: d ? d.id : "", note:"", done:false, ex:[]});
+  const wo = create("workout", d ? (d.name || "Training") : "Freies Training", {date:dkey(), at:toHM(new Date().getHours() * 60 + new Date().getMinutes()), plan: d ? p.id : "", day: d ? d.id : "", note:"", done:false, ex:[]});
   wo.ex = d ? d.ex.filter(e => e.name.trim()).map(e => { const pv = woPrev(wo, e.name);
     const n = woIsNum(e.sets) && e.sets > 0 ? Math.round(e.sets) : pv ? woSets(pv.ex).length : 3;
     return {id:uid(), name:e.name.trim(), target:e.reps || "", rest: restParse(e.pause) || (pv && pv.ex.rest) || 0, sets:Array.from({length:Math.max(1, Math.min(10, n))}, () => ({id:uid(), w:"", r:""}))}; }) : [];
@@ -7090,7 +7570,7 @@ document.addEventListener("click", e => {
     case "del-kind": S.confirmKind = id; renderMain(); break;
     case "del-kind-yes": { const kid = S.confirmKind; for (const x of all()) if (x.kind === kid) { x.kind = "note"; persist(x); } S.settings.kinds = S.settings.kinds.filter(k => k.id !== kid); S.confirmKind = null; saveSettings(0); renderMain(); renderSide(); break; }
     case "cal-mode": S.calMode = a.dataset.val; renderMain(); break;
-    case "cal-nav": S.calDay = a.dataset.d === "0" ? dkey() : dkey(addDays(parseKey(calDay()), +a.dataset.d * (calMode() === "week" ? 7 : 1))); renderMain(); break;
+    case "cal-nav": S.calDay = a.dataset.d === "0" ? dkey() : dkey(addDays(parseKey(calDay()), +a.dataset.d * (calMode() === "week" ? wkDays() : 1))); renderMain(); break;
     case "cal-day": S.calDay = a.dataset.day; S.calMode = "day"; renderMain(); window.scrollTo({top:0}); break;
     case "cal-pick": S.calDay = a.dataset.day; renderMain(); break;
     case "cal-new": calPop(a.dataset.day || calDay(), null); break;
@@ -7154,7 +7634,10 @@ document.addEventListener("click", e => {
     case "wo-more": S.woAllShown = true; renderMain(); break;
     case "wo-metric": S.trMetric = a.dataset.v; { const ex = a.closest(".wo-ex"), wo = woGet(S.trWo);
       if (ex && wo) { const e = woFindEx(wo, ex.id.slice(6)); if (e) { woExRefresh(wo, e); break; } } renderMain(); } break;
-    case "wo-finish": { const wo = woGet(id); if (!wo) break; const st = woStats(wo); wo.done = true; persist(wo); S.trWo = null; renderMain(); window.scrollTo({top:0});
+    case "wo-finish": { const wo = woGet(id); if (!wo) break; const st = woStats(wo); wo.done = true;
+      // Dauer für den Kalender: von der Startzeit bis jetzt, wenn am selben Tag (sonst bleibt sie, wie sie ist)
+      if (wo.at && wo.date === dkey() && !wo.dur) { const m = new Date().getHours() * 60 + new Date().getMinutes() - toMin(wo.at); if (m > 0) wo.dur = Math.max(15, Math.min(300, Math.round(m / 5) * 5)); }
+      persist(wo); S.trWo = null; renderMain(); window.scrollTo({top:0});
       toast(st.up ? `Gespeichert. ${st.up} ${st.up === 1 ? "Satz" : "Sätze"} besser als letztes Mal.` : "Training gespeichert."); break; }
     case "wo-del": { const wo = woGet(id); if (!wo) break;
       if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um dieses Training zu löschen"); break; }
@@ -7328,8 +7811,10 @@ function addTag(it, raw){
 }
 document.addEventListener("keydown", e => {
   if (S.pop && S.pop.shots && (e.key === "ArrowLeft" || e.key === "ArrowRight") && e.target.id !== "lb-cap") { S.pop.k += e.key === "ArrowLeft" ? -1 : 1; renderPop(); return; }
-  if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else $("#overlay").innerHTML = ""; } else searchRender(""); return; }
+  if (e.key === "Escape") { if (S.pop) closePop(); else if ($("#overlay").innerHTML) { if (S.open) closeDetail(); else { $("#overlay").innerHTML = ""; S.wkD = null; } } else searchRender(""); return; }
   const t = e.target;
+  // T = heute im Kalender (nicht beim Tippen)
+  if ((e.key === "t" || e.key === "T") && S.view === "cal" && !S.pop && !$("#overlay").innerHTML && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(t.tagName) && !t.isContentEditable) { S.calDay = dkey(); renderMain(); return; }
   if (e.key === "Enter" && t.id === "q" && t.value.trim() && !e.isComposing) { e.preventDefault(); openSearch(t.value); return; }
   if (t.id === "d-tag" && (e.key === "," || (e.key === "Enter" && !e.isComposing))) { e.preventDefault(); const it = S.items.get(S.open); if (it) addTag(it, t.value); t.value = ""; return; }
   if (e.key !== "Enter" || e.isComposing) return;
@@ -7346,6 +7831,7 @@ document.addEventListener("keydown", e => {
   else if (t.id === "new-topic") { e.preventDefault(); document.querySelector('[data-act="add-topic"]').click(); }
   else if (t.id === "new-kind") { e.preventDefault(); document.querySelector('[data-act="add-kind"]').click(); }
   else if (t.id === "new-plan") { e.preventDefault(); document.querySelector('[data-act="plan-add"]').click(); }
+  else if (t.id === "wkp-title") { e.preventDefault(); wkPopSave(); }
   else if (t.id === "cp-title") { e.preventDefault(); const b = document.querySelector('#pop .btn:not(.ghost)[data-act="cp-save"]') || document.querySelector('#pop [data-act="cp-save"]'); if (b) b.click(); }
   else if (t.id === "d-pick-q") { e.preventDefault(); const first = document.querySelector("#d-pick-res [data-act]"); if (first) first.click(); }
 });
