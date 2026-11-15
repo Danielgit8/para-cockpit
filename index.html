@@ -128,6 +128,21 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .stack > .card{margin:0}
 .side-foot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+/* Seitenleiste einklappbar (15.11.2026): schmale Leiste nur mit Symbolen */
+.side-tog{margin-left:auto;width:30px;height:30px}
+.side-tog svg{width:16px;height:16px}
+@media (min-width:861px){
+  body.side-mini .app{grid-template-columns:60px minmax(0,1fr);max-width:none}
+  body.side-mini .side{padding:18px 6px 14px;align-items:center;overflow-x:hidden}
+  body.side-mini .brand{flex-direction:column;gap:12px;padding:0 0 16px;font-size:0}
+  body.side-mini .side-tog{margin:0}
+  body.side-mini .nav{justify-content:center;width:44px;padding:10px 0;gap:0}
+  body.side-mini .nav > span,body.side-mini .nav-subs,body.side-mini .nav-lbl{display:none}
+  body.side-mini .nav-extra{flex-direction:column;align-items:center;flex-wrap:nowrap;padding:10px 0 6px}
+  body.side-mini .nav-extra button{font-size:0;gap:0;padding:8px}
+  body.side-mini .side-foot{font-size:0;gap:0;justify-content:center;padding:12px 0 0;border-top:0}
+}
+@media (max-width:860px){.side .side-tog{display:none}}
 .dot.ok{background:var(--good)} .dot.warn{background:var(--late)}
 
 .main{min-width:0;display:flex;flex-direction:column;gap:20px;padding-bottom:40px}
@@ -459,37 +474,43 @@ body.tdragging .tdrop.over .tdrop-hint{color:var(--text);font-weight:600}
 .wk-bopen{align-self:flex-start}
 .wk-scroll{overflow:auto;max-height:calc(100vh - 230px);min-height:420px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--panel-solid);position:relative;overscroll-behavior:contain}
 .wk-in{min-width:calc(52px + var(--n) * var(--colw));user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.wk-top,.wk-body{display:grid;grid-template-columns:52px repeat(var(--n),minmax(var(--colw),1fr))}
+.wk-top,.wk-body,.wk-adrow{display:grid;grid-template-columns:52px repeat(var(--n),minmax(var(--colw),1fr))}
+.wk-adrow{border-bottom:1px solid var(--line-2);background:var(--panel-solid)}
 /* Eigene Ebene fürs Raster: Jetzt-Linie und Blöcke bleiben unter der klebenden Kopfzeile */
 .wk-body{position:relative;z-index:0}
 .wk-top{position:sticky;top:0;z-index:30;background:var(--panel-solid);border-bottom:1px solid var(--line-2);box-shadow:0 6px 12px -10px rgba(0,0,0,.35)}
 .wk-corner{position:sticky;left:0;z-index:2;background:var(--panel-solid)}
-.wk-adl{font-size:10px;color:var(--muted);padding:6px 6px 0 2px;text-align:right;border-top:1px solid var(--line)}
+.wk-adl{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:10px;line-height:1.2;color:var(--muted);padding:8px 6px 0 4px;text-align:right;border-top:1px solid var(--line);hyphens:manual;overflow-wrap:break-word;width:100%}
+.wk-adl:hover{color:var(--text)}
+.wk-adl svg{width:14px;height:14px}
+.wk-ad.shut{flex-direction:row;flex-wrap:wrap;gap:4px 8px;padding:6px 6px;font-size:11px;color:var(--muted)}
+.wk-adrow.shut .wk-adl{padding-top:5px}
 .wk-colh{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 6px;font-size:11px;color:var(--muted);font-weight:700;min-width:0;border-left:1px solid var(--line)}
 .wk-colh b{font-size:16px;color:var(--text);padding:0 7px;border-radius:999px}
 .wk-colh.today b{background:var(--bordeaux);color:#FFF8EE}
 .wk-colh.past{opacity:.72}
 .wk-colh small{font-weight:600;font-size:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wk-ad{display:flex;flex-direction:column;gap:3px;padding:4px 3px 6px;min-width:0;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.wk-ad{display:flex;flex-direction:column;gap:5px;padding:8px 6px 10px;min-width:0;border-left:1px solid var(--line);border-top:1px solid var(--line)}
 .wk-ad.today{background:var(--brand-soft)}
 .wk-ad.over{outline:2px dashed var(--text);outline-offset:-2px}
-.wk-prog{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);padding:0 3px}
+.wk-prog{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted);padding:0 3px 2px}
 .wk-prog i{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
 .wk-prog b{display:block;height:100%;background:var(--olive)}
-.wk-hb{display:flex;align-items:center;gap:5px;font-size:11.5px;text-align:left;padding:2px 5px 2px 3px;border-radius:var(--r-sm);min-width:0;color:var(--text);width:100%}
+.wk-hb{display:flex;align-items:flex-start;gap:7px;font-size:12px;line-height:1.3;text-align:left;padding:3px 5px;border-radius:var(--r-sm);min-width:0;color:var(--text);width:100%}
 .wk-hb:hover{background:var(--soft)}
-.wk-hb i{width:15px;height:15px;flex:none;border:1.5px solid var(--olive);border-radius:3px;display:grid;place-items:center;color:var(--on-ink)}
+.wk-hb i{width:15px;height:15px;flex:none;margin-top:1px;border:1.5px solid var(--olive);border-radius:3px;display:grid;place-items:center;color:var(--on-ink)}
 .wk-hb i svg{width:11px;height:11px;stroke-width:3.4;opacity:0}
 .wk-hb.on i{background:var(--olive)}
 .wk-hb.on i svg{opacity:1}
 .wk-hb.on span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-2)}
 .wk-hb.lock{cursor:default}
 .wk-hb.lock:not(.on) i{opacity:.45}
-.wk-hb span,.wk-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.wk-chip{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 6px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--c) 16%,var(--panel-solid));border-left:3px solid var(--c);min-width:0;cursor:pointer}
+.wk-hb span,.wk-chip span{overflow:hidden;min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}
+.wk-chip{display:flex;align-items:flex-start;gap:6px;font-size:12px;line-height:1.3;font-weight:600;padding:5px 7px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--c) 16%,var(--panel-solid));border-left:3px solid var(--c);min-width:0;cursor:pointer}
 .wk-chip.mv{cursor:grab}
-.wk-chip svg{width:12px;height:12px;flex:none}
-.wk-chip.done span{text-decoration:line-through;opacity:.6}
+.wk-chip svg{width:12px;height:12px;flex:none;margin-top:2px}
+.wk-chip.done{opacity:.6}
+.wk-chip.done span{text-decoration:line-through}
 .wk-more{font-size:11px;color:var(--muted);text-align:left;padding:1px 5px;font-weight:600}
 .wk-hours{position:sticky;left:0;z-index:45;background:var(--panel-solid);border-right:1px solid var(--line)}
 .wk-hours span{position:absolute;right:6px;transform:translateY(-50%);font-size:10.5px;color:var(--muted)}
@@ -497,9 +518,11 @@ body.tdragging .tdrop.over .tdrop-hint{color:var(--text);font-weight:600}
 .wk-col{position:relative;border-left:1px solid var(--line);cursor:cell;
   background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--line) 40%,transparent) 1px,transparent 1px);background-size:100% var(--hh),100% calc(var(--hh) / 2)}
 .wk-col.today{background-color:color-mix(in srgb,var(--brand-soft) 55%,transparent)}
-.wk-ev{position:absolute;border-radius:var(--r-md);padding:3px 6px;font-size:11.5px;line-height:1.25;overflow:hidden;background:color-mix(in srgb,var(--c) 20%,var(--panel-solid));border-left:3px solid var(--c);color:var(--text);cursor:pointer;box-shadow:0 1px 0 var(--line)}
+.wk-ev{position:absolute;border-radius:var(--r-md);padding:4px 7px;font-size:12px;line-height:1.3;overflow:hidden;background:color-mix(in srgb,var(--c) 20%,var(--panel-solid));border-left:3px solid var(--c);color:var(--text);cursor:pointer;box-shadow:0 1px 0 var(--line)}
 .wk-ev.mv{cursor:grab}
 .wk-ev b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-ev b.ml{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.wk-ev small{margin-top:1px}
 .wk-ev small{display:block;color:var(--muted);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wk-ev.short{display:flex;align-items:center;padding:0 6px}
 .wk-ev.short b span{font-weight:600;opacity:.7}
@@ -546,10 +569,10 @@ body.wk-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 @media (max-width:560px){
   .wk-card{padding:10px 8px 12px}
   .wk-filters{margin:0 -8px 10px;padding:0 8px 2px}
-  .wk-top,.wk-body{grid-template-columns:40px repeat(var(--n),minmax(var(--colw),1fr))}
+  .wk-top,.wk-body,.wk-adrow{grid-template-columns:40px repeat(var(--n),minmax(var(--colw),1fr))}
   .wk-in{min-width:calc(40px + var(--n) * var(--colw))}
   .wk-hours span{right:4px;font-size:9.5px}
-  .wk-top .wk-adl{visibility:hidden}
+  .wk-adl span{display:none}
 }
 .plan-row{display:grid;grid-template-columns:28px 104px 104px minmax(0,1fr) 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .plan-row .field{height:36px;padding:0 8px}
@@ -1990,7 +2013,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-15.5";
+const APP_VERSION = "2026-11-15.7";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2073,6 +2096,9 @@ const S = {
   view: "dashboard", filter: {}, open: null, picker: false, confirmDel: null,
   mode: "boot", user: null, authMode: "login", dirty: new Set(), tombs: new Set(), delAt: {}, settingsDirty: false, cursor: null, syncing: false, online: navigator.onLine, urls: {}, newKind: "task",
 };
+// Seitenleiste am Laptop eingeklappt (nur Symbole), merkt sich das Gerät
+S.sideMini = (() => { try { return localStorage.getItem("pc-side-mini") === "1"; } catch(e) { return false; } })();
+document.body.classList.toggle("side-mini", S.sideMini);
 function kinds(){ const k = {...BASE}; for (const c of S.settings.kinds || []) k[c.id] = {label:c.label, plural:c.label, icon:"folder", custom:true}; return k; }
 const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
@@ -2641,11 +2667,11 @@ function renderSide(){
   const gs = navGroups(), cur = groupOf(S.view), hide = new Set(S.settings.navHide || []);
   const extra = [...(hide.has("tags") ? [] : [{v:"tags", label:"Stichwörter", icon:"tag"}]), {v:"archive", label:"Archiv", icon:"archive"}, {v:"settings", label:"Anpassen", icon:"settings"}];
   $("#side").innerHTML = `
-    <div class="brand"><span class="brand-mark">L</span>Life OS</div>
-    ${gs.map(g => `${g.id === "lese" ? `<div class="nav-lbl">Mehr</div>` : ""}<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
+    <div class="brand"><span class="brand-mark">L</span>Life OS<button class="ibtn side-tog" data-act="side-mini" title="${S.sideMini ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"}" aria-label="${S.sideMini ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"}">${ic(S.sideMini ? "right" : "left")}</button></div>
+    ${gs.map(g => `${g.id === "lese" ? `<div class="nav-lbl">Mehr</div>` : ""}<button class="nav ${g.id === "brand" ? "nav-brand" : ""} ${cur && cur.id === g.id ? "on" : ""}" data-act="grp" data-id="${g.id}" title="${esc(g.label)}">${ic(g.icon)}<span>${esc(g.label)}</span>${counts[g.id] ? `<span class="cnt num">${counts[g.id]}</span>` : ""}</button>
       ${cur && cur.id === g.id && g.views.length > 1 && g.id !== "tools" ? `<div class="nav-subs">${g.views.map(x => `<button class="nav-sub ${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>` : ""}`).join("")}
-    <button class="nav" data-cs="gcap" title="Strg + Umschalt + I">${ic("plus")}<span>Idee festhalten</span></button>
-    <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
+    <button class="nav" data-cs="gcap" title="Idee festhalten (Strg + Umschalt + I)">${ic("plus")}<span>Idee festhalten</span></button>
+    <div class="nav-extra">${extra.map(x => `<button class="${S.view === x.v ? "on" : ""}" data-go="${x.v}" title="${esc(x.label)}">${ic(x.icon)}${esc(x.label)}</button>`).join("")}</div>
     <div class="side-foot" id="side-status"></div>`;
   // Handy-Leiste: fünf feste Bereiche, der Rest steckt hinter „Mehr“ (öffnet die Seitenleiste)
   const inMore = g => g.id === "lese" || g.id === "journal" || g.id === "cal" || g.id === "tools", moreOn = !cur || inMore(cur);
@@ -3579,13 +3605,13 @@ function calDayHTML(k){
    PC.calLayout legt Überschneidungen nebeneinander, PC.calPatch sagt, was sich beim Verschieben am Eintrag ändert. */
 const WK_DOM = [["all","Alle"],["habit","Habits"],["task","Aufgaben"],["workout","Training"],["content","Content"],["termin","Termine"]];
 const WK_COL = {habit:"var(--olive)", task:"var(--ardoise)", workout:"var(--bordeaux)", content:"var(--senf)", termin:"var(--ink)"};
-const WK_LO = 5, WK_HI = 23, WK_HH = 48, WK_DUR = 45;
+const WK_LO = 5, WK_HI = 23, WK_HH = 56, WK_DUR = 45;
 function wkSt(){
   if (!S.wk) { let o = {}; try { o = JSON.parse(localStorage.getItem("pc-wk") || "{}") || {}; } catch(e){}
-    S.wk = {days: [3, 7].includes(o.days) ? o.days : 0, filter: WK_DOM.some(d => d[0] === o.filter) ? o.filter : "all", back: o.back === undefined ? !wkNarrow() : !!o.back, q:"", more:{}}; }
+    S.wk = {days: [3, 7].includes(o.days) ? o.days : 0, filter: WK_DOM.some(d => d[0] === o.filter) ? o.filter : "all", back: o.back === undefined ? !wkNarrow() : !!o.back, ad: o.ad !== false, q:"", more:{}}; }
   return S.wk;
 }
-function wkSave(){ const w = wkSt(); try { localStorage.setItem("pc-wk", JSON.stringify({days:w.days, filter:w.filter, back:w.back})); } catch(e){} }
+function wkSave(){ const w = wkSt(); try { localStorage.setItem("pc-wk", JSON.stringify({days:w.days, filter:w.filter, back:w.back, ad:w.ad})); } catch(e){} }
 const wkNarrow = () => matchMedia("(max-width:860px)").matches;
 const wkDays = () => wkSt().days || (wkNarrow() ? 3 : 7);
 const wkKeys = () => PC.weekKeys(calDay(), wkDays());
@@ -3610,9 +3636,10 @@ function wkEvHTML(ev, lo, hh){
   const top = (ev.s - lo * 60) / 60 * hh, h = Math.max(ev.meta.pt ? 22 : 20, (Math.max(ev.e, ev.s) - ev.s) / 60 * hh) - 2, short = ev.meta.pt || h < 34;
   const blk = ev.meta.type === "block", mv = wkMovable(ev), col = blk ? ev.meta.color : WK_COL[ev.domain];
   const tag = ev.domain === "workout" && ev.meta.planned ? " · geplant" : "";
+  const lines = Math.max(1, Math.floor((h - 22) / 15)); // so viele Zeilen Titel passen in den Block
   return `<div class="wk-ev d-${ev.domain} ${ev.done ? "done" : ""} ${short ? "short" : ""} ${ev.meta.pt ? "pt" : ""} ${blk ? "blk" : ""} ${mv ? "mv" : ""}" role="button" tabindex="0" data-wkev="${esc(ev.id)}"
-    style="--c:${esc(col)};top:${top}px;height:${h}px;left:calc(${ev.leftPct}% + 2px);width:calc(${ev.widthPct}% - 4px);z-index:${ev.z + (blk ? 0 : 10)}" title="${esc(wkTime(ev) + " · " + ev.title + tag)}">
-    ${short ? `<b><span class="num">${toHM(ev.s)}</span> ${esc(ev.title)}</b>` : `<b>${esc(ev.title)}</b><small class="num">${wkTime(ev)}${tag}</small>`}
+    style="--c:${esc(col)};top:${top}px;height:${h}px;left:calc(${ev.leftPct}% + 3px);width:calc(${ev.widthPct}% - 6px);z-index:${ev.z + (blk ? 0 : 10)}" title="${esc(wkTime(ev) + " · " + ev.title + tag)}">
+    ${short ? `<b><span class="num">${toHM(ev.s)}</span> ${esc(ev.title)}</b>` : `<b class="ml" style="-webkit-line-clamp:${lines}">${esc(ev.title)}</b><small class="num">${wkTime(ev)}${tag}</small>`}
     ${mv && !ev.meta.pt ? `<i class="wk-rs" data-wkrs aria-hidden="true"></i>` : ""}</div>`;
 }
 function wkChipHTML(ev){
@@ -3627,8 +3654,10 @@ function wkHabitHTML(ev){
 }
 function wkAllDayHTML(k, evs, f){
   const w = wkSt(), open = !!w.more[k];
-  const hab = evs.filter(e => e.domain === "habit"), rest = evs.filter(e => e.domain !== "habit");
-  const showH = f === "all" || f === "habit", list = [...(f === "habit" ? [] : rest.filter(e => f === "all" || e.domain === f)), ...(showH ? hab : [])];
+  const byDone = (a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0); // Offenes oben, Erledigtes rutscht nach hinten
+  const hab = evs.filter(e => e.domain === "habit").sort(byDone), rest = evs.filter(e => e.domain !== "habit").sort(byDone);
+  const showH = f === "all" || f === "habit", all = [...(f === "habit" ? [] : rest.filter(e => f === "all" || e.domain === f)), ...(showH ? hab : [])];
+  const list = [...all.filter(e => !e.done), ...all.filter(e => e.done)]; // alles Offene zuerst, Erledigtes landet hinter „+X weitere“
   const done = hab.filter(e => e.done).length;
   const prog = showH && hab.length ? `<div class="wk-prog" title="${done} von ${hab.length} Habits erledigt"><span class="num">${done}/${hab.length}</span><i><b style="width:${Math.round(done / hab.length * 100)}%"></b></i></div>` : "";
   const cut = open ? list : list.slice(0, 4), more = list.length - cut.length;
@@ -3658,7 +3687,11 @@ function wkHTML(){
     <span class="grow"></span><div class="pills wk-seg"><button class="pill ${n === 7 ? "on" : ""}" data-wkact="days" data-v="7">7 Tage</button><button class="pill ${n === 3 ? "on" : ""}" data-wkact="days" data-v="3">3 Tage</button></div></div>`;
   const heads = keys.map(k => { const d = parseKey(k), dp = dayPlan(k);
     return `<button class="wk-colh ${k === tk ? "today" : ""} ${k < tk ? "past" : ""}" data-act="cal-day" data-day="${k}" title="Tagesansicht">${WD[isoDay(d) - 1]}<b class="num">${d.getDate()}</b><small>${esc(dp.hidden ? "Ausgeblendet" : dp.plan ? dp.plan.name : "Frei")}</small></button>`; }).join("");
-  const alld = keys.map(k => wkAllDayHTML(k, evs.filter(e => e.allDay && e.date === k), f)).join("");
+  const alld = keys.map(k => { const xs = evs.filter(e => e.allDay && e.date === k);
+    if (w.ad) return wkAllDayHTML(k, xs, f);
+    // Eingeklappt: pro Tag nur, wie viel erledigt ist und wie viel da ist
+    const hab = xs.filter(e => e.domain === "habit"), rest = xs.filter(e => e.domain !== "habit" && (f === "all" || e.domain === f));
+    return `<div class="wk-ad shut ${k === tk ? "today" : ""}" data-wkad="${k}">${hab.length && (f === "all" || f === "habit") ? `<span class="num">${hab.filter(e => e.done).length}/${hab.length} Habits</span>` : ""}${rest.length && f !== "habit" ? `<span class="num">${rest.length} ${rest.length === 1 ? "Eintrag" : "Einträge"}</span>` : ""}</div>`; }).join("");
   const nm = new Date().getHours() * 60 + new Date().getMinutes();
   const cols = keys.map(k => {
     const timed = PC.calLayout(evs.filter(e => !e.allDay && e.date === k && vis(e)), Math.ceil(22 / hh * 60));
@@ -3669,8 +3702,9 @@ function wkHTML(){
   return `<section class="card wk-card">${filters}
     <div class="wk ${w.back ? "" : "noback"}">${w.back ? wkBackHTML() : ""}
       <div class="wk-main">${w.back ? "" : `<button class="pill wk-bopen" data-wkact="back">${ic("right")}Noch ohne Platz <span class="num">${nb}</span></button>`}
-        <div class="wk-scroll" id="wk-scroll"><div class="wk-in" style="--n:${n};--hh:${hh}px;--colw:${n === 7 ? 112 : 0}px">
-          <div class="wk-top"><span class="wk-corner"></span>${heads}<span class="wk-corner wk-adl">Ganztägig</span>${alld}</div>
+        <div class="wk-scroll" id="wk-scroll"><div class="wk-in" style="--n:${n};--hh:${hh}px;--colw:${n === 7 ? 128 : 0}px">
+          <div class="wk-top"><span class="wk-corner"></span>${heads}</div>
+          <div class="wk-adrow ${w.ad ? "" : "shut"}"><button class="wk-corner wk-adl" data-wkact="ad" aria-expanded="${w.ad}" title="${w.ad ? "Ganztägiges einklappen" : "Ganztägiges ausklappen"}">${ic(w.ad ? "down" : "right")}<span>Ganz&shy;tägig</span></button>${alld}</div>
           <div class="wk-body">${hours}${cols}</div>
         </div></div></div></div>
     <p class="hint" style="margin:12px 0 0">Antippen öffnet die Details. Ziehen verschiebt, der Griff unten ändert die Dauer, alles im 15-Minuten-Raster. Tippe oder ziehe ich auf eine freie Stelle, leg ich dort was Neues an. Mit T spring ich zu heute.</p></section>`;
@@ -3681,7 +3715,8 @@ function wkKeepScroll(before){
   if (before) { S.wkPos = {t: sc.scrollTop, l: sc.scrollLeft}; return; }
   if (S.wkPos) { sc.scrollTop = S.wkPos.t; sc.scrollLeft = S.wkPos.l; return; }
   const g = S.wkGeo || {lo:WK_LO, hh:WK_HH}, nm = new Date().getHours() * 60 + new Date().getMinutes();
-  sc.scrollTop = Math.max(0, (nm - g.lo * 60 - 60) / 60 * g.hh);
+  const ad = sc.querySelector(".wk-adrow"), adH = ad && !ad.classList.contains("shut") ? ad.offsetHeight : 0;
+  sc.scrollTop = adH ? 0 : Math.max(0, (nm - g.lo * 60 - 60) / 60 * g.hh);
   const td = sc.querySelector(".wk-col.today"); if (td && sc.scrollWidth > sc.clientWidth) sc.scrollLeft = Math.max(0, td.offsetLeft - 60);
 }
 
@@ -3836,6 +3871,7 @@ document.addEventListener("click", e => {
     case "filter": w.filter = v; wkSave(); renderMain(); break;
     case "days": w.days = +v; wkSave(); renderMain(); break;
     case "back": w.back = !w.back; wkSave(); renderMain(); break;
+    case "ad": w.ad = !w.ad; wkSave(); renderMain(); break;
     case "ptype": wkPopRead(); S.pop.type = v; renderWkPop(); { const t = $("#wkp-title"); if (t) t.focus(); } break;
     case "pstep": wkPopRead(); S.pop.step = v; renderWkPop(); break;
     case "psave": wkPopSave(); break;
@@ -7505,6 +7541,7 @@ document.addEventListener("click", e => {
   const act = a.dataset.act, id = a.dataset.id, it = S.open && S.items.get(S.open);
   switch (act) {
     case "menu": $("#side").classList.toggle("open"); break;
+    case "side-mini": S.sideMini = !S.sideMini; try { localStorage.setItem("pc-side-mini", S.sideMini ? "1" : ""); } catch(e){} document.body.classList.toggle("side-mini", S.sideMini); renderSide(); break;
     case "d-back": { const bk = (S.dBack || []).pop(); if (bk && S.items.has(bk)) openDetailFresh(bk); else S.dBack = []; break; }
     case "grp": closePop(); if (S.open) closeOverlay(); goGroup(id); break;
     case "today-more": S.todayMore = !S.todayMore; try { localStorage.setItem("pc-more", S.todayMore ? "1" : ""); } catch(e){} renderMain(); break;
