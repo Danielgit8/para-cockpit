@@ -1873,7 +1873,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-15.2";
+const APP_VERSION = "2026-11-15.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -4640,10 +4640,12 @@ document.addEventListener("keydown", e => {
 // Ein Tag ist ein versteckter Eintrag kind "fdlog" (in HIDDEN_K) mit date, water (ml) und
 // entries [{id, meal, name, brand, src, ref, code, img, emoji, g, qty, unit, n, t}].
 // meal: "b" Frühstück, "l" Mittagessen, "d" Abendessen, "s" Snacks.
-// src: "ch" Schweizer Nährwertdatenbank, "off" Open Food Facts, "own" eigenes Lebensmittel, "rec" Rezept, "quick" schnell eingetragen.
+// src: "bls" Bundeslebensmittelschlüssel 4.0 (seit 15.11.2026), "ch" Schweizer Nährwertdatenbank (nur noch in alten Einträgen), "off" Open Food Facts, "own" eigenes Lebensmittel, "rec" Rezept, "quick" schnell eingetragen.
 // n = {kcal, p, c, f, sug, fib, salt} pro 100 g, bei "quick" für den ganzen Eintrag (g = 0). Die Werte werden mitgespeichert,
 // damit ein Tag gleich bleibt, auch wenn sich die Datenbank ändert.
-// Die Offline-Datenbank liegt in data/ (gebaut mit food-db/build_food_db.py) und wird erst beim Öffnen der Seite geladen.
+// Die Offline-Datenbank liegt in data/ (BLS: food-db/build_bls.mjs, Open Food Facts: food-db/build_food_db.py) und wird erst beim Öffnen der Seite geladen.
+// Seit 15.11.2026 (sein Wunsch, er wohnt in Deutschland): BLS 4.0 statt der Schweizer Datenbank, und nur naturbelassene oder wenig verarbeitete Lebensmittel.
+// Alte Einträge mit src "ch" behalten ihre mitgespeicherten Werte, ntGen() behandelt beide Datenbanken gleich.
 // Eigene Lebensmittel (kind "food") haben optional n, code und img, Rezeptzutaten optional n, Rezepte portions.
 // Ziele: Kalorien = der Basis-Wert mit Einheit „kcal“, Makros und Wasser in settings.basis.targets (leer = Vorschlag).
 const NT_MEALS = [["b", "Frühstück"], ["l", "Mittagessen"], ["d", "Abendessen"], ["s", "Snacks"]];
@@ -4651,6 +4653,7 @@ const NT_MACROS = [["c", "Kohlenhydrate", 4, .5], ["p", "Eiweiß", 4, .2], ["f",
 const DEF_TARGETS = [{id:"c", name:"Kohlenhydrate", value:"", unit:"g pro Tag"}, {id:"p", name:"Eiweiß", value:"", unit:"g pro Tag"},
   {id:"f", name:"Fett", value:"", unit:"g pro Tag"}, {id:"w", name:"Wasser", value:"", unit:"ml pro Tag"}];
 const NT = {db:null, loading:null, byCode:new Map(), cam:null};
+const ntGen = src => src === "bls" || src === "ch"; // allgemeine Lebensmittel aus einer Nährwertdatenbank (keine Markenprodukte)
 const ntMealName = m => (NT_MEALS.find(x => x[0] === m) || NT_MEALS[3])[1];
 const ntNorm = s => String(s || "").toLowerCase().replace(/ß/g, "ss").replace(/ä|ae/g, "a").replace(/ö|oe/g, "o").replace(/ü|ue/g, "u").normalize("NFD").replace(/[̀-ͯ]/g, "");
 const ntNum = v => typeof v === "number" && isFinite(v) ? v : null;
@@ -4660,14 +4663,14 @@ function ntLoad(){
   if (NT.db) return Promise.resolve(NT.db);
   if (NT.loading) return NT.loading;
   const get = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
-  NT.loading = Promise.all([get("data/foods-ch.json"), get("data/foods-off.json"), get("data/foods-ch-micro.json")]).then(([ch, off, mi]) => {
+  NT.loading = Promise.all([get("data/foods-bls.json"), get("data/foods-off.json"), get("data/foods-bls-micro.json")]).then(([ch, off, mi]) => {
     NT.loading = null; if (!ch && !off) return [];
     const L = [], nut = r => ({kcal:r[0], p:r[1], c:r[2], f:r[3], sug:r[4], fib:r[5], salt:r[6]});
-    // Vitamine, Mineralstoffe und Fettsäuren der Schweizer Datenbank (seit 14.11.2026, gebaut mit food-db/build_micro.py)
+    // Vitamine, Mineralstoffe und Fettsäuren des BLS (gebaut mit food-db/build_bls.mjs)
     const mic = id => { const v = mi && mi.items[id], o = {}; if (v) mi.f.forEach((k, i) => { if (v[i] != null) o[k] = v[i]; }); return o; };
-    if (ch) for (const r of ch.items) L.push(ntMake({src:"ch", id:r[0], name:r[1], syn:r[2], cat:ch.cats[r[3]], n:{...nut(r.slice(4, 11)), ...mic(r[0])}, emoji:r[11], portion:r[12] || null}));
+    if (ch) for (const r of ch.items) L.push(ntMake({src:"bls", id:r[0], name:r[1], syn:r[2], cat:ch.cats[r[3]], n:{...nut(r.slice(4, 11)), ...mic(r[0])}, emoji:r[11], portion:r[12] || null}));
     if (off) for (const r of off.items) L.push(ntMake({src:"off", id:r[0], code:r[0], name:r[1], brand:r[2], qty:r[3], serving:r[4], n:nut(r.slice(5, 12)), img: r[12] ? off.img + r[12] + ".200.jpg" : ""}));
-    NT.db = L; NT.byCode = new Map(L.filter(x => x.code).map(x => [x.code, x])); NT.byId = new Map(L.filter(x => x.src === "ch").map(x => [x.id, x]));
+    NT.db = L; NT.byCode = new Map(L.filter(x => x.code).map(x => [x.code, x])); NT.byId = new Map(L.filter(x => ntGen(x.src)).map(x => [x.id, x]));
     return L;
   });
   return NT.loading;
@@ -4713,11 +4716,11 @@ function ntRecent(){
   }
   return out;
 }
-// Naturzustand zuerst (Wunsch des Nutzers 2026-10-25): Gibt es eine Sorte aus der Schweizer Datenbank roh bzw. trocken,
+// Naturzustand zuerst (Wunsch des Nutzers 2026-10-25): Gibt es eine Sorte aus der Datenbank (BLS) roh bzw. trocken,
 // steht diese vorne, gekochte und zubereitete Varianten derselben Sorte sind eingeklappt. Gerichte ohne rohe Variante bleiben sichtbar.
 const NT_RAW = /(^|[\s,(])(roh|trocken|ungekocht|ungebacken|nature|natur)([\s,)]|$)/;
 const NT_COOK = /gekocht|gebraten|gedunstet|gedampft|geschmort|zubereitet|gebacken|frittiert|aufgewarmt|gerostet|im ofen|konserve|abgetropft|paniert|hausgemacht|gegart|eingelegt/;
-const ntState = x => x.src !== "ch" ? "" : NT_RAW.test(x.nk) ? "raw" : NT_COOK.test(x.nk) ? "cooked" : "";
+const ntState = x => !ntGen(x.src) ? "" : NT_RAW.test(x.nk) ? "raw" : NT_COOK.test(x.nk) ? "cooked" : "";
 const ntGroup = x => x.nk.split(/,| \(/)[0].trim();
 function ntSearch(q){
   const qs = ntNorm(q).split(/[\s,]+/).filter(Boolean); if (!qs.length) return [];
@@ -4729,9 +4732,9 @@ function ntSearch(q){
       sc += i === 0 ? 3 : /[\s,(/-]/.test(x.k[i - 1]) ? 2 : end ? 2 : .5; }
     if (sc < 0) continue;
     if (x.nk.startsWith(qs[0])) sc += 2; if (x.nk === qs.join(" ")) sc += 3; if (x.nk.split(/[\s,(]/)[0] === qs[0]) sc += 6;
-    sc += x.src === "own" || x.src === "rec" ? 5 : x.src === "ch" ? 4 : 0;
+    sc += x.src === "own" || x.src === "rec" ? 5 : ntGen(x.src) ? 4 : 0;
     sc -= Math.min(x.name.length, 80) / 40;
-    if (x.src === "ch") { const st = ntState(x); sc += st === "raw" ? 2.5 : st === "cooked" ? -1 : 0; if (x.syn && (" " + ntNorm(x.syn) + " ").includes(" " + qs[0] + " ") && !x.nk.startsWith(qs[0])) sc += 5; }
+    if (ntGen(x.src)) { const st = ntState(x); sc += st === "raw" ? 2.5 : st === "cooked" ? -1 : 0; if (x.syn && (" " + ntNorm(x.syn) + " ").includes(" " + qs[0] + " ") && !x.nk.startsWith(qs[0])) sc += 5; }
     res.push([sc, x]);
   }
   const M = ntFixes(); return res.sort((a, b) => b[0] - a[0]).slice(0, 60).map(r => ntFix(r[1], M));
@@ -4773,17 +4776,18 @@ function ntSrcLine(x){
   if (x.src === "own") return ["Mein Lebensmittel", x.brand].filter(Boolean).join(" · ");
   if (x.src === "rec") return "Mein Rezept";
   if (x.src === "quick") return "Schnell eingetragen";
-  if (x.src === "ch") return x.cat || "Allgemein";
+  if (ntGen(x.src)) return x.cat || "Allgemein";
   return [x.brand, x.qty].filter(Boolean).join(" · ") || "Produkt";
 }
-const NT_SRC = {ch:"Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch)", off:"Open Food Facts (openfoodfacts.org, Lizenz ODbL, Bild CC BY-SA)", own:"meinen eigenen Angaben", rec:"den Zutaten deines Rezepts"};
+const NT_SRC = {bls:"dem Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, Lizenz CC BY 4.0", ch:"der Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch)", off:"Open Food Facts (openfoodfacts.org, Lizenz ODbL, Bild CC BY-SA)", own:"meinen eigenen Angaben", rec:"den Zutaten deines Rezepts"};
 // ---- Mikronährstoffe (14.11.2026): Schlüssel in n, Bezeichnung, Einheit, EU-Nährstoffbezugswert (NRV, LMIV Anhang XIII) ----
 // 15 % des NRV pro 100 g gelten als „Quelle“, 30 % als „reich an“ (Health-Claims-Verordnung, laut Verbraucherzentrale).
 const NT_MIC = [["vita", "Vitamin A", "µg", 800], ["b1", "Vitamin B1", "mg", 1.1], ["b2", "Vitamin B2", "mg", 1.4], ["nia", "Niacin (B3)", "mg", 16], ["panto", "Pantothensäure (B5)", "mg", 6],
-  ["b6", "Vitamin B6", "mg", 1.4], ["fol", "Folat", "µg", 200], ["b12", "Vitamin B12", "µg", 2.5], ["vitc", "Vitamin C", "mg", 80], ["vitd", "Vitamin D", "µg", 5], ["vite", "Vitamin E", "mg", 12],
+  ["b6", "Vitamin B6", "mg", 1.4], ["fol", "Folat", "µg", 200], ["b12", "Vitamin B12", "µg", 2.5], ["vitc", "Vitamin C", "mg", 80], ["vitd", "Vitamin D", "µg", 5], ["vite", "Vitamin E", "mg", 12], ["vitk", "Vitamin K", "µg", 75], ["biot", "Biotin", "µg", 50],
   ["ca", "Calcium", "mg", 800], ["mgn", "Magnesium", "mg", 375], ["fe", "Eisen", "mg", 14], ["zn", "Zink", "mg", 10], ["kal", "Kalium", "mg", 2000], ["phos", "Phosphor", "mg", 700],
-  ["se", "Selen", "µg", 55], ["jod", "Jod", "µg", 150], ["na", "Natrium", "mg", 0], ["sfa", "Gesättigte Fettsäuren", "g", 0], ["ala", "Omega-3 (ALA)", "g", 0], ["epa", "Omega-3 (EPA)", "g", 0],
-  ["dha", "Omega-3 (DHA)", "g", 0], ["chol", "Cholesterin", "mg", 0]];
+  ["se", "Selen", "µg", 55], ["jod", "Jod", "µg", 150], ["cu", "Kupfer", "mg", 1], ["mn", "Mangan", "mg", 2], ["na", "Natrium", "mg", 0], ["sfa", "Gesättigte Fettsäuren", "g", 0], ["mufa", "Einfach ungesättigte Fettsäuren", "g", 0], ["pufa", "Mehrfach ungesättigte Fettsäuren", "g", 0],
+  ["o3", "Omega-3 gesamt", "g", 0], ["ala", "Omega-3 (ALA)", "g", 0], ["epa", "Omega-3 (EPA)", "g", 0],
+  ["dha", "Omega-3 (DHA)", "g", 0], ["o6", "Omega-6 gesamt", "g", 0], ["chol", "Cholesterin", "mg", 0]];
 // Alles, wonach ich Gruppen bei den Quellen bilden kann
 const NT_GRP = [["p", "Eiweiß", "g", 0], ["c", "Kohlenhydrate", "g", 0], ["f", "Fett", "g", 0], ["fib", "Ballaststoffe", "g", 0], ["sug", "Zucker", "g", 0], ...NT_MIC];
 const ntNutDef = k => NT_GRP.find(d => d[0] === k);
@@ -4794,7 +4798,7 @@ function ntMicHTML(n){
   return `<details class="nt-mic" ${S.ntMicOpen ? "open" : ""}><summary>Vitamine und Mineralstoffe <span class="muted">pro 100 g</span></summary>
     <div class="nt-mic-g">${L.map(([k, l, u, nrv]) => { const v = +n[k], pct = nrv ? Math.round(v / nrv * 100) : null;
       return `<div class="${pct != null && pct >= 15 ? "src" : ""}"><span>${esc(l)}</span><b class="num">${mFmt(v)} ${u}${pct != null ? `<small>${pct} %</small>` : ""}</b></div>`; }).join("")}</div>
-    <p class="hint" style="margin:8px 0 0">Prozent vom EU-Tagesbezugswert. Ab 15 % pro 100 g darf man von einer Quelle sprechen, ab 30 % von „reich an“. Werte: Schweizer Nährwertdatenbank.</p></details>`;
+    <p class="hint" style="margin:8px 0 0">Prozent vom EU-Tagesbezugswert. Ab 15 % pro 100 g darf man von einer Quelle sprechen, ab 30 % von „reich an“. Werte aus der Nährwertdatenbank (BLS 4.0, Max Rubner-Institut).</p></details>`;
 }
 document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("nt-mic")) S.ntMicOpen = e.target.open; }, true);
 function ntNutHTML(n, k = 1){
@@ -4843,7 +4847,7 @@ function ntEntryForm(e){
       : `<label>Menge in Gramm<input class="field num" id="nte-${e.id}" inputmode="decimal" data-ntv="g" data-id="${e.id}" value="${esc(bsIn(e.g))}"></label>`}
     <div class="fd-lbl br-wide"><span>Mahlzeit</span><div class="fd-btns">${NT_MEALS.map(([m, l]) => `<button class="pill ${e.meal === m ? "on" : ""}" data-nt="move" data-id="${e.id}" data-meal="${m}">${l}</button>`).join("")}</div></div>
     <div class="nt-nut br-wide" id="nte-${e.id}-nut">${ntNutHTML(e.n, ntFac(e))}</div>
-    ${e.src === "ch" || e.src === "off" ? `<div class="br-wide"><button class="pill" data-nt="fixe" data-id="${e.id}">${ic("pen")}Nährwerte korrigieren</button></div>` : ""}
+    ${ntGen(e.src) || e.src === "off" ? `<div class="br-wide"><button class="pill" data-nt="fixe" data-id="${e.id}">${ic("pen")}Nährwerte korrigieren</button></div>` : ""}
     ${e.src && NT_SRC[e.src] ? `<p class="hint br-wide" style="margin:0">Werte aus ${esc(NT_SRC[e.src])}.</p>` : ""}
     <div class="br-ed-f">${ntStarBtn(ntEntryItem(e), e.id)}<span class="grow"></span><button class="pill" data-nt="again" data-id="${e.id}">${ic("copy")}${today ? "Nochmal" : "Heute auch"}</button><button class="pill" data-nt="del" data-id="${e.id}" style="${S.ntDel === e.id ? "color:var(--late)" : ""}">${ic("trash")}${S.ntDel === e.id ? "Wirklich löschen?" : "Löschen"}</button><button class="pill on" data-nt="edit" data-id="${e.id}">Fertig</button></div></div>`;
 }
@@ -4862,7 +4866,7 @@ function ntDiaryHTML(){
   const date = S.ntDate || dkey(), day = ntDayOf(date), E = day ? day.entries || [] : [], g = ntGoals(date);
   return ntWeekHTML(date) + `<div class="nt-top">${ntHeroHTML(ntSum(E), g, bsSum())}${ntWaterHTML(day, g)}</div>${S.ntGoalEdit === date ? ntDayGoalHTML(date, g) : ""}
     <div class="nt-meals">${NT_MEALS.map(([id, label]) => ntMealHTML(id, label, E.filter(e => (e.meal || "s") === id))).join("")}</div>
-    <p class="nt-src">Nährwerte aus der Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA). Beides liegt offline in der App.</p>`;
+    <p class="nt-src">Nährwerte aus dem Bundeslebensmittelschlüssel (BLS) 4.0 des Max Rubner-Instituts (CC BY 4.0, nur naturbelassene und wenig verarbeitete Lebensmittel) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA). Beides liegt offline in der App.</p>`;
 }
 
 
@@ -4992,7 +4996,7 @@ function plHTML(){
       ${plShotsHTML(p)}
       <div class="pl-pics"><label class="btn ghost">${ic("img")}Bild hinzufügen<input type="file" accept="image/*" multiple id="pl-file" hidden></label>
         <span class="muted">${S.plUp ? "Bild wird hochgeladen …" : "Am Laptop kann ich einen Screenshot kopieren und hier mit Strg + V einfügen."}</span></div></section>
-    <p class="nt-src">Nährwerte aus der Schweizer Nährwertdatenbank (BLV, naehrwertdaten.ch) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA).</p>`;
+    <p class="nt-src">Nährwerte aus dem Bundeslebensmittelschlüssel (BLS) 4.0 des Max Rubner-Instituts (CC BY 4.0) und von Open Food Facts (ODbL), Produktbilder von Open Food Facts (CC BY-SA).</p>`;
 }
 // Bilder zu den Plan-Notizen (Wunsch 13.11.2026): liegen wie überall als shots am Eintrag, die Großansicht mit Löschen kommt von renderPop.
 // Am Laptop geht auch Einfügen aus der Zwischenablage, solange der Reiter „Plan“ offen ist.
@@ -5209,7 +5213,7 @@ function ntFavItem(f){
   const s = f.snap || {}, src = s.src, id = s.id;
   let x = null;
   if (src === "own" || src === "rec") { x = ntOwn().find(o => o.src === src && o.id === id) || null; if (!x) return null; }
-  else if (src === "ch" || src === "off") x = ntFix(ntBase(ntMake({...s})));
+  else if (ntGen(src) || src === "off") x = ntFix(ntBase(ntMake({...s})));
   else x = ntMake({...s});
   return {...x, last:f.g || 0, lastQty:f.qty || null, lastUnit:f.unit || null, fav:f.id};
 }
@@ -5283,7 +5287,7 @@ const msOne = id => `Quelle für ${msLabel(id)}`;
 const msOf = k => live("fmsrc").find(m => m.key === k);
 const msSnap = x => ({src:x.src, id:x.id || "", code:x.code || "", name:x.name, brand:x.brand || "", n:{...x.n}, img:x.img || "", emoji:x.emoji || "", portion:x.portion || null, serving:x.serving || 0, qty:x.qty || "", cat:x.cat || ""});
 // Lebensmittel mit allen Werten aus der Datenbank (ältere Einträge haben noch keine Vitamine gespeichert)
-const msFull = x => { const db = x && x.src === "ch" && NT.byId && NT.byId.get(x.id); return db ? ntFix(db) : x; };
+const msFull = x => { const db = x && ntGen(x.src) && NT.byId && NT.byId.get(x.id); return db ? ntFix(db) : x; };
 function msToggle(x, gid, on){
   const k = ntKey(x); if (!k || !gid) return false;
   const m = msOf(k);
@@ -5394,10 +5398,10 @@ document.addEventListener("change", e => {
 });
 
 // ---- Eigene Korrekturen an Lebensmitteln aus der Datenbank ----
-// Versteckter Eintrag kind "fdfix" (in HIDDEN_K) pro Lebensmittel: ref "ch:<id>" oder "off:<code>", name (leer = Name aus der Datenbank), n pro 100 g.
+// Versteckter Eintrag kind "fdfix" (in HIDDEN_K) pro Lebensmittel: ref "bls:<id>" (alt: "ch:<id>") oder "off:<code>", name (leer = Name aus der Datenbank), n pro 100 g.
 // Die Datenbank-Dateien bleiben unverändert, ntFix legt die Korrektur beim Anzeigen darüber.
 const NT_NF = [["kcal", "Kalorien", "kcal"], ["c", "Kohlenhydrate", "g"], ["sug", "davon Zucker", "g"], ["p", "Eiweiß", "g"], ["f", "Fett", "g"], ["fib", "Ballaststoffe", "g"], ["salt", "Salz", "g"]];
-const ntRef = x => x && (x.src === "ch" || x.src === "off") && x.id ? `${x.src}:${x.id}` : "";
+const ntRef = x => x && (ntGen(x.src) || x.src === "off") && x.id ? `${x.src}:${x.id}` : "";
 function ntFixes(){ const m = new Map(); for (const f of live("fdfix")) if (f.ref) m.set(f.ref, f); return m; }
 function ntFix(x, M = ntFixes()){
   const f = M.get(ntRef(x)); if (!f || !x) return x;
@@ -5405,7 +5409,7 @@ function ntFix(x, M = ntFixes()){
 }
 // Lebensmittel so, wie es in der Datenbank steht (für „Original wiederherstellen“)
 function ntBase(x){
-  const db = x.src === "ch" ? NT.byId && NT.byId.get(x.id) : x.src === "off" ? NT.byCode.get(x.id) || ntFromCache(x.id) : null;
+  const db = ntGen(x.src) ? NT.byId && NT.byId.get(x.id) : x.src === "off" ? NT.byCode.get(x.id) || ntFromCache(x.id) : null;
   return db || ntMake({...x, fixed: undefined});
 }
 const ntFixCount = ref => live("fdlog").reduce((s, d) => s + (d.entries || []).filter(e => `${e.src}:${e.ref}` === ref).length, 0);
@@ -5455,7 +5459,7 @@ function ntFixListHTML(){
   if (!L.length) return "";
   return `<section class="card" style="margin-top:20px"><div class="card-h"><h2>Angepasste Werte aus der Datenbank</h2><span class="grow"></span><span class="chip">${L.length}</span></div>
     <p class="hint">Hier stehen Lebensmittel aus der Datenbank, deren Nährwerte ich korrigiert hab. Antippen, um sie zu ändern oder das Original zurückzuholen.</p>
-    ${L.map(f => `<button class="nt-r" data-nt="fixopen" data-id="${f.id}"><span class="nt-et"><b>${esc(f.title || "Ohne Namen")}</b><small>${esc(f.ref.startsWith("off:") ? "Produkt von Open Food Facts" : "Schweizer Nährwertdatenbank")}</small></span><span class="nt-ek num">${bsFmt(f.n && f.n.kcal)} <small>kcal / 100 g</small></span></button>`).join("")}</section>`;
+    ${L.map(f => `<button class="nt-r" data-nt="fixopen" data-id="${f.id}"><span class="nt-et"><b>${esc(f.title || "Ohne Namen")}</b><small>${esc(f.ref.startsWith("off:") ? "Produkt von Open Food Facts" : f.ref.startsWith("bls:") ? "Bundeslebensmittelschlüssel" : "Schweizer Nährwertdatenbank")}</small></span><span class="nt-ek num">${bsFmt(f.n && f.n.kcal)} <small>kcal / 100 g</small></span></button>`).join("")}</section>`;
 }
 
 // ---- Barcode-Scanner: eingebaute BarcodeDetector-API (Chrome auf Android), sonst ZXing als WebAssembly aus vendor/barcode ----
