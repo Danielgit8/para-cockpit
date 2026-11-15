@@ -1810,7 +1810,19 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
   .gd-month b{min-width:0;flex:1}
 }
 
+/* ===== Verbindungen / MCP (15.11.2026) ===== */
+.mcp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.mcp-url{flex:1 1 220px;min-width:0;overflow-wrap:anywhere;font-family:var(--f-num);font-size:12.5px;padding:9px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--soft)}
+.mcp-ok{color:var(--good);display:inline-flex;align-items:center;gap:4px}.mcp-ok .i{width:14px;height:14px}.mcp-bad{color:var(--late)}
+.mcp-warn{margin-top:8px}
+.mcp-list{list-style:none;margin:6px 0 0;padding:0}.mcp-list li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.mcp-list li span{text-align:right;flex:1 1 180px;min-width:0}.mcp-list code{font-family:var(--f-num);font-size:12.5px}
+.mcp-how details{border-top:1px solid var(--line);padding:10px 0}.mcp-how summary{cursor:pointer;font-weight:700}.mcp-how details p{margin:6px 0 0;line-height:1.5}
+@media (max-width:560px){ .mcp-row .btn{width:100%;justify-content:center} .mcp-list li span{text-align:left} }
+
 /* ===== Makro-Quellen (14.11.2026) ===== */
+.ms-main{color:var(--muted)}.ms-main.on{color:var(--amber,var(--brand,#C77B32))}.ms-main.on .i{fill:currentColor}
+.ms-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.02em;padding:1px 7px;border-radius:999px;background:var(--amber-soft,var(--soft));color:var(--text);margin-right:4px}
 .ms-g{margin-top:16px}.ms-gh{display:flex;align-items:center;gap:8px;margin-bottom:4px}.ms-gh h3{margin:0;font-size:15px}
 .ms-e{margin:4px 0 0;font-size:13px}
 .ms-sug{margin-top:22px;padding-top:14px;border-top:1px dashed var(--line)}.ms-sug h3{margin:0;font-size:15px}
@@ -1861,7 +1873,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-14.3";
+const APP_VERSION = "2026-11-15.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2482,7 +2494,7 @@ function toolViews(k = kinds()){
   return [
     {label:"Planen", views:[v("liste", "Tagesliste", "task"), v("cal", "Kalender", "cal"), v("task", k.task.plural, k.task.icon), v("project", k.project.plural, k.project.icon), v("habit", k.habit.plural, k.habit.icon), v("review", "Wochenrückblick", "review")]},
     {label:"Wissen", views:[...(S.settings.kinds || []).map(c => v(c.id, c.label, "folder")), v("resource", k.resource.plural, k.resource.icon), v("note", k.note.plural, k.note.icon), v("area", k.area.plural, k.area.icon), v("board", "Boards", "board")]},
-    {label:"Mehr", views:[v("tags", "Stichwörter", "tag"), v("archive", "Archiv", "archive"), v("settings", "Anpassen", "settings"), v("dashboard", "Übersicht", "home")]},
+    {label:"Mehr", views:[v("mcp", "Verbindungen", "link"), v("tags", "Stichwörter", "tag"), v("archive", "Archiv", "archive"), v("settings", "Anpassen", "settings"), v("dashboard", "Übersicht", "home")]},
   ];
 }
 const groupOf = v => navGroups().find(g => g.views.some(x => x.v === v));
@@ -2566,6 +2578,7 @@ function viewHTML(){
   if (v === "lese") return lesestoffHTML();
   if (v === "journal") return journalHTML();
   if (v === "tools") return toolsHTML();
+  if (v === "mcp") return mcpHTML();
   if (v === "cal") return calHTML();
   if (v === "review") return reviewHTML();
   if (v === "basis") { S.view = "food"; S.fdTab = "goals"; return foodHTML(); }
@@ -3062,6 +3075,63 @@ function toolsHTML(){
   return `<div class="ns">` + header("Werkzeuge", "Alles, was ich schon gebaut hab. Nur öffnen, wenn ich es gerade brauche.") +
     toolViews().map(g => `<div class="ns-lbl" style="margin:18px 4px 8px">${esc(g.label)}</div><div class="ns-tools">${g.views.map(x => `<button class="ns-tool" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>`).join("") + `</div>`;
 }
+
+/* --- Verbindungen (15.11.2026, sein Wunsch): mein Life-OS-MCP für Claude, ChatGPT, n8n und andere KI-Apps ---
+   Server: Edge Function cockpit-mcp im selben Supabase-Projekt (Code in PARA Cockpit/cockpit-mcp, nicht in diesem Repo).
+   Die Adresse enthält den Schlüssel. Sie kommt nur mit meinem Login von GET …/cockpit-mcp/info und steht nie im Code oder in den Einstellungen.
+   Die versteckte Zeile "__mcp" (welche App sich wann verbunden hat) schreibt der Server, die App liest sie nur über /info. */
+const mcpApp = n => { const s = String(n || "").toLowerCase();
+  return s.includes("claude-code") ? "Claude Code" : s.includes("claude") ? "Claude" : s.includes("openai") || s.includes("chatgpt") ? "ChatGPT" : s.includes("n8n") ? "n8n" : s.includes("cursor") ? "Cursor" : s.includes("gemini") ? "Gemini" : String(n || "Unbekannt"); };
+const mcpAgo = ts => { const m = Math.round((Date.now() - ts) / 60000);
+  return m < 1 ? "gerade eben" : m < 60 ? `vor ${m} Min.` : m < 1440 ? `vor ${Math.round(m / 60)} Std.` : new Date(ts).toLocaleDateString("de-DE", {day:"numeric", month:"short", year:"numeric"}); };
+function mcpLoad(){
+  S.mcp = {loading:true};
+  (async () => {
+    try {
+      if (!sb) throw new Error("Ohne Supabase-Verbindung geht das nicht.");
+      const {data} = await sb.auth.getSession(), t = data && data.session && data.session.access_token;
+      if (!t) throw new Error("Dafür muss ich eingeloggt sein.");
+      const r = await fetch(CONFIG.url + "/functions/v1/cockpit-mcp/info", {headers:{Authorization:"Bearer " + t, apikey:CONFIG.key}});
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || `Der Server antwortet mit ${r.status}.`);
+      S.mcp = {info:j};
+    } catch(e) { S.mcp = {err: navigator.onLine === false ? "Ich bin gerade offline." : (e && e.message) || String(e)}; }
+    if (S.view === "mcp") renderMain();
+  })();
+}
+const MCP_HOW = [
+  ["Claude (claude.ai, Desktop und Handy)", "In claude.ai: Einstellungen → Connectors → „Eigenen Connector hinzufügen“. Name „Life OS“, Adresse rein, fertig. Danach ist er auch in der Claude-App am Handy da. Im Chat schalt ich ihn über das Werkzeug-Menü ein oder aus."],
+  ["Claude Code", "Ist am Laptop schon eingetragen, Name „life-os“. Mit /mcp seh ich, ob er verbunden ist. Auf einem neuen Rechner starte ich setup.ps1 im Ordner cockpit-mcp."],
+  ["ChatGPT", "Auf chatgpt.com/plugins einen eigenen MCP-Server hinzufügen, Adresse rein, Anmeldung „Keine“ und die Warnung bestätigen."],
+  ["n8n", "Knoten „MCP Client Tool“ an einen AI Agent hängen. Als Endpoint die Adresse, Transport „HTTP Streamable“, Anmeldung „None“."],
+  ["Andere KI-Apps", "Überall, wo man einen MCP-Server per Adresse eintragen kann (Streamable HTTP), zum Beispiel Cursor oder Gemini CLI. Es ist immer dieselbe Adresse."],
+];
+function mcpHTML(){
+  if (!S.mcp) mcpLoad();
+  const M = S.mcp, I = M.info;
+  const status = M.loading ? `<span class="chip">Prüf ich gerade …</span>` : M.err ? `<span class="chip mcp-bad">Nicht erreichbar</span>` : `<span class="chip mcp-ok">${ic("check")}Läuft</span>`;
+  const masked = I ? I.url.replace(/[^/]+$/, k => k.slice(0, 4) + "…" + k.slice(-4)) : "";
+  const cl = I ? Object.entries(I.clients || {}).sort((a, b) => b[1] - a[1]) : [];
+  return `<div class="ns">` + header("Verbindungen", "Mein Life OS für Claude, ChatGPT und andere KI-Apps") + `
+    <section class="card"><div class="card-h"><h2>Mein Life-OS-MCP</h2><span class="grow"></span>${status}</div>
+      <p class="hint">Damit können KI-Apps mein Life OS lesen und Einträge anlegen oder ändern, zum Beispiel Ideen, Skripte, Aufgaben oder den Brand-Kompass. Alles landet beim nächsten Abgleich hier. Löschen geht nur in der App.</p>
+      ${I ? `<div class="mcp-row"><code class="mcp-url">${esc(masked)}</code><button class="btn" data-mcp="copy">${ic("copy")}Adresse kopieren</button></div>
+        <p class="hint mcp-warn">Die Adresse ist wie ein Passwort. Wer sie hat, kann mein Life OS lesen und ändern. Nicht teilen, nicht in Screenshots zeigen.</p>` : ""}
+      ${M.err ? `<p class="hint mcp-warn">${esc(M.err)}</p><button class="pill" data-mcp="reload">Nochmal prüfen</button>` : ""}</section>
+    <section class="card"><div class="card-h"><h2>Zuletzt verbunden</h2><span class="grow"></span>${I ? `<button class="pill" data-mcp="reload">Aktualisieren</button>` : ""}</div>
+      ${M.loading ? `<p class="muted">Lädt …</p>` : cl.length ? `<ul class="mcp-list">${cl.map(([n, ts]) => `<li><b>${esc(mcpApp(n))}</b><span class="muted">${esc(mcpApp(n) === n ? mcpAgo(ts) : n + " · " + mcpAgo(ts))}</span></li>`).join("")}</ul>`
+        : `<p class="muted">Noch keine App verbunden.</p>`}</section>
+    <section class="card mcp-how"><div class="card-h"><h2>Wo ich die Adresse eintrage</h2></div>
+      ${MCP_HOW.map(([t, d]) => `<details><summary>${esc(t)}</summary><p>${esc(d)}</p></details>`).join("")}</section>
+    ${I ? `<section class="card"><div class="card-h"><h2>Was die KI damit kann</h2></div><ul class="mcp-list">${(I.tools || []).map(t => `<li><code>${esc(t.name)}</code><span class="muted">${esc(t.description)}</span></li>`).join("")}</ul></section>` : ""}
+  </div>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-mcp]"); if (!b) return;
+  if (b.dataset.mcp === "copy") { const u = S.mcp && S.mcp.info && S.mcp.info.url; if (!u) return;
+    navigator.clipboard?.writeText(u).then(() => toast("Adresse kopiert. Nicht teilen."), () => toast("Kopieren hat nicht geklappt.")); }
+  if (b.dataset.mcp === "reload") { S.mcp = null; renderMain(); }
+});
 
 /* --- Eingaben --- */
 document.addEventListener("click", e => {
@@ -5203,6 +5273,7 @@ function ntFavListHTML(){
 // ---- Meine Quellen (14.11.2026, sein Wunsch): welche Lebensmittel mir Eiweiß, Kohlenhydrate, Fett, Vitamine und Mineralstoffe liefern ----
 // Gruppen stell ich selbst ein: settings.msg [{id, name, key}] (key = Nährwert aus NT_GRP oder leer). Standard Eiweiß/Kohlenhydrate/Fett wird erst beim Bearbeiten gespeichert.
 // Versteckter Eintrag kind "fmsrc" pro Lebensmittel: key wie ntKey, snap wie bei Favoriten, macros = ids der Gruppen (mehrere erlaubt).
+// Seit 15.11.2026: main = ids der Gruppen, in denen das Lebensmittel meine Hauptquelle ist (Stern), z. B. Sardinen bei Omega-3. Hauptquellen stehen oben.
 const MS_DEF = [{id:"p", name:"Eiweiß", key:"p"}, {id:"c", name:"Kohlenhydrate", key:"c"}, {id:"f", name:"Fett", key:"f"}];
 const msGroups = () => Array.isArray(S.settings.msg) && S.settings.msg.length ? S.settings.msg : MS_DEF;
 function msOwn(){ if (!Array.isArray(S.settings.msg) || !S.settings.msg.length) S.settings.msg = clone(MS_DEF); return S.settings.msg; }
@@ -5219,6 +5290,7 @@ function msToggle(x, gid, on){
   if (!m) { if (on === false) return false; create("fmsrc", x.name, {key:k, snap:msSnap(msFull(x)), macros:[gid]}); return true; }
   const has = (m.macros || []).includes(gid), want = on == null ? !has : on; if (has === want) return want;
   m.macros = want ? [...(m.macros || []), gid] : (m.macros || []).filter(y => y !== gid);
+  if (!want && m.main) m.main = m.main.filter(y => y !== gid);
   if (!m.macros.length) removeItem(m.id); else persist(m);
   return want;
 }
@@ -5266,11 +5338,13 @@ function msHTML(){
   if (!NT.db && !NT.msTried) { NT.msTried = true; ntLoad().then(() => { if (NT.db && S.view === "food" && S.fdTab === "food") renderMain(); }); }
   const G = msGroups(), items = live("fmsrc").map(m => ({m, x: msItem(m)}));
   const grp = g => {
-    const L = items.filter(o => (o.m.macros || []).includes(g.id)).sort((a, b) => g.key ? (+b.x.n[g.key] || 0) - (+a.x.n[g.key] || 0) : (a.x.name || "").localeCompare(b.x.name || "", "de"));
+    const isMain = o => (o.m.main || []).includes(g.id);
+    const L = items.filter(o => (o.m.macros || []).includes(g.id)).sort((a, b) => (isMain(b) - isMain(a)) || (g.key ? (+b.x.n[g.key] || 0) - (+a.x.n[g.key] || 0) : (a.x.name || "").localeCompare(b.x.name || "", "de")));
     return `<div class="ms-g"><div class="ms-gh"><h3>${esc(g.name)}</h3><span class="chip">${L.length}</span><span class="grow"></span><button class="pill" data-ms="add" data-m="${esc(g.id)}">${ic("plus")}Zuordnen</button></div>
-      ${L.length ? L.map(({m, x}) => { const also = (m.macros || []).filter(y => y !== g.id).map(msLabel), amt = msAmt(g, x);
-        return `<div class="nt-fr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${esc([amt, also.length ? `auch ${also.join(", ")}` : ""].filter(Boolean).join(" · "))}</small></span></span>
+      ${L.length ? L.map(({m, x}) => { const mn = m.main || [], main = mn.includes(g.id), also = (m.macros || []).filter(y => y !== g.id).map(y => msLabel(y) + (mn.includes(y) ? " (Hauptquelle)" : "")), amt = msAmt(g, x);
+        return `<div class="nt-fr"><span class="nt-r nt-rs">${ntImg(x)}<span class="nt-et"><b>${esc(x.name)}</b><small>${main ? `<span class="ms-tag">Hauptquelle</span>` : ""}${esc([amt, also.length ? `auch ${also.join(", ")}` : ""].filter(Boolean).join(" · "))}</small></span></span>
           ${msGuess(x.n || {}).filter(y => !(m.macros || []).includes(y)).slice(0, 3).map(y => `<button class="pill ms-also" data-ms="also" data-id="${m.id}" data-m="${esc(y)}" title="Vorschlag nach den Nährwerten">${ic("plus")}${esc(msLabel(y))}</button>`).join("")}
+          <button class="ibtn ms-main ${main ? "on" : ""}" data-ms="main" data-id="${m.id}" data-m="${esc(g.id)}" aria-pressed="${main}" title="${main ? "Doch keine Hauptquelle" : `Als Hauptquelle für ${esc(g.name)} markieren`}" aria-label="${esc(x.name)}: Hauptquelle für ${esc(g.name)}">${ic("star")}</button>
           <button class="ibtn" data-ms="rm" data-id="${m.id}" data-m="${esc(g.id)}" title="Bei ${esc(g.name)} entfernen" aria-label="${esc(x.name)} bei ${esc(g.name)} entfernen">${ic("close")}</button></div>`; }).join("")
         : `<p class="muted ms-e">Noch nichts zugeordnet.</p>`}</div>`; };
   const C = msCands(); S.msCand = C;
@@ -5283,7 +5357,7 @@ function msHTML(){
             ${rest.length ? `<select class="field ms-other" data-msset="${i}" aria-label="${esc(x.name)} einer anderen Gruppe zuordnen"><option value="">${sg.length ? "Andere Gruppe …" : "Gruppe wählen …"}</option>${rest.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select>` : ""}</span></div>`; }).join("")}
       ${C.length > 6 ? `<button class="pill" data-ms="more" style="margin-top:10px">${S.msMore ? "Weniger anzeigen" : `Alle ${C.length} anzeigen`}</button>` : ""}</div>` : "";
   return `<section class="card ms-card"><div class="card-h"><h2>Meine Quellen</h2><span class="grow"></span><button class="pill d-editbtn ${S.msEdit ? "on" : ""}" data-ms="edit">${ic(S.msEdit ? "check" : "pen")}${S.msEdit ? "Fertig" : "Gruppen bearbeiten"}</button></div>
-    <p class="hint">Welche Lebensmittel mir was liefern: Makros, Vitamine, Mineralstoffe oder was ich sonst als Gruppe anlege. Ein Lebensmittel darf in mehreren Gruppen stehen.</p>
+    <p class="hint">Welche Lebensmittel mir was liefern: Makros, Vitamine, Mineralstoffe oder was ich sonst als Gruppe anlege. Ein Lebensmittel darf in mehreren Gruppen stehen. Mit dem Stern markier ich, wofür es meine Hauptquelle ist, z. B. Sardinen bei Omega-3 oder Eier bei Cholin.</p>
     ${S.msEdit ? msEditHTML() : G.map(grp).join("")}${sug}</section>`;
 }
 document.addEventListener("click", e => {
@@ -5292,7 +5366,10 @@ document.addEventListener("click", e => {
   if (act !== "gdel") S.msDel = null;
   switch (act) {
     case "add": ntOpen(null, {mode:"msrc", macro:gid}); return;
-    case "rm": { const m = S.items.get(a.dataset.id); if (m) { m.macros = (m.macros || []).filter(y => y !== gid); if (!m.macros.length) removeItem(m.id); else persist(m); } break; }
+    case "rm": { const m = S.items.get(a.dataset.id); if (m) { m.macros = (m.macros || []).filter(y => y !== gid); if (m.main) m.main = m.main.filter(y => y !== gid); if (!m.macros.length) removeItem(m.id); else persist(m); } break; }
+    case "main": { const m = S.items.get(a.dataset.id); if (!m) return; const on = (m.main || []).includes(gid);
+      m.main = on ? m.main.filter(y => y !== gid) : [...(m.main || []), gid]; persist(m);
+      toast(on ? `${m.title} ist keine Hauptquelle mehr für ${msLabel(gid)}.` : `${m.title} ist jetzt meine Hauptquelle für ${msLabel(gid)}.`); break; }
     case "also": { const m = S.items.get(a.dataset.id); if (m && !(m.macros || []).includes(gid)) { m.macros = [...(m.macros || []), gid]; persist(m); toast(`${m.title} steht jetzt auch bei ${msLabel(gid)}.`); } break; }
     case "set": { const x = (S.msCand || [])[+a.dataset.i]; if (x) { msToggle(x, gid, true); toast(`${x.name} steht jetzt bei ${msLabel(gid)}.`); } break; }
     case "more": S.msMore = !S.msMore; break;
@@ -5302,7 +5379,7 @@ document.addEventListener("click", e => {
       msOwn().push({id:uid(), name, key:k}); saveSettings(0); if (n) n.value = ""; const s2 = $("#ms-gk"); if (s2) s2.value = ""; toast(`Gruppe ${name} angelegt.`); break; }
     case "gdel": { const id = a.dataset.id; if (S.msDel !== id) { S.msDel = id; break; }
       S.settings.msg = msOwn().filter(g => g.id !== id); saveSettings(0); S.msDel = null;
-      for (const m of live("fmsrc")) if ((m.macros || []).includes(id)) { m.macros = m.macros.filter(y => y !== id); if (!m.macros.length) removeItem(m.id); else persist(m); }
+      for (const m of live("fmsrc")) if ((m.macros || []).includes(id)) { m.macros = m.macros.filter(y => y !== id); if (m.main) m.main = m.main.filter(y => y !== id); if (!m.macros.length) removeItem(m.id); else persist(m); }
       toast("Gruppe gelöscht."); break; }
     default: return;
   }
