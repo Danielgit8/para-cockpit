@@ -504,7 +504,8 @@ body.tdragging .tdrop.over .tdrop-hint{color:var(--text);font-weight:600}
 .wk-corner{position:sticky;left:0;z-index:2;background:var(--panel-solid)}
 .wk-adl{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:9.5px;line-height:1.15;color:var(--muted);padding:8px 2px 0;text-align:center;border-top:1px solid var(--line);hyphens:manual;overflow-wrap:break-word;width:100%}
 .wk-ad.shut{flex-direction:row;flex-wrap:wrap;gap:4px 8px;padding:6px 6px;font-size:11px;color:var(--muted)}
-.wk-adrow.shut .wk-adl{padding-top:5px}
+.wk-adrow.shut .wk-adl{padding:9px 2px}
+.wk-adrow.shut .wk-adl span{display:none}
 .wk-colh{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 6px;font-size:11px;color:var(--muted);font-weight:700;min-width:0;border-left:1px solid var(--line)}
 .wk-colh b{font-size:16px;color:var(--text);padding:0 7px;border-radius:999px}
 .wk-colh.today b{background:var(--bordeaux);color:#FFF8EE}
@@ -2033,7 +2034,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-15.8";
+const APP_VERSION = "2026-11-15.9";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3626,7 +3627,7 @@ function calDayHTML(k){
    PC.calLayout legt Überschneidungen nebeneinander, PC.calPatch sagt, was sich beim Verschieben am Eintrag ändert. */
 const WK_DOM = [["all","Alle"],["habit","Habits"],["task","Aufgaben"],["workout","Training"],["content","Content"],["termin","Termine"]];
 const WK_COL = {habit:"var(--olive)", task:"var(--ardoise)", workout:"var(--bordeaux)", content:"var(--senf)", termin:"var(--ink)"};
-const WK_LO = 5, WK_HI = 23, WK_HH = 56, WK_DUR = 45;
+const WK_LO = 0, WK_HI = 24, WK_HH = 56, WK_DUR = 45; // ganzer Tag, beim Öffnen springt das Raster zur aktuellen Uhrzeit
 function wkSt(){
   if (!S.wk) { let o = {}; try { o = JSON.parse(localStorage.getItem("pc-wk") || "{}") || {}; } catch(e){}
     S.wk = {days: [3, 7].includes(o.days) ? o.days : 0, filter: WK_DOM.some(d => d[0] === o.filter) ? o.filter : "all", back: o.back === undefined ? !wkNarrow() : !!o.back, ad: o.ad !== false, q:"", more:{}}; }
@@ -3744,8 +3745,9 @@ function wkKeepScroll(before){
   if (before) { S.wkPos = {t: sc.scrollTop, l: sc.scrollLeft}; return; }
   if (S.wkPos) { sc.scrollTop = S.wkPos.t; sc.scrollLeft = S.wkPos.l; return; }
   const g = S.wkGeo || {lo:WK_LO, hh:WK_HH}, nm = new Date().getHours() * 60 + new Date().getMinutes();
-  const ad = sc.querySelector(".wk-adrow"), adH = ad && !ad.classList.contains("shut") ? ad.offsetHeight : 0;
-  sc.scrollTop = adH ? 0 : Math.max(0, (nm - g.lo * 60 - 60) / 60 * g.hh);
+  // Die volle Stunde vor jetzt steht mit ihrer Beschriftung direkt unter den klebenden Tagesköpfen (um 08:57 also 07:00)
+  const body = sc.querySelector(".wk-body"), top = sc.querySelector(".wk-top"), h0 = Math.max(g.lo * 60, Math.floor(nm / 60) * 60 - 60);
+  sc.scrollTop = Math.max(0, (body ? body.offsetTop : 0) + (h0 - g.lo * 60) / 60 * g.hh - (top ? top.offsetHeight : 0) - 12);
   const td = sc.querySelector(".wk-col.today"); if (td && sc.scrollWidth > sc.clientWidth) sc.scrollLeft = Math.max(0, td.offsetLeft - 60);
 }
 
