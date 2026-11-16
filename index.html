@@ -2067,13 +2067,15 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 .cs-vp{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
 .cs-vp .field{width:auto;max-width:220px;height:34px;padding:0 10px}
 .cs-vault .card-h{flex-wrap:wrap;gap:8px}
+.cs-vfs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 14px}
+.cs-vfs .cs-vp .field{max-width:190px}
 .cs-more{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
 .cs-more>summary{cursor:pointer;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;list-style:none}
 .cs-more>summary::-webkit-details-marker{display:none}
 .cs-more>summary .i{width:14px;height:14px}
 .cs-more[open]>summary .i{transform:rotate(180deg)}
 .cs-more .mded{margin-top:8px}
-@media (max-width:560px){.cs-vp{width:100%}.cs-vp .field{flex:1;min-width:0;max-width:none}}
+@media (max-width:560px){.cs-vfs{width:100%}.cs-vp{width:100%}.cs-vp>span{min-width:66px}.cs-vp .field,.cs-vfs .cs-vp .field{flex:1;min-width:0;max-width:none}}
 </style>
 <style id="user-css"></style>
 </head>
@@ -2096,7 +2098,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-16.3";
+const APP_VERSION = "2026-11-16.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -4433,7 +4435,7 @@ function srOpen(id){
   if (it.kind === "fprice") { if (S.open) closeOverlay(); S.fdTab = "plan"; try { localStorage.setItem("fdTab2", "plan"); } catch(e){} go("food"); return; }
   const tab = {cidea:"studio", cpiece:"studio", ccompass:"studio", csource:"quellen", video:"studio", contact:"studio"}[it.kind];
   if (tab) { if (S.open) closeOverlay(); S.brTab = tab; S.brOpen = id; const u = csU();
-    if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { const pc = it.status === "taken" && csPieces().find(x => x.idea === it.id); if (pc) { u.open = pc.id; u.prev = false; } else { u.open = null; u.vp = "all"; u.idea = id; } } else if (it.kind === "csource") u.src = id;
+    if (it.kind === "cpiece") { u.open = id; u.prev = false; } else if (it.kind === "cidea") { const pc = it.status === "taken" && csPieces().find(x => x.idea === it.id); if (pc) { u.open = pc.id; u.prev = false; } else { u.open = null; u.vp = u.vs = u.ve = "all"; u.idea = id; } } else if (it.kind === "csource") u.src = id;
     try { localStorage.setItem("brTab", tab); } catch(e){} go("brand"); return; }
   S.dBack = []; openDetailFresh(id);
 }
@@ -6592,6 +6594,11 @@ function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${i
              bei Live url, views, follows
    Säulen-Balance liegt in core.js (PC.csBalance). Fenster (Kompass bearbeiten, Festhalten von überall) sind ein <dialog id="cs-dlg"> außerhalb von #main. */
 const CS_TYPES = [["eigen", "Eigene Idee"], ["insp", "Inspiration"], ["beob", "Beobachtung"], ["kontra", "Konträre These"]];
+// Serie (freier Name, z. B. „Prospekt-Angebote“) und Aufwand (schnell oder aufwendig) einer Idee, beides freiwillig
+const CS_EFFORT = [["schnell", "Schnell"], ["aufwendig", "Aufwendig"]];
+const csSer = i => String((i && i.series) || "").replace(/\s+/g, " ").trim();
+const csEff = i => CS_EFFORT.some(([k]) => k === (i && i.effort)) ? i.effort : "";
+const csSeriesAll = () => [...new Set(csIdeas().map(csSer).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de"));
 const CS_ST = [["check", "Neu"], ["entwurf", "Entwurf"], ["produktion", "Produktion"], ["geplant", "Geplant"], ["live", "Live"]];
 // Status eines Stücks wechseln, jeder Status geht. Live ohne Datum bekommt heute (auch aus dem Kalender genutzt)
 function csSetStatus(p, to){ if (!p || !CS_ST.some(x => x[0] === to)) return false; p.status = to; if (to === "live" && !p.date) p.date = dkey(); persist(p); return true; }
@@ -6608,8 +6615,8 @@ const csPlat = url => { const h = lsHost(url || "").toLowerCase(); return /insta
 const csPillar = id => csC().pillars.find(p => p.id === id) || null;
 const csIdeas = () => live("cidea");
 const csPieces = () => live("cpiece");
-const csU = () => S.cs || (S.cs = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem("cs-ui") || "{}") || {}; } catch(e){} return {view:"kanban", cal:"month", kom:true, stf:"all", vp:"all", ...o, src:null, open:null, idea:null, del:null, prev:false, ref:dkey()}; })());
-const csSaveU = () => { const u = csU(); try { localStorage.setItem("cs-ui", JSON.stringify({view:u.view, cal:u.cal, kom:u.kom, stf:u.stf, vp:u.vp})); } catch(e){} };
+const csU = () => S.cs || (S.cs = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem("cs-ui") || "{}") || {}; } catch(e){} return {view:"kanban", cal:"month", kom:true, stf:"all", vp:"all", vs:"all", ve:"all", ...o, src:null, open:null, idea:null, del:null, prev:false, ref:dkey()}; })());
+const csSaveU = () => { const u = csU(); try { localStorage.setItem("cs-ui", JSON.stringify({view:u.view, cal:u.cal, kom:u.kom, stf:u.stf, vp:u.vp, vs:u.vs, ve:u.ve})); } catch(e){} };
 const csUl = a => a.length ? `<ul>${a.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">Noch nichts eingetragen.</p>`;
 const csPl = p => p ? `<span class="cs-pl" style="--c:${csCol(p.color)}">${esc(p.name || "Säule")}</span>` : `<span class="chip late">Säule noch zuordnen</span>`;
 
@@ -6748,7 +6755,7 @@ function csCapHTML(){
 function csIdeaHTML(i){
   const u = csU(), open = u.idea === i.id, st = i.status || "inbox", p = i.pillar ? csPillar(i.pillar) : null, url = brUrl(i.url), arm = u.del === i.id;
   const note = lsPlain(i.body), piece = st === "taken" ? csPieces().find(x => x.idea === i.id) : null, src = i.source && S.items.get(i.source);
-  return `<div class="cs-idea ${open ? "open" : ""}"><div class="cs-idea-h"><span class="chip">${esc(brLabel(CS_TYPES, i.type || "eigen"))}</span>${p ? csPl(p) : ""}<span class="grow"></span><span class="muted num">${fmtTs(i.created)}</span></div>
+  return `<div class="cs-idea ${open ? "open" : ""}"><div class="cs-idea-h"><span class="chip">${esc(brLabel(CS_TYPES, i.type || "eigen"))}</span>${p ? csPl(p) : ""}${csSer(i) ? `<span class="chip" title="Serie">${esc(csSer(i))}</span>` : ""}${csEff(i) ? `<span class="chip">${esc(brLabel(CS_EFFORT, csEff(i)))}</span>` : ""}<span class="grow"></span><span class="muted num">${fmtTs(i.created)}</span></div>
     ${src && !src.archived ? `<div class="cs-idea-h"><button class="cs-src-chip" data-cs="sgo" data-id="${src.id}" title="Zur Quelle">${ic("link")}${esc(src.title || "Quelle")}</button></div>` : ""}
     <button class="cs-idea-t" data-cs="iopen" data-id="${i.id}" aria-expanded="${open}">${esc(i.title || "Ohne Titel")}</button>
     ${note && !open ? `<p class="cs-idea-n">${esc(note.slice(0, 180))}${note.length > 180 ? " …" : ""}</p>` : ""}
@@ -6758,23 +6765,37 @@ function csIdeaHTML(i){
       <label class="br-wide">Link zur Quelle<input class="field" id="ci-u-${i.id}" data-keep type="url" data-ci="url" data-id="${i.id}" value="${esc(i.url || "")}" placeholder="https://"></label>
       <label>Art<select class="field" data-ci="type" data-id="${i.id}">${brOpts(CS_TYPES, i.type || "eigen")}</select></label>
       <label>Säule (freiwillig)<select class="field" data-ci="pillar" data-id="${i.id}"><option value="">Noch offen</option>${csC().pillars.map(x => `<option value="${x.id}" ${x.id === i.pillar ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>
+      <label>Aufwand<select class="field" data-ci="effort" data-id="${i.id}"><option value="">Noch offen</option>${brOpts(CS_EFFORT, csEff(i))}</select></label>
+      <label class="br-wide">Serie (freiwillig)<input class="field" id="ci-s-${i.id}" data-keep list="cs-series" autocomplete="off" data-ci="series" data-id="${i.id}" value="${esc(i.series || "")}" placeholder="z. B. Prospekt-Angebote"></label>
+      <datalist id="cs-series">${csSeriesAll().map(x => `<option value="${esc(x)}"></option>`).join("")}</datalist>
       <label class="br-wide">Aus welcher Quelle?<select class="field" data-ci="source" data-id="${i.id}"><option value="">Keine</option>${csSources().sort((a, b) => (a.title || "").localeCompare(b.title || "", "de")).map(x => `<option value="${x.id}" ${x.id === i.source ? "selected" : ""}>${esc(x.title || "Ohne Titel")}</option>`).join("")}</select></label>
       <div class="br-ed-f"><button class="pill" data-cs="idel" data-id="${i.id}" style="${arm ? "color:var(--late)" : ""}">${ic("trash")}${arm ? "Wirklich löschen?" : "Löschen"}</button><span class="grow"></span><button class="pill on" data-cs="iopen" data-id="${i.id}">Fertig</button></div></div>` : ""}
     <div class="cs-idea-a">${st === "taken" && piece ? `<button class="pill" data-cs="popen" data-id="${piece.id}">${ic("right")}Zum Stück in der Pipeline</button>` : `<button class="pill on" data-cs="take" data-id="${i.id}">In Pipeline übernehmen</button>`}</div></div>`;
 }
 
 // Im Tresor liegt jede Idee, die nicht gerade als Stück in der Pipeline steckt (auch alte mit Status park oder archive,
-// und übernommene, deren Stück archiviert oder gelöscht ist). Einziger Filter: die Säule (alle, eine Säule, ohne Säule).
+// und übernommene, deren Stück archiviert oder gelöscht ist). Filter: Säule, Serie und Aufwand, alle drei kombinierbar.
+// Die Zahl hinter jeder Option zählt mit den beiden anderen Filtern.
 function csVaultHTML(){
   const u = csU(), c = csC(), inPipe = new Set(csPieces().map(p => p.idea).filter(Boolean));
   const all = csIdeas().filter(i => !(i.status === "taken" && inPipe.has(i.id))).sort((a, b) => (b.created || 0) - (a.created || 0));
   const noPil = i => !i.pillar || !csPillar(i.pillar);
+  const sers = [...new Set(all.map(csSer).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de"));
   if (u.vp !== "all" && u.vp !== "none" && !csPillar(u.vp)) u.vp = "all";
-  const list = u.vp === "all" ? all : u.vp === "none" ? all.filter(noPil) : all.filter(i => i.pillar === u.vp);
-  const opt = (v, l, n) => `<option value="${v}" ${u.vp === v ? "selected" : ""}>${esc(l)} (${n})</option>`;
-  return `<section class="card cs-vault" id="cs-vault"><div class="card-h"><h2>Ideen-Tresor</h2><span class="grow"></span>
-      <label class="cs-vp"><span>Säule</span><select class="field" id="cs-vp" aria-label="Nach Säule filtern">${opt("all", "Alle", all.length)}${c.pillars.map(p => opt(p.id, p.name || "Säule", all.filter(i => i.pillar === p.id).length)).join("")}${opt("none", "Ohne Säule", all.filter(noPil).length)}</select></label></div>
-    <div class="cs-ideas">${list.map(csIdeaHTML).join("") || `<div class="empty">${all.length ? "Hier liegt gerade keine Idee." : "Noch keine Ideen. Oben festhalten, was mir einfällt."}</div>`}</div></section>`;
+  if (u.vs !== "all" && u.vs !== "none" && !sers.includes(u.vs)) u.vs = "all";
+  if (!["all", "none", ...CS_EFFORT.map(x => x[0])].includes(u.ve)) u.ve = "all";
+  const fP = (i, v) => v === "all" || (v === "none" ? noPil(i) : i.pillar === v);
+  const fS = (i, v) => v === "all" || (v === "none" ? !csSer(i) : csSer(i) === v);
+  const fE = (i, v) => v === "all" || (v === "none" ? !csEff(i) : csEff(i) === v);
+  const n = (skip, test) => all.filter(i => (skip === "p" || fP(i, u.vp)) && (skip === "s" || fS(i, u.vs)) && (skip === "e" || fE(i, u.ve)) && test(i)).length;
+  const list = all.filter(i => fP(i, u.vp) && fS(i, u.vs) && fE(i, u.ve));
+  const opt = (k, v, l, test) => `<option value="${esc(v)}" ${u[k === "p" ? "vp" : k === "s" ? "vs" : "ve"] === v ? "selected" : ""}>${esc(l)} (${n(k, test)})</option>`;
+  const any = () => true;
+  return `<section class="card cs-vault" id="cs-vault"><div class="card-h"><h2>Ideen-Tresor</h2><span class="grow"></span><div class="cs-vfs">
+      <label class="cs-vp"><span>Säule</span><select class="field" id="cs-vp" aria-label="Nach Säule filtern">${opt("p", "all", "Alle", any)}${c.pillars.map(p => opt("p", p.id, p.name || "Säule", i => i.pillar === p.id)).join("")}${opt("p", "none", "Ohne Säule", noPil)}</select></label>
+      <label class="cs-vp"><span>Serie</span><select class="field" id="cs-vs" aria-label="Nach Serie filtern">${opt("s", "all", "Alle", any)}${sers.map(x => opt("s", x, x, i => csSer(i) === x)).join("")}${opt("s", "none", "Ohne Serie", i => !csSer(i))}</select></label>
+      <label class="cs-vp"><span>Aufwand</span><select class="field" id="cs-ve" aria-label="Nach Aufwand filtern">${opt("e", "all", "Alle", any)}${CS_EFFORT.map(([k, l]) => opt("e", k, l, i => csEff(i) === k)).join("")}${opt("e", "none", "Noch offen", i => !csEff(i))}</select></label></div></div>
+    <div class="cs-ideas">${list.map(csIdeaHTML).join("") || `<div class="empty">${all.length ? "Keine Idee passt zu diesen Filtern." : "Noch keine Ideen. Oben festhalten, was mir einfällt."}</div>`}</div></section>`;
 }
 // Idee in die Pipeline: das Stück übernimmt Titel, Notizen, Link und Säule der Idee
 function csTake(i){
@@ -6935,7 +6956,7 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   const t = e.target; if (!t.dataset) return;
   if (t.dataset.cp && t.tagName !== "SELECT" && t.type !== "date") { const it = S.items.get(csU().open); if (!it) return; it[t.dataset.cp] = t.dataset.num ? brNum(t.value) : t.dataset.cp === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); return; }
-  if (t.dataset.ci && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.dataset.ci === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); return; }
+  if (t.dataset.ci && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.dataset.ci === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.dataset.ci === "series" ? t.value.replace(/\s+/g, " ").trim() : t.value; persist(it, 800); return; }
   if (t.dataset.css && t.tagName !== "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.css] = t.dataset.css === "title" ? t.value.replace(/\s*\n\s*/g, " ") : t.value; persist(it, 800); }
 });
 document.addEventListener("change", e => {
@@ -6945,7 +6966,7 @@ document.addEventListener("change", e => {
     it[k] = t.value; persist(it); renderMain(); return; }
   if (t.dataset.ci && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.ci] = t.value; persist(it); renderMain(); return; }
   if (t.dataset.css && t.tagName === "SELECT") { const it = S.items.get(t.dataset.id); if (!it) return; it[t.dataset.css] = t.value; persist(it); renderMain(); return; }
-  if (t.id === "cs-vp") { const u = csU(); u.vp = t.value; u.idea = null; csSaveU(); renderMain(); return; }
+  if (t.id === "cs-vp" || t.id === "cs-vs" || t.id === "cs-ve") { const u = csU(); u[t.id.slice(3)] = t.value; u.idea = null; csSaveU(); renderMain(); return; }
   if (t.dataset.css === "url") { const it = S.items.get(t.dataset.id); if (!it) return; it.url = csUrl(t.value); persist(it); }
 });
 document.addEventListener("keydown", e => {
