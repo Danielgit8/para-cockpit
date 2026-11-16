@@ -2098,7 +2098,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-16.4";
+const APP_VERSION = "2026-11-16.5";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2459,8 +2459,43 @@ async function sync(){
   const before = banner(); const me = S.user.id;
   let changed = false;
   try {
+    // Journal-Tage (auch der MCP-Server schreibt hinein) nie blind hochladen: Stand vom Server holen, zusammenführen und nur speichern,
+    // wenn der Server in der Zwischenzeit unverändert ist (Filter auf updated_at). Sonst bleibt der Tag offen und die nächste Runde versucht es neu.
+    // Neue Tage nur einfügen, nie überschreiben. Ohne mergeJday (alte core.js im Zwischenspeicher) warten Journal-Tage.
+    const jd = [...S.dirty].filter(id => !S.tombs.has(id) && S.items.has(id) && S.items.get(id).kind === "jday"), jdSkip = new Set(jd);
+    let jdAgain = false;
+    if (PC.mergeJday) for (let i = 0; i < jd.length; i += 100) {
+      const part = jd.slice(i, i + 100);
+      const {data:srv, error} = await sb.from("items").select("id,data,updated_at,deleted").in("id", part);
+      if (error) throw error;
+      const byId = new Map((srv || []).map(r => [r.id, r]));
+      for (const id of part) {
+        const loc = S.items.get(id), r = byId.get(id); if (!loc) continue;
+        let m = loc, res, sentU;
+        if (r && !r.deleted && r.data && r.data.kind === "jday") {
+          m = {...PC.mergeJday(r.data, loc), id}; m.updated = Math.max(Date.now(), loc.updated || 0, (r.updated_at || 0) + 1);
+          S.items.set(id, m); changed = true; sentU = m.updated;
+          res = await sb.from("items").update({data:clone(m), updated_at:m.updated, deleted:false}).eq("user_id", me).eq("id", id).eq("updated_at", r.updated_at).select("id");
+        } else if (r) {
+          // Auf dem Server gelöscht oder etwas anderes: wie bisher, mit Vergleich
+          if (m.updated <= r.updated_at) { m = {...loc, updated:r.updated_at + 1}; S.items.set(id, m); }
+          sentU = m.updated;
+          res = await sb.from("items").update({data:clone(m), updated_at:m.updated, deleted:false}).eq("user_id", me).eq("id", id).eq("updated_at", r.updated_at).select("id");
+        } else {
+          if (!m.updated) { m.updated = Date.now(); }
+          sentU = m.updated;
+          res = await sb.from("items").insert({user_id:me, id, data:clone(m), updated_at:m.updated, deleted:false}).select("id");
+          if (res.error && (res.error.code === "23505" || /duplicate/i.test(res.error.message || ""))) res = {data:[]};
+        }
+        if (res.error) throw res.error;
+        // Nur abhaken, wenn während des Hochladens nichts dazukam (persist setzt updated neu)
+        if (res.data && res.data.length) { if (S.items.get(id) === m && m.updated === sentU) S.dirty.delete(id); }
+        else jdAgain = true;
+      }
+    }
     const rows = [];
     for (const id of [...S.dirty]) {
+      if (jdSkip.has(id)) continue;
       if (S.tombs.has(id)) rows.push({user_id:me, id, data:{}, updated_at:S.delAt[id] || Date.now(), deleted:true});
       else if (S.items.has(id)) { const it = S.items.get(id); rows.push({user_id:me, id, data:clone(it), updated_at:it.updated || Date.now(), deleted:false}); }
       else S.dirty.delete(id);
@@ -2502,7 +2537,10 @@ async function sync(){
           continue;
         }
         if (r.id.startsWith("__")) { if (S.items.delete(r.id)) changed = true; continue; } // Zeilen anderer Apps (z. B. Brand-Weg)
-        if (S.dirty.has(r.id)) { const loc = S.items.get(r.id); if (S.tombs.has(r.id) || (loc && (loc.updated || 0) >= r.updated_at)) continue; S.dirty.delete(r.id); }
+        if (S.dirty.has(r.id)) { const loc = S.items.get(r.id); if (S.tombs.has(r.id) || (loc && (loc.updated || 0) >= r.updated_at)) continue;
+          // Journal-Tag mit eigenen, noch nicht hochgeladenen Einträgen: zusammenführen statt ersetzen, bleibt offen für die nächste Runde
+          if (loc && loc.kind === "jday" && !r.deleted && r.data && r.data.kind === "jday") { if (PC.mergeJday) { S.items.set(r.id, {...PC.mergeJday(r.data, loc), id:r.id, updated:r.updated_at}); changed = true; scheduleSync(1500); } continue; }
+          S.dirty.delete(r.id); }
         if (r.deleted) { if (S.items.delete(r.id)) changed = true; continue; }
         const loc = S.items.get(r.id);
         if (!loc || loc.updated !== r.data.updated) { S.items.set(r.id, {...r.data, id:r.id}); changed = true; }
@@ -2514,7 +2552,7 @@ async function sync(){
     saveLocal();
     if (changed) { applySettings(); renderMain(); renderSide(); refreshDetail(); bdRemote(); }
     if (S.pendingOpen && S.items.has(S.pendingOpen)) { const id = S.pendingOpen; S.pendingOpen = null; openDetailFresh(id); }
-    if (!res.done) scheduleSync(1500); // sehr viele Änderungen: Rest gleich holen
+    if (!res.done || jdAgain) scheduleSync(1500); // sehr viele Änderungen oder ein Journal-Tag wurde gerade woanders geändert: gleich nochmal
   } catch(e) {
     const msg = (e && (e.message || e.error_description)) || String(e || "");
     if ((e && (e.status === 401 || e.code === "PGRST301")) || /JWT|not authenticated|refresh token/i.test(msg)) S.needLogin = true;
@@ -3442,9 +3480,12 @@ function nqAdd(){
 
 /* --- Journal (Wunsch 2026-10-30): Gedanken, Links, Videos und Bilder sammeln, auch per Sprache.
    Pro Tag ein versteckter Eintrag kind "jday" mit bits[{id, t, text}] und shots. Abends ordnet Claude den Tag ein:
-   sum (Zusammenfassung), ins[] (Erkenntnisse über ihn), done (Zeitpunkt). Was dauerhaft gilt, kommt in die Notiz „Über mich“. --- */
-const jrDay = k => all().find(i => i.kind === "jday" && i.date === k) || null;
-const jrGet = k => jrDay(k) || create("jday", "", {date: k, bits: [], shots: []});
+   sum (Zusammenfassung), ins[] (Erkenntnisse über ihn), done (Zeitpunkt). Was dauerhaft gilt, kommt in die Notiz „Über mich“.
+   Seit 16.11.2026 schreibt auch der MCP-Server Einträge (add_journal_bit). Neue Tage heißen "jd-JJJJ-MM-TT", alte Doppel-Tage
+   eines Datums werden zusammen angezeigt, gelöschte Einträge und Bilder merkt sich gone[], damit der Abgleich sie nicht zurückholt. --- */
+const jrDays = k => all().filter(i => i.kind === "jday" && i.date === k);
+const jrDay = k => (PC.jdayPick ? PC.jdayPick(jrDays(k), k) : jrDays(k)[0]) || null;
+const jrGet = k => jrDay(k) || create("jday", "", {date: k, bits: [], shots: [], ...(S.items.has("jd-" + k) || S.tombs.has("jd-" + k) ? {} : {id: "jd-" + k})});
 const jrK = () => { const tk = dkey(); return S.jrK && S.jrK < tk ? S.jrK : tk; };
 const jrAbout = () => live("note").find(n => /^über mich/i.test(n.title || "")) || null;
 const jrYT = s => [...new Set([...String(s || "").matchAll(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/))([\w-]{11})/g)].map(m => m[1]))];
@@ -3469,11 +3510,15 @@ function jrMd(s){
   return out + (ul ? "</ul>" : "");
 }
 function journalHTML(){
-  const tk = dkey(), k = jrK(), d = jrDay(k) || {}, ab = jrAbout(), isT = k === tk;
-  const bits = (d.bits || []).slice().sort((a, b) => b.t - a.t), shots = d.id ? shotsOf(d) : [];
+  const tk = dkey(), k = jrK(), days = jrDays(k), d0 = jrDay(k) || {}, ab = jrAbout(), isT = k === tk;
+  const d = d0.sum || (d0.ins || []).length ? d0 : days.find(x => x.sum || (x.ins || []).length) || d0;
+  const bits = [...new Map(days.flatMap(x => x.bits || []).map(b => [b.id, b])).values()].sort((a, b) => b.t - a.t);
+  const shots = days.flatMap(x => x.id ? shotsOf(x).map((o, n) => ({s:o.s, day:x.id, n})) : []);
   const dl = new Date(k + "T12:00").toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"});
   const sr = !!(window.SpeechRecognition || window.webkitSpeechRecognition), rec = !!S.jrRec;
-  const past = all().filter(i => i.kind === "jday" && i.date !== k && ((i.bits || []).length || (i.shots || []).length)).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
+  const pm = new Map();
+  for (const i of all()) if (i.kind === "jday" && i.date && i.date !== k) { const p = pm.get(i.date) || {date:i.date, n:0, sum:false}; p.n += (i.bits || []).length + (i.shots || []).length; p.sum = p.sum || !!i.sum; pm.set(i.date, p); }
+  const past = [...pm.values()].filter(p => p.n).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
   const time = ms => new Date(ms).toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit"});
   return `<div class="ns jr">` + banner() + nsHero("img/weg.jpg", "Journal", "Raus aus dem Kopf", "Gedanken, Links, Videos, Bilder. Abends ordnet Claude alles ein und lernt mich dabei besser kennen.") +
     `<section class="ns-card jr-cap"><div class="jr-nav"><button class="ibtn" data-jr="prev" aria-label="Tag davor">${ic("left")}</button><b>${isT ? "Heute" : esc(dl)}</b><button class="ibtn" data-jr="next" aria-label="Tag danach" ${isT ? "disabled" : ""}>${ic("right")}</button></div>
@@ -3488,9 +3533,9 @@ function journalHTML(){
     (bits.length || shots.length ? `<section class="ns-card"><div class="ns-lbl-row"><span class="ns-lbl">${isT ? "Heute gesammelt" : "Gesammelt"}</span><span class="ns-when num">${bits.length + shots.length}</span></div>
       ${bits.map(b => `<div class="jr-bit"><span class="jr-t num">${time(b.t)}</span><div class="jr-x">${jrText(b.text)}${jrYT(b.text).map(id => `<a class="jr-yt" href="https://youtu.be/${id}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="Vorschau des Videos" loading="lazy"></a>`).join("")}</div>
         ${S.jrDel === b.id ? `<button class="btn danger jr-del" data-jr="delyes" data-id="${b.id}">Löschen?</button>` : `<button class="ibtn jr-del" data-jr="del" data-id="${b.id}" title="Löschen" aria-label="Eintrag löschen">${ic("trash")}</button>`}</div>`).join("")}
-      ${shots.length ? `<div class="jr-shots">${shots.map(({s}, i) => { const u = fileUrl(s); return `<button class="jr-shot" data-jr="shot" data-k="${i}" aria-label="Bild groß anzeigen">${u ? `<img src="${esc(u)}" alt="${esc(s.cap || "")}" loading="lazy">` : `<span>${navigator.onLine ? "Lädt …" : "Braucht Internet"}</span>`}</button>`; }).join("")}</div>` : ""}</section>` : "") +
+      ${shots.length ? `<div class="jr-shots">${shots.map(({s, day, n}) => { const u = fileUrl(s); return `<button class="jr-shot" data-jr="shot" data-id="${day}" data-k="${n}" aria-label="Bild groß anzeigen">${u ? `<img src="${esc(u)}" alt="${esc(s.cap || "")}" loading="lazy">` : `<span>${navigator.onLine ? "Lädt …" : "Braucht Internet"}</span>`}</button>`; }).join("")}</div>` : ""}</section>` : "") +
     `<section class="ns-card">${ab ? `<button class="ns-row" data-open="${ab.id}">${ic("heart")}<span>Über mich: was Claude bisher über mich weiß</span><i class="ns-tick">›</i></button>` : `<p class="ns-hint" style="margin:0">Am Abend fasst Claude meinen Tag zusammen, ordnet Links und Videos ein und schreibt in die Notiz „Über mich“, was er über meine Interessen, Themen und Meinungen lernt.</p>`}
-      ${past.length ? `<div class="ns-lbl" style="margin-top:16px">Frühere Tage</div><div class="pills" style="margin-top:8px">${past.map(x => `<button class="pill num" data-jr="day" data-k="${x.date}">${x.date.slice(8, 10)}.${x.date.slice(5, 7)}. · ${(x.bits || []).length + (x.shots || []).length}${x.sum ? " ✓" : ""}</button>`).join("")}</div>` : ""}</section></div>`;
+      ${past.length ? `<div class="ns-lbl" style="margin-top:16px">Frühere Tage</div><div class="pills" style="margin-top:8px">${past.map(x => `<button class="pill num" data-jr="day" data-k="${x.date}">${x.date.slice(8, 10)}.${x.date.slice(5, 7)}. · ${x.n}${x.sum ? " ✓" : ""}</button>`).join("")}</div>` : ""}</section></div>`;
 }
 function jrStopMic(){ const st = S.jrRec; if (!st) return; st.on = false; S.jrRec = null; try { st.r.stop(); } catch(e){} }
 // Spracheingabe: kurze Erkennungen hintereinander statt continuous, weil Android im Dauerbetrieb Sätze doppelt liefert
@@ -3528,8 +3573,8 @@ document.addEventListener("click", e => {
   else if (a === "prev" || a === "next") { jrStopMic(); const nk = dkey(addDays(new Date(k + "T12:00"), a === "prev" ? -1 : 1)); S.jrK = nk >= dkey() ? null : nk; renderMain(); }
   else if (a === "day") { jrStopMic(); S.jrK = b.dataset.k; renderMain(); window.scrollTo({top: 0}); }
   else if (a === "del") { S.jrDel = b.dataset.id; renderMain(); }
-  else if (a === "delyes") { const d = jrDay(k); if (d) { d.bits = (d.bits || []).filter(x => x.id !== b.dataset.id); persist(d); } S.jrDel = null; renderMain(); }
-  else if (a === "shot") { const d = jrDay(k); if (d) { S.pop = {shots: true, id: d.id, k: +b.dataset.k}; renderPop(); } }
+  else if (a === "delyes") { const id = b.dataset.id, d = jrDays(k).find(x => (x.bits || []).some(y => y.id === id)); if (d) { d.bits = d.bits.filter(x => x.id !== id); d.gone = [...new Set([...(d.gone || []), id])]; persist(d); } S.jrDel = null; renderMain(); }
+  else if (a === "shot") { const d = S.items.get(b.dataset.id); if (d) { S.pop = {shots: true, id: d.id, k: +b.dataset.k}; renderPop(); } }
 });
 document.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.isComposing) return;
@@ -7763,7 +7808,9 @@ document.addEventListener("click", e => {
     case "shot-nav": S.pop.k += +a.dataset.d; renderPop(); break;
     case "shot-del": { const x = S.pop && S.items.get(S.pop.id); if (!x) break; const i = +a.dataset.i; const f = (x.shots || [])[i]; if (!f) break;
       if (a.dataset.sure !== "1") { a.dataset.sure = "1"; a.style.color = "var(--late)"; toast("Nochmal tippen, um das Bild zu löschen"); break; }
-      x.shots = x.shots.filter((_, j) => j !== i); persist(x); if (sb && f.path) sb.storage.from("files").remove([f.path]).catch(() => {}); renderPop(); refreshDetail(); renderMain(); break; }
+      x.shots = x.shots.filter((_, j) => j !== i);
+      if (x.kind === "jday") { const gk = PC.shotKey ? PC.shotKey(f) : f.path; if (gk) x.gone = [...new Set([...(x.gone || []), gk])]; }
+      persist(x); if (sb && f.path) sb.storage.from("files").remove([f.path]).catch(() => {}); renderPop(); refreshDetail(); renderMain(); break; }
     case "bs-add": { const b = basis(), list = a.dataset.list; const nx = list === "burn" ? {id:uid(), name:"", kcal:"", note:""} : {id:uid(), name:"", value:"", unit:""};
       b[list].push(nx); saveSettings(0); renderMain(); const n = document.getElementById(`bs-${nx.id}-name`); if (n) n.focus(); break; }
     case "bs-del": { const b = basis(), list = a.dataset.list; const x = (b[list] || []).find(y => y.id === id); if (!x) break;

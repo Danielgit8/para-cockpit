@@ -516,3 +516,41 @@ test("calPatch Content: ohne stepId nur offener Schritt ohne Datum, geplante ble
   assert.equal(p.steps.length, 3); assert.equal(p.steps[0].date, "2026-11-18"); assert.equal(p.steps[2].id, "neu");
   assert.equal(C.calPatch({domain:"content", meta:{type:"step", stepId:"weg"}}, {date:"2026-11-20", s:600}, cp), null);
 });
+
+/* ---------- Journal-Tage: zusammenführen statt überschreiben ---------- */
+test("Journal: Einträge beider Seiten bleiben, gelöschte kommen nicht zurück", () => {
+  const a = {id:"jd-2026-11-16", kind:"jday", date:"2026-11-16", bits:[{id:"b1", t:1, text:"Handy"}, {id:"b3", t:3, text:"weg"}], shots:[{path:"u/1.jpg"}], gone:["b2"], updated:5};
+  const b = {id:"jd-2026-11-16", kind:"jday", date:"2026-11-16", bits:[{id:"b2", t:2, text:"gelöscht"}, {id:"b4", t:4, text:"MCP"}, {id:"b3", t:3, text:"weg"}], shots:[{path:"u/1.jpg"}, {path:"u/2.jpg"}], sum:"Zusammenfassung", gone:["u/9.jpg"], updated:9};
+  const m = C.mergeJday(a, b);
+  assert.deepEqual(m.bits.map(x => x.id), ["b1", "b3", "b4"], "b2 ist gelöscht, Rest sortiert nach Zeit");
+  assert.deepEqual(m.shots.map(x => x.path), ["u/1.jpg", "u/2.jpg"]);
+  assert.equal(m.sum, "Zusammenfassung"); assert.equal(m.updated, 9, "andere Felder von b");
+  assert.deepEqual(m.gone.sort(), ["b2", "u/9.jpg"]);
+  assert.deepEqual(C.mergeJday({kind:"jday", bits:[{id:"x", t:1}]}, {kind:"jday"}).bits.map(x => x.id), ["x"], "fehlende Listen gehen");
+});
+test("Journal: abgelehnter Tag wird zusammengeführt und neu hochgeladen", () => {
+  const local = {id:"j1", kind:"jday", date:"2026-11-16", bits:[{id:"b1", t:1, text:"Handy"}], updated:5};
+  const r = C.resolveRejected(local, {id:"j1", data:{kind:"jday", date:"2026-11-16", bits:[{id:"b2", t:2, text:"Claude"}], sum:"S", updated:7}, updated_at:7, deleted:false}, {hidden:["jday"], now:50});
+  assert.equal(r.push, true); assert.equal(r.copy, null); assert.equal(r.take.updated, 50); assert.equal(r.take.sum, "S");
+  assert.deepEqual(r.take.bits.map(x => x.id), ["b1", "b2"]);
+  assert.equal(C.resolveRejected(local, {id:"j1", data:{}, updated_at:7, deleted:true}).take, null, "auf dem Server gelöscht bleibt gelöscht");
+});
+test("Journal: welcher Tag gilt bei mehreren für ein Datum", () => {
+  const old1 = {id:"zz", kind:"jday", date:"2026-11-15", created:20}, old2 = {id:"aa", kind:"jday", date:"2026-11-15", created:10};
+  assert.equal(C.jdayPick([old1, old2], "2026-11-15").id, "aa", "ohne feste id gilt der älteste");
+  assert.equal(C.jdayPick([old1, old2, {id:"jd-2026-11-15", kind:"jday", date:"2026-11-15", created:99}], "2026-11-15").id, "jd-2026-11-15");
+  assert.equal(C.jdayPick([old1], "2026-11-16"), null);
+  assert.equal(C.jdayId("2026-11-16"), "jd-2026-11-16");
+});
+test("Journal: Zusammenfassung kommt von der Seite mit der neueren Auswertung, egal in welcher Reihenfolge", () => {
+  const altHandy = {kind:"jday", bits:[{id:"h", t:5}], sum:"ALT", ins:["alt"], done:100, updated:500};
+  const neuServer = {kind:"jday", bits:[{id:"s", t:6}], sum:"NEU", ins:["neu"], done:900, updated:400};
+  for (const m of [C.mergeJday(neuServer, altHandy), C.mergeJday(altHandy, neuServer)]) {
+    assert.equal(m.sum, "NEU"); assert.deepEqual(m.ins, ["neu"]); assert.equal(m.done, 900);
+    assert.deepEqual(m.bits.map(x => x.id), ["h", "s"]);
+  }
+  const ohne = C.mergeJday({kind:"jday", sum:"A", done:5}, {kind:"jday", bits:[]});
+  assert.equal(ohne.sum, "A", "ohne Auswertung auf b bleibt die von a"); assert.equal(ohne.done, 5);
+  const keins = C.mergeJday({kind:"jday"}, {kind:"jday"});
+  assert.ok(!("sum" in keins) && !("done" in keins));
+});

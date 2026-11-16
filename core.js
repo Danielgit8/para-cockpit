@@ -68,10 +68,39 @@ function resolveRejected(local, server, {hidden = [], now = Date.now(), newId} =
     // Häkchen beider Geräte behalten; bei gleichem Tag gilt der Server
     return {take:{...take, log:{...(local.log || {}), ...(take.log || {})}, updated:now}, push:true, copy:null};
   }
+  if (local.kind === "jday" && take.kind === "jday") {
+    // Journal: Einträge und Bilder beider Seiten behalten, sonst gilt der Server
+    return {take:{...mergeJday(local, take), updated:now}, push:true, copy:null};
+  }
   if (hidden.includes(local.kind)) return {take, push:false, copy:null};
   // Anhänge gehören dem Original. Die Kopie verweist nicht darauf, sonst löscht das Entfernen der Kopie die Dateien.
   const copy = {...local, id:newId, title:(local.title || "Ohne Titel") + " (Konfliktkopie)", files:[], shots:[], created:now, updated:now, conflictOf:server.id};
   return {take, push:false, copy};
+}
+
+/* ---------- Journal-Tage (kind "jday") ---------- */
+// Ein Tag pro Datum, neue Tage mit fester id "jd-JJJJ-MM-TT" (App und MCP-Server), damit zwei Geräte nicht zwei Tage anlegen.
+// Alte Tage haben zufällige ids, dafür gilt: zuerst "jd-<Datum>", sonst der älteste. Gleiche Regel im MCP-Server.
+const jdayId = date => "jd-" + date;
+function jdayPick(days, date){
+  const list = (days || []).filter(d => d && d.kind === "jday" && (!date || d.date === date));
+  if (!list.length) return null;
+  return list.find(d => d.id === jdayId(d.date)) || list.slice().sort((a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)))[0];
+}
+const shotKey = s => (s && s.path) || stable(s);
+// Zwei Fassungen desselben Tages zusammenführen: Einträge (bits, nach id) und Bilder (shots, nach path) beider Seiten bleiben,
+// außer sie stehen in gone (auf einem Gerät gelöscht). Die Auswertung (sum, ins, done) kommt als Block von der Seite mit dem
+// neueren done, damit ein Gerät mit altem Stand keine neuere Zusammenfassung überschreibt. Bei allen anderen Feldern gilt b.
+function mergeJday(a, b){
+  const gone = [...new Set([...((a && a.gone) || []), ...((b && b.gone) || [])])], g = new Set(gone);
+  const bits = new Map(), shots = new Map();
+  for (const x of [...((a && a.bits) || []), ...((b && b.bits) || [])]) if (x && x.id != null && !g.has(x.id)) bits.set(x.id, x);
+  for (const x of [...((a && a.shots) || []), ...((b && b.shots) || [])]) { const k = shotKey(x); if (x && !g.has(k)) shots.set(k, x); }
+  const out = {...(a || {}), ...(b || {}), bits:[...bits.values()].sort((x, y) => (x.t || 0) - (y.t || 0)), shots:[...shots.values()]};
+  const ev = (+((a && a.done) || 0)) > (+((b && b.done) || 0)) ? a : (b || {});
+  for (const k of ["sum", "ins", "done"]) { if (ev[k] === undefined) delete out[k]; else out[k] = ev[k]; }
+  if (gone.length) out.gone = gone;
+  return out;
 }
 
 /* ---------- Sicherung prüfen und Import planen ---------- */
@@ -462,7 +491,7 @@ function calPatch(ev, ch, item, mkId){
 }
 
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
-  DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
+  DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected, jdayId, jdayPick, mergeJday, shotKey,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
   CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
