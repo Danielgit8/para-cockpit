@@ -1969,6 +1969,19 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .fp-c{text-align:right;font-weight:700;display:flex;flex-direction:column;align-items:flex-end;align-self:center}.fp-c small{font-weight:500;color:var(--muted);font-size:12px}
 .fp-row.miss .fp-c{color:var(--muted)}
 button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.sh-kpis{margin-bottom:4px}
+.sh-g{margin-top:18px}
+.sh-gh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:700;padding:0 0 6px;border-bottom:1.5px solid var(--line-2)}
+.sh-gh small{font-weight:500}
+.sh-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto 78px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.sh-g .sh-row:nth-child(2){border-top:0}
+.sh-n{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}.sh-n b{overflow-wrap:anywhere;font-weight:600}.sh-n small{color:var(--muted);font-size:12.5px}
+.sh-row.done .sh-n b{color:var(--muted);text-decoration:line-through}
+.sh-q{display:flex;align-items:center;gap:4px}.sh-q b{min-width:18px;text-align:center}.sh-q .ibtn{font-size:17px;font-weight:700}
+.sh-c{text-align:right;font-weight:700}.sh-row.done .sh-c{color:var(--muted)}
+.sh-ed{margin:0 0 10px}
+.sh-pf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:6px 0 8px}
+@media (max-width:560px){.sh-row{grid-template-columns:24px minmax(0,1fr) auto;row-gap:2px}.sh-c{grid-column:2/-1}.sh-pf{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.sh-st{grid-column:1/-1}}
 @media (max-width:560px){
   .fp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:8px}
   .fp-n{grid-column:1/-1}.fp-c{grid-column:1/-1;flex-direction:row;gap:6px;justify-content:flex-end;align-items:baseline}
@@ -2098,7 +2111,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-16.5";
+const APP_VERSION = "2026-11-16.6";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2189,7 +2202,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "wplan", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc"];
+const HIDDEN_K = ["nsday", "jday", "day", "wplan", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc", "shopi"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -5181,9 +5194,10 @@ function foodHTML(){
   if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab2") || "diary"; } catch(e) { S.fdTab = "diary"; } }
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
-  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML}[S.fdTab] || ntDiaryHTML;
-  return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Lebensmittel, Rezepte und meine Ziele") + banner() +
-    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
+  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML, shop:shopHTML}[S.fdTab] || ntDiaryHTML;
+  const open = live("shopi").filter(l => !l.done).length;
+  return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Einkaufsliste, Lebensmittel, Rezepte und meine Ziele") + banner() +
+    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("shop", "Einkauf", open)}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
 function fdListHTML(){
   const day = S.fdDay || 0;
@@ -5209,6 +5223,7 @@ function fdForm(x){
   return `<div class="fd-ed br-ed">${inp("title", "Name")}${inp("what", "Was ist das?", 'placeholder="Art oder kurze Beschreibung"')}
     ${inp("grams", "Wie viel Gramm?", 'inputmode="decimal" placeholder="Menge in Gramm"')}
     ${fdNutHTML(x)}
+    ${shPriceHTML(x)}
     <div class="fd-lbl br-wide"><span>An welchen Tagen?</span><div class="fd-btns">${FD_DAYS.map((l, i) => `<button class="pill fd-day ${d.includes(i + 1) ? "on" : ""}" data-fact="day" data-id="${x.id}" data-d="${i + 1}" aria-pressed="${d.includes(i + 1)}">${l}</button>`).join("")}<button class="pill" data-fact="alldays" data-id="${x.id}">${d.length === 7 ? "Keinen Tag" : "Jeden Tag"}</button></div></div>
     <label class="br-wide">Weshalb esse ich das?<textarea class="field" rows="3" id="fd-${x.id}-why" data-fv="why" data-id="${x.id}" placeholder="Mein Grund">${esc(x.why || "")}</textarea></label>
     ${fdAttHTML(x)}
@@ -6494,7 +6509,106 @@ document.addEventListener("change", e => {
   const t = e.target; if (!t.dataset || !t.dataset.fp) return;
   const k = t.dataset.k, v = t.value.trim(); let f = fpMap().get(k);
   if (!f) { if (!v) return; f = create("fprice", t.dataset.n || k, {key:k, price:"", pack:""}); }
-  f[t.dataset.fp] = v; persist(f); plLater();
+  f[t.dataset.fp] = v; persist(f); plLater(); shLater();
+});
+
+/* ================= Einkaufsliste (16.11.2026, sein Wunsch) =================
+   Eine Liste, die als Vorlage stehen bleibt: „Neuer Einkauf“ nimmt nur die Haken raus.
+   Jede Zeile ist ein eigener versteckter Eintrag kind "shopi" (title, key, qty, done, ord), damit Handy und Laptop
+   sich beim Abgleich nicht gegenseitig die ganze Liste überschreiben.
+   Preis pro Packung, Packungsgröße und Bezugsquelle (store) stehen im gemeinsamen "fprice" (key wie im Plan), so rechnen
+   Plan, Einkauf und Lebensmittel mit demselben Preis. Eigene Lebensmittel haben den key "own:<id>", alles andere
+   "name:<Name>", bis ich es mit „Fürs Tracking speichern“ zu einem eigenen Lebensmittel mache. */
+const shLines = () => live("shopi").sort((a, b) => (a.ord || a.created || 0) - (b.ord || b.created || 0));
+const shUniq = list => [...new Set(list.map(s => String(s || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de", {sensitivity:"base"}));
+const shStores = () => shUniq(live("fprice").map(f => f.store));
+const shNames = () => shUniq([...live("food").map(x => x.title), ...live("fprice").map(x => x.title)]);
+let shT = null;
+const shLater = () => { clearTimeout(shT); shT = setTimeout(() => { if (S.view === "food" && (S.fdTab === "shop" || S.fdTab === "food") && !S.nt) renderMain(); }, 250); };
+function shKeyFor(name){
+  const t = String(name || "").trim(), n = ntNorm(t);
+  const own = live("food").find(x => ntNorm(x.title) === n); if (own) return {key:"own:" + own.id, title:own.title || t};
+  const fp = live("fprice").find(x => ntNorm(x.title) === n); if (fp) return {key:fp.key, title:fp.title || t};
+  return {key:"name:" + n, title:t};
+}
+const shIsOwn = l => /^own:/.test(l.key || "") && S.items.has(l.key.slice(4)) && !S.items.get(l.key.slice(4)).archived;
+function shAdd(name){
+  const t = String(name || "").trim(); if (!t) return null;
+  const {key, title} = shKeyFor(t);
+  const same = live("shopi").find(l => l.key === key);
+  if (same) { if (same.done) { same.done = false; persist(same); toast("Steht wieder offen auf der Liste."); } else toast("Steht schon auf der Liste."); return same; }
+  return create("shopi", title, {key, qty:1, done:false, ord:Date.now()});
+}
+// Preis, Packung und Laden als Felder, die direkt in "fprice" schreiben (gleicher Handler wie im Plan)
+function shPriceFields(k, n, id){
+  return `<label class="fp-in"><span>Preis pro Packung in €</span><input class="field num" id="sh-p-${id}" data-keep inputmode="decimal" data-fp="price" data-k="${esc(k)}" data-n="${esc(n)}" value="${esc((fpMap().get(k) || {}).price ?? "")}" placeholder="1,29"></label>
+    <label class="fp-in"><span>Packung in g (für den Plan)</span><input class="field num" id="sh-k-${id}" data-keep inputmode="decimal" data-fp="pack" data-k="${esc(k)}" data-n="${esc(n)}" value="${esc((fpMap().get(k) || {}).pack ?? "")}" placeholder="500"></label>
+    <label class="fp-in sh-st"><span>Wo ich es kaufe</span><input class="field" id="sh-s-${id}" data-keep list="sh-stores" autocomplete="off" data-fp="store" data-k="${esc(k)}" data-n="${esc(n)}" value="${esc((fpMap().get(k) || {}).store ?? "")}" placeholder="z. B. Lidl"></label>`;
+}
+const shStoreList = () => `<datalist id="sh-stores">${shStores().map(s => `<option value="${esc(s)}"></option>`).join("")}</datalist>`;
+function shPriceHTML(x){
+  const k = "own:" + x.id, on = live("shopi").some(l => l.key === k && !l.done);
+  return `<div class="fd-lbl br-wide"><span>Preis und wo ich es kaufe</span><div class="sh-pf">${shPriceFields(k, x.title || "", x.id)}</div>${shStoreList()}
+    <div><button class="pill" data-sh="addfood" data-id="${x.id}" ${on ? "disabled" : ""}>${ic(on ? "check" : "plus")}${on ? "Steht auf der Einkaufsliste" : "Auf die Einkaufsliste"}</button></div></div>`;
+}
+function shopHTML(){
+  const M = fpMap(), L = shLines();
+  const rows = L.map(l => { const f = M.get(l.key) || {}; return {l, store:String(f.store || "").trim(), price:f.price, qty:Math.max(1, Math.round(+l.qty || 1))}; });
+  const sum = PC.shopSum ? PC.shopSum(rows.map(r => ({qty:r.qty, price:r.price, done:!!r.l.done, store:r.store}))) : {total:0, open:0, miss:0, stores:[]};
+  const done = rows.filter(r => r.l.done).length;
+  const row = r => { const l = r.l, p = moneyOk(r.price), own = shIsOwn(l), open = S.shOpen === l.id;
+    return `<div class="sh-row ${l.done ? "done" : ""} ${open ? "open" : ""}">
+      <button class="check ${l.done ? "on" : ""}" data-sh="chk" data-id="${l.id}" aria-pressed="${!!l.done}" aria-label="${esc(l.title || "Lebensmittel")} abhaken">${ic("check")}</button>
+      <button class="sh-n" data-sh="open" data-id="${l.id}" aria-expanded="${open}"><b>${esc(l.title || "Ohne Namen")}</b><small>${[own ? "" : "Noch nicht gespeichert", p != null ? `${eur(p)} pro Packung` : "Preis fehlt"].filter(Boolean).join(" · ")}</small></button>
+      <span class="sh-q"><button class="ibtn" data-sh="qty" data-id="${l.id}" data-d="-1" ${r.qty <= 1 ? "disabled" : ""} aria-label="Eine weniger">−</button><b class="num">${r.qty}</b><button class="ibtn" data-sh="qty" data-id="${l.id}" data-d="1" aria-label="Eine mehr">+</button></span>
+      <span class="sh-c num">${p != null ? eur(p * r.qty) : "–"}</span></div>
+      ${open ? `<div class="br-ed sh-ed">${own ? "" : `<label class="br-wide">Name<input class="field" id="sh-t-${l.id}" data-keep data-shv="title" data-id="${l.id}" value="${esc(l.title || "")}"></label>`}
+        <div class="sh-pf br-wide">${shPriceFields(l.key, l.title || "", l.id)}</div>
+        <div class="br-ed-f">${own ? `<button class="pill" data-sh="tofood" data-id="${l.id}">${ic("food")}Unter Lebensmittel öffnen</button>` : `<button class="pill on" data-sh="keep" data-id="${l.id}">${ic("plus")}Fürs Tracking speichern</button>`}<span class="grow"></span><button class="pill" data-sh="del" data-id="${l.id}" style="${S.shDel === l.id ? "color:var(--late)" : ""}">${ic("trash")}${S.shDel === l.id ? "Wirklich von der Liste?" : "Von der Liste nehmen"}</button><button class="pill on" data-sh="open" data-id="${l.id}">Fertig</button></div></div>` : ""}`; };
+  const groups = sum.stores.map(g => { const rs = rows.filter(r => r.store === g.store).sort((a, b) => (!!a.l.done - !!b.l.done));
+    return `<div class="sh-g"><div class="sh-gh"><span>${esc(g.store || "Egal wo")}</span><span class="num">${eur(g.total)}${g.miss ? ` <small class="muted">+ ${g.miss} ohne Preis</small>` : ""}</span></div>${rs.map(row).join("")}</div>`; }).join("");
+  return `<section class="card"><div class="add"><input id="sh-new" data-keep list="sh-names" autocomplete="off" placeholder="Was brauch ich? Enter zum Hinzufügen" aria-label="Lebensmittel für die Einkaufsliste"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-sh="add" aria-label="Auf die Liste">${ic("plus")}</button></div>
+    <datalist id="sh-names">${shNames().map(s => `<option value="${esc(s)}"></option>`).join("")}</datalist>${shStoreList()}
+    <p class="hint" style="margin:10px 0 0">Die Liste bleibt als Vorlage stehen. Beim Einkaufen hak ich ab, mit „Neuer Einkauf“ sind alle Haken wieder raus. Preis und Laden trag ich einmal ein, dann rechnet die Liste mit. Was neu ist, zum Beispiel aus Frankreich, kann ich mit „Fürs Tracking speichern“ dauerhaft zu meinen Lebensmitteln legen.</p></section>
+  <section class="card"><div class="card-h"><h2>Meine Einkaufsliste</h2><span class="grow"></span>${done ? `<button class="pill" data-sh="reset">${ic("repeat")}Neuer Einkauf</button>` : ""}</div>
+    ${L.length ? `<div class="bs-kpis sh-kpis"><div><span>Ganzer Einkauf</span><b class="num">${eur(sum.total)}</b><small>${L.length} ${L.length === 1 ? "Sache" : "Sachen"}</small></div>
+      <div><span>Noch offen</span><b class="num">${eur(sum.open)}</b><small>${L.length - done} nicht abgehakt</small></div></div>
+      ${sum.miss ? `<p class="hint fp-miss">Bei ${sum.miss} ${sum.miss === 1 ? "Sache fehlt" : "Sachen fehlt"} noch der Preis, die Summe ist deshalb zu niedrig.</p>` : ""}
+      ${groups}` : `<div class="empty">Noch nichts auf der Liste. Oben eintippen, was ich brauche, und Enter drücken.</div>`}</section>`;
+}
+const moneyOk = v => PC.moneyNum ? PC.moneyNum(v) : (isFinite(+v) && String(v ?? "").trim() !== "" ? +v : null);
+// Neues Lebensmittel fürs Tracking speichern: eigenes Lebensmittel anlegen, Preis, Packung und Laden mitnehmen (als Kopie, der alte Preis bleibt)
+function shKeep(l){
+  const M = fpMap(), f = M.get(l.key);
+  const it = create("food", l.title || "Neues Lebensmittel", {what:"", grams:"", days:[], why:""}), nk = "own:" + it.id;
+  if (f && !M.get(nk)) create("fprice", it.title, {key:nk, price:f.price || "", pack:f.pack || "", store:f.store || ""});
+  l.key = nk; persist(l); return it;
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-sh]"); if (!a) return;
+  const act = a.dataset.sh, l = a.dataset.id && S.items.get(a.dataset.id);
+  if (act !== "del") S.shDel = null;
+  switch (act) {
+    case "add": { const i = $("#sh-new"); if (!i || !i.value.trim()) { if (i) i.focus(); return; } shAdd(i.value); i.value = ""; renderMain(); const n = $("#sh-new"); if (n) n.focus(); return; }
+    case "chk": if (l) { l.done = !l.done; persist(l); renderMain(); } return;
+    case "qty": if (l) { l.qty = Math.max(1, Math.round(+l.qty || 1) + +a.dataset.d); persist(l); renderMain(); } return;
+    case "open": S.shOpen = S.shOpen === a.dataset.id ? null : a.dataset.id; renderMain(); return;
+    case "del": if (!l) return; if (S.shDel !== l.id) { S.shDel = l.id; renderMain(); return; } S.shDel = null; S.shOpen = null; removeItem(l.id); renderMain(); toast("Von der Liste genommen."); return;
+    case "reset": for (const x of live("shopi")) if (x.done) { x.done = false; persist(x); } renderMain(); toast("Alle Haken sind raus, die Liste ist bereit."); return;
+    case "keep": if (l) { const it = shKeep(l); renderMain(); toast(`„${it.title}“ steht jetzt unter Lebensmittel. Mit den Kalorien taucht es auch im Tagebuch auf.`); } return;
+    case "tofood": if (l && shIsOwn(l)) { S.fdTab = "food"; S.fdOpen = l.key.slice(4); try { localStorage.setItem("fdTab2", "food"); } catch(er){} renderMain(); window.scrollTo({top:0}); } return;
+    case "addfood": { const x = S.items.get(a.dataset.id); if (!x) return; const k = "own:" + x.id, same = live("shopi").find(y => y.key === k);
+      if (same) { same.done = false; persist(same); } else create("shopi", x.title || "Ohne Namen", {key:k, qty:1, done:false, ord:Date.now()}); renderMain(); toast("Steht auf der Einkaufsliste."); return; }
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing && e.target.id === "sh-new") { e.preventDefault(); const b = document.querySelector('[data-sh="add"]'); if (b) b.click(); } });
+// Name einer noch nicht gespeicherten Zeile ändern: Preis und Laden wandern mit (Kopie unter dem neuen Namen)
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || t.dataset.shv !== "title") return;
+  const l = S.items.get(t.dataset.id), v = t.value.trim(); if (!l || !v || v === l.title) return;
+  const M = fpMap(), old = M.get(l.key), nx = shKeyFor(v);
+  if (old && !M.get(nx.key) && /^name:/.test(nx.key)) create("fprice", v, {key:nx.key, price:old.price || "", pack:old.pack || "", store:old.store || ""});
+  l.title = /^name:/.test(nx.key) ? v : nx.title; l.key = nx.key; persist(l); renderMain();
 });
 
 /* ================= Geld (14.11.2026, sein Wunsch: eigener Finanztracker, verbunden mit dem Ernährungsplan) =================

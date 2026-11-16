@@ -554,3 +554,16 @@ test("Journal: Zusammenfassung kommt von der Seite mit der neueren Auswertung, e
   const keins = C.mergeJday({kind:"jday"}, {kind:"jday"});
   assert.ok(!("sum" in keins) && !("done" in keins));
 });
+
+/* ---------- Einkaufsliste ---------- */
+test("Einkaufsliste: Summe, offen, fehlende Preise und Läden", () => {
+  const s = C.shopSum([
+    {qty:2, price:"1,29", store:"Lidl"}, {qty:1, price:"3", store:"Lidl", done:true},
+    {qty:3, price:"0,50", store:""}, {qty:1, price:"", store:"Carrefour"}, {qty:0, price:"2", store:" Carrefour "}]);
+  assert.equal(Math.round(s.total * 100), 258 + 300 + 150 + 200);
+  assert.equal(Math.round(s.open * 100), 258 + 150 + 200, "abgehakt zählt nicht zu offen");
+  assert.equal(s.miss, 1);
+  assert.deepEqual(s.stores.map(g => g.store), ["Carrefour", "Lidl", ""], "Läden alphabetisch, ohne Laden am Ende");
+  assert.equal(s.stores[0].miss, 1); assert.equal(Math.round(s.stores[1].total * 100), 558);
+  assert.deepEqual(C.shopSum([]), {total:0, open:0, miss:0, stores:[]});
+});

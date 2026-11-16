@@ -328,6 +328,20 @@ function weekCost(plans, fallbackId, dayCost){
   for (let d = 1; d <= 7; d++) { const p = L.find(x => (x.days || []).includes(d)) || fb; if (p) sum += dayCost(p) || 0; }
   return sum;
 }
+// Einkaufsliste: Anzahl × Preis pro Packung. open = noch nicht abgehakt, miss = Zeilen ohne Preis, stores = Zwischensumme je Laden
+// (Läden alphabetisch, Zeilen ohne Laden am Ende).
+function shopSum(lines){
+  const out = {total:0, open:0, miss:0, stores:[]}, by = new Map();
+  for (const l of lines || []) {
+    const p = moneyNum(l && l.price), q = Math.max(1, Math.round(+(l && l.qty) || 1)), s = String((l && l.store) || "").trim();
+    const g = by.get(s) || {store:s, total:0, n:0, miss:0}; g.n++;
+    if (p == null) { out.miss++; g.miss++; }
+    else { const v = p * q; out.total += v; g.total += v; if (!l.done) out.open += v; }
+    by.set(s, g);
+  }
+  out.stores = [...by.values()].sort((a, b) => (!a.store - !b.store) || a.store.localeCompare(b.store, "de"));
+  return out;
+}
 // Summe der Ausgaben eines Monats (mk = "2026-11"), optional nur eine Kategorie
 function spentIn(list, mk, cat){
   return (list || []).filter(s => s && String(s.date || "").startsWith(mk) && (!cat || s.cat === cat)).reduce((t, s) => t + (moneyNum(s.amount) || 0), 0);
@@ -493,6 +507,6 @@ function calPatch(ev, ch, item, mkId){
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
   DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected, jdayId, jdayPick, mergeJday, shotKey,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn};
+  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn, shopSum};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);
