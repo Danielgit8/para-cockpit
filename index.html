@@ -2067,6 +2067,12 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 .cs-vp{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
 .cs-vp .field{width:auto;max-width:220px;height:34px;padding:0 10px}
 .cs-vault .card-h{flex-wrap:wrap;gap:8px}
+.cs-more{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.cs-more>summary{cursor:pointer;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;list-style:none}
+.cs-more>summary::-webkit-details-marker{display:none}
+.cs-more>summary .i{width:14px;height:14px}
+.cs-more[open]>summary .i{transform:rotate(180deg)}
+.cs-more .mded{margin-top:8px}
 @media (max-width:560px){.cs-vp{width:100%}.cs-vp .field{flex:1;min-width:0;max-width:none}}
 </style>
 <style id="user-css"></style>
@@ -2090,7 +2096,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-16.2";
+const APP_VERSION = "2026-11-16.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -6578,7 +6584,8 @@ function brDelBtn(id){ return `<button class="pill" data-bact="del" data-id="${i
 /* ================= Content Studio (13.11.2026, ersetzt Überblick und Videos) =================
    16.11.2026 vereinfacht (sein Wunsch): keine Schmerzpunkte und Wünsche, kein Brand-Gate, keine Pre-Flight-Haken, kein Grundsatz am Stück,
    im Tresor nur ein Filter (Säule), in der Pipeline keiner.
-   Kompass = ein Eintrag kind "ccompass", feste id "cs-compass": positioning, pillars[{id,name,description,color}], principles[], anti[], toneDos[], toneDonts[], audience
+   Kompass = ein Eintrag kind "ccompass", feste id "cs-compass": positioning, pillars[{id,name,description,color}], principles[], anti[], toneDos[], toneDonts[], audience,
+             more (Markdown: Formate, Plattform, Geld, Bio … aus Brand-Weg, seit 16.11.2026)
    Idee    = kind "cidea": title, body (rohe Notizen), url, type (eigen|insp|beob|kontra), pillar (optional), status (inbox|taken), source (id einer Quelle)
    Quelle  = kind "csource": title, url, stype (CS_SRC), note, pillar, star (Reiter „Quellen“ auf Content & Finanzen)
    Stück   = kind "cpiece": idea, title, hook, body (Markdown), pillar (von der Idee), status (check|entwurf|produktion|geplant|live), formats[], cta, date,
@@ -6594,7 +6601,7 @@ const CS_COLORS = ["#C9772B", "#4F8A55", "#3E6FB0", "#8A5BB5", "#A8443A", "#6B6B
 const csCol = c => CS_COLORS.includes(c) ? c : CS_COLORS[0];
 const csCompass = () => { const c = S.items.get("cs-compass"); return c && !c.archived ? c : null; };
 const csC = () => { const c = csCompass() || {}; return {positioning:c.positioning || "", principles:c.principles || [], anti:c.anti || [], pillars:c.pillars || [], toneDos:c.toneDos || [], toneDonts:c.toneDonts || [],
-  audience:c.audience || ""}; };
+  audience:c.audience || "", more:c.more || ""}; };
 const CS_SRC = [["creator", "Creator / Account"], ["web", "Website"], ["video", "YouTube / Video"], ["podcast", "Podcast"], ["study", "Studie / Paper"], ["book", "Buch"], ["forum", "Forum / Community"], ["other", "Sonstiges"]];
 const csSources = () => live("csource");
 const csPlat = url => { const h = lsHost(url || "").toLowerCase(); return /instagram/.test(h) ? "Instagram" : /tiktok/.test(h) ? "TikTok" : /youtu/.test(h) ? "YouTube" : /(^|\.)x\.com$|twitter/.test(h) ? "X" : /spotify/.test(h) ? "Spotify" : ""; };
@@ -6698,6 +6705,7 @@ function csCompassHTML(){
     <h3 class="cs-kh">Für wen ich das mache</h3><p class="cs-aud-t">${c.audience ? esc(c.audience) : `<span class="muted">Noch keine Zielgruppe eingetragen.</span>`}</p>
     <div class="cs-two"><div class="cs-yes"><h3>Dafür steh ich</h3>${csUl(c.principles)}</div><div class="cs-no"><h3>Mach ich nicht</h3>${csUl(c.anti)}</div></div>
     <div class="cs-two cs-tone"><div class="cs-yes"><h3>Ton: so</h3>${csUl(c.toneDos)}</div><div class="cs-no"><h3>Ton: so nicht</h3>${csUl(c.toneDonts)}</div></div>
+    ${c.more.trim() ? `<details class="cs-more"><summary>Mehr zu meiner Brand${ic("down")}</summary><div class="mded">${mdBlocks(c.more, csCompass())}</div></details>` : ""}
     <div class="cs-kom-f"><button class="pill" data-cs="kedit">${ic("pen")}${has ? "Bearbeiten" : "Kompass ausfüllen"}</button></div></details>`;
 }
 function csKomDlg(){
@@ -6713,17 +6721,18 @@ function csKomDlg(){
     <p class="hint" style="margin:6px 0 0">In den vier Feldern unten steht ein Punkt pro Zeile.</p>
     <div class="cs-two">${ta("pri", "Dafür steh ich (3 bis 5 Grundsätze)", k.principles)}${ta("anti", "Mach ich nicht (3 bis 5 Tabus)", k.anti)}</div>
     <div class="cs-two">${ta("do", "Ton: so", k.toneDos)}${ta("dont", "Ton: so nicht", k.toneDonts)}</div>
+    <label>Mehr zu meiner Brand (Formate, Plattform, Geld, Bio …)<textarea class="field" id="ck-more" rows="8" placeholder="## Überschrift, - Liste">${esc(k.more || "")}</textarea></label>
     <div class="cs-dlg-f"><span class="grow"></span><button type="button" class="pill" data-cs="dclose">Abbrechen</button><button type="button" class="btn" data-cs="ksave">Speichern</button></div></div>`, "wide");
 }
 function csKomRead(){
   const k = S.csK, v = id => (($("#ck-" + id) || {}).value || ""), lines = id => v(id).split("\n").map(x => x.trim()).filter(Boolean);
-  k.positioning = v("pos").trim(); k.audience = v("aud").trim(); k.pillars.forEach((p, i) => { p.name = v("pn-" + i).trim(); p.description = v("pd-" + i).trim(); });
+  k.positioning = v("pos").trim(); k.audience = v("aud").trim(); k.more = v("more").replace(/\s+$/, ""); k.pillars.forEach((p, i) => { p.name = v("pn-" + i).trim(); p.description = v("pd-" + i).trim(); });
   k.principles = lines("pri"); k.anti = lines("anti"); k.toneDos = lines("do"); k.toneDonts = lines("dont");
 }
 function csKomSave(){
   csKomRead(); const k = S.csK;
   const it = csCompass() || {id:"cs-compass", kind:"ccompass", title:"Brand-Kompass", body:"", rel:[], links:[], files:[], tags:[], archived:false, created:Date.now()};
-  Object.assign(it, {positioning:k.positioning, audience:k.audience, principles:k.principles, anti:k.anti, toneDos:k.toneDos, toneDonts:k.toneDonts,
+  Object.assign(it, {positioning:k.positioning, audience:k.audience, more:k.more, principles:k.principles, anti:k.anti, toneDos:k.toneDos, toneDonts:k.toneDonts,
     pillars:k.pillars.filter(p => p.name).map(p => ({id:p.id || uid(), name:p.name, description:p.description || "", color:csCol(p.color)}))});
   persist(it); csDlgClose(); toast("Kompass gespeichert"); renderMain();
 }
@@ -6866,8 +6875,7 @@ function csHTML(){
   const u = csU(), p = u.open && S.items.get(u.open);
   if (p && p.kind === "cpiece" && !p.archived) return csEditorHTML(p);
   u.open = null;
-  return csCompassHTML() + csCapHTML() + csVaultHTML() + csPipeHTML() + csStatsHTML() +
-    `<p class="hint cs-bw">Meine früheren Grundlagen und die alte Video-Liste liegen weiter in <a href="../brand-weg/">Brand-Weg</a>.</p>`;
+  return csCompassHTML() + csCapHTML() + csVaultHTML() + csPipeHTML() + csStatsHTML();
 }
 
 /* --- Eingaben --- */
@@ -6886,7 +6894,7 @@ document.addEventListener("click", e => {
       if (!x) { if (t) t.focus(); return; } t.value = ""; const ur = $("#cs-new-url"); if (ur) ur.value = ""; renderMain(); toast("Im Ideen-Tresor gespeichert"); const n = $("#cs-new"); if (n) n.focus(); return; }
     case "dclose": csDlgClose(); return;
     // Kompass
-    case "kedit": { const c = csC(); S.csK = {positioning:c.positioning, audience:c.audience, principles:[...c.principles], anti:[...c.anti], toneDos:[...c.toneDos], toneDonts:[...c.toneDonts], pillars:c.pillars.map(p => ({...p}))}; csKomDlg(); return; }
+    case "kedit": { const c = csC(); S.csK = {positioning:c.positioning, audience:c.audience, more:c.more, principles:[...c.principles], anti:[...c.anti], toneDos:[...c.toneDos], toneDonts:[...c.toneDonts], pillars:c.pillars.map(p => ({...p}))}; csKomDlg(); return; }
     case "kpadd": csKomRead(); S.csK.pillars.push({id:uid(), name:"", description:"", color:CS_COLORS[S.csK.pillars.length % CS_COLORS.length]}); csKomDlg(); { const n = $("#ck-pn-" + (S.csK.pillars.length - 1)); if (n) n.focus(); } return;
     case "kpdel": csKomRead(); S.csK.pillars.splice(+a.dataset.i, 1); csKomDlg(); return;
     case "kcol": csKomRead(); S.csK.pillars[+a.dataset.i].color = a.dataset.c; csKomDlg(); return;
