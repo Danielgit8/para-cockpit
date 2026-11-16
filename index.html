@@ -1496,6 +1496,11 @@ a.ns-now-t{text-decoration:none}
 .g-days button.on{border-color:var(--ink);color:var(--text);opacity:1}
 .g-days button.did{background:var(--good);border-color:var(--good);color:#fff;opacity:1}
 .g-cnt{display:block;font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+.ns-grid2.g-at{margin-top:8px;gap:8px;grid-template-columns:1fr 1fr}
+.g-at label{font-size:12px}
+.g-at .field{font-size:14px}
+.g-at .g-goal{grid-column:1/-1}
+.hl-at{font-weight:700;color:var(--muted);margin-right:6px;font-size:.92em}
 .g-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 .g-del{color:var(--late)}
 .g-arm{font-size:12px;font-weight:700;color:var(--late);width:auto;padding:0 8px;border-radius:999px}
@@ -2077,7 +2082,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-15.10";
+const APP_VERSION = "2026-11-16.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3094,23 +3099,49 @@ function gSeed(){
   saveLocal(); scheduleSync(); setTimeout(() => saveSettings(), 0);
 }
 
+// 16.11.2026 (sein Wunsch): Gewohnheiten leg ich unter meinen Zielen an. Alte Gewohnheiten mit Haken ziehen dorthin um,
+// unter ihr Ziel (Feld goal), sonst zu den Basics. Feste id "gt-<habit-id>", damit zwei Geräte nichts doppelt anlegen. Die alte wandert ins Archiv.
+// Gewohnheiten mit Zahl oder Auswahl bleiben, wo sie sind (das können feste Aufgaben nicht).
+function gMigrateHabits(){
+  if (S.mode !== "app" || (sb && !S.cursor)) return;
+  const hs = live("habit").filter(h => hmode(h) === "check"); if (!hs.length) return;
+  let ord = Math.max(0, ...live("gtask").map(t => +t.order || 0));
+  for (const h of hs) {
+    const id = "gt-" + h.id, g = h.goal ? S.items.get(h.goal) : null, old = S.items.get(id);
+    const log = {}; for (const [k, v] of Object.entries(h.log || {})) if (v) log[k] = true;
+    if (!old && !S.tombs.has(id)) {
+      // updated:1 wie bei gSeed: Hat ein anderes Gerät schon umgezogen (und dann vielleicht Uhrzeit oder Häkchen geändert), gewinnt dessen Fassung vom Server
+      S.items.set(id, {id, kind:"gtask", title:h.title || "", body:h.body || "", rel:h.rel || [], links:h.links || [], files:h.files || [], tags:h.tags || [], archived:false, created:Date.now(), updated:1,
+        goal: g && g.kind === "goal" && !g.archived ? g.id : G_BASICS, days:[], log, at:h.at || "", remind:h.remind || "", order:++ord});
+      S.dirty.add(id); saveLocal(); scheduleSync();
+    } else if (old && !old.archived) {
+      // Kommt die alte Gewohnheit zurück (Archiv, altes Gerät), wandern ihre neuen Häkchen mit
+      const add = Object.keys(log).filter(k => !(old.log || {})[k]);
+      if (add.length) { old.log = {...(old.log || {})}; add.forEach(k => old.log[k] = true); persist(old); }
+    }
+    h.archived = true; persist(h);
+  }
+}
+// Erst ohne Uhrzeit in der gespeicherten Reihenfolge, dann nach Uhrzeit
+const gByTime = ts => ts.map((t, i) => [t, i]).sort((a, b) => (!!a[0].at - !!b[0].at) || (a[0].at || "").localeCompare(b[0].at || "") || a[1] - b[1]).map(x => x[0]);
+
 /* --- Heute --- */
 function gRow(t, tk){
-  const on = gDone(t, tk), n = gText(t), r = /rosenkranz/i.test(t.title || "") ? nsRosary() : null;
+  const on = gDone(t, tk), n = gText(t), r = /rosenkranz/i.test(t.title || "") ? nsRosary() : null, tm = t.at ? `<b class="hl-at num">${esc(t.at)}</b>` : "";
   return `<div class="nq-row hl-row ${on ? "done" : ""}"><button class="check ${on ? "on" : ""}" data-g="tick" data-id="${t.id}" aria-label="${esc(t.title || "Aufgabe")} abhaken" aria-pressed="${on}">${ic("check")}</button>` +
-    (n || r ? `<details class="hl-read" data-k="${t.id}"${(S.nsOpen || {})[t.id] ? " open" : ""}><summary><span>${esc(t.title || "Ohne Titel")}</span>${ic("down")}</summary>
+    (n || r ? `<details class="hl-read" data-k="${t.id}"${(S.nsOpen || {})[t.id] ? " open" : ""}><summary><span>${tm}${esc(t.title || "Ohne Titel")}</span>${ic("down")}</summary>
       ${n ? `<div class="mded">${mdBlocks(n.body, n)}</div>` : ""}<div class="hl-read-f">${n ? `<button class="ns-link" data-open="${n.id}">Text bearbeiten</button>` : ""}${r ? `<button class="ns-link" data-open="${r.id}">Rosenkranz-Anleitung</button>` : ""}</div></details>`
-      : `<span class="t">${esc(t.title || "Ohne Titel")}</span>`) + `</div>`;
+      : `<span class="t">${tm}${esc(t.title || "Ohne Titel")}</span>`) + `</div>`;
 }
 function todayHTML(){
-  nsMigrate(); gSeed();
+  nsMigrate(); gSeed(); gMigrateHabits();
   const tk = dkey(), d = nsDay(tk) || {}, one = nqOne(tk);
   let open = 0;
   const sec = (label, rows, right = "") => `<div class="hl-sec"><div class="ns-lbl-row"><span class="ns-lbl">${label}</span>${right}</div>${rows}</div>`;
-  const bs = gTasks(G_BASICS).filter(t => gOn(t)); open += bs.filter(t => !gDone(t, tk)).length;
+  const bs = gByTime(gTasks(G_BASICS).filter(t => gOn(t))); open += bs.filter(t => !gDone(t, tk)).length;
   const basics = bs.length ? sec("Tägliche Basics", `<div class="hl-rows">${bs.map(t => gRow(t, tk)).join("")}</div>`) : "";
   const goals = gGoals().map(g => {
-    const fx = gTasks(g.id).filter(t => gOn(t));
+    const fx = gByTime(gTasks(g.id).filter(t => gOn(t)));
     const on = gOnce(g.id).filter(t => (!t.done && (!t.due || t.due <= tk)) || (t.done && t.doneAt && dkey(new Date(t.doneAt)) === tk));
     if (!fx.length && !on.length) return "";
     open += fx.filter(t => !gDone(t, tk)).length + on.filter(t => !t.done).length;
@@ -3124,7 +3155,7 @@ function todayHTML(){
     `<div class="hl-top"><h1 class="hl-date">${new Date().toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"})}</h1><span class="hl-open num">${open ? `Noch ${open} offen` : "Alles erledigt für heute"}</span></div>` +
     (cost ? `<div class="ns-chips">${cost}</div>` : "") +
     `<section class="ns-card hl">${basics}${goals}${rest}</section>` +
-    (!basics && !goals ? `<p class="ns-hint" style="margin:0 4px">Noch keine festen Aufgaben für heute. <button class="ns-link" data-go="weg">In „Meine Ziele“ anlegen</button></p>` : "") +
+    (!basics && !goals ? `<p class="ns-hint" style="margin:0 4px">Noch keine Gewohnheiten für heute. <button class="ns-link" data-go="weg">In „Meine Ziele“ anlegen</button></p>` : "") +
     `<section class="ns-card hl-rev"><div class="ns-lbl">Tagesreview</div>
       <p class="ns-q">Wie lange hab ich geschlafen?</p>
       <div class="ns-seg">${[4,5,6,7,8,9].map(x => `<button class="${d.sleep === x ? "on" : ""}" data-ns="sleep" data-v="${x}" aria-pressed="${d.sleep === x}" aria-label="${nsHrs(x)} Stunden">${x === 4 ? "≤4" : x === 9 ? "9+" : x}</button>`).join("")}</div>
@@ -3132,31 +3163,34 @@ function todayHTML(){
       <textarea id="rv-win" class="field" data-keep data-nsf="d.win" rows="3">${esc(d.win || "")}</textarea>
       <label for="rv-better">Was mach ich morgen besser?</label>
       <textarea id="rv-better" class="field" data-keep data-nsf="d.better" rows="3">${esc(d.better || "")}</textarea></section>
-    <button class="ns-more" data-go="weg">${ic("compass")}Meine Ziele und festen Aufgaben</button></div>`;
+    <button class="ns-more" data-go="weg">${ic("compass")}Meine Ziele und Gewohnheiten</button></div>`;
 }
 
 /* --- Meine Ziele (früher „Mein Weg“) --- */
 function gTaskEdit(t, wk, tk){
   const sched = wk.filter(x => gOn(t, x)), did = sched.filter(x => gDone(t, dkey(x))).length, n = gText(t), arm = S.gDel === t.id;
   const dn = (t.days || []).length;
-  return `<div class="g-task"><div class="g-task-top"><input class="field" id="gt-${t.id}" data-keep data-gf="${t.id}.title" value="${esc(t.title || "")}" placeholder="Feste Aufgabe" aria-label="Feste Aufgabe">
+  return `<div class="g-task"><div class="g-task-top"><input class="field" id="gt-${t.id}" data-keep data-gf="${t.id}.title" value="${esc(t.title || "")}" placeholder="Gewohnheit" aria-label="Gewohnheit">
       <button class="ibtn ${arm ? "g-arm" : ""}" data-g="del" data-id="${t.id}" title="Löschen" aria-label="${arm ? "Wirklich löschen" : "Löschen"}">${arm ? "Löschen?" : ic("trash")}</button></div>
     <div class="g-days" role="group" aria-label="Wochentage">${wk.map((x, i) => `<button class="${gOn(t, x) ? "on" : ""} ${gDone(t, dkey(x)) ? "did" : ""}" data-g="day" data-id="${t.id}" data-d="${i + 1}" aria-pressed="${gOn(t, x)}">${G_DAYS[i]}</button>`).join("")}</div>
-    <small class="g-cnt">${dn ? `${dn}× pro Woche` : "Jeden Tag"} · diese Woche <b class="num">${did}</b> von ${sched.length} gemacht${n ? ` · klappt auf Heute den Text „${esc(n.title)}“ auf` : ""}</small></div>`;
+    <div class="ns-grid2 g-at"><label for="gat-${t.id}">Uhrzeit<input class="field num" type="time" id="gat-${t.id}" data-keep data-gf="${t.id}.at" value="${esc(t.at || "")}"></label>
+      <label for="grm-${t.id}">Erinnerung<input class="field num" type="time" id="grm-${t.id}" data-keep data-gf="${t.id}.remind" value="${esc(t.remind || "")}"></label>
+      <label for="ggo-${t.id}" class="g-goal">Gehört zu<select class="field" id="ggo-${t.id}" data-gmove="${t.id}"><option value="${G_BASICS}">Tägliche Basics</option>${gGoals().map(g => `<option value="${g.id}" ${t.goal === g.id ? "selected" : ""}>${esc(g.title || "Ziel ohne Namen")}</option>`).join("")}</select></label></div>
+    <small class="g-cnt">${dn ? `${dn}× pro Woche` : "Jeden Tag"}${t.at ? ` um ${esc(t.at)}` : ""} · diese Woche <b class="num">${did}</b> von ${sched.length} gemacht${n ? ` · klappt auf Heute den Text „${esc(n.title)}“ auf` : ""}</small></div>`;
 }
 function gFixHTML(gid, wk, tk, ph){
   const ts = gTasks(gid);
-  return `<div class="ns-lbl g-h">Feste Aufgaben</div>${ts.map(t => gTaskEdit(t, wk, tk)).join("")}
-    ${ts.length ? "" : `<p class="ns-hint" style="margin-top:6px">Noch keine. Eine feste Aufgabe steht an ihren Tagen automatisch auf Heute.</p>`}
-    <div class="ns-add"><input id="gf-${gid}" data-keep placeholder="${esc(ph)}" aria-label="Neue feste Aufgabe" enterkeyhint="done"><button class="btn" data-g="addfix" data-gid="${gid}" aria-label="Hinzufügen">${ic("plus")}</button></div>`;
+  return `<div class="ns-lbl g-h">Gewohnheiten</div>${ts.map(t => gTaskEdit(t, wk, tk)).join("")}
+    ${ts.length ? "" : `<p class="ns-hint" style="margin-top:6px">Noch keine. Eine Gewohnheit steht an ihren Tagen von selbst auf Heute, mit Uhrzeit auch im Kalender.</p>`}
+    <div class="ns-add"><input id="gf-${gid}" data-keep placeholder="${esc(ph)}" aria-label="Neue Gewohnheit" enterkeyhint="done"><button class="btn" data-g="addfix" data-gid="${gid}" aria-label="Hinzufügen">${ic("plus")}</button></div>`;
 }
 function wegHTML(){
-  nsMigrate(); gSeed();
+  nsMigrate(); gSeed(); gMigrateHabits();
   const wk = weekDays(), tk = dkey(), one = nqOne(tk), gs = gGoals();
-  const week = gid => { let a = 0, b = 0; for (const t of gTasks(gid)) for (const x of wk) if (gOn(t, x)) { b++; if (gDone(t, dkey(x))) a++; } return b ? `Diese Woche <b class="num">${a}</b> von ${b} festen Aufgaben gemacht` : "Diese Woche noch nichts geplant"; };
+  const week = gid => { let a = 0, b = 0; for (const t of gTasks(gid)) for (const x of wk) if (gOn(t, x)) { b++; if (gDone(t, dkey(x))) a++; } return b ? `Diese Woche <b class="num">${a}</b> von ${b} Gewohnheiten gemacht` : "Diese Woche noch nichts geplant"; };
   return `<div class="ns">` + banner() +
     `<div class="hl-top"><h1 class="hl-date">Meine Ziele</h1><span class="hl-open num">${gs.length} ${gs.length === 1 ? "Ziel" : "Ziele"}</span></div>
-    <p class="ns-hint" style="margin:0 4px">Jedes Ziel bekommt feste Aufgaben, jeden Tag oder an bestimmten Wochentagen. Die stehen dann von selbst auf Heute. Wochentag antippen = geplant, grün = diese Woche gemacht.</p>` +
+    <p class="ns-hint" style="margin:0 4px">Jedes Ziel bekommt seine Gewohnheiten, jeden Tag oder an bestimmten Wochentagen. Die stehen dann von selbst auf Heute, mit Uhrzeit auch im Kalender. Wochentag antippen = geplant, grün = diese Woche gemacht.</p>` +
     `<section class="ns-card g-card"><div class="ns-lbl">Tägliche Basics</div><p class="ns-hint" style="margin-top:6px">Das Fundament, das ich unabhängig von jedem Ziel mache.</p>
       ${gFixHTML(G_BASICS, wk, tk, "Neue Basic, z. B. [Morgengebet]")}
       <div class="g-foot"><span>${week(G_BASICS)}</span></div></section>` +
@@ -3165,11 +3199,11 @@ function wegHTML(){
       <div class="ns-grid2"><label>Zielwert<input class="field" id="g-v-${g.id}" data-keep data-gf="${g.id}.target" value="${esc(g.target || "")}" placeholder="z. B. [10.000 Follower]"></label>
         <label>Bis wann (freiwillig)<input class="field" id="g-b-${g.id}" data-keep data-gf="${g.id}.by" value="${esc(g.by || "")}" placeholder="z. B. [Juni 2027]"></label></div>
       <label>Mein Warum<textarea class="field" id="g-w-${g.id}" data-keep data-gf="${g.id}.why" rows="2" placeholder="Ich will das, weil …">${esc(g.why || "")}</textarea></label>
-      ${gFixHTML(g.id, wk, tk, "Neue feste Aufgabe")}
+      ${gFixHTML(g.id, wk, tk, "Neue Gewohnheit, z. B. [Um 21 Uhr ins Bett]")}
       <div class="ns-lbl g-h">Einmalige Aufgaben</div>
       ${on.length ? `<div class="hl-rows">${on.map(t => nqRow(t, tk, one)).join("")}</div>` : ""}
       <div class="ns-add"><input id="go-${g.id}" data-keep placeholder="Einzelner Schritt, z. B. [Ernährungsplan erstellen]" aria-label="Neue einmalige Aufgabe" enterkeyhint="done"><button class="btn" data-g="addonce" data-gid="${g.id}" aria-label="Hinzufügen">${ic("plus")}</button></div>
-      <div class="g-foot"><span>${week(g.id)}</span><button class="ns-link g-del" data-g="delgoal" data-id="${g.id}">${arm ? "Wirklich löschen? Die festen Aufgaben gehen mit." : "Ziel löschen"}</button></div></section>`; }).join("") +
+      <div class="g-foot"><span>${week(g.id)}</span><button class="ns-link g-del" data-g="delgoal" data-id="${g.id}">${arm ? "Wirklich löschen? Die Gewohnheiten gehen mit." : "Ziel löschen"}</button></div></section>`; }).join("") +
     `<button class="ns-more" data-g="addgoal">${ic("plus")}Neues Ziel</button></div>`;
 }
 document.addEventListener("click", e => {
@@ -3193,6 +3227,11 @@ let gInT = null;
 function gField(el){ const [id, f] = el.dataset.gf.split("."), it = S.items.get(id), v = f === "title" ? el.value.replace(/\s*\n\s*/g, " ") : el.value; if (!it || (it[f] || "") === v) return; it[f] = v; persist(it); }
 document.addEventListener("input", e => { const el = e.target.closest("[data-gf]"); if (!el) return; clearTimeout(gInT); gInT = setTimeout(() => gField(el), 500); });
 document.addEventListener("change", e => { const el = e.target.closest("[data-gf]"); if (!el) return; clearTimeout(gInT); gField(el); });
+document.addEventListener("change", e => {
+  const el = e.target.closest("[data-gmove]"); if (!el) return; const it = S.items.get(el.dataset.gmove); if (!it || it.goal === el.value) return;
+  it.goal = el.value; it.order = Math.max(0, ...gTasks(el.value).map(t => +t.order || 0)) + 1; persist(it); renderMain(); renderSide();
+  const n = $("#gt-" + it.id); if (n) n.closest(".g-task").scrollIntoView({block:"center"}); toast("Verschoben");
+});
 document.addEventListener("keydown", e => {
   if (e.key !== "Enter" || e.isComposing) return;
   const i = e.target.closest('input[id^="gf-"],input[id^="go-"],#ls-new,#lc-new'); if (!i) return;
@@ -3719,22 +3758,23 @@ function wkHabitHTML(ev){
   const attrs = lock ? `data-wklock="${ev.meta.type}"` : ev.meta.type === "fix" ? `data-g="tick" data-id="${ev.src}"` : `data-act="hday" data-id="${ev.src}" data-day="${k}"`;
   return `<button class="wk-hb ${ev.done ? "on" : ""} ${lock ? "lock" : ""}" ${attrs} aria-pressed="${ev.done}" title="${esc(ev.title + (ev.meta.goalName ? " · " + ev.meta.goalName : ""))}"><i>${ic("check")}</i><span>${esc(ev.title)}</span></button>`;
 }
-function wkAllDayHTML(k, evs, f){
+function wkAllDayHTML(k, evs, f, hAll){
   const w = wkSt(), open = !!w.more[k], showH = f === "all" || f === "habit";
   const hab = showH ? evs.filter(e => e.domain === "habit") : [];
   const rest = f === "habit" ? [] : evs.filter(e => e.domain !== "habit" && (f === "all" || e.domain === f));
   const oRest = rest.filter(e => !e.done), oHab = hab.filter(e => !e.done), dRest = rest.filter(e => e.done), dHab = hab.filter(e => e.done);
   const MAX = 6, nOpen = oRest.length + oHab.length, cutAt = open ? Infinity : MAX;
   const shR = oRest.slice(0, cutAt), shH = oHab.slice(0, Math.max(0, cutAt - shR.length)), hidden = nOpen - shR.length - shH.length, nDone = dRest.length + dHab.length;
-  const hd = hab.filter(e => e.done).length;
-  const head = hab.length ? `<div class="wk-hh" title="${hd} von ${hab.length} Habits erledigt"><span>Habits</span><span class="num">${hd}/${hab.length}</span><i><b style="width:${Math.round(hd / hab.length * 100)}%"></b></i></div>` : "";
+  // Gezählt werden alle Habits des Tages, auch die mit Uhrzeit im Raster
+  const hc = showH ? (hAll || hab) : [], hd = hc.filter(e => e.done).length;
+  const head = hc.length ? `<div class="wk-hh" title="${hd} von ${hc.length} Habits erledigt"><span>Habits</span><span class="num">${hd}/${hc.length}</span><i><b style="width:${Math.round(hd / hc.length * 100)}%"></b></i></div>` : "";
   const habs = [...shH, ...(open ? dHab : [])].map(wkHabitHTML).join("");
   const more = open ? (hidden + nDone > 0 || nOpen > MAX ? `<button class="wk-more" data-wkmore="${k}">${ic("up")}weniger zeigen</button>` : "")
     : hidden + nDone > 0 ? `<button class="wk-more" data-wkmore="${k}">${ic("down")}${[hidden ? `${hidden} weitere` : "", nDone ? `${nDone} erledigt` : ""].filter(Boolean).join(" · ")}</button>` : "";
   return `<div class="wk-ad ${k === dkey() ? "today" : ""}" data-wkad="${k}">
     ${shR.length || (open && dRest.length) ? `<div class="wk-adg">${[...shR, ...(open ? dRest : [])].map(wkChipHTML).join("")}</div>` : ""}
-    ${hab.length ? `<div class="wk-adg">${head}${habs}</div>` : ""}
-    ${!rest.length && !hab.length ? `<span class="wk-none">Nichts</span>` : ""}${more}</div>`;
+    ${hc.length ? `<div class="wk-adg">${head}${habs}</div>` : ""}
+    ${!rest.length && !hc.length ? `<span class="wk-none">Nichts</span>` : ""}${more}</div>`;
 }
 function wkBackHTML(){
   const w = wkSt(), q = w.q.trim().toLowerCase(), list = PC.calBacklog(wkItems()).filter(b => !q || b.title.toLowerCase().includes(q));
@@ -3748,6 +3788,7 @@ function wkBackHTML(){
 }
 function wkHTML(){
   if (!PC.calExpand) return `<section class="card"><p class="hint" style="margin:0">Die App hat sich gerade aktualisiert. Ich lade einmal neu, dann ist die Woche da.</p></section>`;
+  gMigrateHabits();
   const w = wkSt(), keys = wkKeys(), tk = dkey(), f = w.filter, n = keys.length, hh = WK_HH;
   const evs = wkEvents(keys); S.wkMap = new Map(evs.map(e => [e.id, e]));
   const vis = e => f === "all" || e.domain === f;
@@ -3759,10 +3800,10 @@ function wkHTML(){
     <span class="grow"></span><div class="pills wk-seg"><button class="pill ${n === 7 ? "on" : ""}" data-wkact="days" data-v="7">7 Tage</button><button class="pill ${n === 3 ? "on" : ""}" data-wkact="days" data-v="3">3 Tage</button></div></div>`;
   const heads = keys.map(k => { const d = parseKey(k), dp = dayPlan(k);
     return `<button class="wk-colh ${k === tk ? "today" : ""} ${k < tk ? "past" : ""}" data-act="cal-day" data-day="${k}" title="Tagesansicht">${WD[isoDay(d) - 1]}<b class="num">${d.getDate()}</b>${dp.hidden ? `<small>Vorlage aus</small>` : ""}</button>`; }).join("");
-  const alld = keys.map(k => { const xs = evs.filter(e => e.allDay && e.date === k);
-    if (w.ad) return wkAllDayHTML(k, xs, f);
+  const alld = keys.map(k => { const xs = evs.filter(e => e.allDay && e.date === k), hAll = evs.filter(e => e.domain === "habit" && e.date === k);
+    if (w.ad) return wkAllDayHTML(k, xs, f, hAll);
     // Eingeklappt: pro Tag nur, wie viel erledigt ist und wie viel da ist
-    const hab = xs.filter(e => e.domain === "habit"), rest = xs.filter(e => e.domain !== "habit" && (f === "all" || e.domain === f));
+    const hab = hAll, rest = xs.filter(e => e.domain !== "habit" && (f === "all" || e.domain === f));
     return `<div class="wk-ad shut ${k === tk ? "today" : ""}" data-wkad="${k}">${hab.length && (f === "all" || f === "habit") ? `<span class="num">${hab.filter(e => e.done).length}/${hab.length} Habits</span>` : ""}${rest.length && f !== "habit" ? `<span class="num">${rest.length} ${rest.length === 1 ? "Eintrag" : "Einträge"}</span>` : ""}</div>`; }).join("");
   const nm = new Date().getHours() * 60 + new Date().getMinutes();
   const cols = keys.map(k => {
@@ -3869,10 +3910,10 @@ function wkDrawer(){
       break; }
     case "habit": {
       const fix = it.kind === "gtask", done = fix ? !!(it.log || {})[d.k] : hdone(it, d.k), edit = fix ? d.k === tk : d.k <= tk;
-      chip = fix ? (it.goal === G_BASICS ? "Basics" : "Feste Aufgabe") : "Gewohnheit";
+      chip = fix ? (it.goal === G_BASICS ? "Basics" : "Gewohnheit") : "Gewohnheit";
       const wk = PC.weekKeys(d.k), on = fix ? wk.filter(k => !(it.days || []).length || it.days.includes(isoDay(parseKey(k)))) : wk;
       const n = on.filter(k => fix ? (it.log || {})[k] : hdone(it, k)).length;
-      body = `<p class="wk-big">${done ? "Erledigt" : "Noch offen"} am ${esc(fmtLong(d.k))}</p>
+      body = `<p class="wk-big">${done ? "Erledigt" : "Noch offen"} am ${esc(fmtLong(d.k))}${fix && it.at ? ` um ${esc(it.at)}` : ""}</p>
         <p class="hint">${fix ? `Diese Woche ${n} von ${on.length}. Verpasste Tage verfallen, abhaken geht nur am selben Tag.` : `Diese Woche ${n} von ${it.target || 7}. ${inRow(streak(it))}.`}</p>
         <div class="wk-acts">${edit ? (fix ? `<button class="btn" data-g="tick" data-id="${it.id}" ${d.k === tk ? "" : "disabled"}>${done ? "Nicht erledigt" : "Abhaken"}</button>` : `<button class="btn" data-act="hday" data-id="${it.id}" data-day="${d.k}">${done ? "Nicht erledigt" : "Abhaken"}</button>`) : ""}
           <button class="btn ghost" data-wkact="${fix ? "goals" : "full"}">${fix ? "In meinen Zielen ändern" : "Ganz öffnen"}</button></div>`;
@@ -3937,7 +3978,7 @@ function wpStart(wp){
 document.addEventListener("click", e => {
   if (Date.now() - (S.justDragged || 0) < 300) return;
   const tk = e.target.closest("[data-wktick]"); if (tk) { toggleTask(tk.dataset.wktick); return; }
-  const lk = e.target.closest("[data-wklock]"); if (lk) { toast(lk.dataset.wklock === "fix" ? "Feste Aufgaben hake ich nur am selben Tag ab." : "Die Zukunft hake ich noch nicht ab."); return; }
+  const lk = e.target.closest("[data-wklock]"); if (lk) { toast(lk.dataset.wklock === "fix" ? "Gewohnheiten hake ich nur am selben Tag ab." : "Die Zukunft hake ich noch nicht ab."); return; }
   const mo = e.target.closest("[data-wkmore]"); if (mo) { const w = wkSt(), k = mo.dataset.wkmore; w.more[k] = !w.more[k]; renderMain(); return; }
   const evEl = e.target.closest("[data-wkev]"); if (evEl && !e.target.closest("[data-wkrs]")) { const ev = S.wkMap && S.wkMap.get(evEl.dataset.wkev); if (ev) wkOpen(ev); return; }
   const a = e.target.closest("[data-wkact]"); if (!a) return;
@@ -4244,10 +4285,10 @@ function sortPills(key){
 function habitsHTML(){
   const hs = byOrd(live("habit")); const days = Array.from({length:14}, (_, i) => addDays(today0(), i - 13)); const tk = dkey();
   return header("Gewohnheiten", "Auf ein Feld tippen, um einen Tag einzutragen. Am Griff ziehen zum Sortieren.") + banner() + `<section class="card">
-    ${addBar("habit", "Neue Gewohnheit, z. B. 20 Min. Spaziergang")}
+    <p class="hint" style="margin:0">Neue Gewohnheiten leg ich unter <button class="ns-link" data-go="weg">Meine Ziele</button> an, beim passenden Ziel. Hier bleiben nur alte mit Zahl oder Auswahl.</p>
     <div class="rows" style="margin-top:14px" data-sort="habit">${hs.map(h => `<div class="hrow" data-sid="${h.id}"><span class="handle" data-drag title="Ziehen zum Sortieren" aria-hidden="true">${ic("grip")}</span><button class="t" data-open="${h.id}"><b>${esc(h.title)}</b><span class="muted num" style="font-size:12px">${esc(habitInfo(h))}</span></button>
       <div class="hgrid">${days.map((d, i) => { const k = dkey(d); const v = hval(h, k); return `<button class="hcell ${hdone(h, k) ? "on" : hpart(h, k) ? "part" : ""} ${k === tk ? "today" : ""} ${i < 7 ? "old" : ""}" data-act="hday" data-id="${h.id}" data-day="${k}" title="${d.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short"})}${v != null && v !== true ? ": " + esc(typeof v === "number" ? fmtNum(v) + " " + (h.unit || "") : v) : ""}" aria-label="${k}"></button>`; }).join("")}</div></div>`).join("")
-      || `<div class="empty">Oben leg ich meine erste Gewohnheit an. Pro Tag ein Haken, die Serie zählt mit. Im Eintrag kann ich statt Haken auch eine Zahl (z. B. Schlafstunden) oder eine Auswahl (z. B. Ober-/Unterkörper) einstellen.</div>`}</div></section>`;
+      || `<div class="empty">Hier stehen nur noch alte Gewohnheiten mit Zahl oder Auswahl. Neue leg ich unter Meine Ziele an, beim passenden Ziel.</div>`}</div></section>`;
 }
 function projectsHTML(){
   const f = S.filter.project ?? "aktiv"; const tk = dkey();
@@ -4675,6 +4716,12 @@ function openNew(kind){
 }
 function doCreate(){
   const title = $("#new-title").value.trim(); if (!title) { $("#new-title").focus(); return; }
+  // Seit 16.11.2026 wohnen Gewohnheiten unter Meine Ziele: erst bei den Basics, das Ziel wähl ich dort unter „Gehört zu“
+  if (S.newKind === "habit") {
+    const t = create("gtask", title, {goal: G_BASICS, days: [], log: {}, order: Math.max(0, ...gTasks(G_BASICS).map(x => +x.order || 0)) + 1});
+    closeOverlay(); go("weg"); const n = $("#gt-" + t.id); if (n) { n.closest(".g-task").scrollIntoView({block:"center"}); n.focus(); }
+    toast("Steht bei den Basics. Unter „Gehört zu“ wähl ich das Ziel."); return;
+  }
   const extra = {};
   if (S.newKind === "event") extra.date = S.view === "cal" ? calDay() : dkey();
   if (S.newKind === "resource" && S.view === "resource" && S.filter.resource && S.filter.resource !== "all") extra.topic = S.filter.resource;
@@ -4841,6 +4888,7 @@ const notifyState = () => !("Notification" in window) ? "unsupported" : Notifica
 function remindersDue(now = new Date()){
   const tk = dkey(now); const hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`; const out = [];
   for (const h of live("habit")) if (h.remind && !hdone(h, tk)) out.push({key:`h:${h.id}:${tk}`, at:h.remind, title:h.title, body:"Heute schon erledigt?", id:h.id});
+  for (const t of live("gtask")) if (t.remind && gLive(t) && gOn(t, parseKey(tk)) && !gDone(t, tk)) out.push({key:`g:${t.id}:${tk}`, at:t.remind, title:t.title, body:"Heute schon erledigt?", view:"today"});
   for (const t of live("task")) if (t.remind && !t.done && t.due === tk) out.push({key:`t:${t.id}:${tk}`, at:t.remind, title:t.title, body:"Heute fällig", id:t.id});
   if (S.settings.reviewTime && isoDay(now) === (+S.settings.reviewDay || 7) && !reviewNote(weekId(now))) out.push({key:`r:${weekId(now)}`, at:S.settings.reviewTime, title:"Wochenrückblick", body:"Zeit für meinen Rückblick auf die Woche", view:"review"});
   const mins = s => { const [a, b] = s.split(":").map(Number); return a * 60 + b; };

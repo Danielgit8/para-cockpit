@@ -439,6 +439,14 @@ test("calExpand: feste Aufgaben stehen nur an ihren Wochentagen, auch über den 
   assert.equal(evs.find(e => e.src === "g2" && e.date === "2026-11-15").meta.editable, false);
   assert.ok(keys.length);
 });
+test("calExpand: Gewohnheiten mit Uhrzeit stehen im Raster, ohne Dauer als Zeitpunkt", () => {
+  const items = [{id:"b", kind:"gtask", title:"Ins Bett", days:[], log:{}, at:"21:00"}, {id:"l", kind:"gtask", title:"Lernen", days:[1], log:{}, at:"07:30", dur:60}, {id:"x", kind:"gtask", title:"Spät", days:[], log:{}, at:"24:00"}];
+  const evs = C.calExpand(items, ["2026-11-16"], {today:"2026-11-16"});
+  const b = evs.find(e => e.src === "b"), l = evs.find(e => e.src === "l"), x = evs.find(e => e.src === "x");
+  assert.deepEqual([b.allDay, b.s, b.e, b.meta.pt], [false, 1260, 1260, true]);
+  assert.deepEqual([l.allDay, l.s, l.e, l.meta.pt], [false, 450, 510, false]);
+  assert.ok(x.s < 1440 && x.e === x.s);
+});
 test("calExpand: alte Habits fragen hdone und kennen rückwirkendes Abhaken", () => {
   const h = {id:"h", kind:"habit", title:"Lesen", log:{"2026-11-10":5}, mode:"number", goal:10};
   const evs = C.calExpand([h], ["2026-11-10", "2026-11-20"], {today:"2026-11-15", hdone:(x, k) => (x.log[k] || 0) >= 10, streak:() => 4});

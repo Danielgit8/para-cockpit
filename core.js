@@ -382,7 +382,9 @@ function calExpand(items, keys, ctx = {}){
     if (i.kind === "gtask") {
       for (const k of keys) {
         const on = !(i.days || []).length || i.days.includes(isoDay(parseKey(k)));
-        if (on) ev("habit", i.id, k, i.title, {done: !!(i.log || {})[k], meta:{type:"fix", goal:i.goal || "", goalName: ctx.goalName ? ctx.goalName(i.goal) : "", editable: k === today}});
+        // Mit Uhrzeit (at) steht die Gewohnheit im Raster: mit Dauer (dur) als Block, sonst als Zeitpunkt ohne Dauer
+        const s = hm2m(i.at), pt = s != null && !(+i.dur > 0), sp = s == null ? null : pt ? {s:Math.min(s, DAY_MIN - 1), e:Math.min(s, DAY_MIN - 1)} : clampSpan(s, s + +i.dur);
+        if (on) ev("habit", i.id, k, i.title, {done: !!(i.log || {})[k], ...(sp ? {...sp, allDay:false} : {}), meta:{type:"fix", pt, goal:i.goal || "", goalName: ctx.goalName ? ctx.goalName(i.goal) : "", editable: k === today}});
       }
     } else if (i.kind === "habit") {
       for (const k of keys) ev("habit", i.id, k, i.title, {done: ctx.hdone ? !!ctx.hdone(i, k) : !!(i.log || {})[k], meta:{type:"habit", mode:i.mode || "check", streak: ctx.streak ? ctx.streak(i) : 0, editable: k <= today}});
