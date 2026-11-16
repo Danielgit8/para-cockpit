@@ -291,26 +291,11 @@ test("Ausschnitt rund um den Treffer", () => {
 });
 
 /* ---------- Content Studio ---------- */
-test("Content Studio: Geplant und Live nur mit allen drei Pre-Flight-Haken", () => {
-  const p = {status:"produktion", checks:{pillar:true, principle:true, problem:false}};
-  assert.equal(C.csCanStatus(p, "entwurf"), true);
-  assert.equal(C.csCanStatus(p, "geplant"), false);
-  assert.equal(C.csCanStatus(p, "live"), false);
-  p.checks.problem = true;
-  assert.equal(C.csCanStatus(p, "geplant"), true);
-  assert.equal(C.csCanStatus(p, "live"), true);
-  assert.equal(C.csCanStatus({}, "live"), false);
-  assert.equal(C.csCanStatus(p, "gibtsnicht"), false);
-});
-
-test("Content Studio: Brand-Gate verlangt Säule und Grundsatz aus dem Kompass", () => {
-  const k = {pillars:[{id:"a", name:"Ernährung"}], principles:["Kein Dogma"]};
-  assert.equal(C.csGateOk("a", "Kein Dogma", k), true);
-  assert.equal(C.csGateOk("", "Kein Dogma", k), false);
-  assert.equal(C.csGateOk("a", "", k), false);
-  assert.equal(C.csGateOk("x", "Kein Dogma", k), false);
-  assert.equal(C.csGateOk("a", "Erfunden", k), false);
-  assert.equal(C.csGateOk("a", "Kein Dogma", null), false);
+test("Content Studio: jeder Status geht ohne Haken, nur erfundene nicht", () => {
+  assert.equal(C.csCanStatus({}, "geplant"), true);
+  assert.equal(C.csCanStatus({status:"check"}, "live"), true);
+  assert.equal(C.csCanStatus({}, "gibtsnicht"), false);
+  assert.equal(C.csGateOk, undefined); assert.equal(C.csChecksOk, undefined);
 });
 
 test("Content Studio: Säulen-Balance zeigt, was zu kurz kommt und was dominiert", () => {

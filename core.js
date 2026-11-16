@@ -245,19 +245,8 @@ function snippet(text, query, len = 140){
 
 /* ---------- Content Studio: Regeln ohne Oberfläche ---------- */
 const CS_STATUS = ["check", "entwurf", "produktion", "geplant", "live"];
-const CS_CHECKS = ["pillar", "principle", "problem"];
-// Die drei Pre-Flight-Haken: zahlt auf die Säule ein, belegt den Grundsatz, löst ein echtes Problem
-function csChecksOk(piece){ const c = (piece && piece.checks) || {}; return CS_CHECKS.every(k => c[k] === true); }
-// Geplant und Live gehen erst, wenn alle drei Haken gesetzt sind
-function csCanStatus(piece, status){
-  if (!CS_STATUS.includes(status)) return false;
-  return status === "geplant" || status === "live" ? csChecksOk(piece) : true;
-}
-// Brand-Gate: Eine Idee kommt nur mit einer Säule und einem Grundsatz aus dem Kompass in die Pipeline
-function csGateOk(pillarId, principle, compass){
-  const c = compass || {};
-  return !!pillarId && (c.pillars || []).some(p => p.id === pillarId) && !!String(principle || "").trim() && (c.principles || []).includes(principle);
-}
+// Seit 16.11.2026 ohne Pre-Flight-Haken und Brand-Gate: jeder Status, den es gibt, geht
+function csCanStatus(piece, status){ return CS_STATUS.includes(status); }
 // Verteilung der Stücke auf die Säulen. Ab 4 Stücken: low = weniger als die Hälfte des gleichmäßigen Anteils, high = mindestens das Doppelte
 function csBalance(pieces, pillars){
   const ps = pillars || [], list = (pieces || []).filter(p => p && !p.archived), total = list.length, even = ps.length ? 100 / ps.length : 0;
@@ -475,6 +464,6 @@ function calPatch(ev, ch, item, mkId){
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
   DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, CS_CHECKS, csChecksOk, csCanStatus, csGateOk, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn};
+  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);
