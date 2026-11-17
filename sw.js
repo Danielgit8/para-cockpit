@@ -1,8 +1,8 @@
 // Offline-Cache. Wichtig: Installieren und Aktivieren warten nie auf das Netz,
 // sonst kann ein hängender Download ein Update dauerhaft blockieren.
-const CACHE = "para-cockpit-v108";
+const CACHE = "para-cockpit-v109";
 const IMG = "para-cockpit-img"; // Produktbilder von Open Food Facts, bleiben über Updates hinweg erhalten
-const SHELL = ["./index.html", "./core.js", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./img/morgen.jpg", "./img/abend.jpg", "./img/bretagne.jpg", "./img/gebet.jpg", "./img/weg.jpg", "./data/foods-bls.json", "./data/foods-bls-micro.json", "./data/foods-off.json"];
+const SHELL = ["./index.html", "./core.js", "./supabase.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -64,13 +64,3 @@ self.addEventListener("fetch", e => {
   e.respondWith(caches.match(req, {ignoreSearch: true}).then(hit => hit || fresh));
 });
 
-// Tipp auf eine Erinnerung: App öffnen und den Eintrag zeigen
-self.addEventListener("notificationclick", e => {
-  e.notification.close();
-  const d = e.notification.data || {};
-  const url = new URL("./" + (d.id ? "#open=" + d.id : d.view ? "#view=" + d.view : ""), self.registration.scope).href;
-  e.waitUntil(self.clients.matchAll({type: "window", includeUncontrolled: true}).then(list => {
-    for (const c of list) if ("focus" in c) { c.postMessage({type: "open", id: d.id, view: d.view}); return c.focus(); }
-    return self.clients.openWindow(url);
-  }));
-});

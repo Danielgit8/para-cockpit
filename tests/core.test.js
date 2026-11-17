@@ -627,3 +627,85 @@ test("mergeJday: Content-Vorschläge (ideas) gehören zur neueren Auswertung", (
   assert.deepEqual(C.mergeJday(b, a).ideas, ["2"], "Richtung egal");
   assert.equal(C.mergeJday({bits:[], done:5}, {bits:[]}).ideas, undefined);
 });
+
+/* ---------- Life OS klein (17.11.2026) ---------- */
+test("loCost: Preis pro Packung × Gramm pro Tag, Woche ×7, Monat ×30", () => {
+  const c = C.loCost({price:"25", pack:"1000", perDay:"40"});
+  assert.equal(c.day.toFixed(2), "1.00"); assert.equal(c.week.toFixed(2), "7.00"); assert.equal(c.month.toFixed(2), "30.00");
+  assert.equal(C.loCost({price:"2,49", pack:"250", perDay:""}), null);
+  assert.equal(C.loCost({price:"", pack:"250", perDay:"10"}), null);
+  assert.equal(C.loCost({price:"3", pack:"", perDay:"10"}), null);
+  assert.equal(C.loCost({price:"3", pack:"300"}, "30").day.toFixed(2), "0.30");
+});
+test("loShop: Packungen aufgerundet, 👎 nie dabei, gleiche Produkte zusammen, fehlende Packung = ?", () => {
+  const prods = [{id:"a", title:"Comté", price:"25", pack:"1000"}, {id:"b", title:"Appenzeller", price:"5", pack:"200", taste:"down"}, {id:"c", title:"Eier", price:"3", pack:""}];
+  const rows = [{prod:"a", g:"40"}, {prod:"a", g:"110"}, {prod:"b", g:"50"}, {prod:"c", g:"100"}];
+  const s = C.loShop(rows, prods, 7);
+  assert.equal(s.lines.length, 2);
+  const a = s.lines.find(l => l.id === "a"); assert.equal(a.need, 1050); assert.equal(a.qty, 2); assert.equal(a.cost, 50);
+  const c = s.lines.find(l => l.id === "c"); assert.equal(c.qty, null); assert.equal(c.cost, null);
+  assert.equal(s.total, 50); assert.equal(s.miss, 1);
+  assert.equal(C.loShop([{prod:"a", g:"40"}], prods, 7).lines[0].qty, 1);
+});
+test("loVisible: Elternkette, Papierkorb und Ausblenden", () => {
+  const M = new Map([["g", {id:"g", kind:"lgoal"}], ["p", {id:"p", kind:"lpath", goal:"g"}], ["t", {id:"t", kind:"ltask", path:"p"}]]);
+  assert.equal(C.loVisible(M.get("t"), M), true);
+  M.get("g").trashedAt = 5; assert.equal(C.loVisible(M.get("t"), M), false);
+  delete M.get("g").trashedAt; M.get("p").hidden = true;
+  assert.equal(C.loVisible(M.get("t"), M), false); assert.equal(C.loVisible(M.get("t"), M, true), true);
+  assert.equal(C.loVisible({id:"x", kind:"ltask", path:"weg"}, M), false);
+});
+test("loPurge: nach 30 Tagen weg, samt Kindern; jünger bleibt; alte Arten nie", () => {
+  const now = Date.UTC(2026, 11, 31), day = 864e5;
+  const L = [{id:"g", kind:"lgoal", trashedAt: now - 31 * day}, {id:"p", kind:"lpath", goal:"g"}, {id:"t", kind:"ltask", path:"p"},
+    {id:"n", kind:"lnote", path:"x", trashedAt: now - 29 * day}, {id:"old", kind:"task", trashedAt: now - 99 * day}];
+  const r = C.loPurge(L, {areas:[{id:"heute", trashedAt: now - 40 * day}, {id:"geld", trashedAt: now - 40 * day, gone:true}], cols:{prod:[{id:"price", trashedAt: now - 31 * day}]}}, now);
+  assert.deepEqual(r.ids.sort(), ["g", "p", "t"]);
+  assert.deepEqual(r.layout.sort(), ["heute", "price"]);
+});
+test("loLayoutMerge: Reihenfolge, gone und Neues bleiben", () => {
+  const defs = {areas:[{id:"heute"}, {id:"ziele"}, {id:"geld"}], geldTabs:[{id:"prod"}], buttons:[{id:"plus"}], cols:{prod:[{id:"title"}, {id:"price"}, {id:"month"}]}};
+  const saved = {areas:[{id:"geld"}, {id:"heute", gone:true}, {id:"alt"}], cols:{prod:[{id:"month", hidden:true}]}};
+  const m = C.loLayoutMerge(saved, defs);
+  assert.deepEqual(m.areas.map(a => a.id), ["geld", "heute", "ziele"]);
+  assert.equal(m.areas[1].gone, true);
+  assert.deepEqual(m.cols.prod.map(c => c.id), ["month", "title", "price"]); assert.equal(m.cols.prod[0].hidden, true);
+});
+test("loMigrate: passende Aufgaben, Produkte ohne Doppelte, Plan, deterministisch", () => {
+  const L = [
+    {id:"goal-franzoesisch", kind:"goal", title:"Französisch B2"}, {id:"gm", kind:"goal", title:"Muskeln aufbauen"},
+    {id:"t1", kind:"task", title:"Fruchtgummis als erstes Video Posten ", done:false, created:3},
+    {id:"t2", kind:"task", title:"Alles aus meinem Digitalen Journal in mein Analoges Journal schreiben", done:false, created:2},
+    {id:"t3", kind:"task", title:"Erledigt", done:true, goal:"gm"},
+    {id:"t4", kind:"task", title:"Archiv", done:false, archived:true, goal:"gm"},
+    {id:"g1", kind:"gtask", title:"60 Minuten Französisch lernen", goal:"goal-franzoesisch", body:"Auf dem Rad", created:1},
+    {id:"g2", kind:"gtask", title:"Um 21 Uhr schlafen gehen", goal:"basics", created:4},
+    {id:"f1", kind:"food", title:"Comté Carrefour Extra", created:5}, {id:"f2", kind:"food", title:"Appenzeller", status:"avoid", created:6},
+    {id:"p1", kind:"fprice", key:"own:f1", title:"Comté Carrefour Extra", price:"25", pack:"1000", created:7},
+    {id:"p2", kind:"fprice", key:"bls:123", title:"Eier", price:"3,29", pack:"600", created:8},
+    {id:"p3", kind:"fprice", key:"name:appenzeller", title:"Appenzeller", price:"4", pack:"200", created:9},
+    {id:"p4", kind:"fprice", key:"off:9", title:"Ohne Preis", price:"", created:10},
+    {id:"m1", kind:"mplan", created:11, meals:[{items:[{src:"own", ref:"f1", name:"Comté", g:40}, {src:"bls", ref:"123", name:"Eier", g:100}]}, {items:[{src:"own", ref:"f1", g:20}, {src:"rec", ref:"r", g:300}]}]},
+    {id:"m2", kind:"mplan", created:12, meals:[{items:[{src:"bls", ref:"123", g:999}]}]},
+    {id:"__enroute", kind:"x"},
+  ];
+  const a = C.loMigrate(L), b = C.loMigrate(L.slice().reverse());
+  assert.deepEqual(a, b);
+  const tasks = a.filter(x => x.kind === "ltask");
+  assert.deepEqual(tasks.map(t => [t.id, t.path]), [["lo-g1", "path-franz"], ["lo-t1", "path-content"], ["lo-g2", "path-training"]]);
+  assert.ok(a.every(x => x.updated === 1));
+  const prods = a.filter(x => x.kind === "lprod");
+  assert.deepEqual(prods.map(p => p.title), ["Comté Carrefour Extra", "Appenzeller", "Eier"]);
+  assert.equal(prods[0].price, "25"); assert.equal(prods[0].perDay, "60"); assert.equal(prods[1].taste, "down");
+  const plan = a.filter(x => x.kind === "lplan");
+  assert.deepEqual(plan.map(r => [r.prod, r.g]), [["lo-f1", "60"], ["lo-p2", "100"]]);
+});
+test("loMigrate: zweite Fassung der Settings löscht keine alten Abschnitte", () => {
+  const s = {brand:{a:1}, training:{plans:[1]}, _t:{brand:5}};
+  const base = C.settingsBase(s);
+  const n = {...s, loLabels:{"area.heute":"Jetzt"}};
+  C.stampSettings(n, base, 99);
+  assert.equal(n._t.brand, 5); assert.equal(n._t.loLabels, 99);
+  const merged = C.syncSettings(n, {brand:{a:1}, training:{plans:[1]}, _t:{brand:5}});
+  assert.deepEqual(merged.training, {plans:[1]}); assert.deepEqual(merged.loLabels, {"area.heute":"Jetzt"});
+});

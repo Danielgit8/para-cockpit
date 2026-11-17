@@ -553,7 +553,157 @@ function calPatch(ev, ch, item, mkId){
   }
 }
 
-const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
+/* ================= Life OS klein (17.11.2026): Heute · Ziele · Geld · Plus ================= */
+// Neue Arten: lgoal, lpath, ltask, lnote, lprod, lplan. Alte Arten bleiben unberührt in der Datenbank.
+const LO_KINDS = ["lgoal", "lpath", "ltask", "lnote", "lprod", "lplan"];
+const LO_DAY = 864e5, LO_TRASH_DAYS = 30;
+const loNorm = s => String(s || "").toLowerCase().replace(/ß/g, "ss").replace(/ä|ae/g, "a").replace(/ö|oe/g, "o").replace(/ü|ue/g, "u").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
+const r2 = n => Math.round(n * 100) / 100;
+
+// Kosten eines Produkts bei g Gramm pro Tag (Standard: sein Verbrauch pro Tag). null, wenn Preis, Packung oder Gramm fehlen.
+function loCost(prod, g){
+  const p = moneyNum(prod && prod.price), k = moneyNum(prod && prod.pack), d = moneyNum(g === undefined ? prod && prod.perDay : g);
+  if (p == null || !k || k <= 0 || d == null || d <= 0) return null;
+  const day = p / k * d;
+  return {day, week: day * 7, month: day * 30};
+}
+// Einkaufsliste aus den Planzeilen für days Tage. Daumen runter fliegt raus, gleiche Produkte werden zusammengezählt.
+// Ohne Packung oder Preis: qty/cost null (zählt nicht zur Summe, miss zählt mit).
+function loShop(rows, prods, days){
+  const P = prods instanceof Map ? prods : new Map((prods || []).map(p => [p.id, p]));
+  const n = Math.max(1, Math.round(+days || 0)), by = new Map();
+  for (const r of rows || []) {
+    const p = r && P.get(r.prod); if (!p || p.taste === "down") continue;
+    const g = moneyNum(r.g); if (g == null || g <= 0) continue;
+    const e = by.get(p.id) || {id:p.id, title:p.title || "", need:0};
+    e.need += g * n; by.set(p.id, e);
+  }
+  const lines = [], out = {lines, total:0, miss:0};
+  for (const e of by.values()) {
+    const p = P.get(e.id), k = moneyNum(p.pack), pr = moneyNum(p.price);
+    const qty = k && k > 0 ? Math.max(1, Math.ceil(e.need / k - 1e-9)) : null;
+    const cost = qty != null && pr != null ? r2(qty * pr) : null;
+    if (cost == null) out.miss++; else out.total += cost;
+    lines.push({...e, need: r2(e.need), qty, cost});
+  }
+  out.total = r2(out.total);
+  return out;
+}
+// Elternteil eines Eintrags (Weg → Ziel, Aufgabe/Notiz → Weg, Planzeile → Produkt)
+const loParent = x => !x ? null : x.kind === "lpath" ? x.goal : x.kind === "ltask" || x.kind === "lnote" ? x.path : x.kind === "lplan" ? x.prod : null;
+// Sichtbar = nicht ausgeblendet, nicht im Papierkorb, Eltern auch sichtbar. withHidden: Ausgeblendetes zählt (Bearbeiten-Modus).
+function loVisible(x, get, withHidden){
+  const G = typeof get === "function" ? get : id => get && get.get ? get.get(id) : null;
+  for (let i = 0, c = x; c && i < 8; i++) {
+    if (c.trashedAt || c.archived) return false;
+    if (c.hidden && !withHidden) return false;
+    const pid = loParent(c); if (!pid) return true;
+    c = G(pid); if (!c) return false;
+  }
+  return true;
+}
+// Kinder eines Eintrags (alle Ebenen) aus einer Liste von Einträgen
+function loKids(id, list){
+  const out = [], seen = new Set([id]);
+  for (let grew = true; grew;) { grew = false;
+    for (const x of list || []) if (x && !seen.has(x.id) && seen.has(loParent(x))) { seen.add(x.id); out.push(x); grew = true; } }
+  return out;
+}
+// Was endgültig weg darf: Einträge, deren trashedAt älter als 30 Tage ist, samt allen Kindern. Layout: ids, die gone werden.
+function loPurge(list, layout, now){
+  const lim = now - LO_TRASH_DAYS * LO_DAY, ids = new Set();
+  for (const x of list || []) if (x && LO_KINDS.includes(x.kind) && x.trashedAt && x.trashedAt < lim) { ids.add(x.id); loKids(x.id, list).forEach(k => ids.add(k.id)); }
+  const lay = [];
+  const walk = arr => (arr || []).forEach(e => { if (e && e.trashedAt && e.trashedAt < lim && !e.gone) lay.push(e.id); });
+  if (layout) { walk(layout.areas); walk(layout.geldTabs); walk(layout.buttons); for (const k of Object.keys(layout.cols || {})) walk(layout.cols[k]); }
+  return {ids:[...ids], layout:lay};
+}
+// Gespeicherte Liste (Reihenfolge, hidden, trashedAt, gone) mit Standardliste zusammenführen: Neues hinten dran, Unbekanntes raus.
+function loListMerge(saved, defs){
+  const D = new Map((defs || []).map(d => [d.id, d])), out = [], seen = new Set();
+  for (const s of saved || []) if (s && D.has(s.id) && !seen.has(s.id)) { seen.add(s.id); out.push({...D.get(s.id), ...s}); }
+  for (const d of defs || []) if (!seen.has(d.id)) out.push({...d});
+  return out;
+}
+function loLayoutMerge(saved, defs){
+  const s = saved || {}, d = defs || {}, cols = {};
+  for (const k of Object.keys(d.cols || {})) cols[k] = loListMerge((s.cols || {})[k], d.cols[k]);
+  return {areas: loListMerge(s.areas, d.areas), geldTabs: loListMerge(s.geldTabs, d.geldTabs), buttons: loListMerge(s.buttons, d.buttons), cols};
+}
+// Startinhalt: feste ids, updated 1, damit zwei Geräte dasselbe erzeugen und nichts überschreiben
+const LO_SEED = [
+  {id:"goal-frankreich", kind:"lgoal", title:"Frankreich auswandern", order:0},
+  {id:"path-content", kind:"lpath", goal:"goal-frankreich", title:"Content", order:0},
+  {id:"path-franz", kind:"lpath", goal:"goal-frankreich", title:"Französisch", order:1},
+  {id:"goal-koerper", kind:"lgoal", title:"Körper aufbauen", order:1},
+  {id:"path-training", kind:"lpath", goal:"goal-koerper", title:"Training", order:0},
+];
+const loBase = (x, created) => ({body:"", rel:[], links:[], files:[], tags:[], archived:false, created: created || 1, updated:1, ...x});
+function loSeed(){ return LO_SEED.map(x => loBase(x)); }
+// Alte Daten übernehmen. Liefert nur neue Einträge (id "lo-<alte id>"), alte bleiben unverändert. Gleiche Eingabe = gleiche Ausgabe.
+const LO_GOALMAP = {"goal-instagram":"path-content", "goal-franzoesisch":"path-franz"};
+const LO_RULES = [
+  ["path-franz", /franz|französ|vokabel|babbel/i],
+  ["path-training", /training|muskel|schlaf|gym|wachs|hormon|körper|koerper|kraft/i],
+  ["path-content", /video|post|reel|content|hook|skript|dreh|instagram|insta/i],
+];
+function loPathFor(x, goals){
+  if (x.goal && LO_GOALMAP[x.goal]) return LO_GOALMAP[x.goal];
+  const g = x.goal && goals.get(x.goal), hay = [x.title, g && g.title].join(" ");
+  for (const [p, re] of LO_RULES) if (re.test(hay)) return p;
+  return null;
+}
+function loMigrate(list){
+  const L = (list || []).filter(x => x && x.id && !String(x.id).startsWith("__") && !x.archived);
+  const goals = new Map(L.filter(x => x.kind === "goal").map(x => [x.id, x]));
+  const out = [], ord = {};
+  const next = k => (ord[k] = (ord[k] == null ? 0 : ord[k] + 1));
+  const byCreated = (a, b) => (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id));
+  // Aufgaben: offene task und gtask mit passendem Weg
+  for (const x of L.filter(x => (x.kind === "task" && !x.done) || x.kind === "gtask").sort(byCreated)) {
+    const path = loPathFor(x, goals); if (!path) continue;
+    out.push(loBase({id:"lo-" + x.id, kind:"ltask", title:String(x.title || "").trim(), body:x.body || "", path, today:"", done:false, doneAt:0, order:next(path), from:x.id}, x.created));
+  }
+  // Produkte: eigene Lebensmittel, dann Preise; zusammengeführt nach Schlüssel und Name
+  const prices = L.filter(x => x.kind === "fprice").sort(byCreated), pk = new Map(prices.map(f => [f.key, f]));
+  const prods = new Map(), byName = new Map(), keyTo = new Map();
+  const addProd = (id, title, f, extra, created) => {
+    const nm = loNorm(title); if (!nm) return null;
+    if (byName.has(nm)) return byName.get(nm);
+    const p = loBase({id:"lo-" + id, kind:"lprod", title:String(title).trim(), price: f && f.price != null ? String(f.price) : "", pack: f && f.pack != null ? String(f.pack) : "", perDay:"", taste:"", order:next("prod"), ...extra}, created);
+    prods.set(p.id, p); byName.set(nm, p); return p;
+  };
+  for (const f of L.filter(x => x.kind === "food").sort(byCreated)) {
+    const fp = pk.get("own:" + f.id), p = addProd(f.id, f.title, fp, {taste: f.status === "avoid" ? "down" : ""}, f.created);
+    if (p) { keyTo.set("own:" + f.id, p); if (fp) keyTo.set(fp.key, p); }
+  }
+  for (const f of prices) {
+    if (keyTo.has(f.key) || moneyNum(f.price) == null) continue;
+    const p = addProd(f.id, f.title || String(f.key || "").replace(/^[a-z]+:/, ""), f, {}, f.created);
+    if (p) keyTo.set(f.key, p);
+  }
+  // Plan: der erste Ernährungsplan, Gramm pro Produkt über alle Mahlzeiten
+  const plan = L.filter(x => x.kind === "mplan").sort(byCreated)[0];
+  const grams = new Map();
+  if (plan) for (const m of plan.meals || []) for (const e of m.items || []) {
+    if (!e || e.src === "rec") continue;
+    const key = e.src === "quick" ? "quick:" + loNorm(e.name) : e.src && e.ref ? e.src + ":" + e.ref : "name:" + loNorm(e.name);
+    let p = keyTo.get(key) || byName.get(loNorm(e.name));
+    if (!p) { const f = pk.get(key); p = addProd((e.src || "x") + "-" + String(e.ref || loNorm(e.name)).replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40), e.name, f, {}, plan.created); if (p) keyTo.set(key, p); }
+    if (!p) continue;
+    const g = e.src === "quick" ? 0 : +e.g || 0; if (g > 0) grams.set(p.id, (grams.get(p.id) || 0) + g);
+  }
+  out.push(...prods.values());
+  let po = 0;
+  for (const [pid, g] of grams) {
+    const p = prods.get(pid); if (p && !p.perDay) p.perDay = String(r2(g));
+    out.push(loBase({id:"lo-pl-" + pid.slice(3), kind:"lplan", title:"", prod:pid, g:String(r2(g)), order:po++}, plan.created));
+  }
+  return out;
+}
+
+const api = {LO_KINDS, LO_SEED, loNorm, loCost, loShop, loParent, loVisible, loKids, loPurge, loListMerge, loLayoutMerge, loSeed, loMigrate, loPathFor,
+  pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
   DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected, jdayId, jdayPick, mergeJday, shotKey,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
   CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, weekPlans, shopQty, spentIn, shopSum, shopSort, perKg, pufaOf, pufaLevel, cmpSort, cmpFilter};

@@ -1,7 +1,7 @@
 {
   "name": "Life OS",
   "short_name": "Life OS",
-  "description": "Ziele, Training, Ernährung, Geld und Content an einem Ort, offline nutzbar.",
+  "description": "Heute, Ziele und Geld an einem Ort, offline nutzbar.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
