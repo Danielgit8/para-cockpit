@@ -567,3 +567,14 @@ test("Einkaufsliste: Summe, offen, fehlende Preise und Läden", () => {
   assert.equal(s.stores[0].miss, 1); assert.equal(Math.round(s.stores[1].total * 100), 558);
   assert.deepEqual(C.shopSum([]), {total:0, open:0, miss:0, stores:[]});
 });
+
+test("weekPlans und shopQty: Plan pro Wochentag, Packungen für die Woche", () => {
+  const a = {id:"a", days:[]}, b = {id:"b", days:[6, 7]};
+  assert.deepEqual(C.weekPlans([a, b], "a").map(p => p.id), ["a", "a", "a", "a", "a", "b", "b"]);
+  assert.deepEqual(C.weekPlans([], "x"), [null, null, null, null, null, null, null]);
+  assert.equal(C.shopQty(1400, 0, "500", false), 3, "1400 g bei 500-g-Packung = 3");
+  assert.equal(C.shopQty(1000, 0, "500", false), 2, "genau zwei Packungen");
+  assert.equal(C.shopQty(300, 0, "", false), 1, "ohne Packungsgröße eine");
+  assert.equal(C.shopQty(0, 7, "", true), 7, "schnell eingetragen zählt Stück");
+  assert.equal(C.shopQty(200, 0, "0,25", false), 800, "Komma geht");
+});

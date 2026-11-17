@@ -1970,6 +1970,7 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .fp-row.miss .fp-c{color:var(--muted)}
 button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .sh-kpis{margin-bottom:4px}
+.sh-head{flex-wrap:wrap;row-gap:8px}.sh-head h2{white-space:nowrap}
 .sh-g{margin-top:18px}
 .sh-gh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:700;padding:0 0 6px;border-bottom:1.5px solid var(--line-2)}
 .sh-gh small{font-weight:500}
@@ -2111,7 +2112,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-16.6";
+const APP_VERSION = "2026-11-17.1";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -6539,6 +6540,30 @@ function shAdd(name){
   if (same) { if (same.done) { same.done = false; persist(same); toast("Steht wieder offen auf der Liste."); } else toast("Steht schon auf der Liste."); return same; }
   return create("shopi", title, {key, qty:1, done:false, ord:Date.now()});
 }
+// Was ich laut Ernährungsplan in einer Woche brauche (Montag bis Sonntag, Plan je Wochentag wie bei den Kosten).
+// Rezepte werden in ihre Zutaten zerlegt, die Gramm im Verhältnis zur Rezeptmenge. Ergebnis: [{key, name, g, n, quick}]
+function shPlanNeed(){
+  const need = new Map(), put = (key, name, g, quick) => { if (!key) return; const r = need.get(key) || {key, name, g:0, n:0, quick}; r.g += +g > 0 ? +g : 0; r.n++; need.set(key, r); };
+  for (const p of PC.weekPlans ? PC.weekPlans(plPlans(), (plCur() || {}).id) : []) if (p) for (const m of p.meals || []) for (const e of m.items || []) {
+    const r = e.src === "rec" ? S.items.get(e.ref) : null;
+    if (r && !r.archived) { const ing = (r.ing || []).filter(i => String(i.name || "").trim()), tot = ing.reduce((s, i) => s + (+bsNum(i.grams) || 0), 0);
+      for (const i of ing) { const k = shKeyFor(i.name); put(k.key, k.title, tot > 0 && +e.g > 0 ? (+bsNum(i.grams) || 0) * e.g / tot : 0, false); } continue; }
+    put(fpKey(e), e.name || "Ohne Namen", e.src === "quick" ? 0 : e.g, e.src === "quick");
+  }
+  return [...need.values()];
+}
+// Plan übernehmen: Fehlendes kommt mit der Anzahl Packungen für die Woche dazu, Abgehaktes wird wieder offen.
+// Was offen auf der Liste steht, bleibt, wie ich es eingestellt hab.
+function shFromPlan(){
+  const M = fpMap(), L = live("shopi"); let add = 0, back = 0, same = 0, ord = Date.now();
+  for (const r of shPlanNeed()) {
+    const qty = PC.shopQty(r.g, r.n, (M.get(r.key) || {}).pack, r.quick), l = L.find(x => x.key === r.key);
+    if (!l) { create("shopi", r.name, {key:r.key, qty, done:false, ord:ord++}); add++; }
+    else if (l.done) { l.done = false; l.qty = qty; persist(l); back++; }
+    else same++;
+  }
+  return {add, back, same};
+}
 // Preis, Packung und Laden als Felder, die direkt in "fprice" schreiben (gleicher Handler wie im Plan)
 function shPriceFields(k, n, id){
   return `<label class="fp-in"><span>Preis pro Packung in €</span><input class="field num" id="sh-p-${id}" data-keep inputmode="decimal" data-fp="price" data-k="${esc(k)}" data-n="${esc(n)}" value="${esc((fpMap().get(k) || {}).price ?? "")}" placeholder="1,29"></label>
@@ -6569,8 +6594,8 @@ function shopHTML(){
     return `<div class="sh-g"><div class="sh-gh"><span>${esc(g.store || "Egal wo")}</span><span class="num">${eur(g.total)}${g.miss ? ` <small class="muted">+ ${g.miss} ohne Preis</small>` : ""}</span></div>${rs.map(row).join("")}</div>`; }).join("");
   return `<section class="card"><div class="add"><input id="sh-new" data-keep list="sh-names" autocomplete="off" placeholder="Was brauch ich? Enter zum Hinzufügen" aria-label="Lebensmittel für die Einkaufsliste"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-sh="add" aria-label="Auf die Liste">${ic("plus")}</button></div>
     <datalist id="sh-names">${shNames().map(s => `<option value="${esc(s)}"></option>`).join("")}</datalist>${shStoreList()}
-    <p class="hint" style="margin:10px 0 0">Die Liste bleibt als Vorlage stehen. Beim Einkaufen hak ich ab, mit „Neuer Einkauf“ sind alle Haken wieder raus. Preis und Laden trag ich einmal ein, dann rechnet die Liste mit. Was neu ist, zum Beispiel aus Frankreich, kann ich mit „Fürs Tracking speichern“ dauerhaft zu meinen Lebensmitteln legen.</p></section>
-  <section class="card"><div class="card-h"><h2>Meine Einkaufsliste</h2><span class="grow"></span>${done ? `<button class="pill" data-sh="reset">${ic("repeat")}Neuer Einkauf</button>` : ""}</div>
+    <p class="hint" style="margin:10px 0 0">Die Liste bleibt als Vorlage stehen. Beim Einkaufen hak ich ab, mit „Neuer Einkauf“ sind alle Haken wieder raus. Preis und Laden trag ich einmal ein, dann rechnet die Liste mit. Was neu ist, zum Beispiel aus Frankreich, kann ich mit „Fürs Tracking speichern“ dauerhaft zu meinen Lebensmitteln legen. „Aus meinem Plan“ holt alles, was ich laut Ernährungsplan in einer Woche esse, mit der Packungsgröße rechnet es auch die Anzahl aus.</p></section>
+  <section class="card"><div class="card-h sh-head"><h2>Meine Einkaufsliste</h2><span class="grow"></span>${plPlans().some(p => (p.meals || []).some(m => (m.items || []).length)) ? `<button class="pill" data-sh="plan" title="Holt alles aus meinem Ernährungsplan für eine Woche">${ic("food")}Aus meinem Plan</button>` : ""}${done ? `<button class="pill" data-sh="reset">${ic("repeat")}Neuer Einkauf</button>` : ""}</div>
     ${L.length ? `<div class="bs-kpis sh-kpis"><div><span>Ganzer Einkauf</span><b class="num">${eur(sum.total)}</b><small>${L.length} ${L.length === 1 ? "Sache" : "Sachen"}</small></div>
       <div><span>Noch offen</span><b class="num">${eur(sum.open)}</b><small>${L.length - done} nicht abgehakt</small></div></div>
       ${sum.miss ? `<p class="hint fp-miss">Bei ${sum.miss} ${sum.miss === 1 ? "Sache fehlt" : "Sachen fehlt"} noch der Preis, die Summe ist deshalb zu niedrig.</p>` : ""}
@@ -6594,6 +6619,8 @@ document.addEventListener("click", e => {
     case "qty": if (l) { l.qty = Math.max(1, Math.round(+l.qty || 1) + +a.dataset.d); persist(l); renderMain(); } return;
     case "open": S.shOpen = S.shOpen === a.dataset.id ? null : a.dataset.id; renderMain(); return;
     case "del": if (!l) return; if (S.shDel !== l.id) { S.shDel = l.id; renderMain(); return; } S.shDel = null; S.shOpen = null; removeItem(l.id); renderMain(); toast("Von der Liste genommen."); return;
+    case "plan": { const r = shFromPlan(); renderMain();
+      toast(r.add || r.back ? `Aus dem Plan: ${r.add} neu${r.back ? `, ${r.back} wieder offen` : ""}${r.same ? `, ${r.same} standen schon drauf` : ""}. Die Anzahl reicht für eine Woche.` : "Alles aus dem Plan steht schon auf der Liste."); return; }
     case "reset": for (const x of live("shopi")) if (x.done) { x.done = false; persist(x); } renderMain(); toast("Alle Haken sind raus, die Liste ist bereit."); return;
     case "keep": if (l) { const it = shKeep(l); renderMain(); toast(`„${it.title}“ steht jetzt unter Lebensmittel. Mit den Kalorien taucht es auch im Tagebuch auf.`); } return;
     case "tofood": if (l && shIsOwn(l)) { S.fdTab = "food"; S.fdOpen = l.key.slice(4); try { localStorage.setItem("fdTab2", "food"); } catch(er){} renderMain(); window.scrollTo({top:0}); } return;

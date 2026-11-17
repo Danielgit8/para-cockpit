@@ -322,11 +322,23 @@ function foodCost(g, price, pack){
   return p / k * gr;
 }
 // Kosten einer Woche: für jeden Wochentag (1 = Montag) der Plan, der ihm zugeordnet ist, sonst der Standardplan.
+// Welcher Plan an welchem Wochentag gilt (Montag bis Sonntag): Plan mit dem Tag in days, sonst der aktuelle (fallbackId), sonst der erste
+function weekPlans(plans, fallbackId){
+  const L = plans || [], fb = L.find(p => p.id === fallbackId) || L[0], out = [];
+  for (let d = 1; d <= 7; d++) out.push(L.find(x => (x.days || []).includes(d)) || fb || null);
+  return out;
+}
 function weekCost(plans, fallbackId, dayCost){
-  const L = plans || [], fb = L.find(p => p.id === fallbackId) || L[0];
   let sum = 0;
-  for (let d = 1; d <= 7; d++) { const p = L.find(x => (x.days || []).includes(d)) || fb; if (p) sum += dayCost(p) || 0; }
+  for (const p of weekPlans(plans, fallbackId)) if (p) sum += dayCost(p) || 0;
   return sum;
+}
+// Wie viele Packungen ich für eine Menge brauche: mit Gramm und Packungsgröße aufgerundet, schnell Eingetragenes zählt Stück, sonst 1
+function shopQty(g, n, pack, quick){
+  const pk = moneyNum(pack);
+  if (quick) return Math.max(1, Math.round(+n || 0));
+  if (pk && pk > 0 && +g > 0) return Math.max(1, Math.ceil(+g / pk - 1e-9));
+  return 1;
 }
 // Einkaufsliste: Anzahl × Preis pro Packung. open = noch nicht abgehakt, miss = Zeilen ohne Preis, stores = Zwischensumme je Laden
 // (Läden alphabetisch, Zeilen ohne Laden am Ende).
@@ -507,6 +519,6 @@ function calPatch(ev, ch, item, mkId){
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
   DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected, jdayId, jdayPick, mergeJday, shotKey,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, spentIn, shopSum};
+  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, weekPlans, shopQty, spentIn, shopSum};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);
