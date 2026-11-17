@@ -354,6 +354,12 @@ function shopSum(lines){
   out.stores = [...by.values()].sort((a, b) => (!a.store - !b.store) || a.store.localeCompare(b.store, "de"));
   return out;
 }
+// Einkaufslisten sortieren: "price" = teuerste zuerst, sonst nach Datum, neueste zuerst (ohne Datum ans Ende). Bei Gleichstand die neuer angelegte zuerst.
+function shopSort(lists, mode){
+  const by = mode === "price" ? (a, b) => (+b.total || 0) - (+a.total || 0)
+    : (a, b) => (!a.date - !b.date) || String(b.date || "").localeCompare(String(a.date || ""));
+  return (lists || []).slice().sort((a, b) => by(a, b) || (+b.created || 0) - (+a.created || 0));
+}
 // Summe der Ausgaben eines Monats (mk = "2026-11"), optional nur eine Kategorie
 function spentIn(list, mk, cat){
   return (list || []).filter(s => s && String(s.date || "").startsWith(mk) && (!cat || s.cat === cat)).reduce((t, s) => t + (moneyNum(s.amount) || 0), 0);
@@ -519,6 +525,6 @@ function calPatch(ev, ch, item, mkId){
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
   DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected, jdayId, jdayPick, mergeJday, shotKey,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, weekPlans, shopQty, spentIn, shopSum};
+  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, weekPlans, shopQty, spentIn, shopSum, shopSort};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);

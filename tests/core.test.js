@@ -578,3 +578,10 @@ test("weekPlans und shopQty: Plan pro Wochentag, Packungen für die Woche", () =
   assert.equal(C.shopQty(0, 7, "", true), 7, "schnell eingetragen zählt Stück");
   assert.equal(C.shopQty(200, 0, "0,25", false), 800, "Komma geht");
 });
+
+test("shopSort: Einkaufslisten nach Datum oder Preis", () => {
+  const L = [{id:"a", date:"2026-11-10", total:12, created:1}, {id:"b", date:"2026-11-17", total:5, created:2}, {id:"c", date:"", total:30, created:3}, {id:"d", date:"2026-11-17", total:8, created:4}];
+  assert.deepEqual(C.shopSort(L, "date").map(x => x.id), ["d", "b", "a", "c"], "neueste zuerst, ohne Datum ans Ende");
+  assert.deepEqual(C.shopSort(L, "price").map(x => x.id), ["c", "a", "d", "b"], "teuerste zuerst");
+  assert.deepEqual(L.map(x => x.id), ["a", "b", "c", "d"], "Original bleibt");
+});

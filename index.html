@@ -1969,6 +1969,17 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .fp-c{text-align:right;font-weight:700;display:flex;flex-direction:column;align-items:flex-end;align-self:center}.fp-c small{font-weight:500;color:var(--muted);font-size:12px}
 .fp-row.miss .fp-c{color:var(--muted)}
 button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.sh-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 10px}
+.sh-lists{display:flex;flex-direction:column}
+.sh-li{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1.5px solid transparent;border-top-color:var(--line)}
+.sh-li:first-child{border-top-color:transparent}.sh-li:hover{background:var(--line)}
+.sh-li.on{border-color:var(--ink);background:var(--line)}.sh-li.on + .sh-li{border-top-color:transparent}
+.sh-lin{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.sh-lin b{overflow-wrap:anywhere;font-weight:600}.sh-lin small{color:var(--muted);font-size:12.5px}
+.sh-lh{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:10px}
+.sh-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+.sh-kill{color:var(--late);border-color:var(--late)}.sh-kill.arm{background:var(--late);color:#fff}
+.sh-add{margin-bottom:6px}
+@media (max-width:560px){.sh-lh{grid-template-columns:minmax(0,1fr)}.sh-acts .grow{display:none}}
 .sh-kpis{margin-bottom:4px}
 .sh-head{flex-wrap:wrap;row-gap:8px}.sh-head h2{white-space:nowrap}
 .sh-g{margin-top:18px}
@@ -2112,7 +2123,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-17.2";
+const APP_VERSION = "2026-11-17.3";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2203,7 +2214,7 @@ const BOARD_K = {label:"Board", plural:"Boards", icon:"board"};
 const kindOf = it => it.kind === "board" ? BOARD_K : kinds()[it.kind] || {label:"Eintrag", plural:"Einträge", icon:"folder"};
 const all = () => [...S.items.values()];
 const live = kind => all().filter(i => !i.archived && (!kind || i.kind === kind));
-const HIDDEN_K = ["nsday", "jday", "day", "wplan", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc", "shopi"];
+const HIDDEN_K = ["nsday", "jday", "day", "wplan", "boardlib", "workout", "video", "contact", "income", "cost", "brandtpl", "food", "recipe", "fdlog", "fdfix", "fdfav", "goal", "gtask", "mplan", "ccompass", "cidea", "cpiece", "csource", "spend", "fprice", "fmsrc", "shopi", "shopl"];
 const topic = id => (S.settings.topics || []).find(t => t.id === id);
 function related(id){
   const it = S.items.get(id); if (!it) return [];
@@ -5196,7 +5207,7 @@ function foodHTML(){
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
   const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML, shop:shopHTML}[S.fdTab] || ntDiaryHTML;
-  const open = live("shopi").filter(l => !l.done).length;
+  const open = shLines().filter(l => !l.done).length;
   return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Einkaufsliste, Lebensmittel, Rezepte und meine Ziele") + banner() +
     `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("shop", "Einkauf", open)}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
@@ -6520,7 +6531,27 @@ document.addEventListener("change", e => {
    Preis pro Packung, Packungsgröße und Bezugsquelle (store) stehen im gemeinsamen "fprice" (key wie im Plan), so rechnen
    Plan, Einkauf und Lebensmittel mit demselben Preis. Eigene Lebensmittel haben den key "own:<id>", alles andere
    "name:<Name>", bis ich es mit „Fürs Tracking speichern“ zu einem eigenen Lebensmittel mache. */
-const shLines = () => live("shopi").sort((a, b) => (a.ord || a.created || 0) - (b.ord || b.created || 0));
+/* Mehrere Listen (17.11.2026, sein Wunsch): jede Liste ist ein versteckter Eintrag kind "shopl" (title, date JJJJ-MM-TT).
+   Zeilen merken sich ihre Liste in "list". Zeilen von vorher haben kein "list" und gehören zur Liste mit der festen id "shl-main",
+   die beim ersten Öffnen als „Meine Einkaufsliste“ angelegt wird. Löschen nimmt die Liste mit allen Zeilen weg, Preise bleiben. */
+const SH_MAIN = "shl-main";
+const shOf = l => l.list || SH_MAIN;
+const shLists = () => live("shopl");
+function shMainFix(){ // alte Zeilen ohne Liste bekommen ihre Liste, einmalig
+  if (S.items.has(SH_MAIN) || S.tombs.has(SH_MAIN) || !live("shopi").some(l => !l.list)) return;
+  create("shopl", "Meine Einkaufsliste", {id:SH_MAIN, date:dkey()});
+}
+function shCur(){
+  if (S.shList == null) { try { S.shList = localStorage.getItem("sh-list") || ""; } catch(e) { S.shList = ""; } }
+  const L = shLists(); return L.find(x => x.id === S.shList) || PC.shopSort(L, "date")[0] || null;
+}
+const shPick = id => { S.shList = id || ""; S.shOpen = null; S.shDel = null; S.shKill = null; try { localStorage.setItem("sh-list", S.shList); } catch(e){} };
+// Liste anlegen, wenn noch keine da ist (z. B. „Auf die Einkaufsliste“ bei einem Lebensmittel)
+function shEnsure(){ const c = shCur(); if (c) return c; const n = create("shopl", "Meine Einkaufsliste", {date:dkey()}); shPick(n.id); return n; }
+const shLinesOf = id => live("shopi").filter(l => shOf(l) === id).sort((a, b) => (a.ord || a.created || 0) - (b.ord || b.created || 0));
+const shLines = () => { const c = shCur(); return c ? shLinesOf(c.id) : []; };
+const shTotal = (id, M = fpMap()) => PC.shopSum ? PC.shopSum(shLinesOf(id).map(l => ({qty:l.qty, price:(M.get(l.key) || {}).price, done:!!l.done, store:""}))) : {total:0, open:0, miss:0};
+const shDate = k => { if (!k) return "ohne Datum"; const d = new Date(k + "T12:00:00"); return isNaN(d) ? k : d.toLocaleDateString("de-DE", {weekday:"short", day:"numeric", month:"short", year: k.slice(0, 4) === dkey().slice(0, 4) ? undefined : "numeric"}); };
 const shUniq = list => [...new Set(list.map(s => String(s || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de", {sensitivity:"base"}));
 const shStores = () => shUniq(live("fprice").map(f => f.store));
 const shNames = () => shUniq([...live("food").map(x => x.title), ...live("fprice").map(x => x.title)]);
@@ -6536,9 +6567,9 @@ const shIsOwn = l => /^own:/.test(l.key || "") && S.items.has(l.key.slice(4)) &&
 function shAdd(name){
   const t = String(name || "").trim(); if (!t) return null;
   const {key, title} = shKeyFor(t);
-  const same = live("shopi").find(l => l.key === key) || shByName(live("shopi"), title);
+  const c = shEnsure(), L = shLinesOf(c.id), same = L.find(l => l.key === key) || shByName(L, title);
   if (same) { if (same.done) { same.done = false; persist(same); toast("Steht wieder offen auf der Liste."); } else toast("Steht schon auf der Liste."); return same; }
-  return create("shopi", title, {key, qty:1, done:false, ord:Date.now()});
+  return create("shopi", title, {key, qty:1, done:false, ord:Date.now(), list:c.id});
 }
 // Gleicher Name, auch ohne Leerzeichen („Hafer Flocken“ = „Haferflocken“), damit nichts doppelt auf die Liste kommt
 const shNk = s => ntNorm(s).replace(/[^a-z0-9]+/g, "");
@@ -6572,11 +6603,11 @@ function shPlanNeed(){
 // Was offen auf der Liste steht, bleibt, wie ich es eingestellt hab. Eine Zeile gilt als vorhanden, wenn Schlüssel oder Name passen
 // (zum Beispiel von Hand eingetippt oder schon fürs Tracking gespeichert).
 function shFromPlan(){
-  const M = fpMap(), L = live("shopi"); let add = 0, back = 0, same = 0, ord = Date.now();
+  const M = fpMap(), c = shEnsure(), L = shLinesOf(c.id); let add = 0, back = 0, same = 0, ord = Date.now();
   for (const r of shPlanNeed()) {
     const l = L.find(x => x.key === r.key) || shByName(L, r.name);
     const qty = PC.shopQty(r.g, r.n, (M.get(r.key) || (l && M.get(l.key)) || {}).pack, r.quick);
-    if (!l) { L.push(create("shopi", r.name, {key:r.key, qty, done:false, ord:ord++})); add++; }
+    if (!l) { L.push(create("shopi", r.name, {key:r.key, qty, done:false, ord:ord++, list:c.id})); add++; }
     else if (l.done) { l.done = false; l.qty = qty; persist(l); back++; }
     else same++;
   }
@@ -6592,12 +6623,13 @@ function shPriceFields(k, n, id){
 }
 const shStoreList = () => `<datalist id="sh-stores">${shStores().map(s => `<option value="${esc(s)}"></option>`).join("")}</datalist>`;
 function shPriceHTML(x){
-  const k = "own:" + x.id, on = live("shopi").some(l => l.key === k && !l.done);
+  const k = "own:" + x.id, on = shLines().some(l => l.key === k && !l.done);
   return `<div class="fd-lbl br-wide"><span>Preis und wo ich es kaufe</span><div class="sh-pf">${shPriceFields(k, x.title || "", x.id)}</div>${shStoreList()}
     <div><button class="pill" data-sh="addfood" data-id="${x.id}" ${on ? "disabled" : ""}>${ic(on ? "check" : "plus")}${on ? "Steht auf der Einkaufsliste" : "Auf die Einkaufsliste"}</button></div></div>`;
 }
 function shopHTML(){
-  const M = fpMap(), L = shLines();
+  shMainFix();
+  const M = fpMap(), c = shCur(), L = shLines();
   const rows = L.map(l => { const f = M.get(l.key) || {}; return {l, store:String(f.store || "").trim(), price:f.price, qty:Math.max(1, Math.round(+l.qty || 1))}; });
   const sum = PC.shopSum ? PC.shopSum(rows.map(r => ({qty:r.qty, price:r.price, done:!!r.l.done, store:r.store}))) : {total:0, open:0, miss:0, stores:[]};
   const done = rows.filter(r => r.l.done).length;
@@ -6612,14 +6644,28 @@ function shopHTML(){
         <div class="br-ed-f">${own ? `<button class="pill" data-sh="tofood" data-id="${l.id}">${ic("food")}Unter Lebensmittel öffnen</button>` : shFromDb(l) ? "" : `<button class="pill on" data-sh="keep" data-id="${l.id}">${ic("plus")}Fürs Tracking speichern</button>`}<span class="grow"></span><button class="pill" data-sh="del" data-id="${l.id}" style="${S.shDel === l.id ? "color:var(--late)" : ""}">${ic("trash")}${S.shDel === l.id ? "Wirklich von der Liste?" : "Von der Liste nehmen"}</button><button class="pill on" data-sh="open" data-id="${l.id}">Fertig</button></div></div>` : ""}`; };
   const groups = sum.stores.map(g => { const rs = rows.filter(r => r.store === g.store).sort((a, b) => (!!a.l.done - !!b.l.done));
     return `<div class="sh-g"><div class="sh-gh"><span>${esc(g.store || "Egal wo")}</span><span class="num">${eur(g.total)}${g.miss ? ` <small class="muted">+ ${g.miss} ohne Preis</small>` : ""}</span></div>${rs.map(row).join("")}</div>`; }).join("");
-  return `<section class="card"><div class="add"><input id="sh-new" data-keep list="sh-names" autocomplete="off" placeholder="Was brauch ich? Enter zum Hinzufügen" aria-label="Lebensmittel für die Einkaufsliste"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-sh="add" aria-label="Auf die Liste">${ic("plus")}</button></div>
-    <datalist id="sh-names">${shNames().map(s => `<option value="${esc(s)}"></option>`).join("")}</datalist>${shStoreList()}
-    <p class="hint" style="margin:10px 0 0">Die Liste bleibt als Vorlage stehen. Beim Einkaufen hak ich ab, mit „Neuer Einkauf“ sind alle Haken wieder raus. Preis und Laden trag ich einmal ein, dann rechnet die Liste mit. Was neu ist, zum Beispiel aus Frankreich, kann ich mit „Fürs Tracking speichern“ dauerhaft zu meinen Lebensmitteln legen. „Aus meinem Plan“ holt alles, was ich laut Ernährungsplan in einer Woche esse, mit der Packungsgröße rechnet es auch die Anzahl aus.</p></section>
-  <section class="card"><div class="card-h sh-head"><h2>Meine Einkaufsliste</h2><span class="grow"></span>${plPlans().some(p => (p.meals || []).some(m => (m.items || []).length)) ? `<button class="pill" data-sh="plan" title="Holt alles aus meinem Ernährungsplan für eine Woche">${ic("food")}Aus meinem Plan</button>` : ""}${done ? `<button class="pill" data-sh="reset">${ic("repeat")}Neuer Einkauf</button>` : ""}</div>
+  const sort = S.shSort || (() => { try { return localStorage.getItem("sh-sort") || "date"; } catch(e) { return "date"; } })();
+  const lists = PC.shopSort(shLists().map(x => ({...x, total:shTotal(x.id, M).total, n:shLinesOf(x.id).length, item:x})), sort);
+  const seg = (v, t) => `<button class="pill ${sort === v ? "on" : ""}" data-sh="sort" data-v="${v}" aria-pressed="${sort === v}">${t}</button>`;
+  const over = `<section class="card"><div class="card-h sh-head"><h2>Meine Einkaufslisten</h2><span class="grow"></span><button class="pill on" data-sh="new">${ic("plus")}Neue Liste</button></div>
+    ${lists.length > 1 ? `<div class="sh-sort"><span class="muted">Sortieren nach</span>${seg("date", "Datum")}${seg("price", "Preis")}</div>` : ""}
+    ${lists.length ? `<div class="sh-lists">${lists.map(x => `<button class="sh-li ${c && c.id === x.id ? "on" : ""}" data-sh="pick" data-id="${x.id}" aria-pressed="${!!(c && c.id === x.id)}"><span class="sh-lin"><b>${esc(x.title || "Einkaufsliste")}</b><small>${esc(shDate(x.date))} · ${x.n} ${x.n === 1 ? "Sache" : "Sachen"}</small></span><b class="num">${eur(x.total)}</b></button>`).join("")}</div>`
+      : `<div class="empty">Noch keine Einkaufsliste. Mit „Neue Liste“ leg ich eine an.</div>`}</section>`;
+  if (!c) return over;
+  const kill = S.shKill === c.id;
+  return over + `<section class="card">
+    <div class="sh-lh"><label class="fp-in sh-lname"><span>Name der Liste</span><input class="field" id="sh-lt-${c.id}" data-keep data-shl="title" data-id="${c.id}" value="${esc(c.title || "")}" placeholder="z. B. Wocheneinkauf"></label>
+      <label class="fp-in sh-ldate"><span>Datum</span><input class="field" type="date" id="sh-ld-${c.id}" data-keep data-shl="date" data-id="${c.id}" value="${esc(c.date || "")}"></label></div>
+    <div class="sh-acts">${plPlans().some(p => (p.meals || []).some(m => (m.items || []).length)) ? `<button class="pill" data-sh="plan" title="Holt alles aus meinem Ernährungsplan für eine Woche">${ic("food")}Aus meinem Plan</button>` : ""}${done ? `<button class="pill" data-sh="reset">${ic("repeat")}Neuer Einkauf</button>` : ""}<span class="grow"></span>
+      ${kill ? `<button class="pill" data-sh="nokill">Abbrechen</button>` : ""}<button class="pill sh-kill ${kill ? "arm" : ""}" data-sh="kill">${ic("trash")}${kill ? "Ja, wirklich löschen" : "Liste löschen"}</button></div>
+    ${kill ? `<p class="hint fp-miss" style="margin:-4px 0 12px">Alles auf „${esc(c.title || "Einkaufsliste")}“ ist dann weg. Preise und Läden bleiben gespeichert.</p>` : ""}
+    <div class="add sh-add"><input id="sh-new" data-keep list="sh-names" autocomplete="off" placeholder="Was brauch ich? Enter zum Hinzufügen" aria-label="Lebensmittel für die Einkaufsliste"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-sh="add" aria-label="Auf die Liste">${ic("plus")}</button></div>
+    <datalist id="sh-names">${shNames().map(x => `<option value="${esc(x)}"></option>`).join("")}</datalist>${shStoreList()}
     ${L.length ? `<div class="bs-kpis sh-kpis"><div><span>Ganzer Einkauf</span><b class="num">${eur(sum.total)}</b><small>${L.length} ${L.length === 1 ? "Sache" : "Sachen"}</small></div>
       <div><span>Noch offen</span><b class="num">${eur(sum.open)}</b><small>${L.length - done} nicht abgehakt</small></div></div>
       ${sum.miss ? `<p class="hint fp-miss">Bei ${sum.miss} ${sum.miss === 1 ? "Sache fehlt" : "Sachen fehlt"} noch der Preis, die Summe ist deshalb zu niedrig.</p>` : ""}
-      ${groups}` : `<div class="empty">Noch nichts auf der Liste. Oben eintippen, was ich brauche, und Enter drücken.</div>`}</section>`;
+      ${groups}` : `<div class="empty">Noch nichts auf der Liste. Oben eintippen, was ich brauche, und Enter drücken.</div>`}
+    <p class="hint" style="margin:14px 0 0">Beim Einkaufen hak ich ab, mit „Neuer Einkauf“ sind alle Haken wieder raus. Preis und Laden trag ich einmal ein, die gelten für alle Listen. Was neu ist, zum Beispiel aus Frankreich, kann ich mit „Fürs Tracking speichern“ dauerhaft zu meinen Lebensmitteln legen. „Aus meinem Plan“ holt alles, was ich laut Ernährungsplan in einer Woche esse.</p></section>`;
 }
 const moneyOk = v => PC.moneyNum ? PC.moneyNum(v) : (isFinite(+v) && String(v ?? "").trim() !== "" ? +v : null);
 // Neues Lebensmittel fürs Tracking speichern: eigenes Lebensmittel anlegen, Preis, Packung und Laden mitnehmen (als Kopie, der alte Preis bleibt)
@@ -6633,6 +6679,7 @@ document.addEventListener("click", e => {
   const a = e.target.closest("[data-sh]"); if (!a) return;
   const act = a.dataset.sh, l = a.dataset.id && S.items.get(a.dataset.id);
   if (act !== "del") S.shDel = null;
+  if (act !== "kill") S.shKill = null;
   switch (act) {
     case "add": { const i = $("#sh-new"); if (!i || !i.value.trim()) { if (i) i.focus(); return; } shAdd(i.value); i.value = ""; renderMain(); const n = $("#sh-new"); if (n) n.focus(); return; }
     case "chk": if (l) { l.done = !l.done; persist(l); renderMain(); } return;
@@ -6641,14 +6688,27 @@ document.addEventListener("click", e => {
     case "del": if (!l) return; if (S.shDel !== l.id) { S.shDel = l.id; renderMain(); return; } S.shDel = null; S.shOpen = null; removeItem(l.id); renderMain(); toast("Von der Liste genommen."); return;
     case "plan": { const r = shFromPlan(); renderMain();
       toast(r.add || r.back ? `Aus dem Plan: ${r.add} neu${r.back ? `, ${r.back} wieder offen` : ""}${r.same ? `, ${r.same} standen schon drauf` : ""}. Die Anzahl reicht für eine Woche.` : "Alles aus dem Plan steht schon auf der Liste."); return; }
-    case "reset": for (const x of live("shopi")) if (x.done) { x.done = false; persist(x); } renderMain(); toast("Alle Haken sind raus, die Liste ist bereit."); return;
+    case "sort": S.shSort = a.dataset.v; try { localStorage.setItem("sh-sort", S.shSort); } catch(er){} renderMain(); return;
+    case "pick": shPick(a.dataset.id); renderMain(); return;
+    case "nokill": renderMain(); return;
+    case "new": { const n = create("shopl", "Neue Einkaufsliste", {date:dkey()}); shPick(n.id); renderMain(); const i = $(`#sh-lt-${n.id}`); if (i) { i.focus(); i.select(); } return; }
+    case "kill": { const c = shCur(); if (!c) return; if (S.shKill !== c.id) { S.shKill = c.id; renderMain(); return; }
+      for (const x of shLinesOf(c.id)) removeItem(x.id); removeItem(c.id); shPick(""); renderMain(); toast(`„${c.title || "Einkaufsliste"}“ ist gelöscht.`); return; }
+    case "reset": for (const x of shLines()) if (x.done) { x.done = false; persist(x); } renderMain(); toast("Alle Haken sind raus, die Liste ist bereit."); return;
     case "keep": if (l && !shIsOwn(l) && !shFromDb(l)) { const it = shKeep(l); renderMain(); toast(`„${it.title}“ steht jetzt unter Lebensmittel. Mit den Kalorien taucht es auch im Tagebuch auf.`); } return;
     case "tofood": if (l && shIsOwn(l)) { S.fdTab = "food"; S.fdOpen = l.key.slice(4); try { localStorage.setItem("fdTab2", "food"); } catch(er){} renderMain(); window.scrollTo({top:0}); } return;
-    case "addfood": { const x = S.items.get(a.dataset.id); if (!x) return; const k = "own:" + x.id, same = live("shopi").find(y => y.key === k);
-      if (same) { same.done = false; persist(same); } else create("shopi", x.title || "Ohne Namen", {key:k, qty:1, done:false, ord:Date.now()}); renderMain(); toast("Steht auf der Einkaufsliste."); return; }
+    case "addfood": { const x = S.items.get(a.dataset.id); if (!x) return; const c = shEnsure(), k = "own:" + x.id, same = shLinesOf(c.id).find(y => y.key === k);
+      if (same) { same.done = false; persist(same); } else create("shopi", x.title || "Ohne Namen", {key:k, qty:1, done:false, ord:Date.now(), list:c.id}); renderMain(); toast("Steht auf der Einkaufsliste."); return; }
   }
 });
 document.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing && e.target.id === "sh-new") { e.preventDefault(); const b = document.querySelector('[data-sh="add"]'); if (b) b.click(); } });
+// Name und Datum der Liste
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || !t.dataset.shl) return;
+  const c = S.items.get(t.dataset.id); if (!c) return;
+  if (t.dataset.shl === "title") c.title = t.value.trim() || "Einkaufsliste"; else c.date = t.value;
+  persist(c); renderMain();
+});
 // Name einer noch nicht gespeicherten Zeile ändern: Preis und Laden wandern mit (Kopie unter dem neuen Namen)
 document.addEventListener("change", e => {
   const t = e.target; if (!t.dataset || t.dataset.shv !== "title") return;
