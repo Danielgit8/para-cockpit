@@ -2112,7 +2112,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-17.1";
+const APP_VERSION = "2026-11-17.2";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -6536,34 +6536,54 @@ const shIsOwn = l => /^own:/.test(l.key || "") && S.items.has(l.key.slice(4)) &&
 function shAdd(name){
   const t = String(name || "").trim(); if (!t) return null;
   const {key, title} = shKeyFor(t);
-  const same = live("shopi").find(l => l.key === key);
+  const same = live("shopi").find(l => l.key === key) || shByName(live("shopi"), title);
   if (same) { if (same.done) { same.done = false; persist(same); toast("Steht wieder offen auf der Liste."); } else toast("Steht schon auf der Liste."); return same; }
   return create("shopi", title, {key, qty:1, done:false, ord:Date.now()});
 }
+// Gleicher Name, auch ohne Leerzeichen („Hafer Flocken“ = „Haferflocken“), damit nichts doppelt auf die Liste kommt
+const shNk = s => ntNorm(s).replace(/[^a-z0-9]+/g, "");
+const shByName = (list, name) => { const n = shNk(name); return n ? list.find(l => shNk(l.title) === n) : null; };
 // Was ich laut Ernährungsplan in einer Woche brauche (Montag bis Sonntag, Plan je Wochentag wie bei den Kosten).
-// Rezepte werden in ihre Zutaten zerlegt, die Gramm im Verhältnis zur Rezeptmenge. Ergebnis: [{key, name, g, n, quick}]
+// Rezepte werden in ihre Zutaten zerlegt. Die Gramm im Plan beziehen sich auf die Rezeptmenge aus rcNut (nur Zutaten mit Nährwerten),
+// deshalb wird damit skaliert. Zutaten bekommen den Schlüssel des gleichnamigen Lebensmittels im Plan (Name oder gewähltes Lebensmittel nsrc),
+// sonst den aus shKeyFor. Ergebnis: [{key, name, g, n, quick}]
 function shPlanNeed(){
   const need = new Map(), put = (key, name, g, quick) => { if (!key) return; const r = need.get(key) || {key, name, g:0, n:0, quick}; r.g += +g > 0 ? +g : 0; r.n++; need.set(key, r); };
-  for (const p of PC.weekPlans ? PC.weekPlans(plPlans(), (plCur() || {}).id) : []) if (p) for (const m of p.meals || []) for (const e of m.items || []) {
+  const ents = [];
+  for (const p of PC.weekPlans ? PC.weekPlans(plPlans(), (plCur() || {}).id) : []) if (p) for (const m of p.meals || []) for (const e of m.items || []) ents.push(e);
+  const recs = [], byName = new Map();
+  for (const e of ents) {
     const r = e.src === "rec" ? S.items.get(e.ref) : null;
-    if (r && !r.archived) { const ing = (r.ing || []).filter(i => String(i.name || "").trim()), tot = ing.reduce((s, i) => s + (+bsNum(i.grams) || 0), 0);
-      for (const i of ing) { const k = shKeyFor(i.name); put(k.key, k.title, tot > 0 && +e.g > 0 ? (+bsNum(i.grams) || 0) * e.g / tot : 0, false); } continue; }
-    put(fpKey(e), e.name || "Ohne Namen", e.src === "quick" ? 0 : e.g, e.src === "quick");
+    if (r && !r.archived) { recs.push([e, r]); continue; }
+    const k = fpKey(e); put(k, e.name || "Ohne Namen", e.src === "quick" ? 0 : e.g, e.src === "quick");
+    const n = shNk(e.name); if (n && !byName.has(n)) byName.set(n, k);
+  }
+  for (const [e, r] of recs) {
+    const ing = (r.ing || []).filter(i => String(i.name || "").trim()), nut = rcNut(r);
+    const base = nut && nut.g > 0 ? nut.g : ing.reduce((s, i) => s + (+bsNum(i.grams) || 0), 0), f = base > 0 && +e.g > 0 ? e.g / base : 0;
+    for (const i of ing) {
+      const hit = byName.get(shNk(i.name)) || byName.get(shNk(i.nsrc)), k = hit ? {key:hit, title:need.get(hit).name} : shKeyFor(i.name);
+      put(k.key, k.title, (+bsNum(i.grams) || 0) * f, false);
+    }
   }
   return [...need.values()];
 }
 // Plan übernehmen: Fehlendes kommt mit der Anzahl Packungen für die Woche dazu, Abgehaktes wird wieder offen.
-// Was offen auf der Liste steht, bleibt, wie ich es eingestellt hab.
+// Was offen auf der Liste steht, bleibt, wie ich es eingestellt hab. Eine Zeile gilt als vorhanden, wenn Schlüssel oder Name passen
+// (zum Beispiel von Hand eingetippt oder schon fürs Tracking gespeichert).
 function shFromPlan(){
   const M = fpMap(), L = live("shopi"); let add = 0, back = 0, same = 0, ord = Date.now();
   for (const r of shPlanNeed()) {
-    const qty = PC.shopQty(r.g, r.n, (M.get(r.key) || {}).pack, r.quick), l = L.find(x => x.key === r.key);
-    if (!l) { create("shopi", r.name, {key:r.key, qty, done:false, ord:ord++}); add++; }
+    const l = L.find(x => x.key === r.key) || shByName(L, r.name);
+    const qty = PC.shopQty(r.g, r.n, (M.get(r.key) || (l && M.get(l.key)) || {}).pack, r.quick);
+    if (!l) { L.push(create("shopi", r.name, {key:r.key, qty, done:false, ord:ord++})); add++; }
     else if (l.done) { l.done = false; l.qty = qty; persist(l); back++; }
     else same++;
   }
   return {add, back, same};
 }
+// Aus der Datenbank (BLS, Open Food Facts, Schweiz) oder ein Rezept: hat schon Nährwerte, muss nicht fürs Tracking gespeichert werden
+const shFromDb = l => /^(bls|off|ch|rec):/.test(l.key || "");
 // Preis, Packung und Laden als Felder, die direkt in "fprice" schreiben (gleicher Handler wie im Plan)
 function shPriceFields(k, n, id){
   return `<label class="fp-in"><span>Preis pro Packung in €</span><input class="field num" id="sh-p-${id}" data-keep inputmode="decimal" data-fp="price" data-k="${esc(k)}" data-n="${esc(n)}" value="${esc((fpMap().get(k) || {}).price ?? "")}" placeholder="1,29"></label>
@@ -6584,12 +6604,12 @@ function shopHTML(){
   const row = r => { const l = r.l, p = moneyOk(r.price), own = shIsOwn(l), open = S.shOpen === l.id;
     return `<div class="sh-row ${l.done ? "done" : ""} ${open ? "open" : ""}">
       <button class="check ${l.done ? "on" : ""}" data-sh="chk" data-id="${l.id}" aria-pressed="${!!l.done}" aria-label="${esc(l.title || "Lebensmittel")} abhaken">${ic("check")}</button>
-      <button class="sh-n" data-sh="open" data-id="${l.id}" aria-expanded="${open}"><b>${esc(l.title || "Ohne Namen")}</b><small>${[own ? "" : "Noch nicht gespeichert", p != null ? `${eur(p)} pro Packung` : "Preis fehlt"].filter(Boolean).join(" · ")}</small></button>
+      <button class="sh-n" data-sh="open" data-id="${l.id}" aria-expanded="${open}"><b>${esc(l.title || "Ohne Namen")}</b><small>${[own || shFromDb(l) ? "" : "Noch nicht gespeichert", p != null ? `${eur(p)} pro Packung` : "Preis fehlt"].filter(Boolean).join(" · ")}</small></button>
       <span class="sh-q"><button class="ibtn" data-sh="qty" data-id="${l.id}" data-d="-1" ${r.qty <= 1 ? "disabled" : ""} aria-label="Eine weniger">−</button><b class="num">${r.qty}</b><button class="ibtn" data-sh="qty" data-id="${l.id}" data-d="1" aria-label="Eine mehr">+</button></span>
       <span class="sh-c num">${p != null ? eur(p * r.qty) : "–"}</span></div>
-      ${open ? `<div class="br-ed sh-ed">${own ? "" : `<label class="br-wide">Name<input class="field" id="sh-t-${l.id}" data-keep data-shv="title" data-id="${l.id}" value="${esc(l.title || "")}"></label>`}
+      ${open ? `<div class="br-ed sh-ed">${own || shFromDb(l) ? "" : `<label class="br-wide">Name<input class="field" id="sh-t-${l.id}" data-keep data-shv="title" data-id="${l.id}" value="${esc(l.title || "")}"></label>`}
         <div class="sh-pf br-wide">${shPriceFields(l.key, l.title || "", l.id)}</div>
-        <div class="br-ed-f">${own ? `<button class="pill" data-sh="tofood" data-id="${l.id}">${ic("food")}Unter Lebensmittel öffnen</button>` : `<button class="pill on" data-sh="keep" data-id="${l.id}">${ic("plus")}Fürs Tracking speichern</button>`}<span class="grow"></span><button class="pill" data-sh="del" data-id="${l.id}" style="${S.shDel === l.id ? "color:var(--late)" : ""}">${ic("trash")}${S.shDel === l.id ? "Wirklich von der Liste?" : "Von der Liste nehmen"}</button><button class="pill on" data-sh="open" data-id="${l.id}">Fertig</button></div></div>` : ""}`; };
+        <div class="br-ed-f">${own ? `<button class="pill" data-sh="tofood" data-id="${l.id}">${ic("food")}Unter Lebensmittel öffnen</button>` : shFromDb(l) ? "" : `<button class="pill on" data-sh="keep" data-id="${l.id}">${ic("plus")}Fürs Tracking speichern</button>`}<span class="grow"></span><button class="pill" data-sh="del" data-id="${l.id}" style="${S.shDel === l.id ? "color:var(--late)" : ""}">${ic("trash")}${S.shDel === l.id ? "Wirklich von der Liste?" : "Von der Liste nehmen"}</button><button class="pill on" data-sh="open" data-id="${l.id}">Fertig</button></div></div>` : ""}`; };
   const groups = sum.stores.map(g => { const rs = rows.filter(r => r.store === g.store).sort((a, b) => (!!a.l.done - !!b.l.done));
     return `<div class="sh-g"><div class="sh-gh"><span>${esc(g.store || "Egal wo")}</span><span class="num">${eur(g.total)}${g.miss ? ` <small class="muted">+ ${g.miss} ohne Preis</small>` : ""}</span></div>${rs.map(row).join("")}</div>`; }).join("");
   return `<section class="card"><div class="add"><input id="sh-new" data-keep list="sh-names" autocomplete="off" placeholder="Was brauch ich? Enter zum Hinzufügen" aria-label="Lebensmittel für die Einkaufsliste"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-sh="add" aria-label="Auf die Liste">${ic("plus")}</button></div>
@@ -6622,7 +6642,7 @@ document.addEventListener("click", e => {
     case "plan": { const r = shFromPlan(); renderMain();
       toast(r.add || r.back ? `Aus dem Plan: ${r.add} neu${r.back ? `, ${r.back} wieder offen` : ""}${r.same ? `, ${r.same} standen schon drauf` : ""}. Die Anzahl reicht für eine Woche.` : "Alles aus dem Plan steht schon auf der Liste."); return; }
     case "reset": for (const x of live("shopi")) if (x.done) { x.done = false; persist(x); } renderMain(); toast("Alle Haken sind raus, die Liste ist bereit."); return;
-    case "keep": if (l) { const it = shKeep(l); renderMain(); toast(`„${it.title}“ steht jetzt unter Lebensmittel. Mit den Kalorien taucht es auch im Tagebuch auf.`); } return;
+    case "keep": if (l && !shIsOwn(l) && !shFromDb(l)) { const it = shKeep(l); renderMain(); toast(`„${it.title}“ steht jetzt unter Lebensmittel. Mit den Kalorien taucht es auch im Tagebuch auf.`); } return;
     case "tofood": if (l && shIsOwn(l)) { S.fdTab = "food"; S.fdOpen = l.key.slice(4); try { localStorage.setItem("fdTab2", "food"); } catch(er){} renderMain(); window.scrollTo({top:0}); } return;
     case "addfood": { const x = S.items.get(a.dataset.id); if (!x) return; const k = "own:" + x.id, same = live("shopi").find(y => y.key === k);
       if (same) { same.done = false; persist(same); } else create("shopi", x.title || "Ohne Namen", {key:k, qty:1, done:false, ord:Date.now()}); renderMain(); toast("Steht auf der Einkaufsliste."); return; }
