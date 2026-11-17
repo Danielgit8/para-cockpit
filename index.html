@@ -1969,6 +1969,46 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .fp-c{text-align:right;font-weight:700;display:flex;flex-direction:column;align-items:flex-end;align-self:center}.fp-c small{font-weight:500;color:var(--muted);font-size:12px}
 .fp-row.miss .fp-c{color:var(--muted)}
 button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+/* Lebensmittel-Vergleich */
+.cmp-ex{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:12px;font-size:13px}
+.cmp-cats{flex-wrap:wrap;margin-bottom:12px}
+.cmp-bar{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.cmp-fl{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.cmp-fl .muted{font-size:12.5px;margin-right:2px}
+.cmp-fl .pill{height:30px;padding:0 12px;font-size:12.5px}
+.cmp-use{width:auto;height:30px;padding:0 10px;font-size:12.5px}
+.cmp-tbl{display:flex;flex-direction:column;gap:4px}
+.cmp-row{display:grid;grid-template-columns:minmax(0,2fr) 132px 104px 82px 70px 64px 56px 56px 78px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;cursor:pointer;text-align:left}
+.cmp-row:hover{background:var(--soft)}.cmp-row:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.cmp-row.open{border-color:var(--ink);background:var(--soft)}
+.cmp-head{cursor:default;border-color:transparent;font-size:11.5px;font-weight:600;color:var(--muted);padding-top:0;padding-bottom:2px}.cmp-head:hover{background:none}
+.cmp-c{min-width:0}.cmp-c.num{text-align:right;font-variant-numeric:tabular-nums}
+.cmp-name{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.cmp-name b{font-weight:600;overflow-wrap:anywhere}
+.cmp-name small{flex-basis:100%;color:var(--muted);font-size:12px;line-height:1.35}
+.cmp-seal,.cmp-warn{font-size:11px;padding:1px 7px}
+.cmp-warn{background:var(--late);color:#fff;border-color:var(--late)}
+.cmp-row.avoid{opacity:.62}.cmp-row.avoid .cmp-name b{text-decoration:line-through;text-decoration-color:var(--late)}
+.cmp-row.avoid:hover,.cmp-row.avoid.open{opacity:1}
+.cmp-st{height:30px;padding:0 8px;font-size:12.5px;width:100%}
+.cmp-st.st-fav{border-color:var(--good);color:var(--good);font-weight:600}.cmp-st.st-avoid{border-color:var(--late);color:var(--late);font-weight:600}
+.cmp-stars{display:inline-flex;gap:0}.cmp-stars button{all:unset;cursor:pointer;font-size:17px;line-height:1;padding:2px 1px;color:var(--muted);opacity:.35}
+.cmp-stars button.on{color:var(--amber,#C77B32);opacity:1}.cmp-stars button:focus-visible{outline:2px solid var(--ink);border-radius:3px}
+.cmp-stars.lg button{font-size:24px;padding:2px 3px}
+.cmp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.cmp-dot.low{background:var(--good)}.cmp-dot.mid{background:var(--amber,#C77B32)}.cmp-dot.high{background:var(--late)}
+.cmp-ed{margin:2px 0 10px}
+.cmp-nut{grid-template-columns:repeat(4,minmax(0,1fr))}
+.cmp-own{width:150px;height:34px;font-size:13px}
+.cmp-avoid-b.on{background:var(--late);border-color:var(--late);color:#fff}
+@media (max-width:1260px){
+  .cmp-head{display:none}
+  .cmp-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 12px;padding:12px}
+  .cmp-name{grid-column:1/-1;font-size:14px}
+  .cmp-row .cmp-c:nth-child(2){grid-column:1/3}.cmp-row .cmp-c:nth-child(3){grid-column:3/5}
+  .cmp-row .cmp-c[data-l]::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:2px}
+  .cmp-c.num{text-align:left}
+}
+@media (max-width:560px){.cmp-row{grid-template-columns:repeat(3,minmax(0,1fr))}.cmp-row .cmp-c:nth-child(2),.cmp-row .cmp-c:nth-child(3){grid-column:1/-1}
+  .cmp-nut{grid-template-columns:repeat(2,minmax(0,1fr))}.cmp-own{width:100%}}
 .sh-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 10px}
 .sh-lists{display:flex;flex-direction:column}
 .sh-li{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1.5px solid transparent;border-top-color:var(--line)}
@@ -2123,7 +2163,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-17.3";
+const APP_VERSION = "2026-11-17.4";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -5206,10 +5246,10 @@ function foodHTML(){
   if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab2") || "diary"; } catch(e) { S.fdTab = "diary"; } }
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
-  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML, shop:shopHTML}[S.fdTab] || ntDiaryHTML;
+  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML, shop:shopHTML, cmp:cmpHTML}[S.fdTab] || ntDiaryHTML;
   const open = shLines().filter(l => !l.done).length;
   return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Einkaufsliste, Lebensmittel, Rezepte und meine Ziele") + banner() +
-    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("shop", "Einkauf", open)}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
+    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("shop", "Einkauf", open)}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("cmp", "Vergleich")}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
 function fdListHTML(){
   const day = S.fdDay || 0;
@@ -5429,7 +5469,7 @@ function rcNut(r){
 function ntOwn(){
   const out = [];
   for (const x of live("food")) if (x.n && ntNum(x.n.kcal) != null) { const g = bsNum(x.grams);
-    out.push(ntMake({src:"own", id:x.id, code:x.code || "", name:x.title || "Ohne Namen", brand:x.what || "", n:x.n, img:x.img || "", emoji:"🍽️", portion: typeof g === "number" && g > 0 ? ["Meine Menge", g] : null})); }
+    out.push(ntMake({src:"own", id:x.id, code:x.code || "", name:x.title || "Ohne Namen", brand:x.brand || x.what || "", n:x.n, img:x.img || "", emoji:"🍽️", portion: typeof g === "number" && g > 0 ? ["Meine Menge", g] : null})); }
   for (const r of live("recipe")) { const s = rcNut(r); if (s) out.push(ntMake({src:"rec", id:r.id, name:r.title || "Rezept", brand:"Mein Rezept", n:s.per100, emoji:"🥘", portion:["1 Portion", s.portionG]})); }
   return out.sort((a, b) => a.name.localeCompare(b.name, "de", {sensitivity:"base"}));
 }
@@ -5891,7 +5931,7 @@ function ntAddSel(){
 function ntPickDo(){
   const N = S.nt, x = N.sel, p = N.pick || {}, it = S.items.get(p.id); if (!it) { ntClose(); return; }
   if (p.type === "ing") { const i = (it.ing || []).find(y => y.id === p.ing); if (i) { i.n = {...x.n}; i.nsrc = x.name; if (!String(i.name || "").trim()) i.name = x.name; } }
-  else { it.n = {...x.n}; if (x.code && !it.code) it.code = x.code; if (x.img && !it.img) it.img = x.img; }
+  else { it.n = {...x.n}; it.nsrc = x.name || ""; it.nsrcDb = x.src || ""; delete it.nMine; if (x.code && !it.code) it.code = x.code; if (x.img && !it.img) it.img = x.img; }
   persist(it); toast("Nährwerte übernommen."); ntClose(); renderMain();
 }
 function ntQuickAdd(){
@@ -6543,7 +6583,7 @@ function shMainFix(){ // alte Zeilen ohne Liste bekommen ihre Liste, einmalig
 }
 function shCur(){
   if (S.shList == null) { try { S.shList = localStorage.getItem("sh-list") || ""; } catch(e) { S.shList = ""; } }
-  const L = shLists(); return L.find(x => x.id === S.shList) || PC.shopSort(L, "date")[0] || null;
+  const L = shLists(); return L.find(x => x.id === S.shList) || (PC.shopSort ? PC.shopSort(L, "date") : L)[0] || null;
 }
 const shPick = id => { S.shList = id || ""; S.shOpen = null; S.shDel = null; S.shKill = null; try { localStorage.setItem("sh-list", S.shList); } catch(e){} };
 // Liste anlegen, wenn noch keine da ist (z. B. „Auf die Einkaufsliste“ bei einem Lebensmittel)
@@ -6556,7 +6596,7 @@ const shUniq = list => [...new Set(list.map(s => String(s || "").trim()).filter(
 const shStores = () => shUniq(live("fprice").map(f => f.store));
 const shNames = () => shUniq([...live("food").map(x => x.title), ...live("fprice").map(x => x.title)]);
 let shT = null;
-const shLater = () => { clearTimeout(shT); shT = setTimeout(() => { if (S.view === "food" && (S.fdTab === "shop" || S.fdTab === "food") && !S.nt) renderMain(); }, 250); };
+const shLater = () => { clearTimeout(shT); shT = setTimeout(() => { if (S.view === "food" && (S.fdTab === "shop" || S.fdTab === "food" || S.fdTab === "cmp") && !S.nt) renderMain(); }, 250); };
 function shKeyFor(name){
   const t = String(name || "").trim(), n = ntNorm(t);
   const own = live("food").find(x => ntNorm(x.title) === n); if (own) return {key:"own:" + own.id, title:own.title || t};
@@ -6645,7 +6685,7 @@ function shopHTML(){
   const groups = sum.stores.map(g => { const rs = rows.filter(r => r.store === g.store).sort((a, b) => (!!a.l.done - !!b.l.done));
     return `<div class="sh-g"><div class="sh-gh"><span>${esc(g.store || "Egal wo")}</span><span class="num">${eur(g.total)}${g.miss ? ` <small class="muted">+ ${g.miss} ohne Preis</small>` : ""}</span></div>${rs.map(row).join("")}</div>`; }).join("");
   const sort = S.shSort || (() => { try { return localStorage.getItem("sh-sort") || "date"; } catch(e) { return "date"; } })();
-  const lists = PC.shopSort(shLists().map(x => ({...x, total:shTotal(x.id, M).total, n:shLinesOf(x.id).length, item:x})), sort);
+  const lists = (PC.shopSort || (L => L))(shLists().map(x => ({...x, total:shTotal(x.id, M).total, n:shLinesOf(x.id).length, item:x})), sort);
   const seg = (v, t) => `<button class="pill ${sort === v ? "on" : ""}" data-sh="sort" data-v="${v}" aria-pressed="${sort === v}">${t}</button>`;
   const over = `<section class="card"><div class="card-h sh-head"><h2>Meine Einkaufslisten</h2><span class="grow"></span><button class="pill on" data-sh="new">${ic("plus")}Neue Liste</button></div>
     ${lists.length > 1 ? `<div class="sh-sort"><span class="muted">Sortieren nach</span>${seg("date", "Datum")}${seg("price", "Preis")}</div>` : ""}
@@ -6716,6 +6756,171 @@ document.addEventListener("change", e => {
   const M = fpMap(), old = M.get(l.key), nx = shKeyFor(v);
   if (old && !M.get(nx.key) && /^name:/.test(nx.key)) create("fprice", v, {key:nx.key, price:old.price || "", pack:old.pack || "", store:old.store || ""});
   l.title = /^name:/.test(nx.key) ? v : nx.title; l.key = nx.key; persist(l); renderMain();
+});
+
+/* ================= Lebensmittel-Vergleich (17.11.2026, sein Wunsch) =================
+   Reiter „Vergleich“ in der Ernährung. Es sind dieselben eigenen Lebensmittel (kind "food"), nur mit zusätzlichen freiwilligen Feldern:
+   cat (Kategorie), brand (Marke), seal (Herkunft/Siegel), use[] (Wofür), status (fav|alt|test|avoid), stars (1–5), tex[] (Textur),
+   tip (Notiz), micro (Mikronährstoffe als Text). Omega-6, PUFA und gesättigte Fette stehen in n (o6, pufa, sfa) wie kcal/p/c/f,
+   von Hand überschreibbar (nMine = Felder, die ich selbst eingetragen hab). Supermarkt = fprice.store, €/kg aus fprice (PC.perKg). */
+const CMP_CATS = ["Rohschinken", "Rohmilchkäse", "Fleisch & Innereien", "Fette & Öle", "Fisch & Meeresfrüchte"];
+const CMP_ST = [["fav", "Favorit"], ["alt", "Gute Alternative"], ["test", "Testen"], ["avoid", "Meiden"]];
+const CMP_TEX = ["zart", "zäh", "cremig", "kristallin", "salzig", "mild", "würzig", "zu fettig", "trocken"];
+const CMP_USE = ["Low-PUFA Basis", "Preis-Leistungs-Sieger", "Calcium/K2-Boost", "Eiweiß-Quelle"];
+const CMP_ALIAS = {vita:"Retinol", vitk:"K2 K1", b12:"Cobalamin", fol:"Folsäure"}; // Suchwörter zu den Namen aus NT_MIC
+const CMP_SORT = [["pufa", "Wenig Omega-6"], ["kg", "Günstig pro kg"], ["stars", "Geschmack"], ["protein", "Eiweiß"]];
+const cmpN = v => typeof v === "number" ? (isFinite(v) ? v : null) : (PC.moneyNum ? PC.moneyNum(v) : null);
+const cmpF = (v, u = "") => { const n = cmpN(v); return n == null ? "–" : n.toLocaleString("de-DE", {maximumFractionDigits: n < 1 ? 2 : n < 10 ? 1 : 0}) + u; };
+function cmpUI(){
+  if (!S.cmp) { let o = {}; try { o = JSON.parse(localStorage.getItem("cmp-ui") || "{}") || {}; } catch(e){}
+    S.cmp = {cat:"", sort:"pufa", fav:false, use:"", store:"", noTex:[], hideAvoid:false, ...o, q:""}; }
+  return S.cmp;
+}
+const cmpSave = () => { const {q, ...o} = cmpUI(); try { localStorage.setItem("cmp-ui", JSON.stringify(o)); } catch(e){} };
+const cmpUniq = (list, base = []) => { const seen = new Set(), out = [];
+  for (const s of [...base, ...list]) { const t = String(s || "").trim(), k = t.toLowerCase(); if (t && !seen.has(k)) { seen.add(k); out.push(t); } } return out; };
+function cmpRow(x, M){
+  const f = M.get("own:" + x.id) || {}, n = x.n || {};
+  return {id:x.id, x, title:x.title || "Ohne Namen", cat:x.cat || "", brand:x.brand || "", seal:x.seal || "", use:x.use || [], tex:x.tex || [],
+    status:x.status || "", stars:cmpN(x.stars) || null, tip:x.tip || "", micro:x.micro || "", store:String(f.store || "").trim(),
+    microNames: NT_MIC.filter(([k, , , nrv]) => nrv && cmpN(n[k]) != null && n[k] / nrv >= 0.15).map(m => m[1] + (CMP_ALIAS[m[0]] ? " " + CMP_ALIAS[m[0]] : "")).join(" "),
+    kg:PC.perKg(f.price, f.pack), pufa:PC.pufaOf(n), sfa:cmpN(n.sfa), p:cmpN(n.p), c:cmpN(n.c), kcal:cmpN(n.kcal)};
+}
+const cmpStars = (x, cls = "") => `<span class="cmp-stars ${cls}" role="group" aria-label="Geschmack">${[1, 2, 3, 4, 5].map(i => `<button class="${(cmpN(x.stars) || 0) >= i ? "on" : ""}" data-cmp="star" data-id="${x.id}" data-v="${i}" aria-label="${i} von 5 Sternen" aria-pressed="${(cmpN(x.stars) || 0) >= i}">★</button>`).join("")}</span>`;
+const cmpStSel = x => `<select class="field cmp-st st-${x.status || "none"}" id="cmp-st-${x.id}" data-cmp-st data-id="${x.id}" aria-label="Status von ${esc(x.title || "")}"><option value="" ${x.status ? "" : "selected"}>Offen</option>${CMP_ST.map(([v, l]) => `<option value="${v}" ${x.status === v ? "selected" : ""}>${l}</option>`).join("")}</select>`;
+const cmpDot = v => { const l = PC.pufaLevel(v); return l ? `<span class="cmp-dot ${l}" title="${l === "low" ? "wenig" : l === "mid" ? "mittel" : "viel"}"></span>` : ""; };
+function cmpHTML(){
+  if (!PC.cmpSort || !PC.cmpFilter || !PC.perKg || !PC.pufaOf || !PC.pufaLevel) return `<section class="card"><div class="empty">Für den Vergleich braucht die App ihre neue Fassung. Nach dem nächsten Neuladen ist er da.</div></section>`;
+  const U = cmpUI(), M = fpMap(), foods = live("food"), all = foods.map(x => cmpRow(x, M));
+  const cats = cmpUniq(foods.map(x => x.cat), CMP_CATS), stores = cmpUniq(all.map(r => r.store)).sort((a, b) => a.localeCompare(b, "de"));
+  const uses = cmpUniq(foods.flatMap(x => x.use || [])), texUsed = cmpUniq(foods.flatMap(x => x.tex || []));
+  if (U.store && !stores.some(s => s.toLowerCase() === U.store.toLowerCase())) U.store = "";
+  if (U.use && !uses.some(s => s.toLowerCase() === U.use.toLowerCase())) U.use = "";
+  const base = {...U, cat:"", q:U.q};
+  const cnt = c => PC.cmpFilter(all, {...base, cat:c}).length;
+  const rows = PC.cmpSort(PC.cmpFilter(all, U), U.sort);
+  const hasEx = foods.some(x => (x.tags || []).includes("Beispiel"));
+  const pill = (act, v, label, on, extra = "") => `<button class="pill ${on ? "on" : ""}" data-cmp="${act}" data-v="${esc(v)}" aria-pressed="${!!on}" ${extra}>${label}</button>`;
+  const catPills = [pill("cat", "", `Alle <span class="num">${cnt("")}</span>`, !U.cat), ...cats.map(c => { const n = cnt(c); return n || U.cat === c ? pill("cat", c, `${esc(c)} <span class="num">${n}</span>`, U.cat === c) : ""; }),
+    all.some(r => !r.cat.trim()) ? pill("cat", "-", `Ohne Kategorie <span class="num">${cnt("-")}</span>`, U.cat === "-") : ""].join("");
+  const row = r => { const x = r.x, open = S.cmpOpen === x.id, sub = [r.brand, r.store].filter(Boolean);
+    return `<div class="cmp-row ${r.status === "avoid" ? "avoid" : ""} ${open ? "open" : ""}" role="button" tabindex="0" data-cmp="open" data-id="${x.id}" aria-expanded="${open}">
+      <span class="cmp-c cmp-name"><b>${esc(r.title)}</b>${r.seal ? ` <span class="chip cmp-seal">${esc(r.seal)}</span>` : ""}${r.status === "avoid" ? ` <span class="chip cmp-warn">Nicht mehr kaufen</span>` : ""}
+        ${sub.length ? `<small>${sub.map(esc).join(" · ")}</small>` : ""}${r.tex.length ? `<small class="cmp-tex">${r.tex.map(esc).join(", ")}</small>` : ""}</span>
+      <span class="cmp-c" data-l="Status">${cmpStSel(x)}</span>
+      <span class="cmp-c" data-l="Geschmack">${cmpStars(x)}</span>
+      <span class="cmp-c num cmp-pufa" data-l="Omega-6">${cmpDot(r.pufa)}${cmpF(r.pufa, " g")}</span>
+      <span class="cmp-c num" data-l="Ges. Fett">${cmpF(r.sfa, " g")}</span>
+      <span class="cmp-c num" data-l="Eiweiß">${cmpF(r.p, " g")}</span>
+      <span class="cmp-c num" data-l="KH">${cmpF(r.c, " g")}</span>
+      <span class="cmp-c num" data-l="kcal">${cmpF(r.kcal)}</span>
+      <span class="cmp-c num" data-l="€/kg">${r.kg == null ? "–" : eur(r.kg)}</span></div>
+      ${open ? cmpForm(x) : ""}`; };
+  return `<section class="card"><div class="add"><input id="cmp-new" data-keep placeholder="${U.cat && U.cat !== "-" ? `Neu in ${esc(U.cat)}, Enter zum Speichern` : "Neues Lebensmittel, Enter zum Speichern"}" aria-label="Neues Lebensmittel für den Vergleich"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-cmp="add" aria-label="Lebensmittel anlegen">${ic("plus")}</button></div>
+    <p class="hint" style="margin:10px 0 0">Hier vergleich ich Lebensmittel einer Sorte: Omega-6 (Omega-6 fatty acids) und mehrfach ungesättigte Fette (PUFA), Preis pro kg, Eiweiß, Geschmack und Textur. Es sind dieselben Lebensmittel wie unter „Lebensmittel“, Preis und Supermarkt gelten auch für die Einkaufsliste. Grüner Punkt heißt unter 1 g Omega-6 pro 100 g, gelb bis 3 g, rot darüber.</p>
+    <div class="cmp-ex">${hasEx ? `<button class="pill" data-cmp="unseed">${ic("archive")}Beispiele entfernen</button>` : `<button class="pill" data-cmp="seed">${ic("plus")}Beispiele einfügen</button><span class="muted">8 Schinken, Käse, Butter und Leber mit Werten aus dem BLS, zum Ausprobieren</span>`}</div></section>
+  <section class="card"><div class="card-h"><h2>Mein Vergleich</h2></div>
+    <div class="tr-seg cmp-cats">${catPills}</div>
+    <div class="cmp-bar">
+      <input class="field" id="cmp-q" data-keep type="search" value="${esc(U.q)}" placeholder="Suchen: Name, Marke, Supermarkt, Siegel, Calcium, Notiz …" aria-label="Im Vergleich suchen">
+      <div class="cmp-fl"><span class="muted">Sortieren</span>${CMP_SORT.map(([v, l]) => pill("sort", v, l, U.sort === v)).join("")}</div>
+      <div class="cmp-fl">${pill("fav", "", "★ Nur Favoriten", U.fav)}${pill("hide", "", "Meiden ausblenden", U.hideAvoid)}
+        ${uses.length ? `<select class="field cmp-use" id="cmp-use" data-cmp-use aria-label="Wofür"><option value="">Wofür: alles</option>${uses.map(u => `<option value="${esc(u)}" ${U.use.toLowerCase() === u.toLowerCase() ? "selected" : ""}>${esc(u)}</option>`).join("")}</select>` : ""}</div>
+      ${stores.length ? `<div class="cmp-fl"><span class="muted">Supermarkt</span>${pill("store", "", "Alle", !U.store)}${stores.map(s => pill("store", s, esc(s), U.store.toLowerCase() === s.toLowerCase())).join("")}</div>` : ""}
+      ${texUsed.length ? `<div class="cmp-fl"><span class="muted">Ohne</span>${texUsed.map(t => pill("notex", t, esc(t), U.noTex.some(n => n.toLowerCase() === t.toLowerCase()))).join("")}</div>` : ""}
+    </div>
+    ${foods.length ? `<div class="cmp-tbl"><div class="cmp-row cmp-head" aria-hidden="true"><span>Lebensmittel</span><span>Status</span><span>Geschmack</span><span class="num">Omega-6</span><span class="num">Ges. Fett</span><span class="num">Eiweiß</span><span class="num">KH</span><span class="num">kcal</span><span class="num">€/kg</span></div>
+      ${rows.map(row).join("") || `<div class="empty">Nichts passt zu diesem Filter.</div>`}</div>
+      <p class="hint" style="margin:10px 0 0">Alle Werte pro 100 g. Omega-6 nimmt den Omega-6-Wert, fehlt der, alle PUFA zusammen.</p>`
+      : `<div class="empty">Noch keine Lebensmittel. Oben eins eintragen oder die Beispiele einfügen.</div>`}</section>`;
+}
+function cmpForm(x){
+  const n = x.n || {}, mine = x.nMine || [], src = x.nsrcDb === "bls" ? "aus BLS" : x.nsrc ? "aus der Datenbank" : "";
+  const inp = (k, l, ph = "", extra = "") => `<label>${l}<input class="field" id="cmp-${x.id}-${k}" data-keep data-fv="${k}" data-cmpv="1" data-id="${x.id}" value="${esc(x[k] ?? "")}" placeholder="${esc(ph)}" ${extra}></label>`;
+  const nf = (k, l) => { const has = cmpN(n[k]) != null, who = mine.includes(k) ? "von mir" : has ? src : "";
+    return `<label>${l}${who ? ` <small class="muted">${who}</small>` : ""}<input class="field num" id="cmp-${x.id}-n${k}" data-keep inputmode="decimal" data-fn="${k}" data-cmpn="1" data-id="${x.id}" value="${esc(bsIn(n[k] ?? ""))}" placeholder="–"></label>`; };
+  const tog = (act, list, on) => list.map(v => `<button class="pill ${on.some(o => o.toLowerCase() === v.toLowerCase()) ? "on" : ""}" data-cmp="${act}" data-id="${x.id}" data-v="${esc(v)}">${esc(v)}</button>`).join("");
+  const foods = live("food"), uses = cmpUniq(foods.flatMap(f => f.use || []), CMP_USE), texs = cmpUniq(foods.flatMap(f => f.tex || []), CMP_TEX);
+  return `<div class="br-ed cmp-ed">${inp("title", "Name")}${inp("cat", "Kategorie", "z. B. Rohschinken", 'list="cmp-cats" autocomplete="off"')}
+    <datalist id="cmp-cats">${cmpUniq(foods.map(f => f.cat), CMP_CATS).map(c => `<option value="${esc(c)}"></option>`).join("")}</datalist>
+    ${inp("brand", "Marke oder Hersteller", "z. B. Ferrarini, Bio-Hof")}${inp("seal", "Herkunft oder Siegel", "z. B. DOP, Rohmilch, Weidehaltung")}
+    <div class="fd-lbl br-wide"><span>Wie finde ich es?</span><div class="fd-btns">${CMP_ST.map(([v, l]) => `<button class="pill ${x.status === v ? "on" : ""} ${v === "avoid" ? "cmp-avoid-b" : ""}" data-cmp="st" data-id="${x.id}" data-v="${v}">${l}</button>`).join("")}${cmpStars(x, "lg")}</div></div>
+    <div class="fd-lbl br-wide"><span>Wofür</span><div class="fd-btns">${tog("use", uses, x.use || [])}<input class="field cmp-own" id="cmp-${x.id}-use-new" data-keep data-cmp-add="use" data-id="${x.id}" placeholder="Eigenes, Enter" aria-label="Eigenen Zweck hinzufügen"></div></div>
+    <div class="fd-lbl br-wide"><span>Textur und Geschmack</span><div class="fd-btns">${tog("tex", texs, x.tex || [])}<input class="field cmp-own" id="cmp-${x.id}-tex-new" data-keep data-cmp-add="tex" data-id="${x.id}" placeholder="Eigenes, Enter" aria-label="Eigene Textur hinzufügen"></div></div>
+    <label class="br-wide">Notiz zum Zubereiten oder Kaufen<input class="field" id="cmp-${x.id}-tip" data-keep data-fv="tip" data-cmpv="1" data-id="${x.id}" value="${esc(x.tip || "")}" placeholder="z. B. Fettrand abschneiden"></label>
+    <div class="fd-lbl br-wide"><span>Nährwerte pro 100 g. Jeden Wert kann ich überschreiben, wenn der Hersteller andere angibt.</span>
+      <div class="fd-nut cmp-nut">${nf("kcal", "Kalorien")}${nf("p", "Eiweiß")}${nf("c", "Kohlenhydrate")}${nf("f", "Fett")}${nf("sfa", "Ges. Fett")}${nf("pufa", "PUFA")}${nf("o6", "Omega-6")}</div>
+      <div class="fd-btns"><button class="pill" data-nt="pick" data-id="${x.id}">${ic("search")}Aus Datenbank übernehmen</button>${mine.length ? `<span class="muted">${mine.length} ${mine.length === 1 ? "Wert" : "Werte"} von mir</span>` : ""}</div></div>
+    ${ntMicHTML(n)}
+    ${inp("micro", "Mikronährstoffe, die mir wichtig sind", "z. B. Calcium, K2, Retinol, Zink")}
+    <div class="fd-lbl br-wide"><span>Preis und Supermarkt</span><div class="sh-pf">${shPriceFields("own:" + x.id, x.title || "", "c" + x.id)}</div>${shStoreList()}</div>
+    <div class="br-ed-f"><button class="pill" data-cmp="tofood" data-id="${x.id}">${ic("food")}Unter Lebensmittel öffnen</button><span class="grow"></span><button class="pill on" data-cmp="open" data-id="${x.id}">Fertig</button></div></div>`;
+}
+// Beispiele mit Werten aus dem BLS (Status „Testen“, keine Sterne, keine Textur). Marken und Läden sind Vorschläge.
+const CMP_SEED = [
+  ["Prosciutto di Parma DOP", "Rohschinken", "Ferrarini", "DOP", "", "W441000", "Fettrand abschneiden"],
+  ["Jamón Ibérico de Cebo", "Rohschinken", "Navidul", "Ibérico", "", "U682700", ""],
+  ["Günstiger Schwarzwälder Schinken", "Rohschinken", "Gut Drei Eichen", "", "Aldi", "W442000", ""],
+  ["Serrano Gran Reserva", "Rohschinken", "Lidl Deluxe", "", "Lidl", "U682700", ""],
+  ["Comté AOP", "Rohmilchkäse", "", "AOP, Rohmilch", "Edeka", "M302600", ""],
+  ["Roquefort AOP", "Rohmilchkäse", "Société", "AOP, Rohmilch", "REWE", "M012100", ""],
+  ["Butter aus Weidemilch", "Fette & Öle", "Kerrygold", "Weidehaltung", "", "Q630000", ""],
+  ["Rinderleber", "Fleisch & Innereien", "Bio-Hof", "", "Direktvermarkter", "V531100", ""]];
+async function cmpSeed(){
+  const L = NT.db || await (NT.loading || ntLoad()); if (!L || !NT.byId) { toast("Die Nährwert-Datenbank ist noch nicht geladen. Gleich noch mal, dann klappt es."); return; }
+  let k = 0;
+  for (const [title, cat, brand, seal, store, bls, tip] of CMP_SEED) {
+    const d = NT.byId.get(bls);
+    const it = create("food", title, {what:"", grams:"", days:[], why:"", cat, brand, seal, tip, status:"test", tags:["Beispiel"], use:[], tex:[],
+      n: d ? {...d.n} : {}, nsrc: d ? d.name : "", nsrcDb: d ? "bls" : ""});
+    if (store) create("fprice", title, {key:"own:" + it.id, price:"", pack:"", store});
+    k++;
+  }
+  renderMain(); toast(`${k} Beispiele sind drin. Die Nährwerte stammen aus dem BLS, jeweils vom ähnlichsten Eintrag.`);
+}
+function cmpToggle(it, k, v){ const L = it[k] || [], on = L.some(o => o.toLowerCase() === v.toLowerCase()); it[k] = on ? L.filter(o => o.toLowerCase() !== v.toLowerCase()) : [...L, v]; persist(it); }
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-cmp]"); if (!a) return;
+  const act = a.dataset.cmp, U = cmpUI(), it = a.dataset.id && S.items.get(a.dataset.id), v = a.dataset.v || "";
+  if (act === "open" && e.target.closest("select, input, label")) return;
+  switch (act) {
+    case "open": S.cmpOpen = S.cmpOpen === a.dataset.id ? null : a.dataset.id; break;
+    case "cat": U.cat = v; cmpSave(); break;
+    case "sort": U.sort = v; cmpSave(); break;
+    case "fav": U.fav = !U.fav; cmpSave(); break;
+    case "hide": U.hideAvoid = !U.hideAvoid; cmpSave(); break;
+    case "store": U.store = v; cmpSave(); break;
+    case "notex": { const on = U.noTex.some(n => n.toLowerCase() === v.toLowerCase()); U.noTex = on ? U.noTex.filter(n => n.toLowerCase() !== v.toLowerCase()) : [...U.noTex, v]; cmpSave(); break; }
+    case "star": if (it) { const n = +v; it.stars = cmpN(it.stars) === n ? "" : n; persist(it); } break;
+    case "st": if (it) { it.status = it.status === v ? "" : v; persist(it); } break;
+    case "use": case "tex": if (it) cmpToggle(it, act, v); break;
+    case "add": { const i = $("#cmp-new"), t = i && i.value.trim(); if (!t) { if (i) i.focus(); return; }
+      const nx = create("food", t, {what:"", grams:"", days:[], why:"", cat: U.cat && U.cat !== "-" ? U.cat : ""}); i.value = ""; S.cmpOpen = nx.id; break; }
+    case "seed": cmpSeed(); return;
+    case "unseed": { let k = 0; for (const x of live("food")) if ((x.tags || []).includes("Beispiel")) { x.archived = true; persist(x); k++; } S.cmpOpen = null; renderMain(); toast(`${k} Beispiele sind archiviert.`); return; }
+    case "tofood": S.fdTab = "food"; S.fdOpen = a.dataset.id; try { localStorage.setItem("fdTab2", "food"); } catch(er){} renderMain(); window.scrollTo({top:0}); return;
+    default: return;
+  }
+  renderMain();
+});
+document.addEventListener("keydown", e => {
+  const t = e.target; if (e.isComposing) return;
+  if (e.key === "Enter" && t.id === "cmp-new") { e.preventDefault(); const b = document.querySelector('[data-cmp="add"]'); if (b) b.click(); return; }
+  if (e.key === "Enter" && t.dataset && t.dataset.cmpAdd) { e.preventDefault(); const it = S.items.get(t.dataset.id), v = t.value.trim(); if (!it || !v) return;
+    if (!(it[t.dataset.cmpAdd] || []).some(o => o.toLowerCase() === v.toLowerCase())) cmpToggle(it, t.dataset.cmpAdd, v); t.value = ""; renderMain(); const n = document.getElementById(t.id); if (n) n.focus(); return; }
+  if ((e.key === "Enter" || e.key === " ") && t.classList && t.classList.contains("cmp-row") && t.dataset.cmp === "open") { e.preventDefault(); t.click(); }
+});
+let cmpQT = null;
+document.addEventListener("input", e => { const t = e.target; if (t.id !== "cmp-q") return; cmpUI().q = t.value; clearTimeout(cmpQT); cmpQT = setTimeout(renderMain, 150); });
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.cmpSt != null) { const it = S.items.get(t.dataset.id); if (it) { it.status = t.value; persist(it); renderMain(); } return; }
+  if (t.dataset.cmpUse != null) { cmpUI().use = t.value; cmpSave(); renderMain(); return; }
+  if (t.dataset.cmpn) { const it = S.items.get(t.dataset.id); if (!it) return; const k = t.dataset.fn, v = bsNum(t.value);
+    if (v === null) return; // keine Zahl: nichts merken
+    it.n = {...(it.n || {})}; if (typeof v === "number") it.n[k] = v; else delete it.n[k];
+    const m = new Set(it.nMine || []); m.add(k); it.nMine = [...m]; persist(it); renderMain(); return; }
+  if (t.dataset.cmpv) renderMain();
 });
 
 /* ================= Geld (14.11.2026, sein Wunsch: eigener Finanztracker, verbunden mit dem Ernährungsplan) =================

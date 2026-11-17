@@ -585,3 +585,37 @@ test("shopSort: Einkaufslisten nach Datum oder Preis", () => {
   assert.deepEqual(C.shopSort(L, "price").map(x => x.id), ["c", "a", "d", "b"], "teuerste zuerst");
   assert.deepEqual(L.map(x => x.id), ["a", "b", "c", "d"], "Original bleibt");
 });
+
+test("Vergleich: perKg, pufaOf, pufaLevel", () => {
+  assert.equal(Math.round(C.perKg("2,99", "100") * 100), 2990);
+  assert.equal(C.perKg("3", ""), null, "ohne Packung kein €/kg");
+  assert.equal(C.perKg("", "500"), null);
+  assert.equal(C.pufaOf({o6:0.6, pufa:1.2}), 0.6, "Omega-6 vor PUFA");
+  assert.equal(C.pufaOf({pufa:"1,4"}), 1.4, "sonst PUFA, Komma geht");
+  assert.equal(C.pufaOf({o6:"", pufa:""}), null, "leer ist kein Wert, nicht 0");
+  assert.equal(C.pufaOf({o6:0}), 0, "echte 0 bleibt 0");
+  assert.deepEqual([0.2, 1, 3, 3.1, null].map(C.pufaLevel), ["low", "mid", "mid", "high", ""]);
+});
+
+test("Vergleich: cmpSort und cmpFilter", () => {
+  const R = [
+    {title:"Parma", cat:"Rohschinken", brand:"Ferrarini", store:"Edeka", pufa:2.2, kg:39.9, stars:4, p:26.7, status:"fav", tex:["zart"], use:["Low-PUFA Basis"]},
+    {title:"Billig", cat:"Rohschinken", brand:"Gut Drei Eichen", store:"Aldi", pufa:2.0, kg:14.9, stars:1, p:26.5, status:"avoid", tex:["zäh", "salzig"]},
+    {title:"Comté", cat:"Rohmilchkäse", store:"Edeka", pufa:0.5, kg:null, stars:null, p:28.9, status:"test", micro:"Calcium, K2", tip:"Rinde ab"},
+    {title:"Ohne", cat:"", pufa:null, kg:5, p:null}];
+  assert.deepEqual(C.cmpSort(R, "pufa").map(r => r.title), ["Comté", "Billig", "Parma", "Ohne"]);
+  assert.deepEqual(C.cmpSort(R, "kg").map(r => r.title), ["Ohne", "Billig", "Parma", "Comté"]);
+  assert.deepEqual(C.cmpSort(R, "stars").map(r => r.title), ["Parma", "Billig", "Comté", "Ohne"], "ohne Sterne ans Ende");
+  assert.deepEqual(C.cmpSort(R, "protein").map(r => r.title), ["Comté", "Parma", "Billig", "Ohne"]);
+  const t = o => C.cmpFilter(R, o).map(r => r.title);
+  assert.deepEqual(t({cat:"Rohschinken"}), ["Parma", "Billig"]);
+  assert.deepEqual(t({cat:"-"}), ["Ohne"]);
+  assert.deepEqual(t({hideAvoid:true}), ["Parma", "Comté", "Ohne"]);
+  assert.deepEqual(t({noTex:["zäh"]}), ["Parma", "Comté", "Ohne"]);
+  assert.deepEqual(t({fav:true}), ["Parma"]);
+  assert.deepEqual(t({store:"edeka"}), ["Parma", "Comté"]);
+  assert.deepEqual(t({use:"low-pufa basis"}), ["Parma"]);
+  assert.deepEqual(t({q:"ferrarini"}), ["Parma"]);
+  assert.deepEqual(t({q:"calcium"}), ["Comté"]);
+  assert.deepEqual(t({q:"aldi salzig"}), ["Billig"], "mehrere Wörter müssen alle passen");
+});

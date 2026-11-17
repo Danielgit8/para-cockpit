@@ -360,6 +360,36 @@ function shopSort(lists, mode){
     : (a, b) => (!a.date - !b.date) || String(b.date || "").localeCompare(String(a.date || ""));
   return (lists || []).slice().sort((a, b) => by(a, b) || (+b.created || 0) - (+a.created || 0));
 }
+// ---- Lebensmittel-Vergleich (17.11.2026) ----
+// Zahl aus Feld oder Datenbank: Zahl bleibt Zahl, Text wie "1,5" wird gelesen, leer = null (nie 0)
+const cmpNum = v => typeof v === "number" ? (isFinite(v) ? v : null) : moneyNum(v);
+// Preis pro kg aus Packungspreis und Packungsgröße in g
+function perKg(price, pack){ const p = cmpNum(price), g = cmpNum(pack); return p != null && g != null && g > 0 ? p / g * 1000 : null; }
+// Omega-6 pro 100 g, sonst alle mehrfach ungesättigten Fette (PUFA)
+function pufaOf(n){ if (!n) return null; const o = cmpNum(n.o6); return o != null ? o : cmpNum(n.pufa); }
+function pufaLevel(g){ const v = cmpNum(g); return v == null ? "" : v < 1 ? "low" : v <= 3 ? "mid" : "high"; }
+// Sortieren: pufa und kg aufsteigend, stars und protein absteigend. Fehlende Werte immer ans Ende, dann nach Name
+function cmpSort(rows, mode){
+  const key = {pufa:"pufa", kg:"kg", stars:"stars", protein:"p"}[mode] || "pufa", up = mode === "pufa" || mode === "kg" || !mode;
+  return (rows || []).slice().sort((a, b) => { const x = cmpNum(a[key]), y = cmpNum(b[key]);
+    if (x == null || y == null) return (x == null) - (y == null) || String(a.title || "").localeCompare(String(b.title || ""), "de");
+    return (up ? x - y : y - x) || String(a.title || "").localeCompare(String(b.title || ""), "de"); });
+}
+// Filtern. cat: "" alle, "-" ohne Kategorie. q sucht in Name, Marke, Supermarkt, Siegel, Kategorie, Wofür, Textur, Notiz, Mikronährstoffen
+function cmpFilter(rows, o = {}){
+  const low = s => String(s || "").toLowerCase(), q = low(o.q).trim(), no = (o.noTex || []).map(low), use = low(o.use), st = low(o.store);
+  return (rows || []).filter(r => {
+    if (o.cat === "-" ? String(r.cat || "").trim() : o.cat && low(r.cat) !== low(o.cat)) return false;
+    if (o.fav && r.status !== "fav") return false;
+    if (o.hideAvoid && r.status === "avoid") return false;
+    if (use && !(r.use || []).some(u => low(u) === use)) return false;
+    if (st && low(r.store).trim() !== st) return false;
+    if (no.length && (r.tex || []).some(t => no.includes(low(t)))) return false;
+    if (q) { const hay = low([r.title, r.brand, r.store, r.seal, r.cat, (r.use || []).join(" "), (r.tex || []).join(" "), r.tip, r.micro, r.microNames].join(" "));
+      if (!q.split(/\s+/).every(w => hay.includes(w))) return false; }
+    return true;
+  });
+}
 // Summe der Ausgaben eines Monats (mk = "2026-11"), optional nur eine Kategorie
 function spentIn(list, mk, cat){
   return (list || []).filter(s => s && String(s.date || "").startsWith(mk) && (!cat || s.cat === cat)).reduce((t, s) => t + (moneyNum(s.amount) || 0), 0);
@@ -525,6 +555,6 @@ function calPatch(ev, ch, item, mkId){
 const api = {pad, dkey, addDays, parseKey, isoDay, stepDate, nextDue,
   DAY_MIN, CAL_DOMAINS, CAL_STEPS, CAL_STEP_LABEL, hm2m, m2hm, endHM, endMin, snapMin, pxToMin, clampSpan, weekStart, weekKeys, calLayout, calExpand, calBacklog, calPatch, stable, sameContent, afterFilter, normCursor, pullAll, resolveRejected, jdayId, jdayPick, mergeJday, shotKey,
   checkItem, parseBackup, planImport, mergeSettings, settingsBase, stampSettings, syncSettings, repath, crc32, zipParts, unzip, searchItems, snippet, SKIP_K,
-  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, weekPlans, shopQty, spentIn, shopSum, shopSort};
+  CS_STATUS, csCanStatus, csBalance, csKeepIds, csSrcGuess, moneyNum, foodCost, weekCost, weekPlans, shopQty, spentIn, shopSum, shopSort, perKg, pufaOf, pufaLevel, cmpSort, cmpFilter};
 if (typeof module === "object" && module.exports) module.exports = api; else root.PCcore = api;
 })(typeof window !== "undefined" ? window : globalThis);
