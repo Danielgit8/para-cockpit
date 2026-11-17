@@ -2163,7 +2163,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-17.4";
+const APP_VERSION = "2026-11-17.5";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -6854,7 +6854,9 @@ function cmpForm(x){
     ${ntMicHTML(n)}
     ${inp("micro", "Mikronährstoffe, die mir wichtig sind", "z. B. Calcium, K2, Retinol, Zink")}
     <div class="fd-lbl br-wide"><span>Preis und Supermarkt</span><div class="sh-pf">${shPriceFields("own:" + x.id, x.title || "", "c" + x.id)}</div>${shStoreList()}</div>
-    <div class="br-ed-f"><button class="pill" data-cmp="tofood" data-id="${x.id}">${ic("food")}Unter Lebensmittel öffnen</button><span class="grow"></span><button class="pill on" data-cmp="open" data-id="${x.id}">Fertig</button></div></div>`;
+    <div class="br-ed-f"><button class="pill" data-cmp="tofood" data-id="${x.id}">${ic("food")}Unter Lebensmittel öffnen</button><span class="grow"></span>
+      ${S.cmpDel === x.id ? `<button class="pill" data-cmp="nodel" data-id="${x.id}">Abbrechen</button>` : ""}<button class="pill sh-kill ${S.cmpDel === x.id ? "arm" : ""}" data-cmp="del" data-id="${x.id}">${ic("trash")}${S.cmpDel === x.id ? "Ja, wirklich löschen" : "Löschen"}</button><button class="pill on" data-cmp="open" data-id="${x.id}">Fertig</button></div>
+    ${S.cmpDel === x.id ? `<p class="hint fp-miss" style="margin:0">„${esc(x.title || "Ohne Namen")}“ ist dann auch unter „Lebensmittel“ weg, mit allen Anhängen.</p>` : ""}</div>`;
 }
 // Beispiele mit Werten aus dem BLS (Status „Testen“, keine Sterne, keine Textur). Marken und Läden sind Vorschläge.
 const CMP_SEED = [
@@ -6883,7 +6885,10 @@ document.addEventListener("click", e => {
   const a = e.target.closest("[data-cmp]"); if (!a) return;
   const act = a.dataset.cmp, U = cmpUI(), it = a.dataset.id && S.items.get(a.dataset.id), v = a.dataset.v || "";
   if (act === "open" && e.target.closest("select, input, label")) return;
+  if (act !== "del") S.cmpDel = null;
   switch (act) {
+    case "del": if (!it) return; if (S.cmpDel !== it.id) { S.cmpDel = it.id; break; } S.cmpDel = null; if (S.cmpOpen === it.id) S.cmpOpen = null; if (S.fdOpen === it.id) S.fdOpen = null; fdRemove(it); break;
+    case "nodel": break;
     case "open": S.cmpOpen = S.cmpOpen === a.dataset.id ? null : a.dataset.id; break;
     case "cat": U.cat = v; cmpSave(); break;
     case "sort": U.sort = v; cmpSave(); break;
