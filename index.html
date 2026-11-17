@@ -1977,7 +1977,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 .cmp-fl .pill{height:30px;padding:0 12px;font-size:12.5px}
 .cmp-use{width:auto;height:30px;padding:0 10px;font-size:12.5px}
 .cmp-tbl{display:flex;flex-direction:column;gap:4px}
-.cmp-row{display:grid;grid-template-columns:minmax(0,2fr) 132px 104px 82px 70px 64px 56px 56px 78px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;cursor:pointer;text-align:left}
+.cmp-row{position:relative;display:grid;grid-template-columns:minmax(0,2fr) 132px 104px 82px 70px 64px 56px 56px 78px 40px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:13px;cursor:pointer;text-align:left}
 .cmp-row:hover{background:var(--soft)}.cmp-row:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .cmp-row.open{border-color:var(--ink);background:var(--soft)}
 .cmp-head{cursor:default;border-color:transparent;font-size:11.5px;font-weight:600;color:var(--muted);padding-top:0;padding-bottom:2px}.cmp-head:hover{background:none}
@@ -1996,13 +1996,17 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 .cmp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .cmp-dot.low{background:var(--good)}.cmp-dot.mid{background:var(--amber,#C77B32)}.cmp-dot.high{background:var(--late)}
 .cmp-ed{margin:2px 0 10px}
+.cmp-x{display:flex;justify-content:flex-end}.cmp-x .ibtn{color:var(--muted)}.cmp-x .ibtn:hover{color:var(--late)}.cmp-x .pill{height:30px;padding:0 10px;font-size:12.5px;white-space:nowrap}
+.cmp-catdel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 12px;font-size:13px}
 .cmp-nut{grid-template-columns:repeat(4,minmax(0,1fr))}
 .cmp-own{width:150px;height:34px;font-size:13px}
 .cmp-avoid-b.on{background:var(--late);border-color:var(--late);color:#fff}
 @media (max-width:1260px){
   .cmp-head{display:none}
   .cmp-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 12px;padding:12px}
-  .cmp-name{grid-column:1/-1;font-size:14px}
+  .cmp-name{grid-column:1/-1;font-size:14px;padding-right:44px}
+  .cmp-x{position:absolute;top:8px;right:8px}
+  .cmp-row:has(.cmp-x .arm) .cmp-name{padding-right:112px}
   .cmp-row .cmp-c:nth-child(2){grid-column:1/3}.cmp-row .cmp-c:nth-child(3){grid-column:3/5}
   .cmp-row .cmp-c[data-l]::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:2px}
   .cmp-c.num{text-align:left}
@@ -2163,7 +2167,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-17.5";
+const APP_VERSION = "2026-11-17.6";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -6777,6 +6781,9 @@ function cmpUI(){
   return S.cmp;
 }
 const cmpSave = () => { const {q, ...o} = cmpUI(); try { localStorage.setItem("cmp-ui", JSON.stringify(o)); } catch(e){} };
+// Gelöschte Standard-Kategorien (synchronisiert in settings.cmpOff). Eigene Kategorien verschwinden, sobald kein Lebensmittel sie mehr hat.
+const cmpOff = () => (S.settings.cmpOff || []).map(c => String(c).toLowerCase());
+const cmpBaseCats = () => CMP_CATS.filter(c => !cmpOff().includes(c.toLowerCase()));
 const cmpUniq = (list, base = []) => { const seen = new Set(), out = [];
   for (const s of [...base, ...list]) { const t = String(s || "").trim(), k = t.toLowerCase(); if (t && !seen.has(k)) { seen.add(k); out.push(t); } } return out; };
 function cmpRow(x, M){
@@ -6792,7 +6799,7 @@ const cmpDot = v => { const l = PC.pufaLevel(v); return l ? `<span class="cmp-do
 function cmpHTML(){
   if (!PC.cmpSort || !PC.cmpFilter || !PC.perKg || !PC.pufaOf || !PC.pufaLevel) return `<section class="card"><div class="empty">Für den Vergleich braucht die App ihre neue Fassung. Nach dem nächsten Neuladen ist er da.</div></section>`;
   const U = cmpUI(), M = fpMap(), foods = live("food"), all = foods.map(x => cmpRow(x, M));
-  const cats = cmpUniq(foods.map(x => x.cat), CMP_CATS), stores = cmpUniq(all.map(r => r.store)).sort((a, b) => a.localeCompare(b, "de"));
+  const cats = cmpUniq(foods.map(x => x.cat), cmpBaseCats()), stores = cmpUniq(all.map(r => r.store)).sort((a, b) => a.localeCompare(b, "de"));
   const uses = cmpUniq(foods.flatMap(x => x.use || [])), texUsed = cmpUniq(foods.flatMap(x => x.tex || []));
   if (U.store && !stores.some(s => s.toLowerCase() === U.store.toLowerCase())) U.store = "";
   if (U.use && !uses.some(s => s.toLowerCase() === U.use.toLowerCase())) U.use = "";
@@ -6814,13 +6821,16 @@ function cmpHTML(){
       <span class="cmp-c num" data-l="Eiweiß">${cmpF(r.p, " g")}</span>
       <span class="cmp-c num" data-l="KH">${cmpF(r.c, " g")}</span>
       <span class="cmp-c num" data-l="kcal">${cmpF(r.kcal)}</span>
-      <span class="cmp-c num" data-l="€/kg">${r.kg == null ? "–" : eur(r.kg)}</span></div>
+      <span class="cmp-c num" data-l="€/kg">${r.kg == null ? "–" : eur(r.kg)}</span>
+      <span class="cmp-c cmp-x"><button class="${S.cmpDel === x.id ? "pill sh-kill arm" : "ibtn"}" data-cmp="del" data-id="${x.id}" aria-label="${esc(r.title)} löschen" title="Löschen">${ic("trash")}${S.cmpDel === x.id ? "Wirklich?" : ""}</button></span></div>
       ${open ? cmpForm(x) : ""}`; };
   return `<section class="card"><div class="add"><input id="cmp-new" data-keep placeholder="${U.cat && U.cat !== "-" ? `Neu in ${esc(U.cat)}, Enter zum Speichern` : "Neues Lebensmittel, Enter zum Speichern"}" aria-label="Neues Lebensmittel für den Vergleich"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-cmp="add" aria-label="Lebensmittel anlegen">${ic("plus")}</button></div>
     <p class="hint" style="margin:10px 0 0">Hier vergleich ich Lebensmittel einer Sorte: Omega-6 (Omega-6 fatty acids) und mehrfach ungesättigte Fette (PUFA), Preis pro kg, Eiweiß, Geschmack und Textur. Es sind dieselben Lebensmittel wie unter „Lebensmittel“, Preis und Supermarkt gelten auch für die Einkaufsliste. Grüner Punkt heißt unter 1 g Omega-6 pro 100 g, gelb bis 3 g, rot darüber.</p>
     <div class="cmp-ex">${hasEx ? `<button class="pill" data-cmp="unseed">${ic("archive")}Beispiele entfernen</button>` : `<button class="pill" data-cmp="seed">${ic("plus")}Beispiele einfügen</button><span class="muted">8 Schinken, Käse, Butter und Leber mit Werten aus dem BLS, zum Ausprobieren</span>`}</div></section>
   <section class="card"><div class="card-h"><h2>Mein Vergleich</h2></div>
     <div class="tr-seg cmp-cats">${catPills}</div>
+    ${U.cat && U.cat !== "-" ? (() => { const n = foods.filter(x => String(x.cat || "").toLowerCase() === U.cat.toLowerCase()).length, arm = S.cmpCatDel === U.cat;
+      return `<div class="cmp-catdel">${arm ? `<span class="fp-miss">„${esc(U.cat)}“ löschen? ${n ? `${n} ${n === 1 ? "Lebensmittel bleibt" : "Lebensmittel bleiben"}, nur ohne Kategorie.` : "Es hängt kein Lebensmittel dran."}</span><button class="pill" data-cmp="nocatdel">Abbrechen</button>` : ""}<button class="pill sh-kill ${arm ? "arm" : ""}" data-cmp="catdel">${ic("trash")}${arm ? "Ja, Kategorie löschen" : `Kategorie „${esc(U.cat)}“ löschen`}</button></div>`; })() : ""}
     <div class="cmp-bar">
       <input class="field" id="cmp-q" data-keep type="search" value="${esc(U.q)}" placeholder="Suchen: Name, Marke, Supermarkt, Siegel, Calcium, Notiz …" aria-label="Im Vergleich suchen">
       <div class="cmp-fl"><span class="muted">Sortieren</span>${CMP_SORT.map(([v, l]) => pill("sort", v, l, U.sort === v)).join("")}</div>
@@ -6829,7 +6839,7 @@ function cmpHTML(){
       ${stores.length ? `<div class="cmp-fl"><span class="muted">Supermarkt</span>${pill("store", "", "Alle", !U.store)}${stores.map(s => pill("store", s, esc(s), U.store.toLowerCase() === s.toLowerCase())).join("")}</div>` : ""}
       ${texUsed.length ? `<div class="cmp-fl"><span class="muted">Ohne</span>${texUsed.map(t => pill("notex", t, esc(t), U.noTex.some(n => n.toLowerCase() === t.toLowerCase()))).join("")}</div>` : ""}
     </div>
-    ${foods.length ? `<div class="cmp-tbl"><div class="cmp-row cmp-head" aria-hidden="true"><span>Lebensmittel</span><span>Status</span><span>Geschmack</span><span class="num">Omega-6</span><span class="num">Ges. Fett</span><span class="num">Eiweiß</span><span class="num">KH</span><span class="num">kcal</span><span class="num">€/kg</span></div>
+    ${foods.length ? `<div class="cmp-tbl"><div class="cmp-row cmp-head" aria-hidden="true"><span>Lebensmittel</span><span>Status</span><span>Geschmack</span><span class="num">Omega-6</span><span class="num">Ges. Fett</span><span class="num">Eiweiß</span><span class="num">KH</span><span class="num">kcal</span><span class="num">€/kg</span><span></span></div>
       ${rows.map(row).join("") || `<div class="empty">Nichts passt zu diesem Filter.</div>`}</div>
       <p class="hint" style="margin:10px 0 0">Alle Werte pro 100 g. Omega-6 nimmt den Omega-6-Wert, fehlt der, alle PUFA zusammen.</p>`
       : `<div class="empty">Noch keine Lebensmittel. Oben eins eintragen oder die Beispiele einfügen.</div>`}</section>`;
@@ -6842,7 +6852,7 @@ function cmpForm(x){
   const tog = (act, list, on) => list.map(v => `<button class="pill ${on.some(o => o.toLowerCase() === v.toLowerCase()) ? "on" : ""}" data-cmp="${act}" data-id="${x.id}" data-v="${esc(v)}">${esc(v)}</button>`).join("");
   const foods = live("food"), uses = cmpUniq(foods.flatMap(f => f.use || []), CMP_USE), texs = cmpUniq(foods.flatMap(f => f.tex || []), CMP_TEX);
   return `<div class="br-ed cmp-ed">${inp("title", "Name")}${inp("cat", "Kategorie", "z. B. Rohschinken", 'list="cmp-cats" autocomplete="off"')}
-    <datalist id="cmp-cats">${cmpUniq(foods.map(f => f.cat), CMP_CATS).map(c => `<option value="${esc(c)}"></option>`).join("")}</datalist>
+    <datalist id="cmp-cats">${cmpUniq(foods.map(f => f.cat), cmpBaseCats()).map(c => `<option value="${esc(c)}"></option>`).join("")}</datalist>
     ${inp("brand", "Marke oder Hersteller", "z. B. Ferrarini, Bio-Hof")}${inp("seal", "Herkunft oder Siegel", "z. B. DOP, Rohmilch, Weidehaltung")}
     <div class="fd-lbl br-wide"><span>Wie finde ich es?</span><div class="fd-btns">${CMP_ST.map(([v, l]) => `<button class="pill ${x.status === v ? "on" : ""} ${v === "avoid" ? "cmp-avoid-b" : ""}" data-cmp="st" data-id="${x.id}" data-v="${v}">${l}</button>`).join("")}${cmpStars(x, "lg")}</div></div>
     <div class="fd-lbl br-wide"><span>Wofür</span><div class="fd-btns">${tog("use", uses, x.use || [])}<input class="field cmp-own" id="cmp-${x.id}-use-new" data-keep data-cmp-add="use" data-id="${x.id}" placeholder="Eigenes, Enter" aria-label="Eigenen Zweck hinzufügen"></div></div>
@@ -6855,8 +6865,7 @@ function cmpForm(x){
     ${inp("micro", "Mikronährstoffe, die mir wichtig sind", "z. B. Calcium, K2, Retinol, Zink")}
     <div class="fd-lbl br-wide"><span>Preis und Supermarkt</span><div class="sh-pf">${shPriceFields("own:" + x.id, x.title || "", "c" + x.id)}</div>${shStoreList()}</div>
     <div class="br-ed-f"><button class="pill" data-cmp="tofood" data-id="${x.id}">${ic("food")}Unter Lebensmittel öffnen</button><span class="grow"></span>
-      ${S.cmpDel === x.id ? `<button class="pill" data-cmp="nodel" data-id="${x.id}">Abbrechen</button>` : ""}<button class="pill sh-kill ${S.cmpDel === x.id ? "arm" : ""}" data-cmp="del" data-id="${x.id}">${ic("trash")}${S.cmpDel === x.id ? "Ja, wirklich löschen" : "Löschen"}</button><button class="pill on" data-cmp="open" data-id="${x.id}">Fertig</button></div>
-    ${S.cmpDel === x.id ? `<p class="hint fp-miss" style="margin:0">„${esc(x.title || "Ohne Namen")}“ ist dann auch unter „Lebensmittel“ weg, mit allen Anhängen.</p>` : ""}</div>`;
+      <button class="pill on" data-cmp="open" data-id="${x.id}">Fertig</button></div></div>`;
 }
 // Beispiele mit Werten aus dem BLS (Status „Testen“, keine Sterne, keine Textur). Marken und Läden sind Vorschläge.
 const CMP_SEED = [
@@ -6886,9 +6895,14 @@ document.addEventListener("click", e => {
   const act = a.dataset.cmp, U = cmpUI(), it = a.dataset.id && S.items.get(a.dataset.id), v = a.dataset.v || "";
   if (act === "open" && e.target.closest("select, input, label")) return;
   if (act !== "del") S.cmpDel = null;
+  if (act !== "catdel") S.cmpCatDel = null;
   switch (act) {
     case "del": if (!it) return; if (S.cmpDel !== it.id) { S.cmpDel = it.id; break; } S.cmpDel = null; if (S.cmpOpen === it.id) S.cmpOpen = null; if (S.fdOpen === it.id) S.fdOpen = null; fdRemove(it); break;
-    case "nodel": break;
+    case "nodel": case "nocatdel": break;
+    case "catdel": { const c = U.cat; if (!c || c === "-") return; if (S.cmpCatDel !== c) { S.cmpCatDel = c; break; } S.cmpCatDel = null;
+      let k = 0; for (const x of live("food")) if (String(x.cat || "").toLowerCase() === c.toLowerCase()) { x.cat = ""; persist(x); k++; }
+      if (CMP_CATS.some(d => d.toLowerCase() === c.toLowerCase())) { S.settings.cmpOff = [...new Set([...(S.settings.cmpOff || []), c])]; saveSettings(0); }
+      U.cat = ""; cmpSave(); renderMain(); toast(`Kategorie „${c}“ ist gelöscht.${k ? ` ${k} ${k === 1 ? "Lebensmittel steht" : "Lebensmittel stehen"} jetzt unter „Ohne Kategorie“.` : ""}`); return; }
     case "open": S.cmpOpen = S.cmpOpen === a.dataset.id ? null : a.dataset.id; break;
     case "cat": U.cat = v; cmpSave(); break;
     case "sort": U.sort = v; cmpSave(); break;
@@ -6925,7 +6939,7 @@ document.addEventListener("change", e => {
     if (v === null) return; // keine Zahl: nichts merken
     it.n = {...(it.n || {})}; if (typeof v === "number") it.n[k] = v; else delete it.n[k];
     const m = new Set(it.nMine || []); m.add(k); it.nMine = [...m]; persist(it); renderMain(); return; }
-  if (t.dataset.cmpv) renderMain();
+  if (t.dataset.cmpv) { if (t.dataset.fv === "cat" && S.settings.cmpOff && S.settings.cmpOff.some(c => c.toLowerCase() === t.value.trim().toLowerCase())) { S.settings.cmpOff = S.settings.cmpOff.filter(c => c.toLowerCase() !== t.value.trim().toLowerCase()); saveSettings(0); } renderMain(); }
 });
 
 /* ================= Geld (14.11.2026, sein Wunsch: eigener Finanztracker, verbunden mit dem Ernährungsplan) =================
