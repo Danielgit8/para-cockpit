@@ -1970,6 +1970,12 @@ body::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;op
 .fp-row.miss .fp-c{color:var(--muted)}
 button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 /* Lebensmittel-Vergleich */
+.ns-tool.empty{opacity:.55}
+.jr-idea{height:28px;padding:0 10px;font-size:12px;white-space:nowrap;align-self:flex-start}.jr-idea svg{width:13px;height:13px}
+.jr-idea.sug{border-color:var(--amber,#C77B32);color:var(--amber,#C77B32);font-weight:600}
+.jr-bit.sug{box-shadow:inset 3px 0 0 var(--amber,#C77B32);padding-left:10px}
+@media (max-width:560px){.jr-bit{flex-wrap:wrap;row-gap:6px}.jr-bit .jr-x{flex:1 1 calc(100% - 110px);min-width:0}.jr-bit .jr-idea{order:5;margin-left:auto}}
+.jr-sughint{display:flex;align-items:center;gap:6px;margin:4px 0 8px}.jr-sughint svg{width:14px;height:14px;color:var(--amber,#C77B32)}
 .cmp-ex{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:12px;font-size:13px}
 .cmp-cats{flex-wrap:wrap;margin-bottom:12px}
 .cmp-bar{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
@@ -2167,7 +2173,7 @@ button.xref{all:unset;cursor:pointer;text-decoration:underline;text-underline-of
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; deine Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-17.6";
+const APP_VERSION = "2026-11-17.7";
 /* ================= helpers ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3447,9 +3453,17 @@ document.addEventListener("change", e => {
 });
 
 /* --- Werkzeuge: alle bisherigen Seiten --- */
+// Aufgeräumt (17.11.2026, sein Wunsch): Seiten für eine Eintragsart, in der nichts steht, sind ausgeblendet. Gelöscht wird nichts,
+// „Leere Seiten zeigen“ holt sie zurück. Seiten ohne eigene Eintragsart (Tagesliste, Verbindungen, Anpassen …) bleiben immer sichtbar.
+document.addEventListener("click", e => { if (e.target.closest("[data-tools]")) { S.toolsAll = !S.toolsAll; renderMain(); } });
 function toolsHTML(){
+  const ks = new Set(Object.keys(kinds()).concat((S.settings.kinds || []).map(c => c.id), ["board"]));
+  const empty = x => ks.has(x.v) && !live(x.v).length;
+  const groups = toolViews().map(g => ({...g, views:g.views.filter(x => S.toolsAll || !empty(x))})).filter(g => g.views.length);
+  const hidden = toolViews().flatMap(g => g.views).filter(empty).length;
   return `<div class="ns">` + header("Werkzeuge", "Alles, was ich schon gebaut hab. Nur öffnen, wenn ich es gerade brauche.") +
-    toolViews().map(g => `<div class="ns-lbl" style="margin:18px 4px 8px">${esc(g.label)}</div><div class="ns-tools">${g.views.map(x => `<button class="ns-tool" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>`).join("") + `</div>`;
+    groups.map(g => `<div class="ns-lbl" style="margin:18px 4px 8px">${esc(g.label)}</div><div class="ns-tools">${g.views.map(x => `<button class="ns-tool ${empty(x) ? "empty" : ""}" data-go="${x.v}">${ic(x.icon)}<span>${esc(x.label)}</span></button>`).join("")}</div>`).join("") +
+    (hidden ? `<p class="ns-hint" style="margin:18px 4px 0"><button class="pill" data-tools="all">${S.toolsAll ? "Leere Seiten ausblenden" : `Leere Seiten zeigen (${hidden})`}</button></p>` : "") + `</div>`;
 }
 
 /* --- Verbindungen (15.11.2026, sein Wunsch): mein Life-OS-MCP für Claude, ChatGPT, n8n und andere KI-Apps ---
@@ -3578,10 +3592,28 @@ function jrMd(s){
   }
   return out + (ul ? "</ul>" : "");
 }
+/* Journal → Content-Idee (17.11.2026, sein Wunsch): Journal und Ideen-Tresor bleiben getrennt, sind aber verknüpft.
+   Die Idee merkt sich den Eintrag (jbit = id des Eintrags, jdate = Datum). Die Abend-Auswertung schreibt Vorschläge als
+   ideas[] (ids von Einträgen) in den Journal-Tag, nichts landet von allein im Tresor. */
+const jrIdeas = () => new Map(live("cidea").filter(i => i.jbit).map(i => [i.jbit, i]));
+function jrIdeaBtn(b, idea, sug){
+  if (idea) return `<button class="pill jr-idea on" data-jr="idea-go" data-id="${idea.id}" title="Zur Idee im Content Studio">${ic("star")}${idea.status === "taken" ? "In der Pipeline" : "Im Ideen-Tresor"}</button>`;
+  return `<button class="pill jr-idea ${sug ? "sug" : ""}" data-jr="idea" data-id="${b.id}" title="Als Idee in den Ideen-Tresor legen">${ic("star")}Als Idee</button>`;
+}
+function jrToIdea(bitId){
+  const b = jrDays(jrK()).flatMap(x => x.bits || []).find(x => x.id === bitId); if (!b) return null;
+  const have = jrIdeas().get(bitId); if (have) return have;
+  const text = String(b.text || "").trim(), url = (text.match(/https?:\/\/\S+/) || [""])[0];
+  let title = text.replace(/https?:\/\/\S+/g, "").split(/\r?\n/).map(x => x.trim()).find(Boolean) || "";
+  if (title.length > 90) title = title.slice(0, 90).replace(/\s+\S*$/, "") + " …";
+  const it = csCapture(title || url || "Idee aus dem Journal", url, "eigen"); if (!it) return null;
+  it.body = text; it.jbit = bitId; it.jdate = jrK(); persist(it); return it;
+}
 function journalHTML(){
   const tk = dkey(), k = jrK(), days = jrDays(k), d0 = jrDay(k) || {}, ab = jrAbout(), isT = k === tk;
   const d = d0.sum || (d0.ins || []).length ? d0 : days.find(x => x.sum || (x.ins || []).length) || d0;
   const bits = [...new Map(days.flatMap(x => x.bits || []).map(b => [b.id, b])).values()].sort((a, b) => b.t - a.t);
+  const sug = new Set(days.flatMap(x => x.ideas || [])), idOf = jrIdeas();
   const shots = days.flatMap(x => x.id ? shotsOf(x).map((o, n) => ({s:o.s, day:x.id, n})) : []);
   const dl = new Date(k + "T12:00").toLocaleDateString("de-DE", {weekday:"long", day:"numeric", month:"long"});
   const sr = !!(window.SpeechRecognition || window.webkitSpeechRecognition), rec = !!S.jrRec;
@@ -3600,7 +3632,9 @@ function journalHTML(){
     (d.sum || (d.ins || []).length ? `<section class="ns-card jr-sum"><div class="ns-lbl">Von Claude eingeordnet</div><div class="jr-md">${jrMd(d.sum)}</div>
       ${(d.ins || []).length ? `<div class="ns-lbl" style="margin-top:14px">Was Claude dabei über mich gelernt hat</div><ul class="jr-ins">${d.ins.map(x => `<li>${jrInl(x)}</li>`).join("")}</ul>` : ""}</section>` : "") +
     (bits.length || shots.length ? `<section class="ns-card"><div class="ns-lbl-row"><span class="ns-lbl">${isT ? "Heute gesammelt" : "Gesammelt"}</span><span class="ns-when num">${bits.length + shots.length}</span></div>
-      ${bits.map(b => `<div class="jr-bit"><span class="jr-t num">${time(b.t)}</span><div class="jr-x">${jrText(b.text)}${jrYT(b.text).map(id => `<a class="jr-yt" href="https://youtu.be/${id}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="Vorschau des Videos" loading="lazy"></a>`).join("")}</div>
+      ${bits.some(b => sug.has(b.id) && !idOf.get(b.id)) ? `<p class="ns-hint jr-sughint">${ic("star")}Claude meint, die markierten Einträge wären gute Content-Ideen. Mit „Als Idee“ landen sie im Ideen-Tresor.</p>` : ""}
+      ${bits.map(b => `<div class="jr-bit ${sug.has(b.id) && !idOf.get(b.id) ? "sug" : ""}"><span class="jr-t num">${time(b.t)}</span><div class="jr-x">${jrText(b.text)}${jrYT(b.text).map(id => `<a class="jr-yt" href="https://youtu.be/${id}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="Vorschau des Videos" loading="lazy"></a>`).join("")}</div>
+        ${jrIdeaBtn(b, idOf.get(b.id), sug.has(b.id))}
         ${S.jrDel === b.id ? `<button class="btn danger jr-del" data-jr="delyes" data-id="${b.id}">Löschen?</button>` : `<button class="ibtn jr-del" data-jr="del" data-id="${b.id}" title="Löschen" aria-label="Eintrag löschen">${ic("trash")}</button>`}</div>`).join("")}
       ${shots.length ? `<div class="jr-shots">${shots.map(({s, day, n}) => { const u = fileUrl(s); return `<button class="jr-shot" data-jr="shot" data-id="${day}" data-k="${n}" aria-label="Bild groß anzeigen">${u ? `<img src="${esc(u)}" alt="${esc(s.cap || "")}" loading="lazy">` : `<span>${navigator.onLine ? "Lädt …" : "Braucht Internet"}</span>`}</button>`; }).join("")}</div>` : ""}</section>` : "") +
     `<section class="ns-card">${ab ? `<button class="ns-row" data-open="${ab.id}">${ic("heart")}<span>Über mich: was Claude bisher über mich weiß</span><i class="ns-tick">›</i></button>` : `<p class="ns-hint" style="margin:0">Am Abend fasst Claude meinen Tag zusammen, ordnet Links und Videos ein und schreibt in die Notiz „Über mich“, was er über meine Interessen, Themen und Meinungen lernt.</p>`}
@@ -3640,6 +3674,9 @@ document.addEventListener("click", e => {
   if (a === "save") jrSave();
   else if (a === "mic") jrMic();
   else if (a === "prev" || a === "next") { jrStopMic(); const nk = dkey(addDays(new Date(k + "T12:00"), a === "prev" ? -1 : 1)); S.jrK = nk >= dkey() ? null : nk; renderMain(); }
+  else if (a === "idea") { const it = jrToIdea(b.dataset.id); renderMain(); if (it) toast("Liegt jetzt im Ideen-Tresor. Im Journal bleibt der Eintrag, wie er ist."); }
+  else if (a === "idea-go") { srOpen(b.dataset.id); }
+  else if (a === "day-go") { S.jrK = b.dataset.k || ""; go("journal"); window.scrollTo({top: 0}); }
   else if (a === "day") { jrStopMic(); S.jrK = b.dataset.k; renderMain(); window.scrollTo({top: 0}); }
   else if (a === "del") { S.jrDel = b.dataset.id; renderMain(); }
   else if (a === "delyes") { const id = b.dataset.id, d = jrDays(k).find(x => (x.bits || []).some(y => y.id === id)); if (d) { d.bits = d.bits.filter(x => x.id !== id); d.gone = [...new Set([...(d.gone || []), id])]; persist(d); } S.jrDel = null; renderMain(); }
@@ -5248,12 +5285,13 @@ async function fdUpload(id, files){
 }
 function foodHTML(){
   if (!S.fdTab) { try { S.fdTab = localStorage.getItem("fdTab2") || "diary"; } catch(e) { S.fdTab = "diary"; } }
+  if (S.fdTab === "cmp") S.fdTab = "food"; // „Vergleich“ ist seit 17.11.2026 der Reiter „Lebensmittel“
   if (!NT.db) ntLoad();
   const tab = (v, l, n) => `<button class="pill ${S.fdTab === v ? "on" : ""}" data-nt="tab" data-v="${v}">${l}${n ? ` <span class="num">${n}</span>` : ""}</button>`;
-  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + fdListHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML, shop:shopHTML, cmp:cmpHTML}[S.fdTab] || ntDiaryHTML;
+  const body = {diary:ntDiaryHTML, trend:ntTrendHTML, food:() => msHTML() + ntFavListHTML() + cmpHTML() + ntFixListHTML(), rec:rcHTML, goals:ntGoalsHTML, plan:plHTML, shop:shopHTML}[S.fdTab] || ntDiaryHTML;
   const open = shLines().filter(l => !l.done).length;
   return header("Ernährung", "Kalorien zählen, Ernährungsplan mit Kosten, Einkaufsliste, Lebensmittel, Rezepte und meine Ziele") + banner() +
-    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("shop", "Einkauf", open)}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("cmp", "Vergleich")}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
+    `<div class="tr-seg nt-tabs">${tab("diary", "Tagebuch")}${tab("plan", "Plan & Kosten")}${tab("shop", "Einkauf", open)}${tab("trend", "Verlauf")}${tab("food", "Lebensmittel", live("food").length)}${tab("rec", "Rezepte", live("recipe").length)}${tab("goals", "Ziele & Verbrauch")}</div>` + body();
 }
 function fdListHTML(){
   const day = S.fdDay || 0;
@@ -6122,7 +6160,7 @@ function msAmt(g, x){
   const v = x.n && x.n[g.key]; if (ntNum(v) == null) return `${d[1]}: keine Angabe in der Datenbank`;
   return `${mFmt(+v)} ${d[2]} pro 100 g${d[3] ? ` · ${Math.round(v / d[3] * 100)} % vom Tagesbezugswert` : ""}`;
 }
-const msMac = x => `pro 100 g: Eiweiß ${bsFmt(ntR(+x.n.p || 0, 1))} g · Kohlenhydrate ${bsFmt(ntR(+x.n.c || 0, 1))} g · Fett ${bsFmt(ntR(+x.n.f || 0, 1))} g`;
+const msMac = x => { const n = x.n || {}; return `pro 100 g: Eiweiß ${bsFmt(ntR(+n.p || 0, 1))} g · Kohlenhydrate ${bsFmt(ntR(+n.c || 0, 1))} g · Fett ${bsFmt(ntR(+n.f || 0, 1))} g`; };
 function msRowHTML({m, x}, F){
   const G = msGroups(), mine = (m.macros || []).filter(id => G.some(g => g.id === id)), mn = m.main || [], fg = F && msGroup(F);
   const chips = G.filter(g => mine.includes(g.id)).map(g => { const main = mn.includes(g.id);
@@ -6600,7 +6638,7 @@ const shUniq = list => [...new Set(list.map(s => String(s || "").trim()).filter(
 const shStores = () => shUniq(live("fprice").map(f => f.store));
 const shNames = () => shUniq([...live("food").map(x => x.title), ...live("fprice").map(x => x.title)]);
 let shT = null;
-const shLater = () => { clearTimeout(shT); shT = setTimeout(() => { if (S.view === "food" && (S.fdTab === "shop" || S.fdTab === "food" || S.fdTab === "cmp") && !S.nt) renderMain(); }, 250); };
+const shLater = () => { clearTimeout(shT); shT = setTimeout(() => { if (S.view === "food" && (S.fdTab === "shop" || S.fdTab === "food") && !S.nt) renderMain(); }, 250); };
 function shKeyFor(name){
   const t = String(name || "").trim(), n = ntNorm(t);
   const own = live("food").find(x => ntNorm(x.title) === n); if (own) return {key:"own:" + own.id, title:own.title || t};
@@ -6805,12 +6843,13 @@ function cmpHTML(){
   if (U.use && !uses.some(s => s.toLowerCase() === U.use.toLowerCase())) U.use = "";
   const base = {...U, cat:"", q:U.q};
   const cnt = c => PC.cmpFilter(all, {...base, cat:c}).length;
-  const rows = PC.cmpSort(PC.cmpFilter(all, U), U.sort);
+  const day = S.fdDay || 0, useDays = foods.some(x => fdDayList(x).length);
+  const rows = PC.cmpSort(PC.cmpFilter(all, U), U.sort).filter(r => !day || !useDays || r.id === S.fdOpen || fdDayList(r.x).includes(day));
   const hasEx = foods.some(x => (x.tags || []).includes("Beispiel"));
   const pill = (act, v, label, on, extra = "") => `<button class="pill ${on ? "on" : ""}" data-cmp="${act}" data-v="${esc(v)}" aria-pressed="${!!on}" ${extra}>${label}</button>`;
   const catPills = [pill("cat", "", `Alle <span class="num">${cnt("")}</span>`, !U.cat), ...cats.map(c => { const n = cnt(c); return n || U.cat === c ? pill("cat", c, `${esc(c)} <span class="num">${n}</span>`, U.cat === c) : ""; }),
     all.some(r => !r.cat.trim()) ? pill("cat", "-", `Ohne Kategorie <span class="num">${cnt("-")}</span>`, U.cat === "-") : ""].join("");
-  const row = r => { const x = r.x, open = S.cmpOpen === x.id, sub = [r.brand, r.store].filter(Boolean);
+  const row = r => { const x = r.x, open = S.fdOpen === x.id, sub = [r.brand, r.store].filter(Boolean);
     return `<div class="cmp-row ${r.status === "avoid" ? "avoid" : ""} ${open ? "open" : ""}" role="button" tabindex="0" data-cmp="open" data-id="${x.id}" aria-expanded="${open}">
       <span class="cmp-c cmp-name"><b>${esc(r.title)}</b>${r.seal ? ` <span class="chip cmp-seal">${esc(r.seal)}</span>` : ""}${r.status === "avoid" ? ` <span class="chip cmp-warn">Nicht mehr kaufen</span>` : ""}
         ${sub.length ? `<small>${sub.map(esc).join(" · ")}</small>` : ""}${r.tex.length ? `<small class="cmp-tex">${r.tex.map(esc).join(", ")}</small>` : ""}</span>
@@ -6825,9 +6864,9 @@ function cmpHTML(){
       <span class="cmp-c cmp-x"><button class="${S.cmpDel === x.id ? "pill sh-kill arm" : "ibtn"}" data-cmp="del" data-id="${x.id}" aria-label="${esc(r.title)} löschen" title="Löschen">${ic("trash")}${S.cmpDel === x.id ? "Wirklich?" : ""}</button></span></div>
       ${open ? cmpForm(x) : ""}`; };
   return `<section class="card"><div class="add"><input id="cmp-new" data-keep placeholder="${U.cat && U.cat !== "-" ? `Neu in ${esc(U.cat)}, Enter zum Speichern` : "Neues Lebensmittel, Enter zum Speichern"}" aria-label="Neues Lebensmittel für den Vergleich"><button class="rbtn ink" style="width:34px;height:34px;box-shadow:none" data-cmp="add" aria-label="Lebensmittel anlegen">${ic("plus")}</button></div>
-    <p class="hint" style="margin:10px 0 0">Hier vergleich ich Lebensmittel einer Sorte: Omega-6 (Omega-6 fatty acids) und mehrfach ungesättigte Fette (PUFA), Preis pro kg, Eiweiß, Geschmack und Textur. Es sind dieselben Lebensmittel wie unter „Lebensmittel“, Preis und Supermarkt gelten auch für die Einkaufsliste. Grüner Punkt heißt unter 1 g Omega-6 pro 100 g, gelb bis 3 g, rot darüber.</p>
+    <p class="hint" style="margin:10px 0 0">Meine Lebensmittel zum Vergleichen: Omega-6 (Omega-6 fatty acids), Preis pro kg, Eiweiß, Geschmack und Textur. Grüner Punkt heißt unter 1 g Omega-6 pro 100 g, gelb bis 3 g, rot darüber. Antippen zeigt alles, auch Tage, Grund und Anhänge.</p>
     <div class="cmp-ex">${hasEx ? `<button class="pill" data-cmp="unseed">${ic("archive")}Beispiele entfernen</button>` : `<button class="pill" data-cmp="seed">${ic("plus")}Beispiele einfügen</button><span class="muted">8 Schinken, Käse, Butter und Leber mit Werten aus dem BLS, zum Ausprobieren</span>`}</div></section>
-  <section class="card"><div class="card-h"><h2>Mein Vergleich</h2></div>
+  <section class="card"><div class="card-h"><h2>Meine Lebensmittel</h2></div>
     <div class="tr-seg cmp-cats">${catPills}</div>
     ${U.cat && U.cat !== "-" ? (() => { const n = foods.filter(x => String(x.cat || "").toLowerCase() === U.cat.toLowerCase()).length, arm = S.cmpCatDel === U.cat;
       return `<div class="cmp-catdel">${arm ? `<span class="fp-miss">„${esc(U.cat)}“ löschen? ${n ? `${n} ${n === 1 ? "Lebensmittel bleibt" : "Lebensmittel bleiben"}, nur ohne Kategorie.` : "Es hängt kein Lebensmittel dran."}</span><button class="pill" data-cmp="nocatdel">Abbrechen</button>` : ""}<button class="pill sh-kill ${arm ? "arm" : ""}" data-cmp="catdel">${ic("trash")}${arm ? "Ja, Kategorie löschen" : `Kategorie „${esc(U.cat)}“ löschen`}</button></div>`; })() : ""}
@@ -6837,6 +6876,7 @@ function cmpHTML(){
       <div class="cmp-fl">${pill("fav", "", "★ Nur Favoriten", U.fav)}${pill("hide", "", "Meiden ausblenden", U.hideAvoid)}
         ${uses.length ? `<select class="field cmp-use" id="cmp-use" data-cmp-use aria-label="Wofür"><option value="">Wofür: alles</option>${uses.map(u => `<option value="${esc(u)}" ${U.use.toLowerCase() === u.toLowerCase() ? "selected" : ""}>${esc(u)}</option>`).join("")}</select>` : ""}</div>
       ${stores.length ? `<div class="cmp-fl"><span class="muted">Supermarkt</span>${pill("store", "", "Alle", !U.store)}${stores.map(s => pill("store", s, esc(s), U.store.toLowerCase() === s.toLowerCase())).join("")}</div>` : ""}
+      ${useDays ? `<div class="cmp-fl"><span class="muted">Tag</span>${[["0", "Alle"], ...FD_DAYS.map((l, i) => [String(i + 1), l])].map(([v, l]) => `<button class="pill ${String(day) === v ? "on" : ""}" data-fact="fday" data-d="${v}" aria-pressed="${String(day) === v}">${l}</button>`).join("")}</div>` : ""}
       ${texUsed.length ? `<div class="cmp-fl"><span class="muted">Ohne</span>${texUsed.map(t => pill("notex", t, esc(t), U.noTex.some(n => n.toLowerCase() === t.toLowerCase()))).join("")}</div>` : ""}
     </div>
     ${foods.length ? `<div class="cmp-tbl"><div class="cmp-row cmp-head" aria-hidden="true"><span>Lebensmittel</span><span>Status</span><span>Geschmack</span><span class="num">Omega-6</span><span class="num">Ges. Fett</span><span class="num">Eiweiß</span><span class="num">KH</span><span class="num">kcal</span><span class="num">€/kg</span><span></span></div>
@@ -6854,6 +6894,7 @@ function cmpForm(x){
   return `<div class="br-ed cmp-ed">${inp("title", "Name")}${inp("cat", "Kategorie", "z. B. Rohschinken", 'list="cmp-cats" autocomplete="off"')}
     <datalist id="cmp-cats">${cmpUniq(foods.map(f => f.cat), cmpBaseCats()).map(c => `<option value="${esc(c)}"></option>`).join("")}</datalist>
     ${inp("brand", "Marke oder Hersteller", "z. B. Ferrarini, Bio-Hof")}${inp("seal", "Herkunft oder Siegel", "z. B. DOP, Rohmilch, Weidehaltung")}
+    ${inp("what", "Was ist das?", "Art oder kurze Beschreibung")}${inp("grams", "Wie viel Gramm?", "Menge in Gramm", 'inputmode="decimal"')}
     <div class="fd-lbl br-wide"><span>Wie finde ich es?</span><div class="fd-btns">${CMP_ST.map(([v, l]) => `<button class="pill ${x.status === v ? "on" : ""} ${v === "avoid" ? "cmp-avoid-b" : ""}" data-cmp="st" data-id="${x.id}" data-v="${v}">${l}</button>`).join("")}${cmpStars(x, "lg")}</div></div>
     <div class="fd-lbl br-wide"><span>Wofür</span><div class="fd-btns">${tog("use", uses, x.use || [])}<input class="field cmp-own" id="cmp-${x.id}-use-new" data-keep data-cmp-add="use" data-id="${x.id}" placeholder="Eigenes, Enter" aria-label="Eigenen Zweck hinzufügen"></div></div>
     <div class="fd-lbl br-wide"><span>Textur und Geschmack</span><div class="fd-btns">${tog("tex", texs, x.tex || [])}<input class="field cmp-own" id="cmp-${x.id}-tex-new" data-keep data-cmp-add="tex" data-id="${x.id}" placeholder="Eigenes, Enter" aria-label="Eigene Textur hinzufügen"></div></div>
@@ -6863,8 +6904,12 @@ function cmpForm(x){
       <div class="fd-btns"><button class="pill" data-nt="pick" data-id="${x.id}">${ic("search")}Aus Datenbank übernehmen</button>${mine.length ? `<span class="muted">${mine.length} ${mine.length === 1 ? "Wert" : "Werte"} von mir</span>` : ""}</div></div>
     ${ntMicHTML(n)}
     ${inp("micro", "Mikronährstoffe, die mir wichtig sind", "z. B. Calcium, K2, Retinol, Zink")}
-    <div class="fd-lbl br-wide"><span>Preis und Supermarkt</span><div class="sh-pf">${shPriceFields("own:" + x.id, x.title || "", "c" + x.id)}</div>${shStoreList()}</div>
-    <div class="br-ed-f"><button class="pill" data-cmp="tofood" data-id="${x.id}">${ic("food")}Unter Lebensmittel öffnen</button><span class="grow"></span>
+    <div class="fd-lbl br-wide"><span>Preis und Supermarkt</span><div class="sh-pf">${shPriceFields("own:" + x.id, x.title || "", "c" + x.id)}</div>${shStoreList()}
+      <div><button class="pill" data-sh="addfood" data-id="${x.id}">${ic("plus")}Auf die Einkaufsliste</button></div></div>
+    <div class="fd-lbl br-wide"><span>An welchen Tagen?</span><div class="fd-btns">${FD_DAYS.map((l, i) => { const on = fdDayList(x).includes(i + 1); return `<button class="pill fd-day ${on ? "on" : ""}" data-fact="day" data-id="${x.id}" data-d="${i + 1}" aria-pressed="${on}">${l}</button>`; }).join("")}</div></div>
+    <label class="br-wide">Weshalb esse ich das?<textarea class="field" rows="2" id="cmp-${x.id}-why" data-keep data-fv="why" data-id="${x.id}" placeholder="Mein Grund">${esc(x.why || "")}</textarea></label>
+    ${fdAttHTML(x)}
+    <div class="br-ed-f"><span class="grow"></span>
       <button class="pill on" data-cmp="open" data-id="${x.id}">Fertig</button></div></div>`;
 }
 // Beispiele mit Werten aus dem BLS (Status „Testen“, keine Sterne, keine Textur). Marken und Läden sind Vorschläge.
@@ -6897,13 +6942,13 @@ document.addEventListener("click", e => {
   if (act !== "del") S.cmpDel = null;
   if (act !== "catdel") S.cmpCatDel = null;
   switch (act) {
-    case "del": if (!it) return; if (S.cmpDel !== it.id) { S.cmpDel = it.id; break; } S.cmpDel = null; if (S.cmpOpen === it.id) S.cmpOpen = null; if (S.fdOpen === it.id) S.fdOpen = null; fdRemove(it); break;
+    case "del": if (!it) return; if (S.cmpDel !== it.id) { S.cmpDel = it.id; break; } S.cmpDel = null; if (S.fdOpen === it.id) S.fdOpen = null; if (S.fdOpen === it.id) S.fdOpen = null; fdRemove(it); break;
     case "nodel": case "nocatdel": break;
     case "catdel": { const c = U.cat; if (!c || c === "-") return; if (S.cmpCatDel !== c) { S.cmpCatDel = c; break; } S.cmpCatDel = null;
       let k = 0; for (const x of live("food")) if (String(x.cat || "").toLowerCase() === c.toLowerCase()) { x.cat = ""; persist(x); k++; }
       if (CMP_CATS.some(d => d.toLowerCase() === c.toLowerCase())) { S.settings.cmpOff = [...new Set([...(S.settings.cmpOff || []), c])]; saveSettings(0); }
       U.cat = ""; cmpSave(); renderMain(); toast(`Kategorie „${c}“ ist gelöscht.${k ? ` ${k} ${k === 1 ? "Lebensmittel steht" : "Lebensmittel stehen"} jetzt unter „Ohne Kategorie“.` : ""}`); return; }
-    case "open": S.cmpOpen = S.cmpOpen === a.dataset.id ? null : a.dataset.id; break;
+    case "open": S.fdOpen = S.fdOpen === a.dataset.id ? null : a.dataset.id; break;
     case "cat": U.cat = v; cmpSave(); break;
     case "sort": U.sort = v; cmpSave(); break;
     case "fav": U.fav = !U.fav; cmpSave(); break;
@@ -6914,9 +6959,9 @@ document.addEventListener("click", e => {
     case "st": if (it) { it.status = it.status === v ? "" : v; persist(it); } break;
     case "use": case "tex": if (it) cmpToggle(it, act, v); break;
     case "add": { const i = $("#cmp-new"), t = i && i.value.trim(); if (!t) { if (i) i.focus(); return; }
-      const nx = create("food", t, {what:"", grams:"", days:[], why:"", cat: U.cat && U.cat !== "-" ? U.cat : ""}); i.value = ""; S.cmpOpen = nx.id; break; }
+      const nx = create("food", t, {what:"", grams:"", days:[], why:"", cat: U.cat && U.cat !== "-" ? U.cat : ""}); i.value = ""; S.fdOpen = nx.id; break; }
     case "seed": cmpSeed(); return;
-    case "unseed": { let k = 0; for (const x of live("food")) if ((x.tags || []).includes("Beispiel")) { x.archived = true; persist(x); k++; } S.cmpOpen = null; renderMain(); toast(`${k} Beispiele sind archiviert.`); return; }
+    case "unseed": { let k = 0; for (const x of live("food")) if ((x.tags || []).includes("Beispiel")) { x.archived = true; persist(x); k++; } S.fdOpen = null; renderMain(); toast(`${k} Beispiele sind archiviert.`); return; }
     case "tofood": S.fdTab = "food"; S.fdOpen = a.dataset.id; try { localStorage.setItem("fdTab2", "food"); } catch(er){} renderMain(); window.scrollTo({top:0}); return;
     default: return;
   }
@@ -7246,6 +7291,7 @@ function csIdeaHTML(i){
   const u = csU(), open = u.idea === i.id, st = i.status || "inbox", p = i.pillar ? csPillar(i.pillar) : null, url = brUrl(i.url), arm = u.del === i.id;
   const note = lsPlain(i.body), piece = st === "taken" ? csPieces().find(x => x.idea === i.id) : null, src = i.source && S.items.get(i.source);
   return `<div class="cs-idea ${open ? "open" : ""}"><div class="cs-idea-h"><span class="chip">${esc(brLabel(CS_TYPES, i.type || "eigen"))}</span>${p ? csPl(p) : ""}${csSer(i) ? `<span class="chip" title="Serie">${esc(csSer(i))}</span>` : ""}${csEff(i) ? `<span class="chip">${esc(brLabel(CS_EFFORT, csEff(i)))}</span>` : ""}<span class="grow"></span><span class="muted num">${fmtTs(i.created)}</span></div>
+    ${i.jbit ? `<div class="cs-idea-h"><button class="cs-src-chip" data-jr="day-go" data-k="${esc(i.jdate || "")}" title="Zum Journal-Tag">${ic("pen")}Aus dem Journal${i.jdate ? ` · ${esc(i.jdate.slice(8, 10))}.${esc(i.jdate.slice(5, 7))}.` : ""}</button></div>` : ""}
     ${src && !src.archived ? `<div class="cs-idea-h"><button class="cs-src-chip" data-cs="sgo" data-id="${src.id}" title="Zur Quelle">${ic("link")}${esc(src.title || "Quelle")}</button></div>` : ""}
     <button class="cs-idea-t" data-cs="iopen" data-id="${i.id}" aria-expanded="${open}">${esc(i.title || "Ohne Titel")}</button>
     ${note && !open ? `<p class="cs-idea-n">${esc(note.slice(0, 180))}${note.length > 180 ? " …" : ""}</p>` : ""}

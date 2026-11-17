@@ -619,3 +619,11 @@ test("Vergleich: cmpSort und cmpFilter", () => {
   assert.deepEqual(t({q:"calcium"}), ["Comté"]);
   assert.deepEqual(t({q:"aldi salzig"}), ["Billig"], "mehrere Wörter müssen alle passen");
 });
+
+test("mergeJday: Content-Vorschläge (ideas) gehören zur neueren Auswertung", () => {
+  const a = {id:"jd-x", bits:[{id:"1", t:1}], sum:"alt", ideas:["1"], done:10};
+  const b = {id:"jd-x", bits:[{id:"1", t:1}, {id:"2", t:2}], sum:"neu", ideas:["2"], done:20};
+  assert.deepEqual(C.mergeJday(a, b).ideas, ["2"]);
+  assert.deepEqual(C.mergeJday(b, a).ideas, ["2"], "Richtung egal");
+  assert.equal(C.mergeJday({bits:[], done:5}, {bits:[]}).ideas, undefined);
+});

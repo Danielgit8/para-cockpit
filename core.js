@@ -98,7 +98,8 @@ function mergeJday(a, b){
   for (const x of [...((a && a.shots) || []), ...((b && b.shots) || [])]) { const k = shotKey(x); if (x && !g.has(k)) shots.set(k, x); }
   const out = {...(a || {}), ...(b || {}), bits:[...bits.values()].sort((x, y) => (x.t || 0) - (y.t || 0)), shots:[...shots.values()]};
   const ev = (+((a && a.done) || 0)) > (+((b && b.done) || 0)) ? a : (b || {});
-  for (const k of ["sum", "ins", "done"]) { if (ev[k] === undefined) delete out[k]; else out[k] = ev[k]; }
+  // ideas = Content-Vorschläge der Abend-Auswertung, gehören wie sum und ins zur Auswertung
+  for (const k of ["sum", "ins", "ideas", "done"]) { if (ev[k] === undefined) delete out[k]; else out[k] = ev[k]; }
   if (gone.length) out.gone = gone;
   return out;
 }
