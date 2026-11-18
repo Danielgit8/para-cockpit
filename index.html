@@ -119,18 +119,18 @@ textarea.field{resize:none;field-sizing:content;min-height:44px;line-height:1.35
 
 /* Geld-Tabellen */
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--linie);border-radius:var(--r);background:var(--leinen);max-width:100%}
-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
-th,td{padding:4px 6px;border-bottom:1px solid var(--linie);text-align:right;vertical-align:middle;white-space:nowrap}
+table{border-collapse:separate;border-spacing:0;width:100%}
+th,td{padding:4px 3px;border-bottom:1px solid var(--linie);text-align:right;vertical-align:middle;white-space:nowrap}
 th{font-size:12.5px;font-weight:600;color:var(--tinte-2);white-space:normal;max-width:6.4em;line-height:1.2;padding-top:10px;padding-bottom:8px;word-break:keep-all;hyphens:none}
 th.l,td.l{text-align:left}
 .stick{position:sticky;left:0;z-index:1;background:var(--leinen);box-shadow:1px 0 0 var(--linie)}
-td input{border:1px solid transparent;background:transparent;border-radius:3px;padding:6px 4px;min-height:40px;width:4.4em;text-align:right;font-size:16px}
+td input{border:1px solid transparent;background:transparent;border-radius:3px;padding:6px 4px;min-height:40px;width:100%;min-width:3.6em;text-align:right;font-size:16px}
 td input:focus{outline:none;border-color:var(--bordeaux);background:var(--papier)}
-td textarea.t{width:9.5em;text-align:left;border:1px solid transparent;background:transparent;border-radius:3px;padding:6px 4px;min-height:40px;resize:none;field-sizing:content;font-size:16px;line-height:1.25;white-space:normal;display:block}
+td textarea.t{width:100%;min-width:7em;text-align:left;border:1px solid transparent;background:transparent;border-radius:3px;padding:6px 4px;min-height:40px;resize:none;field-sizing:content;font-size:16px;line-height:1.25;white-space:normal;display:block}
 td textarea.t:focus{outline:none;border-color:var(--bordeaux);background:var(--papier)}
 tr.down textarea{color:var(--tinte-3)}
 td select{border:1px solid var(--linie-2);background:var(--papier);border-radius:3px;min-height:40px;max-width:11em;font-size:16px;padding:4px}
-td.c{color:var(--tinte-2);min-width:4.2em}
+td.c{color:var(--tinte-2)}
 tr.down td{color:var(--tinte-3)}
 tr.down input{color:var(--tinte-3)}
 tr.down td small,.hint-down{display:block;font-size:12px;color:var(--bordeaux);font-style:italic;padding:0 4px 4px}
@@ -148,24 +148,30 @@ td.del .ibtn{margin:0 auto}
 .ibtn.del{color:var(--tinte-3)}
 .btn.del-yes{min-height:40px;padding:4px 10px;font-size:14px;flex:none}
 #tbl-shop{width:100%}
+.downbox{margin-top:14px}
+.downbox summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px;font-size:16px;color:var(--tinte-2);list-style:none}
+.downbox summary::-webkit-details-marker{display:none}
+.downbox summary::before{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin:0 4px}
+.downbox[open] summary::before{transform:rotate(45deg)}
+.downbox summary b{font-weight:600;color:var(--bordeaux)}
 /* Handy: Produkte und Plan als Karten, nichts zum Seitwärts-Wischen */
 @media (max-width:719px){
-#tbl-prod,#tbl-plan{display:block;width:100%;min-width:0}
-#tbl-prod thead,#tbl-plan thead{display:none}
-#tbl-prod tbody,#tbl-plan tbody,#tbl-prod tfoot,#tbl-plan tfoot{display:block}
-#tbl-prod tbody tr,#tbl-plan tbody tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;column-gap:6px;row-gap:6px;padding:8px 10px 10px;border-bottom:1px solid var(--linie);position:relative}
-#tbl-prod tfoot tr,#tbl-plan tfoot tr{display:block}
-#tbl-prod td,#tbl-plan td{display:block;border:0;padding:0;text-align:left;white-space:normal;min-width:0;position:static;box-shadow:none;background:none}
-#tbl-prod tfoot td,#tbl-plan tfoot td{padding:0 6px;background:var(--papier-2)}
-#tbl-prod td.l,#tbl-plan td.l{grid-column:1/-1;padding-right:48px}
-#tbl-prod.ed td.l,#tbl-plan.ed td.l{padding-left:44px}
-#tbl-prod td[data-l]::before,#tbl-plan td[data-l]::before{content:attr(data-l);display:block;font-size:11.5px;line-height:1.2;color:var(--tinte-3);margin:0 0 2px}
-#tbl-prod td input,#tbl-plan td input{width:100%;text-align:left;min-height:38px;padding:4px 6px;background:var(--papier);border-color:var(--linie)}
-#tbl-prod td textarea.t{width:100%;font-weight:600}
+.tbl-p,#tbl-plan{display:block;width:100%;min-width:0}
+.tbl-p thead,#tbl-plan thead{display:none}
+.tbl-p tbody,#tbl-plan tbody,.tbl-p tfoot,#tbl-plan tfoot{display:block}
+.tbl-p tbody tr,#tbl-plan tbody tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;column-gap:6px;row-gap:6px;padding:8px 10px 10px;border-bottom:1px solid var(--linie);position:relative}
+.tbl-p tfoot tr,#tbl-plan tfoot tr{display:block}
+.tbl-p td,#tbl-plan td{display:block;border:0;padding:0;text-align:left;white-space:normal;min-width:0;position:static;box-shadow:none;background:none}
+.tbl-p tfoot td,#tbl-plan tfoot td{padding:0 6px;background:var(--papier-2)}
+.tbl-p td.l,#tbl-plan td.l{grid-column:1/-1;padding-right:48px}
+.tbl-p.ed td.l,#tbl-plan.ed td.l{padding-left:44px}
+.tbl-p td[data-l]::before,#tbl-plan td[data-l]::before{content:attr(data-l);display:block;font-size:11.5px;line-height:1.2;color:var(--tinte-3);margin:0 0 2px}
+.tbl-p td input,#tbl-plan td input{width:100%;text-align:left;min-height:38px;padding:4px 6px;background:var(--papier);border-color:var(--linie)}
+.tbl-p td textarea.t{width:100%;font-weight:600}
 #tbl-plan td select{width:100%;max-width:none}
-#tbl-prod td.c,#tbl-plan td.c{min-width:0;font-size:15px;padding-top:0}
-#tbl-prod td.del,#tbl-plan td.del,#tbl-prod td.m,#tbl-plan td.m{position:absolute;top:6px;right:4px;width:auto;padding:0}
-#tbl-prod td.g,#tbl-plan td.g{position:absolute;top:6px;left:2px}
+.tbl-p td.c,#tbl-plan td.c{min-width:0;font-size:15px;padding-top:0}
+.tbl-p td.del,#tbl-plan td.del,.tbl-p td.m,#tbl-plan td.m{position:absolute;top:6px;right:4px;width:auto;padding:0}
+.tbl-p td.g,#tbl-plan td.g{position:absolute;top:6px;left:2px}
 #tbl-shop td.l{white-space:normal}
 .sum{max-width:none}
 }
@@ -244,7 +250,7 @@ body.auth #nav,body.auth #fab,body.auth #hdr{display:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; die Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-18.4";
+const APP_VERSION = "2026-11-18.5";
 // Testkopie: nur auf localhost mit ?lotest=1 und ohne Supabase-Schlüssel
 const TEST = /[?&]lotest=1/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
@@ -283,7 +289,7 @@ const S = {
   dirty:new Set(), tombs:new Set(), delAt:{}, settingsDirty:false, cursor:null, syncing:false, online:navigator.onLine,
   view:"heute", gtab:null, edit:false, sheet:null, pop:null, pulledNow:false, drafts:{}, plusDraft:"",
 };
-try { S.gtab = localStorage.getItem("lo-gtab") || null; } catch(e){}
+try { S.gtab = localStorage.getItem("lo-gtab") || null; S.downOpen = !!localStorage.getItem("lo-downopen"); } catch(e){}
 const all = () => [...S.items.values()];
 const byOrd = (a, b) => (+a.order || 0) - (+b.order || 0) || (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id));
 const kindList = k => all().filter(x => x.kind === k).sort(byOrd);
@@ -767,14 +773,18 @@ const delBtn = (id, ask = "Löschen?", a = "row-del") => S.delAsk === a + ":" + 
 const delTd = id => S.edit ? "" : `<td class="del">${delBtn(id)}</td>`;
 const withL = (k, c, h) => c.id === "title" || c.id === "prod" ? h : h.replace("<td", `<td data-l="${esc(L("col." + k + "." + c.id))}"`);
 function prodSum(){ return prods().filter(p => p.taste !== "down" && visStrict(p)).reduce((t, p) => { const c = cost(p); return t + (c ? c.month : 0); }, 0); }
+function prodRow(p, cols, sortable){ const cs = cost(p);
+  return `<tr data-sid="${esc(p.id)}" class="${p.taste === "down" ? "down" : ""} ${p.hidden ? "is-hidden" : ""}">${S.edit ? `<td class="g">${sortable ? gripBtn() : ""}</td>` : ""}${cols.map(c => withL("prod", c, prodCell(p, c, cs))).join("")}${S.edit ? `<td class="m">${moreBtn("item-menu", p.id, "Produkt bearbeiten")}</td>` : delTd(p.id)}</tr>`; }
+function prodHead(cols){ return `<thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("prod", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>`; }
 function prodHTML(){
-  const cols = colsOf("prod"), L1 = prods(), n = cols.length + (S.edit ? 2 : 1);
-  return `<div class="tbl-wrap"><table id="tbl-prod" class="${S.edit ? "ed" : ""}"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("prod", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
-    <tbody data-sort="lprod">${L1.map(p => { const cs = cost(p);
-      return `<tr data-sid="${esc(p.id)}" class="${p.taste === "down" ? "down" : ""} ${p.hidden ? "is-hidden" : ""}">${S.edit ? `<td class="g">${gripBtn()}</td>` : ""}${cols.map(c => withL("prod", c, prodCell(p, c, cs))).join("")}${S.edit ? `<td class="m">${moreBtn("item-menu", p.id, "Produkt bearbeiten")}</td>` : delTd(p.id)}</tr>`; }).join("")}</tbody>
+  const cols = colsOf("prod"), all1 = prods(), L1 = all1.filter(p => p.taste !== "down"), D = all1.filter(p => p.taste === "down"), n = cols.length + (S.edit ? 2 : 1), ed = S.edit ? " ed" : "";
+  return `<div class="tbl-wrap"><table id="tbl-prod" class="tbl-p${ed}">${prodHead(cols)}
+    <tbody data-sort="lprod">${L1.map(p => prodRow(p, cols, true)).join("")}</tbody>
     <tfoot><tr><td colspan="${n}" class="l"><span class="sum">${esc(L("t.sumMonth"))} <b class="num" id="sum-prod">${eur(prodSum())}</b><small>ohne ${esc(L("t.down"))}</small></span></td></tr></tfoot></table></div>
     ${L1.length ? "" : `<p class="note-s">Noch kein Produkt.</p>`}
-    <div class="btnline">${btnWrap("addProd", `<button class="btn" data-a="add-prod">${ic("plus")}${esc(L("btn.addProd"))}</button>`)}</div>`;
+    <div class="btnline">${btnWrap("addProd", `<button class="btn" data-a="add-prod">${ic("plus")}${esc(L("btn.addProd"))}</button>`)}</div>
+    ${D.length ? `<details class="downbox" id="downbox" ${S.downOpen ? "open" : ""}><summary>Hat mir nicht geschmeckt <b>${D.length}</b></summary>
+      <div class="tbl-wrap"><table id="tbl-down" class="tbl-p${ed}">${prodHead(cols)}<tbody>${D.map(p => prodRow(p, cols, false)).join("")}</tbody></table></div></details>` : ""}`;
 }
 function planRows(){ return kindList("lplan").filter(vis); }
 function planSum(){ let d = 0; for (const r of planRows()) { if (!visStrict(r)) continue; const p = getIt(r.prod); if (!p || p.taste === "down") continue; const c = cost(p, r.g); if (c) d += c.day; } return {day:d, week:d * 7, month:d * 30}; }
@@ -824,7 +834,7 @@ function shopBodyHTML(){
 function geldHTML(){ const t = curGtab(); return t === "plan" ? planHTML() : t === "shop" ? shopHTML() : prodHTML(); }
 // Beim Tippen nur die Zahlen neu rechnen, nicht die ganze Seite (sonst geht der nächste Tipp verloren)
 function moneyRefresh(){
-  for (const tr of document.querySelectorAll("#tbl-prod tbody tr[data-sid]")) {
+  for (const tr of document.querySelectorAll(".tbl-p tbody tr[data-sid]")) {
     const p = getIt(tr.dataset.sid), cs = p && cost(p);
     tr.querySelectorAll("[data-c]").forEach(td => { td.textContent = cs ? eur(cs[td.dataset.c]) : ""; });
   }
@@ -1028,6 +1038,7 @@ function layEdit(list, id, fn){
 // Mindestens ein Bereich, ein Reiter und eine Spalte je Tabelle bleibt sichtbar
 function canDrop(list, id){ if (list === "buttons") return true; const arr = layList(lay(), list).filter(shown); return arr.length > 1 || !arr.some(e => e.id === id); }
 
+document.addEventListener("toggle", e => { if (e.target.id === "downbox") { S.downOpen = e.target.open; try { localStorage.setItem("lo-downopen", S.downOpen ? "1" : ""); } catch(x){} } }, true);
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-a]"); if (!t) return;
   if (S.justDragged && Date.now() - S.justDragged < 300) return;
