@@ -148,6 +148,27 @@ td.del .ibtn{margin:0 auto}
 .ibtn.del{color:var(--tinte-3)}
 .btn.del-yes{min-height:40px;padding:4px 10px;font-size:14px;flex:none}
 #tbl-shop{width:100%}
+/* Handy: Produkte und Plan als Karten, nichts zum Seitwärts-Wischen */
+@media (max-width:719px){
+#tbl-prod,#tbl-plan{display:block;width:100%;min-width:0}
+#tbl-prod thead,#tbl-plan thead{display:none}
+#tbl-prod tbody,#tbl-plan tbody,#tbl-prod tfoot,#tbl-plan tfoot{display:block}
+#tbl-prod tbody tr,#tbl-plan tbody tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;column-gap:6px;row-gap:6px;padding:8px 10px 10px;border-bottom:1px solid var(--linie);position:relative}
+#tbl-prod tfoot tr,#tbl-plan tfoot tr{display:block}
+#tbl-prod td,#tbl-plan td{display:block;border:0;padding:0;text-align:left;white-space:normal;min-width:0;position:static;box-shadow:none;background:none}
+#tbl-prod tfoot td,#tbl-plan tfoot td{padding:0 6px;background:var(--papier-2)}
+#tbl-prod td.l,#tbl-plan td.l{grid-column:1/-1;padding-right:48px}
+#tbl-prod.ed td.l,#tbl-plan.ed td.l{padding-left:44px}
+#tbl-prod td[data-l]::before,#tbl-plan td[data-l]::before{content:attr(data-l);display:block;font-size:11.5px;line-height:1.2;color:var(--tinte-3);margin:0 0 2px}
+#tbl-prod td input,#tbl-plan td input{width:100%;text-align:left;min-height:38px;padding:4px 6px;background:var(--papier);border-color:var(--linie)}
+#tbl-prod td textarea.t{width:100%;font-weight:600}
+#tbl-plan td select{width:100%;max-width:none}
+#tbl-prod td.c,#tbl-plan td.c{min-width:0;font-size:15px;padding-top:0}
+#tbl-prod td.del,#tbl-plan td.del,#tbl-prod td.m,#tbl-plan td.m{position:absolute;top:6px;right:4px;width:auto;padding:0}
+#tbl-prod td.g,#tbl-plan td.g{position:absolute;top:6px;left:2px}
+#tbl-shop td.l{white-space:normal}
+.sum{max-width:none}
+}
 #tbl-shop td.l{white-space:normal;overflow-wrap:break-word}
 tr.got td{color:var(--tinte-3)}
 tr.got td.l{text-decoration:line-through}
@@ -223,7 +244,7 @@ body.auth #nav,body.auth #fab,body.auth #hdr{display:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; die Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-18.3";
+const APP_VERSION = "2026-11-18.4";
 // Testkopie: nur auf localhost mit ?lotest=1 und ohne Supabase-Schlüssel
 const TEST = /[?&]lotest=1/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
@@ -744,12 +765,13 @@ function prodCell(p, c, cs){
 }
 const delBtn = (id, ask = "Löschen?", a = "row-del") => S.delAsk === a + ":" + id ? `<button class="btn danger del-yes" data-a="${a}-yes" data-id="${esc(id)}">${esc(ask)}</button>` : `<button class="ibtn del" data-a="${a}" data-id="${esc(id)}" aria-label="Entfernen">${ic("trash")}</button>`;
 const delTd = id => S.edit ? "" : `<td class="del">${delBtn(id)}</td>`;
+const withL = (k, c, h) => c.id === "title" || c.id === "prod" ? h : h.replace("<td", `<td data-l="${esc(L("col." + k + "." + c.id))}"`);
 function prodSum(){ return prods().filter(p => p.taste !== "down" && visStrict(p)).reduce((t, p) => { const c = cost(p); return t + (c ? c.month : 0); }, 0); }
 function prodHTML(){
   const cols = colsOf("prod"), L1 = prods(), n = cols.length + (S.edit ? 2 : 1);
-  return `<div class="tbl-wrap"><table id="tbl-prod"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("prod", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
+  return `<div class="tbl-wrap"><table id="tbl-prod" class="${S.edit ? "ed" : ""}"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("prod", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
     <tbody data-sort="lprod">${L1.map(p => { const cs = cost(p);
-      return `<tr data-sid="${esc(p.id)}" class="${p.taste === "down" ? "down" : ""} ${p.hidden ? "is-hidden" : ""}">${S.edit ? `<td>${gripBtn()}</td>` : ""}${cols.map(c => prodCell(p, c, cs)).join("")}${S.edit ? `<td>${moreBtn("item-menu", p.id, "Produkt bearbeiten")}</td>` : delTd(p.id)}</tr>`; }).join("")}</tbody>
+      return `<tr data-sid="${esc(p.id)}" class="${p.taste === "down" ? "down" : ""} ${p.hidden ? "is-hidden" : ""}">${S.edit ? `<td class="g">${gripBtn()}</td>` : ""}${cols.map(c => withL("prod", c, prodCell(p, c, cs))).join("")}${S.edit ? `<td class="m">${moreBtn("item-menu", p.id, "Produkt bearbeiten")}</td>` : delTd(p.id)}</tr>`; }).join("")}</tbody>
     <tfoot><tr><td colspan="${n}" class="l"><span class="sum">${esc(L("t.sumMonth"))} <b class="num" id="sum-prod">${eur(prodSum())}</b><small>ohne ${esc(L("t.down"))}</small></span></td></tr></tfoot></table></div>
     ${L1.length ? "" : `<p class="note-s">Noch kein Produkt.</p>`}
     <div class="btnline">${btnWrap("addProd", `<button class="btn" data-a="add-prod">${ic("plus")}${esc(L("btn.addProd"))}</button>`)}</div>`;
@@ -765,9 +787,9 @@ function planCell(r, c, p, cs){
 }
 function planHTML(){
   const cols = colsOf("plan"), R = planRows(), n = cols.length + (S.edit ? 2 : 1), s = planSum();
-  return `<div class="tbl-wrap"><table id="tbl-plan"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("plan", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
+  return `<div class="tbl-wrap"><table id="tbl-plan" class="${S.edit ? "ed" : ""}"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("plan", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
     <tbody data-sort="lplan">${R.map(r => { const p = getIt(r.prod), cs = p && p.taste !== "down" ? cost(p, r.g) : null;
-      return `<tr data-sid="${esc(r.id)}" class="${p && p.taste === "down" ? "down" : ""} ${r.hidden ? "is-hidden" : ""}">${S.edit ? `<td>${gripBtn()}</td>` : ""}${cols.map(c => planCell(r, c, p, cs)).join("")}${S.edit ? `<td>${moreBtn("item-menu", r.id, "Zeile bearbeiten")}</td>` : delTd(r.id)}</tr>`; }).join("")}</tbody>
+      return `<tr data-sid="${esc(r.id)}" class="${p && p.taste === "down" ? "down" : ""} ${r.hidden ? "is-hidden" : ""}">${S.edit ? `<td class="g">${gripBtn()}</td>` : ""}${cols.map(c => withL("plan", c, planCell(r, c, p, cs))).join("")}${S.edit ? `<td class="m">${moreBtn("item-menu", r.id, "Zeile bearbeiten")}</td>` : delTd(r.id)}</tr>`; }).join("")}</tbody>
     <tfoot><tr><td colspan="${n}" class="l"><span class="sum" id="sum-plan">${planSumHTML(s)}</span></td></tr></tfoot></table></div>
     ${R.length ? "" : `<p class="note-s">Noch nichts im Plan.</p>`}
     <div class="btnline">${btnWrap("addPlan", `<button class="btn" data-a="add-plan">${ic("plus")}${esc(L("btn.addPlan"))}</button>`)}</div>`;
