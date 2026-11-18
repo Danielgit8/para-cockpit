@@ -143,6 +143,10 @@ tfoot td{border-bottom:0;background:var(--papier-2)}
 .sum b{font-size:18px}
 .sum small{color:var(--tinte-3)}
 td.ck{width:52px;text-align:center}
+td.del,th.del{position:sticky;right:0;z-index:1;background:var(--leinen);box-shadow:-1px 0 0 var(--linie);width:48px;text-align:center;padding:0 2px}
+td.del .ibtn{margin:0 auto}
+.ibtn.del{color:var(--tinte-3)}
+.btn.del-yes{min-height:40px;padding:4px 10px;font-size:14px;flex:none}
 #tbl-shop{width:100%}
 #tbl-shop td.l{white-space:normal;overflow-wrap:break-word}
 tr.got td{color:var(--tinte-3)}
@@ -219,7 +223,7 @@ body.auth #nav,body.auth #fab,body.auth #hdr{display:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; die Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-18.1";
+const APP_VERSION = "2026-11-18.3";
 // Testkopie: nur auf localhost mit ?lotest=1 und ohne Supabase-Schlüssel
 const TEST = /[?&]lotest=1/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
@@ -676,7 +680,7 @@ function heuteHTML(){
   if (!L1.length) return `<p class="empty">${esc(L("t.empty"))}</p>`;
   return `<div class="card"><ul class="rows">${L1.map(t => `<li class="row">
       <button class="chk" data-a="tick" data-id="${esc(t.id)}" aria-label="Abhaken: ${esc(t.title)}"><span>${ic("check")}</span></button>
-      <div class="tt">${esc(t.title || "Ohne Titel")}<small>${esc(pathName(t.path))}</small></div></li>`).join("")}</ul></div>`;
+      <div class="tt">${esc(t.title || "Ohne Titel")}<small>${esc(pathName(t.path))}</small></div>${delBtn(t.id)}</li>`).join("")}</ul></div>`;
 }
 
 /* --- Ziele --- */
@@ -687,11 +691,11 @@ function taskRow(t){
   return `<li class="row ${t.done ? "done" : ""}">
     <button class="chk ${t.done ? "on" : ""}" data-a="tick" data-id="${esc(t.id)}" aria-label="${t.done ? "Wieder offen" : "Abhaken"}: ${esc(t.title)}"><span>${ic("check")}</span></button>
     <div class="tt">${esc(t.title || "Ohne Titel")}</div>
-    ${t.done ? "" : `<button class="sun ${on ? "on" : ""}" data-a="today" data-id="${esc(t.id)}" aria-pressed="${on}" aria-label="${on ? "Nicht mehr für heute" : "Für heute markieren"}" title="${on ? "Für heute markiert" : "Für heute markieren"}">${ic("sun")}</button>`}</li>`;
+    ${t.done ? "" : `<button class="sun ${on ? "on" : ""}" data-a="today" data-id="${esc(t.id)}" aria-pressed="${on}" aria-label="${on ? "Nicht mehr für heute" : "Für heute markieren"}" title="${on ? "Für heute markiert" : "Für heute markieren"}">${ic("sun")}</button>`}${delBtn(t.id)}</li>`;
 }
 function noteRow(n){
   if (S.edit) return `<li class="row note ${n.hidden ? "is-hidden" : ""}" data-sid="${esc(n.id)}">${gripBtn()}${editTitle(n, "Notiz")}${moreBtn("item-menu", n.id, "Notiz bearbeiten")}</li>`;
-  return `<li class="row note"><span class="ndot">${ic("note")}</span><div class="tt">${esc(n.title)}</div></li>`;
+  return `<li class="row note"><span class="ndot">${ic("note")}</span><div class="tt">${esc(n.title)}</div>${delBtn(n.id)}</li>`;
 }
 function pathHTML(p){
   const recent = Date.now() - 3 * 864e5;
@@ -738,12 +742,14 @@ function prodCell(p, c, cs){
     default: return `<td class="c num" data-c="${c.id}">${cs ? eur(cs[c.id]) : ""}</td>`;
   }
 }
+const delBtn = (id, ask = "Löschen?", a = "row-del") => S.delAsk === a + ":" + id ? `<button class="btn danger del-yes" data-a="${a}-yes" data-id="${esc(id)}">${esc(ask)}</button>` : `<button class="ibtn del" data-a="${a}" data-id="${esc(id)}" aria-label="Entfernen">${ic("trash")}</button>`;
+const delTd = id => S.edit ? "" : `<td class="del">${delBtn(id)}</td>`;
 function prodSum(){ return prods().filter(p => p.taste !== "down" && visStrict(p)).reduce((t, p) => { const c = cost(p); return t + (c ? c.month : 0); }, 0); }
 function prodHTML(){
-  const cols = colsOf("prod"), L1 = prods(), n = cols.length + (S.edit ? 2 : 0);
-  return `<div class="tbl-wrap"><table id="tbl-prod"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("prod", c)).join("")}${S.edit ? "<th></th>" : ""}</tr></thead>
+  const cols = colsOf("prod"), L1 = prods(), n = cols.length + (S.edit ? 2 : 1);
+  return `<div class="tbl-wrap"><table id="tbl-prod"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("prod", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
     <tbody data-sort="lprod">${L1.map(p => { const cs = cost(p);
-      return `<tr data-sid="${esc(p.id)}" class="${p.taste === "down" ? "down" : ""} ${p.hidden ? "is-hidden" : ""}">${S.edit ? `<td>${gripBtn()}</td>` : ""}${cols.map(c => prodCell(p, c, cs)).join("")}${S.edit ? `<td>${moreBtn("item-menu", p.id, "Produkt bearbeiten")}</td>` : ""}</tr>`; }).join("")}</tbody>
+      return `<tr data-sid="${esc(p.id)}" class="${p.taste === "down" ? "down" : ""} ${p.hidden ? "is-hidden" : ""}">${S.edit ? `<td>${gripBtn()}</td>` : ""}${cols.map(c => prodCell(p, c, cs)).join("")}${S.edit ? `<td>${moreBtn("item-menu", p.id, "Produkt bearbeiten")}</td>` : delTd(p.id)}</tr>`; }).join("")}</tbody>
     <tfoot><tr><td colspan="${n}" class="l"><span class="sum">${esc(L("t.sumMonth"))} <b class="num" id="sum-prod">${eur(prodSum())}</b><small>ohne ${esc(L("t.down"))}</small></span></td></tr></tfoot></table></div>
     ${L1.length ? "" : `<p class="note-s">Noch kein Produkt.</p>`}
     <div class="btnline">${btnWrap("addProd", `<button class="btn" data-a="add-prod">${ic("plus")}${esc(L("btn.addProd"))}</button>`)}</div>`;
@@ -758,10 +764,10 @@ function planCell(r, c, p, cs){
   }
 }
 function planHTML(){
-  const cols = colsOf("plan"), R = planRows(), n = cols.length + (S.edit ? 2 : 0), s = planSum();
-  return `<div class="tbl-wrap"><table id="tbl-plan"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("plan", c)).join("")}${S.edit ? "<th></th>" : ""}</tr></thead>
+  const cols = colsOf("plan"), R = planRows(), n = cols.length + (S.edit ? 2 : 1), s = planSum();
+  return `<div class="tbl-wrap"><table id="tbl-plan"><thead><tr>${S.edit ? "<th></th>" : ""}${cols.map(c => thHTML("plan", c)).join("")}<th class="${S.edit ? "" : "del"}"></th></tr></thead>
     <tbody data-sort="lplan">${R.map(r => { const p = getIt(r.prod), cs = p && p.taste !== "down" ? cost(p, r.g) : null;
-      return `<tr data-sid="${esc(r.id)}" class="${p && p.taste === "down" ? "down" : ""} ${r.hidden ? "is-hidden" : ""}">${S.edit ? `<td>${gripBtn()}</td>` : ""}${cols.map(c => planCell(r, c, p, cs)).join("")}${S.edit ? `<td>${moreBtn("item-menu", r.id, "Zeile bearbeiten")}</td>` : ""}</tr>`; }).join("")}</tbody>
+      return `<tr data-sid="${esc(r.id)}" class="${p && p.taste === "down" ? "down" : ""} ${r.hidden ? "is-hidden" : ""}">${S.edit ? `<td>${gripBtn()}</td>` : ""}${cols.map(c => planCell(r, c, p, cs)).join("")}${S.edit ? `<td>${moreBtn("item-menu", r.id, "Zeile bearbeiten")}</td>` : delTd(r.id)}</tr>`; }).join("")}</tbody>
     <tfoot><tr><td colspan="${n}" class="l"><span class="sum" id="sum-plan">${planSumHTML(s)}</span></td></tr></tfoot></table></div>
     ${R.length ? "" : `<p class="note-s">Noch nichts im Plan.</p>`}
     <div class="btnline">${btnWrap("addPlan", `<button class="btn" data-a="add-plan">${ic("plus")}${esc(L("btn.addPlan"))}</button>`)}</div>`;
@@ -787,9 +793,9 @@ function shopHTML(){
 function shopBodyHTML(){
   const cols = colsOf("shop"), d = shopData(), got = S.settings.loShopDone || {};
   const cell = shopCell(got);
-  return `<div class="tbl-wrap"><table id="tbl-shop"><thead><tr>${cols.map(c => thHTML("shop", c)).join("")}</tr></thead>
-    <tbody>${d.lines.map(l => `<tr class="${got[l.id] ? "got" : ""}">${cols.map(c => cell(l, c)).join("")}</tr>`).join("")}</tbody>
-    <tfoot><tr><td colspan="${cols.length}" class="l"><span class="sum">Summe <b class="num">${eur(d.total)}</b>${d.miss ? `<small>${d.miss} ohne Preis oder Packungsgröße, nicht mitgerechnet</small>` : ""}</span></td></tr></tfoot></table></div>
+  return `<div class="tbl-wrap"><table id="tbl-shop"><thead><tr>${cols.map(c => thHTML("shop", c)).join("")}<th class="del"></th></tr></thead>
+    <tbody>${d.lines.map(l => `<tr class="${got[l.id] ? "got" : ""}">${cols.map(c => cell(l, c)).join("")}<td class="del">${delBtn(l.id, "Aus dem Plan?", "shop-del")}</td></tr>`).join("")}</tbody>
+    <tfoot><tr><td colspan="${cols.length + 1}" class="l"><span class="sum">Summe <b class="num">${eur(d.total)}</b>${d.miss ? `<small>${d.miss} ohne Preis oder Packungsgröße, nicht mitgerechnet</small>` : ""}</span></td></tr></tfoot></table></div>
     ${d.lines.length ? "" : `<p class="note-s">Die Liste kommt aus dem Ernährungsplan. Da steht noch nichts drin.</p>`}
     <div class="btnline">${btnWrap("shopReset", `<button class="btn ghost" data-a="shop-reset">${esc(L("btn.shopReset"))}</button>`)}</div>`;
 }
@@ -983,6 +989,11 @@ function addPath(goalId){
   delete S.drafts["np-" + goalId]; create("lpath", {title:v, goal:goalId, order:nextOrder(kindList("lpath").filter(p => p.goal === goalId))});
   renderMain();
 }
+function trashMany(ids){
+  const now = Date.now(), its = ids.map(getIt).filter(Boolean); if (!its.length) return;
+  for (const it of its) { it.trashedAt = now; persist(it); } S.sheet = null; renderAll();
+  toast("Liegt jetzt im Papierkorb", {label:"Rückgängig", fn:() => { for (const it of its) { const x = getIt(it.id); if (x) { delete x.trashedAt; persist(x); } } renderAll(); }});
+}
 function trashItem(id){
   const it = getIt(id); if (!it) return;
   it.trashedAt = Date.now(); persist(it); S.sheet = null; renderAll();
@@ -1025,6 +1036,9 @@ document.addEventListener("click", e => {
     case "trash-ask": S.sheet.sure = true; renderSheet(); break;
     case "trash-no": S.sheet.sure = false; renderSheet(); break;
     case "trash-yes": trashItem(id); break;
+    case "row-del": case "shop-del": { const k = a + ":" + id; S.delAsk = k; clearTimeout(S.delT); S.delT = setTimeout(() => { if (S.delAsk === k) { S.delAsk = null; renderMain(); } }, 4000); renderMain(); break; }
+    case "row-del-yes": S.delAsk = null; trashItem(id); break;
+    case "shop-del-yes": S.delAsk = null; trashMany(planRows().filter(r => r.prod === id && visStrict(r)).map(r => r.id)); break;
     case "lay-hide": { const list = t.dataset.list, e0 = layList(lay(), list).find(x => x.id === id);
       if (e0 && !e0.hidden && !canDrop(list, id)) { toast("Eins muss sichtbar bleiben."); break; }
       if (S.sheet) S.sheet.sure = null; layEdit(list, id, x => { x.hidden = !x.hidden; }); break; }
