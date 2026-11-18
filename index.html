@@ -93,6 +93,8 @@ main{max-width:760px;margin:0 auto;padding:14px 16px calc(var(--nav-h) + 140px +
 .chk span .i{width:16px;height:16px;stroke-width:2.4}
 .sun{width:44px;height:44px;flex:none;display:grid;place-items:center;background:none;border:0;color:var(--tinte-3);border-radius:50%}
 .sun.on{color:var(--senf)}
+.rep{width:44px;height:44px;flex:none;display:grid;place-items:center;color:var(--olive)}
+.row small .i{width:13px;height:13px;vertical-align:-2px}
 .sun.on .i{fill:color-mix(in srgb,var(--senf) 35%,transparent)}
 .ndot{width:44px;flex:none;display:grid;place-items:center;color:var(--tinte-3)}
 .ndot .i{width:18px;height:18px}
@@ -250,7 +252,7 @@ body.auth #nav,body.auth #fab,body.auth #hdr{display:none}
 // Supabase-Zugang: Project URL und Publishable (anon) Key. Der Key ist öffentlich gedacht; die Daten schützt die Zugriffsregel in der Datenbank.
 const CONFIG = { url: "https://yzntbxbdxtdqgddyicdn.supabase.co", key: "sb_publishable_0hu09OCTj9H1dnam_ztXYQ_0OfPEk1R" };
 // Bei jeder Änderung hochzählen: Geräte mit älterer Version laden sich dann selbst neu
-const APP_VERSION = "2026-11-18.5";
+const APP_VERSION = "2026-11-18.6";
 // Testkopie: nur auf localhost mit ?lotest=1 und ohne Supabase-Schlüssel
 const TEST = /[?&]lotest=1/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
@@ -267,6 +269,7 @@ const LO_KINDS = PC.LO_KINDS || ["lgoal", "lpath", "ltask", "lnote", "lprod", "l
 
 const P = {
   check:"M5 12.5l4.5 4.5L19 7", plus:"M12 5v14M5 12h14", close:"M6 6l12 12M18 6L6 18",
+  repeat:"M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3",
   sun:"M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4L7 17M17 7l1.4-1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
   pen:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4", trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13", grip:"M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01",
   more:"M5 12h.01M12 12h.01M19 12h.01", eye:"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
@@ -698,27 +701,30 @@ function btnWrap(id, html){
 
 /* --- Heute --- */
 function pathName(id){ const p = getIt(id); return p ? p.title || "Ohne Namen" : ""; }
+// Tägliche Aufgaben: jeden Tag wieder offen, erledigt gilt nur für heute (doneDay)
+const isDaily = t => t.repeat === "daily";
+const isDone = t => isDaily(t) ? t.doneDay === dkey() : !!t.done;
 function todayTasks(){
   const k = dkey();
-  return kindList("ltask").filter(t => !t.done && t.today && t.today <= k && visStrict(t));
+  return kindList("ltask").filter(t => visStrict(t) && (isDaily(t) ? !isDone(t) : !t.done && t.today && t.today <= k));
 }
 function heuteHTML(){
   const L1 = todayTasks();
   if (!L1.length) return `<p class="empty">${esc(L("t.empty"))}</p>`;
   return `<div class="card"><ul class="rows">${L1.map(t => `<li class="row">
       <button class="chk" data-a="tick" data-id="${esc(t.id)}" aria-label="Abhaken: ${esc(t.title)}"><span>${ic("check")}</span></button>
-      <div class="tt">${esc(t.title || "Ohne Titel")}<small>${esc(pathName(t.path))}</small></div>${delBtn(t.id)}</li>`).join("")}</ul></div>`;
+      <div class="tt">${esc(t.title || "Ohne Titel")}<small>${esc(pathName(t.path))}${isDaily(t) ? ` · jeden Tag` : ""}</small></div>${delBtn(t.id)}</li>`).join("")}</ul></div>`;
 }
 
 /* --- Ziele --- */
 function editTitle(it, ph, cls = ""){ return `<div class="edit-t ${cls}"><textarea class="field" id="t-${esc(it.id)}" data-f="${esc(it.id)}.title" rows="1" placeholder="${esc(ph)}">${esc(it.title)}</textarea></div>`; }
 function taskRow(t){
-  const on = t.today && t.today <= dkey() && !t.done;
-  if (S.edit) return `<li class="row ${t.done ? "done" : ""} ${t.hidden ? "is-hidden" : ""}" data-sid="${esc(t.id)}">${gripBtn()}${editTitle(t, "Aufgabe")}${moreBtn("item-menu", t.id, "Aufgabe bearbeiten")}</li>`;
-  return `<li class="row ${t.done ? "done" : ""}">
-    <button class="chk ${t.done ? "on" : ""}" data-a="tick" data-id="${esc(t.id)}" aria-label="${t.done ? "Wieder offen" : "Abhaken"}: ${esc(t.title)}"><span>${ic("check")}</span></button>
+  const d = isDone(t), daily = isDaily(t), on = t.today && t.today <= dkey() && !d;
+  if (S.edit) return `<li class="row ${d ? "done" : ""} ${t.hidden ? "is-hidden" : ""}" data-sid="${esc(t.id)}">${gripBtn()}${editTitle(t, "Aufgabe")}${daily ? `<span class="rep" title="Jeden Tag">${ic("repeat")}</span>` : ""}${moreBtn("item-menu", t.id, "Aufgabe bearbeiten")}</li>`;
+  return `<li class="row ${d ? "done" : ""}">
+    <button class="chk ${d ? "on" : ""}" data-a="tick" data-id="${esc(t.id)}" aria-label="${d ? "Wieder offen" : "Abhaken"}: ${esc(t.title)}"><span>${ic("check")}</span></button>
     <div class="tt">${esc(t.title || "Ohne Titel")}</div>
-    ${t.done ? "" : `<button class="sun ${on ? "on" : ""}" data-a="today" data-id="${esc(t.id)}" aria-pressed="${on}" aria-label="${on ? "Nicht mehr für heute" : "Für heute markieren"}" title="${on ? "Für heute markiert" : "Für heute markieren"}">${ic("sun")}</button>`}${delBtn(t.id)}</li>`;
+    ${daily ? `<span class="rep" title="Jeden Tag" aria-label="Jeden Tag">${ic("repeat")}</span>` : d ? "" : `<button class="sun ${on ? "on" : ""}" data-a="today" data-id="${esc(t.id)}" aria-pressed="${on}" aria-label="${on ? "Nicht mehr für heute" : "Für heute markieren"}" title="${on ? "Für heute markiert" : "Für heute markieren"}">${ic("sun")}</button>`}${delBtn(t.id)}</li>`;
 }
 function noteRow(n){
   if (S.edit) return `<li class="row note ${n.hidden ? "is-hidden" : ""}" data-sid="${esc(n.id)}">${gripBtn()}${editTitle(n, "Notiz")}${moreBtn("item-menu", n.id, "Notiz bearbeiten")}</li>`;
@@ -727,7 +733,7 @@ function noteRow(n){
 function pathHTML(p){
   const recent = Date.now() - 3 * 864e5;
   const tasks = kindList("ltask").filter(t => t.path === p.id && vis(t));
-  const open = tasks.filter(t => !t.done), done = tasks.filter(t => t.done && (t.doneAt || 0) > recent);
+  const open = tasks.filter(t => !isDone(t)), done = tasks.filter(t => isDone(t) && (isDaily(t) || (t.doneAt || 0) > recent));
   const notes = kindList("lnote").filter(n => n.path === p.id && vis(n));
   const head = S.edit ? `<div class="path-h">${gripBtn()}${editTitle(p, "Name des Wegs", "p")}${moreBtn("item-menu", p.id, "Weg bearbeiten")}</div>`
     : `<div class="path-h"><h3>${esc(p.title || "Ohne Namen")}</h3></div>`;
@@ -879,6 +885,7 @@ function renderSheet(){
       <p class="muted" style="margin:0 0 12px">${esc(it.title || (it.kind === "lplan" ? (getIt(it.prod) || {}).title : "") || "Ohne Namen")}</p>
       ${it.kind === "lpath" ? `<label class="muted" for="pl-${it.id}">Name auf dem Plus-Knopf</label><input class="field" id="pl-${esc(it.id)}" data-l="plus.${esc(it.id)}" value="${esc((S.settings.loLabels || {})["plus." + it.id] || "")}" placeholder="${esc(plusLabel(it))}" style="margin:4px 0 12px">` : ""}
       <div class="stack">
+        ${it.kind === "ltask" ? `<button class="btn ghost" data-a="repeat" data-id="${esc(it.id)}">${ic("repeat")}${isDaily(it) ? "Nicht mehr täglich wiederholen" : "Jeden Tag wiederholen"}</button>` : ""}
         <button class="btn ghost" data-a="hide" data-id="${esc(it.id)}">${ic(it.hidden ? "eye" : "eyeoff")}${it.hidden ? "Wieder einblenden" : "Ausblenden"}</button>
         ${s.sure ? `<button class="btn danger" data-a="trash-yes" data-id="${esc(it.id)}">${ic("trash")}Wirklich löschen?${kids ? ` (mit ${kids} darunter)` : ""}</button><button class="btn ghost" data-a="trash-no">Abbrechen</button>`
           : `<button class="btn ghost" data-a="trash-ask" data-id="${esc(it.id)}">${ic("trash")}Löschen</button>`}
@@ -1049,7 +1056,10 @@ document.addEventListener("click", e => {
     case "edit": S.edit = !S.edit; S.sheet = null; renderAll(); break;
     case "sheet": openSheet({type:t.dataset.s}); break;
     case "close": closeSheet(); break;
-    case "tick": { const it = getIt(id); if (!it) break; it.done = !it.done; it.doneAt = it.done ? Date.now() : 0; persist(it); renderMain();
+    case "tick": { const it = getIt(id); if (!it) break;
+      if (isDaily(it)) { const was = it.doneDay || ""; it.doneDay = isDone(it) ? "" : dkey(); persist(it); renderMain();
+        if (it.doneDay) toast("Für heute erledigt", {label:"Rückgängig", fn:() => { const x = getIt(id); if (x) { x.doneDay = was; persist(x); renderMain(); } }}); break; }
+      it.done = !it.done; it.doneAt = it.done ? Date.now() : 0; persist(it); renderMain();
       if (it.done) toast("Erledigt", {label:"Rückgängig", fn:() => { const x = getIt(id); if (x) { x.done = false; x.doneAt = 0; persist(x); renderMain(); } }}); break; }
     case "today": { const it = getIt(id); if (!it) break; const on = it.today && it.today <= dkey(); it.today = on ? "" : dkey(); persist(it); renderMain(); break; }
     case "add-task": addTask(id); break;
@@ -1065,6 +1075,7 @@ document.addEventListener("click", e => {
       S.plusDraft = ""; S.sheet = null; renderAll(); toast(`Bei ${p ? plusLabel(p) : "dem Weg"} gespeichert`, {label:"Rückgängig", fn:() => { removeItem(n.id); renderAll(); }}); break; }
     case "item-menu": openSheet({type:"item", id}); break;
     case "btn-menu": openSheet({type:"btn", id}); break;
+    case "repeat": { const it = getIt(id); if (!it) break; it.repeat = isDaily(it) ? "" : "daily"; if (it.repeat) { it.done = false; it.doneAt = 0; } persist(it); renderAll(); renderSheet(); toast(it.repeat ? "Kommt jetzt jeden Tag auf Heute" : "Nicht mehr täglich"); break; }
     case "hide": { const it = getIt(id); if (!it) break; it.hidden = !it.hidden; persist(it); renderAll(); break; }
     case "trash-ask": S.sheet.sure = true; renderSheet(); break;
     case "trash-no": S.sheet.sure = false; renderSheet(); break;
